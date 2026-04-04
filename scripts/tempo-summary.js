@@ -29,10 +29,13 @@ eventList.forEach(ev => {
   byType[type] = (byType[type] || 0) + 1
 })
 
+// Helper: extract address from event (supports both flat and nested args)
+const getPayer = ev => ev.args?.payer || ev.payer || ev.sender || ev.from || ''
+const getPayee = ev => ev.args?.payee || ev.payee || ev.receiver || ev.to || ''
+
 // Daily aggregation
 const byDay = {}
 eventList.forEach(ev => {
-  // Try multiple timestamp fields
   const ts = ev.timestamp || ev.blockTimestamp || ev.block_timestamp || ev.date || ''
   const day = typeof ts === 'number'
     ? new Date(ts * 1000).toISOString().slice(0, 10)
@@ -40,16 +43,20 @@ eventList.forEach(ev => {
   if (!day || day.length < 10) return
   if (!byDay[day]) byDay[day] = { events: 0, payers: new Set(), payees: new Set() }
   byDay[day].events++
-  if (ev.payer || ev.sender || ev.from) byDay[day].payers.add(ev.payer || ev.sender || ev.from)
-  if (ev.payee || ev.receiver || ev.to) byDay[day].payees.add(ev.payee || ev.receiver || ev.to)
+  const payer = getPayer(ev)
+  const payee = getPayee(ev)
+  if (payer) byDay[day].payers.add(payer.toLowerCase())
+  if (payee) byDay[day].payees.add(payee.toLowerCase())
 })
 
 // Unique addresses
 const allPayers = new Set()
 const allPayees = new Set()
 eventList.forEach(ev => {
-  if (ev.payer || ev.sender || ev.from) allPayers.add(ev.payer || ev.sender || ev.from)
-  if (ev.payee || ev.receiver || ev.to) allPayees.add(ev.payee || ev.receiver || ev.to)
+  const payer = getPayer(ev)
+  const payee = getPayee(ev)
+  if (payer) allPayers.add(payer.toLowerCase())
+  if (payee) allPayees.add(payee.toLowerCase())
 })
 
 const daily = Object.entries(byDay)
