@@ -1,0 +1,33 @@
+{
+  "updatedAt": "2026-04-01T17:00:00Z",
+  "source": "Dune Analytics · @thechriscen/x402-payment-analytics · @hashed_official/x402-analytics",
+  "totalTxs": 139277505,
+  "totalVolume": 38843631,
+  "facilitatorsTracked": 15,
+  "chainsTracked": 7,
+  "monthly": [
+    { "month": "Oct '25", "txs": 28400000, "vol": 8200000 },
+    { "month": "Nov '25", "txs": 61200000, "vol": 14300000 },
+    { "month": "Dec '25", "txs": 22800000, "vol": 7100000 },
+    { "month": "Jan '26", "txs": 14600000, "vol": 4800000 },
+    { "month": "Feb '26", "txs": 8100000,  "vol": 2900000 },
+    { "month": "Mar '26", "txs": 4177505,  "vol": 1543631 }
+  ],
+  "chains": [
+    { "name": "Base",      "txs": 72058130, "color": "#00FF88" },
+    { "name": "Solana",    "txs": 47231681, "color": "#14F195" },
+    { "name": "Polygon",   "txs": 7184927,  "color": "#8247E5" },
+    { "name": "BNB",       "txs": 658610,   "color": "#F0B90B" },
+    { "name": "Avalanche", "txs": 4612,     "color": "#E84142" },
+    { "name": "Arbitrum",  "txs": 522,      "color": "#4A90D9" },
+    { "name": "SEI",       "txs": 142,      "color": "#9D4EDD" }
+  ],
+  "protocols": [
+    { "name": "Coinbase",   "share": 45.4, "color": "#00FF88" },
+    { "name": "Dexter",     "share": 15.0, "color": "#14F195" },
+    { "name": "PayAI",      "share": 13.6, "color": "#00CC6A" },
+    { "name": "DayDreams",  "share": 11.6, "color": "#00A854" },
+    { "name": "ThirdWeb",   "share": 7.1,  "color": "#007A3D" },
+    { "name": "Other",      "share": 7.3,  "color": "#004D26" }
+  ]
+}

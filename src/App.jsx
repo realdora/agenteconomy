@@ -1,0 +1,551 @@
+import { useState, useEffect, useMemo } from 'react'
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
+  PieChart, Pie, ComposedChart, Line,
+} from 'recharts'
+
+// ─── FALLBACK ─────────────────────────────────────────────────
+const FB = {
+  updatedAt: '2026-04-04T00:00:00Z',
+  x402: {
+    totalTxs: 139277505, totalVolume: 38843631,
+    facilitatorsTracked: 15, chainsTracked: 7,
+    monthly: [
+      { month: "Oct '25", txs: 28400000, vol: 8200000 },
+      { month: "Nov '25", txs: 61200000, vol: 14300000 },
+      { month: "Dec '25", txs: 22800000, vol: 7100000 },
+      { month: "Jan '26", txs: 14600000, vol: 4800000 },
+      { month: "Feb '26", txs: 8100000,  vol: 2900000 },
+      { month: "Mar '26", txs: 4177505,  vol: 1543631 },
+    ],
+    daily: [],
+    protocols: [
+      { name: 'Coinbase', share: 45.4, color: '#0052FF' },
+      { name: 'Dexter', share: 15.0, color: '#6366F1' },
+      { name: 'PayAI', share: 13.6, color: '#10B981' },
+      { name: 'DayDreams', share: 11.6, color: '#F59E0B' },
+      { name: 'ThirdWeb', share: 7.1, color: '#A855F7' },
+      { name: 'Other', share: 7.3, color: '#9CA3AF' },
+    ],
+    chains: [
+      { name: 'Base', txs: 72058130, color: '#0052FF' },
+      { name: 'Solana', txs: 47231681, color: '#9945FF' },
+      { name: 'Polygon', txs: 7184927, color: '#8247E5' },
+      { name: 'BNB', txs: 658610, color: '#F0B90B' },
+      { name: 'Avalanche', txs: 4612, color: '#E84142' },
+      { name: 'Arbitrum', txs: 522, color: '#12AAFF' },
+      { name: 'SEI', txs: 142, color: '#9D4EDD' },
+    ],
+  },
+  baseAgentic: { totalTxs: 709494, daily: [] },
+  virtualsAcp: { totalMemos: 0, daily: [] },
+  tempoMpp: { totalEvents: 0, uniquePayers: 0, uniquePayees: 0, byType: {}, daily: [] },
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────
+const GREEN = '#16A34A', BLUE = '#3B82F6', BLUE_L = '#93C5FD'
+const MONO = "'JetBrains Mono', monospace"
+
+const fmt = n => {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'
+  return n.toLocaleString()
+}
+
+function calcDelta(arr, key, w) {
+  if (!arr || arr.length < w * 2) return null
+  const recent = arr.slice(-w)
+  const prior = arr.slice(-w * 2, -w)
+  const sR = recent.reduce((s, d) => s + (d[key] || 0), 0)
+  const sP = prior.reduce((s, d) => s + (d[key] || 0), 0)
+  if (sP === 0) return null
+  return ((sR - sP) / sP * 100).toFixed(1)
+}
+
+function addMA(data, key, w = 7) {
+  return data.map((d, i) => {
+    const sl = data.slice(Math.max(0, i - w + 1), i + 1)
+    return { ...d, ma: Math.round(sl.reduce((a, v) => a + (v[key] || 0), 0) / sl.length) }
+  })
+}
+
+// ─── COMPONENTS ───────────────────────────────────────────────
+function useCountUp(target, dur = 1600) {
+  const [v, setV] = useState(0)
+  useEffect(() => {
+    if (!target) return
+    let s = null
+    const step = t => {
+      if (!s) s = t
+      const p = Math.min((t - s) / dur, 1)
+      setV(Math.floor((1 - Math.pow(1 - p, 3)) * target))
+      if (p < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [target])
+  return v
+}
+
+function LiveDot() {
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 8, height: 8 }}>
+      <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: GREEN, animation: 'ping 1.5s ease-out infinite', opacity: 0.4 }} />
+      <span style={{ position: 'relative', width: 6, height: 6, borderRadius: '50%', background: GREEN }} />
+    </span>
+  )
+}
+
+function Delta({ value, label }) {
+  if (value == null) return null
+  const n = parseFloat(value), up = n >= 0
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 10, fontWeight: 600, color: up ? GREEN : '#DC2626', background: up ? '#F0FDF4' : '#FEF2F2', borderRadius: 4, padding: '2px 6px' }}>
+      <span style={{ fontSize: 8 }}>{up ? '\u25B2' : '\u25BC'}</span>{Math.abs(n)}%
+      {label && <span style={{ fontWeight: 400, color: '#9CA3AF', marginLeft: 2 }}>{label}</span>}
+    </span>
+  )
+}
+
+function Card({ label, value, sub, accent, delta, deltaLabel, info }) {
+  return (
+    <div className="card" style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px', transition: 'box-shadow .2s, border-color .2s' }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.06)'; e.currentTarget.style.borderColor = '#D1D5DB' }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#E5E7EB' }}>
+      <div style={{ fontSize: 10, color: '#9CA3AF', letterSpacing: '.1em', fontWeight: 500, textTransform: 'uppercase', marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 'clamp(20px,3vw,28px)', fontWeight: 700, color: accent || '#111827', letterSpacing: '-.02em', marginBottom: 4, fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{value}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 11, color: '#9CA3AF' }}>{sub}</span>
+        <Delta value={delta} label={deltaLabel} />
+      </div>
+    </div>
+  )
+}
+
+function Sect({ title, badge, meta, explanation, children }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: open ? 8 : 14, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 11, color: '#374151', letterSpacing: '.08em', fontWeight: 700, textTransform: 'uppercase' }}>{title}</span>
+        {badge && <span style={{ fontSize: 9, fontWeight: 600, color: badge.c, background: badge.bg, borderRadius: 4, padding: '2px 6px' }}>{badge.t}</span>}
+        <span style={{ width: 1, height: 12, background: '#E5E7EB' }} />
+        <span style={{ fontSize: 10, color: '#9CA3AF' }}>{meta}</span>
+        <button onClick={() => setOpen(o => !o)} style={{ fontSize: 10, color: '#6B7280', background: '#F3F4F6', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontFamily: 'inherit' }}>
+          {open ? 'hide' : 'what is this?'}
+        </button>
+      </div>
+      {open && <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', fontSize: 11, color: '#6B7280', lineHeight: 1.65, marginBottom: 14 }}>{explanation}</div>}
+      {children}
+    </div>
+  )
+}
+
+const ChartTip = ({ active, payload, label, isMoney, unit }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+      <div style={{ color: '#6B7280', marginBottom: 3, fontSize: 11 }}>{label}</div>
+      {payload.filter(p => p.value > 0).map((p, i) => (
+        <div key={i} style={{ color: p.color || '#111827', fontWeight: 600, fontSize: 12 }}>
+          {p.dataKey === 'ma' ? '7d avg: ' : ''}{isMoney ? '$' : ''}{fmt(p.value)}{unit || ''}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── MAIN ─────────────────────────────────────────────────────
+export default function App() {
+  const [data, setData] = useState(FB)
+  const [tf, setTf] = useState('month')
+  const [met, setMet] = useState('txs')
+
+  useEffect(() => {
+    fetch('/data.json').then(r => r.json()).then(d => {
+      if (d.x402) {
+        setData({
+          ...FB, ...d,
+          virtualsAcp: d.virtualsAcp || FB.virtualsAcp,
+          tempoMpp: d.tempoMpp || FB.tempoMpp,
+        })
+      } else if (d.totalTxs !== undefined) {
+        // backward compat with old flat format
+        setData({
+          ...FB,
+          updatedAt: d.updatedAt || FB.updatedAt,
+          x402: { ...FB.x402, totalTxs: d.totalTxs, totalVolume: d.totalVolume, facilitatorsTracked: d.facilitatorsTracked || 15, chainsTracked: d.chainsTracked || 7, monthly: d.monthly || FB.x402.monthly, protocols: d.protocols || FB.x402.protocols, chains: d.chains || FB.x402.chains },
+        })
+      }
+    }).catch(() => {})
+  }, [])
+
+  const x = data.x402
+  const ag = data.baseAgentic
+  const acp = data.virtualsAcp || FB.virtualsAcp
+  const tempo = data.tempoMpp || FB.tempoMpp
+
+  // Totals
+  const combinedEvents = x.totalTxs + ag.totalTxs + (acp.totalMemos || 0) + (tempo.totalEvents || 0)
+  const combinedVol = x.totalVolume
+  const standardsCount = 2 + (acp.totalMemos > 0 ? 1 : 0) + (tempo.totalEvents > 0 ? 1 : 0)
+
+  // Animated
+  const cEvents = useCountUp(combinedEvents)
+  const cVol = useCountUp(combinedVol)
+  const xTxs = useCountUp(x.totalTxs)
+  const xVol = useCountUp(x.totalVolume)
+  const agTxs = useCountUp(ag.totalTxs)
+  const acpMemos = useCountUp(acp.totalMemos || 0)
+  const tempoEvts = useCountUp(tempo.totalEvents || 0)
+
+  // Deltas
+  const x402d7 = calcDelta(x.daily, 'txs', 7)
+  const agDelta = calcDelta(ag.daily, 'total', 1)
+  const acpDelta = calcDelta(acp.daily, 'memos', 7)
+  const tempoDelta = calcDelta(tempo.daily, 'events', 7)
+
+  // Chart
+  const chartData = useMemo(() => {
+    if (tf === 'day') return addMA(x.daily, 'txs', 7).map(d => ({ label: d.day.slice(5), txs: d.txs, ma: d.ma }))
+    return x.monthly.map(d => ({ label: d.month, txs: d.txs, vol: d.vol }))
+  }, [tf, x.daily, x.monthly])
+
+  const totalChain = x.chains.reduce((s, c) => s + c.txs, 0)
+
+  const updatedLabel = (() => {
+    try { return new Date(data.updatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC', timeZoneName: 'short' }) }
+    catch { return '' }
+  })()
+
+  const tb = a => ({ padding: '4px 10px', borderRadius: 5, fontSize: 10, fontWeight: 500, cursor: 'pointer', border: 'none', background: a ? '#fff' : 'transparent', color: a ? '#111827' : '#9CA3AF', boxShadow: a ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all .15s', fontFamily: 'inherit' })
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: '#111827', WebkitFontSmoothing: 'antialiased' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+        @keyframes ping{0%{transform:scale(1);opacity:.4}100%{transform:scale(2.2);opacity:0}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        *{box-sizing:border-box;margin:0;padding:0}
+        a{color:#6B7280;text-decoration:none;transition:color .15s}a:hover{color:#111827}
+        .fade{animation:fadeUp .5s ease both}
+        @media(max-width:768px){.g4{grid-template-columns:repeat(2,1fr)!important}.g2{grid-template-columns:1fr!important}.mg{grid-template-columns:1fr!important}.nr{display:none!important}.ni{padding:0 16px!important}.mc{padding:20px 16px!important}.hero-num{font-size:48px!important}.hero-sub{font-size:22px!important}.hero-row{gap:20px!important}}
+        @media(max-width:480px){.g4{gap:8px!important}.card{padding:14px 12px!important}.hero-num{font-size:36px!important}.hero-sub{font-size:18px!important}}
+      `}</style>
+
+      {/* NAV */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div className="ni" style={{ maxWidth: 1160, margin: '0 auto', padding: '0 24px', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 700 }}>agenteconomy.to</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#F0FDF4', border: '1px solid #DCFCE7', borderRadius: 20, padding: '2px 8px' }}>
+              <LiveDot /><span style={{ fontSize: 9, color: GREEN, fontWeight: 600, letterSpacing: '.08em' }}>LIVE</span>
+            </div>
+          </div>
+          <div className="nr" style={{ display: 'flex', gap: 16, alignItems: 'center', fontSize: 11, color: '#9CA3AF' }}>
+            <span>Updated {updatedLabel}</span>
+            <a href="#methodology" style={{ fontWeight: 500 }}>Methodology</a>
+          </div>
+        </div>
+      </div>
+
+      <div className="mc" style={{ maxWidth: 1160, margin: '0 auto', padding: '40px 24px 60px' }}>
+
+        {/* HERO */}
+        <div className="fade" style={{ marginBottom: 48 }}>
+          <div style={{ fontSize: 10, color: '#9CA3AF', letterSpacing: '.12em', fontWeight: 600, textTransform: 'uppercase', marginBottom: 10 }}>
+            On-chain events tracked
+          </div>
+          <div className="hero-num" style={{ fontFamily: MONO, fontSize: 'clamp(48px, 8vw, 80px)', fontWeight: 700, lineHeight: 1, letterSpacing: '-.04em', color: '#0A0A0A', fontVariantNumeric: 'tabular-nums', marginBottom: 24 }}>
+            {cEvents.toLocaleString()}
+          </div>
+          <div className="hero-row" style={{ display: 'flex', gap: 32, alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 20 }}>
+            <div>
+              <span className="hero-sub" style={{ fontFamily: MONO, fontSize: 28, fontWeight: 700, color: GREEN, letterSpacing: '-.02em' }}>${cVol.toLocaleString()}</span>
+              <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 8 }}>USD settled</span>
+            </div>
+            <div style={{ width: 1, height: 20, background: '#E5E7EB' }} />
+            <div>
+              <span className="hero-sub" style={{ fontFamily: MONO, fontSize: 28, fontWeight: 700, letterSpacing: '-.02em' }}>{standardsCount}</span>
+              <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 8 }}>standards</span>
+            </div>
+            <div style={{ width: 1, height: 20, background: '#E5E7EB' }} />
+            <div>
+              <span className="hero-sub" style={{ fontFamily: MONO, fontSize: 28, fontWeight: 700, letterSpacing: '-.02em' }}>{x.chainsTracked}</span>
+              <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 8 }}>chains</span>
+            </div>
+          </div>
+          <p style={{ fontSize: 12, color: '#9CA3AF', maxWidth: 420, lineHeight: 1.6 }}>
+            On-chain data from verified AI agent payment contracts.
+          </p>
+        </div>
+
+        {/* ── x402 ── */}
+        <div className="fade" style={{ animationDelay: '.05s' }}>
+          <Sect title="x402 Protocol" badge={{ t: 'DOMINANT', bg: '#EFF6FF', c: BLUE }} meta={`${x.facilitatorsTracked} facilitators \u00b7 ${x.chainsTracked} chains`}
+            explanation="x402 is an open HTTP payment standard by Coinbase using HTTP 402 status code. Enables AI agents to pay for APIs per request. Foundation governed by Coinbase + Cloudflare; members include Google, Visa, AWS, Circle, Anthropic, Vercel.">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
+              <Card label="Total Events" value={xTxs.toLocaleString()} sub="all-time" delta={x402d7} deltaLabel="7d" />
+              <Card label="Total Volume" value={'$' + xVol.toLocaleString()} sub="USD processed" accent={GREEN} />
+              <Card label="Facilitators" value={x.facilitatorsTracked} sub="active" />
+              <Card label="Chains" value={x.chainsTracked} sub="EVM + Solana" />
+            </div>
+
+            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px', marginBottom: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600 }}>{met === 'txs' ? 'Transaction' : 'USD'} volume</div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 6, padding: 2, gap: 1 }}>
+                    {[['month', 'Month'], ['day', 'Day']].map(([t, l]) => (
+                      <button key={t} onClick={() => setTf(t)} style={tb(tf === t)}>{l}</button>
+                    ))}
+                  </div>
+                  {tf === 'month' && <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 6, padding: 2, gap: 1 }}>
+                    {[['txs', 'Txs'], ['vol', 'Vol ($)']].map(([t, l]) => (
+                      <button key={t} onClick={() => setMet(t)} style={tb(met === t)}>{l}</button>
+                    ))}
+                  </div>}
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={200}>
+                {tf === 'day' && chartData.length > 0 ? (
+                  <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                    <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} interval={4} />
+                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: '#F9FAFB' }} />
+                    <Bar dataKey="txs" fill={BLUE_L} radius={[3, 3, 0, 0]} barSize={8} name="Daily" />
+                    <Line type="monotone" dataKey="ma" stroke={BLUE} strokeWidth={2} dot={false} name="7d avg" />
+                  </ComposedChart>
+                ) : (
+                  <BarChart data={chartData} barSize={32} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                    <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
+                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <Tooltip content={<ChartTip isMoney={met === 'vol'} />} cursor={{ fill: '#F9FAFB' }} />
+                    <Bar dataKey={met === 'txs' ? 'txs' : 'vol'} radius={[4, 4, 0, 0]}>
+                      {chartData.map((_, i) => <Cell key={i} fill={met === 'vol' ? GREEN : BLUE} fillOpacity={0.35 + (i / chartData.length) * 0.65} />)}
+                    </Bar>
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+              {tf === 'day' && <div style={{ display: 'flex', gap: 14, marginTop: 8 }}>
+                {[[BLUE_L, 'Daily'], [BLUE, '7-day avg']].map(([c, l]) => (
+                  <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#9CA3AF' }}>
+                    <div style={{ width: 10, height: 3, borderRadius: 1, background: c }} />{l}
+                  </div>
+                ))}
+              </div>}
+              <div style={{ fontSize: 9, color: '#D1D5DB', marginTop: 8 }}>Source: @thechriscen / @hashed_official / Dune</div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="g2">
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 14 }}>Chain distribution</div>
+                {x.chains.map((c, i) => {
+                  const pct = (c.txs / totalChain) * 100
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: c.color, flexShrink: 0 }} />
+                      <div style={{ fontSize: 11, color: '#374151', width: 64, fontWeight: 500 }}>{c.name}</div>
+                      <div style={{ flex: 1, height: 4, background: '#F3F4F6', borderRadius: 2, overflow: 'hidden' }}>
+                        <div style={{ width: Math.max(pct, 0.5) + '%', height: '100%', background: c.color, borderRadius: 2 }} />
+                      </div>
+                      <div style={{ fontSize: 10, color: '#6B7280', width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{pct.toFixed(1)}%</div>
+                      <div style={{ fontSize: 9, color: '#9CA3AF', width: 40, textAlign: 'right' }}>{c.txs >= 1e6 ? (c.txs / 1e6).toFixed(1) + 'M' : c.txs.toLocaleString()}</div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 14 }}>Facilitator share</div>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                  <PieChart width={100} height={100} style={{ flexShrink: 0 }}>
+                    <Pie data={x.protocols} dataKey="share" cx={48} cy={48} innerRadius={26} outerRadius={48} strokeWidth={2} stroke="#FAFAFA">
+                      {x.protocols.map((p, i) => <Cell key={i} fill={p.color} />)}
+                    </Pie>
+                  </PieChart>
+                  <div style={{ flex: 1 }}>
+                    {x.protocols.map((p, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: 2, background: p.color, flexShrink: 0 }} />
+                        <div style={{ fontSize: 11, color: '#374151', flex: 1 }}>{p.name}</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{p.share}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Sect>
+        </div>
+
+        {/* ── ERC-8004 ── */}
+        <div className="fade" style={{ animationDelay: '.1s' }}>
+          <Sect title="Base Agentic Ecosystem" badge={{ t: 'ERC-8004', bg: '#F5F3FF', c: '#7C3AED' }} meta="Agent identity \u00b7 Base"
+            explanation="ERC-8004 defines AI agent identity and reputation on Base. Proposed by the Ethereum Foundation dAI team with MetaMask, Google, Coinbase. Different contracts from x402 \u2014 zero overlap.">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
+              <Card label="Total Events (YTD)" value={agTxs.toLocaleString()} sub="Base chain" delta={agDelta} deltaLabel="WoW" />
+              <Card label="Standard" value="ERC-8004" sub="Identity + reputation" />
+            </div>
+            {ag.daily.length > 0 && (
+              <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 14 }}>Weekly agentic events</div>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={ag.daily} barSize={14}>
+                    <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={1} />
+                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={32} />
+                    <Tooltip content={<ChartTip />} cursor={{ fill: '#F9FAFB' }} />
+                    <Bar dataKey="infrastructure" stackId="a" fill="#6366F1" name="Infrastructure" />
+                    <Bar dataKey="consumer" stackId="a" fill="#10B981" radius={[2, 2, 0, 0]} name="Consumer" />
+                  </BarChart>
+                </ResponsiveContainer>
+                <div style={{ display: 'flex', gap: 14, marginTop: 8 }}>
+                  {[['#6366F1', 'Infrastructure'], ['#10B981', 'Consumer']].map(([c, l]) => (
+                    <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#9CA3AF' }}>
+                      <div style={{ width: 8, height: 4, borderRadius: 1, background: c }} />{l}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 9, color: '#D1D5DB', marginTop: 6 }}>Source: @ax1research / Dune</div>
+              </div>
+            )}
+          </Sect>
+        </div>
+
+        {/* ── Virtuals ACP ── */}
+        <div className="fade" style={{ animationDelay: '.15s' }}>
+          <Sect title="Virtuals ACP" badge={acp.totalMemos > 0 ? { t: 'LIVE', bg: '#F0FDF4', c: GREEN } : { t: 'INTEGRATING', bg: '#DBEAFE', c: '#2563EB' }} meta="ERC-8183 \u00b7 Agent Commerce \u00b7 Base"
+            explanation="ERC-8183 enables trustless agent-to-agent commerce with escrowed payments and evaluator verification. ACP tracks job lifecycle 'memos' (create \u2192 deliver \u2192 evaluate \u2192 settle) \u2014 distinct from x402 payments and ERC-8004 identity events.">
+            {acp.totalMemos > 0 ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
+                  <Card label="Total Memos" value={acpMemos.toLocaleString()} sub="cumulative" delta={acpDelta} deltaLabel="7d" />
+                  <Card label="Standard" value="ERC-8183" sub="Agent commerce layer" />
+                </div>
+                {acp.daily.length > 0 && (
+                  <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 14 }}>Daily ACP memos</div>
+                    <ResponsiveContainer width="100%" height={160}>
+                      <ComposedChart data={acp.daily.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                        <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(acp.daily.length / 12))} />
+                        <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                        <Tooltip content={<ChartTip unit=" memos" />} cursor={{ fill: '#F9FAFB' }} />
+                        <Bar dataKey="memos" fill="#22C55E" radius={[3, 3, 0, 0]} barSize={6} opacity={0.6} name="Daily memos" />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                    <div style={{ fontSize: 9, color: '#D1D5DB', marginTop: 6 }}>Source: @hashed_official / Dune \u00b7 Query 6200422</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ background: '#fff', border: '1px dashed #93C5FD', borderRadius: 10, padding: '28px 20px', textAlign: 'center' }}>
+                <div style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, marginBottom: 4 }}>3,400+</div>
+                <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 12 }}>autonomous agents \u00b7 $3M+ agent GDP</div>
+                <div style={{ fontSize: 10, color: '#9CA3AF' }}>
+                  Query 6200422 \u00b7 <a href="https://dune.com/hashed_official/acp-virtuals" target="_blank" rel="noopener">dune.com/hashed_official/acp-virtuals</a>
+                </div>
+              </div>
+            )}
+          </Sect>
+        </div>
+
+        {/* ── Tempo / MPP ── */}
+        <div className="fade" style={{ animationDelay: '.2s' }}>
+          <Sect title="Tempo / MPP" badge={tempo.totalEvents > 0 ? { t: 'LIVE', bg: '#F0FDF4', c: GREEN } : { t: 'COMING SOON', bg: '#FEF3C7', c: '#D97706' }} meta="Machine Payments Protocol \u00b7 Tempo L1"
+            explanation="MPP is an open HTTP payment standard co-authored by Stripe and Tempo (launched March 18, 2026). Tempo is a payments-focused EVM-compatible L1 incubated by Stripe and Paradigm. Tracks on-chain stablecoin settlement events (ChannelOpened, ChannelClosed, Settled, etc.) for agent-to-service payments.">
+            {tempo.totalEvents > 0 ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
+                  <Card label="Total Events" value={tempoEvts.toLocaleString()} sub="on-chain" delta={tempoDelta} deltaLabel="7d" />
+                  <Card label="Unique Payers" value={tempo.uniquePayers} sub="agent wallets" />
+                  <Card label="Unique Payees" value={tempo.uniquePayees} sub="service providers" />
+                  <Card label="Protocol" value="MPP" sub="Stripe + Tempo" />
+                </div>
+                {tempo.byType && Object.keys(tempo.byType).length > 0 && (
+                  <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px', marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 14 }}>Event breakdown</div>
+                    {Object.entries(tempo.byType).sort(([,a],[,b]) => b - a).map(([type, count], i) => {
+                      const total = tempo.totalEvents
+                      const pct = (count / total) * 100
+                      const colors = ['#3B82F6', '#6366F1', '#10B981', '#F59E0B', '#A855F7', '#EC4899']
+                      return (
+                        <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors[i % colors.length], flexShrink: 0 }} />
+                          <div style={{ fontSize: 11, color: '#374151', width: 110, fontWeight: 500 }}>{type}</div>
+                          <div style={{ flex: 1, height: 4, background: '#F3F4F6', borderRadius: 2, overflow: 'hidden' }}>
+                            <div style={{ width: Math.max(pct, 0.5) + '%', height: '100%', background: colors[i % colors.length], borderRadius: 2 }} />
+                          </div>
+                          <div style={{ fontSize: 10, color: '#6B7280', width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{pct.toFixed(1)}%</div>
+                          <div style={{ fontSize: 9, color: '#9CA3AF', width: 44, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{fmt(count)}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                {tempo.daily.length > 0 && (
+                  <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '18px 16px' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 14 }}>Daily MPP events</div>
+                    <ResponsiveContainer width="100%" height={160}>
+                      <BarChart data={tempo.daily.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                        <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(tempo.daily.length / 12))} />
+                        <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                        <Tooltip content={<ChartTip unit=" events" />} cursor={{ fill: '#F9FAFB' }} />
+                        <Bar dataKey="events" fill="#3B82F6" radius={[3, 3, 0, 0]} barSize={6} opacity={0.7} name="Events" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <div style={{ fontSize: 9, color: '#D1D5DB', marginTop: 6 }}>Source: Tempo RPC indexer</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ background: '#fff', border: '1px dashed #D1D5DB', borderRadius: 10, padding: '28px 20px', textAlign: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 12 }}>
+                  {[['Stripe', 'Co-author'], ['Tempo', 'Settlement L1'], ['Visa', 'Card extension']].map(([n, r]) => (
+                    <div key={n}>
+                      <div style={{ fontSize: 13, fontWeight: 700 }}>{n}</div>
+                      <div style={{ fontSize: 9, color: '#9CA3AF' }}>{r}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 4 }}>Indexer in progress via Tempo RPC</div>
+                <div style={{ fontSize: 10, color: '#D1D5DB' }}>Mainnet live Mar 18, 2026 \u00b7 EVM-compatible \u00b7 Stablecoin settlement</div>
+              </div>
+            )}
+          </Sect>
+        </div>
+
+        {/* ── METHODOLOGY ── */}
+        <div id="methodology" className="fade" style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '20px 18px', animationDelay: '.25s' }}>
+          <div style={{ fontSize: 10, color: '#9CA3AF', letterSpacing: '.1em', fontWeight: 600, textTransform: 'uppercase', marginBottom: 16 }}>Methodology</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }} className="mg">
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>What we track</div>
+              <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.7 }}>
+                On-chain events from verified agent contracts. x402 facilitator settlements, ERC-8004 registry interactions, Virtuals ACP job memos, and Tempo/MPP channel events. Each standard tracks different contracts with zero overlap.
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Data sources</div>
+              <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.7 }}>
+                <a href="https://dune.com/thechriscen/x402-payment-analytics" target="_blank" rel="noopener">@thechriscen \u00b7 x402 Payment Analytics</a><br />
+                <a href="https://dune.com/hashed_official/x402-analytics" target="_blank" rel="noopener">@hashed_official \u00b7 x402 + Virtuals ACP</a><br />
+                <a href="https://dune.com/ax1research/base-agentic-ecosystem" target="_blank" rel="noopener">@ax1research \u00b7 BASE Agentic Ecosystem</a><br />
+                Tempo RPC indexer
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Limitations</div>
+              <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.7 }}>
+                Raw counts include ecosystem testing, self-dealing, and infrastructure activity. Genuine commerce is a subset of totals. Off-chain payments (Google UCP, Visa TAP) not tracked.
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#D1D5DB', flexWrap: 'wrap', gap: 6 }}>
+            <span>agenteconomy.to \u00b7 Dune Analytics + Tempo RPC \u00b7 Every 6h</span>
+            <a href="https://x.com/realdora_eth" target="_blank" rel="noopener" style={{ color: '#9CA3AF' }}>Built by @realdora_eth</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
