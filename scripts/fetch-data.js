@@ -2,7 +2,7 @@
 // Fetches cached results from Dune queries + (future) Tempo RPC.
 // Run: DUNE_API_KEY=xxx node scripts/fetch-data.js
 
-import { writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
