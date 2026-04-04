@@ -253,7 +253,7 @@ export default function App() {
     catch { return '' }
   })()
 
-  const tb = a => ({ padding: '4px 10px', borderRadius: 5, fontSize: 10, fontWeight: 500, cursor: 'pointer', border: 'none', background: a ? 'var(--tab-active)' : 'transparent', color: a ? 'var(--text)' : 'var(--text-faint)', boxShadow: a ? '0 1px 3px var(--tab-shadow)' : 'none', transition: 'all .15s', fontFamily: 'inherit' })
+  const tb = a => ({ padding: '6px 12px', borderRadius: 5, fontSize: 10, fontWeight: 500, cursor: 'pointer', border: 'none', background: a ? 'var(--tab-active)' : 'transparent', color: a ? 'var(--text)' : 'var(--text-faint)', boxShadow: a ? '0 1px 3px var(--tab-shadow)' : 'none', transition: 'all .15s', fontFamily: 'inherit', minHeight: 32 })
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", color: 'var(--text)', WebkitFontSmoothing: 'antialiased' }}>
@@ -273,8 +273,34 @@ export default function App() {
         .info-tip .info-bubble::before{content:'';position:absolute;bottom:100%;left:16px;border:5px solid transparent;border-bottom-color:var(--border)}
         .info-tip:hover .info-bubble{visibility:visible;opacity:1}
         .footer-link{color:var(--text-faint)!important;text-decoration:none!important;transition:color .15s}.footer-link:hover{color:var(--text-sec)!important}
-        @media(max-width:768px){.hero-title{font-size:22px!important}.g4{grid-template-columns:repeat(2,1fr)!important}.g2{grid-template-columns:1fr!important}.mg{grid-template-columns:1fr!important}.nr{display:none!important}.ni{padding:0 16px!important}.mc{padding:20px 16px!important}.hero-num{font-size:48px!important}.hero-row{grid-template-columns:1fr!important}}
-        @media(max-width:480px){.g4{gap:8px!important}.card{padding:14px 12px!important}.hero-num{font-size:36px!important}}
+        @media(max-width:768px){
+          .hero-title{font-size:22px!important}
+          .g4{grid-template-columns:repeat(2,1fr)!important}
+          .g2{grid-template-columns:1fr!important}
+          .mg{grid-template-columns:1fr!important}
+          .nr{display:none!important}
+          .mob-meta{display:flex!important}
+          .ni{padding:0 16px!important}
+          .mc{padding:20px 16px!important}
+          .hero-num{font-size:48px!important}
+          .hero-row{grid-template-columns:1fr!important}
+          .hero-row>div{border-right:none!important;border-bottom:1px solid var(--border)}
+          .hero-row>div:last-child{border-bottom:none!important}
+          .pie-wrap{flex-direction:column!important;align-items:flex-start!important}
+          .pie-wrap svg{margin:0 auto}
+          .info-tip .info-bubble{left:-40px!important;width:240px!important}
+          .info-tip .info-bubble::before{left:56px!important}
+          .tempo-partners{flex-direction:column!important;gap:10px!important}
+          .chain-label{width:52px!important}
+          .evt-label{width:80px!important}
+          .footer-inner{padding:14px 16px!important}
+        }
+        @media(max-width:480px){
+          .g4{grid-template-columns:1fr!important;gap:8px!important}
+          .card{padding:14px 12px!important}
+          .hero-num{font-size:36px!important}
+          .chart-toggles{flex-direction:column!important;align-items:flex-start!important}
+        }
       `}</style>
 
       {/* NAV */}
@@ -285,7 +311,7 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'var(--live-bg)', border: '1px solid var(--live-border)', borderRadius: 20, padding: '2px 8px' }}>
               <LiveDot /><span style={{ fontSize: 9, color: GREEN, fontWeight: 600, letterSpacing: '.08em' }}>LIVE</span>
             </div>
-            <button onClick={toggleTheme} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, transition: 'border-color .15s' }}>
+            <button onClick={toggleTheme} style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, transition: 'border-color .15s' }}>
               {dark ? (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-muted)' }}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
               ) : (
@@ -297,6 +323,10 @@ export default function App() {
             <span>Updated {updatedLabel}</span>
             <a href="#methodology" style={{ fontWeight: 500 }}>Methodology</a>
           </div>
+        </div>
+        <div className="mob-meta" style={{ display: 'none', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px', fontSize: 10, color: 'var(--text-faint)', borderTop: '1px solid var(--border)' }}>
+          <span>Updated {updatedLabel}</span>
+          <a href="#methodology" style={{ fontWeight: 500, fontSize: 10, color: 'var(--text-faint)' }}>Methodology</a>
         </div>
       </div>
 
@@ -344,7 +374,7 @@ export default function App() {
             </div>
 
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '18px 16px', marginBottom: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+              <div className="chart-toggles" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
                 <div style={{ fontSize: 12, fontWeight: 600 }}>{met === 'txs' ? 'Transaction' : 'USD'} volume</div>
                 <div style={{ display: 'flex', gap: 4 }}>
                   <div style={{ display: 'flex', background: 'var(--tab-bg)', borderRadius: 6, padding: 2, gap: 1 }}>
@@ -397,7 +427,7 @@ export default function App() {
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: safeColor(c.color), flexShrink: 0 }} />
-                      <div style={{ fontSize: 11, color: 'var(--text-sec)', width: 64, fontWeight: 500 }}>{c.name}</div>
+                      <div className="chain-label" style={{ fontSize: 11, color: 'var(--text-sec)', width: 64, fontWeight: 500 }}>{c.name}</div>
                       <div style={{ flex: 1, height: 4, background: 'var(--chart-bg)', borderRadius: 2, overflow: 'hidden' }}>
                         <div style={{ width: Math.max(pct, 0.5) + '%', height: '100%', background: safeColor(c.color), borderRadius: 2 }} />
                       </div>
@@ -409,7 +439,7 @@ export default function App() {
               </div>
               <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '18px 16px' }}>
                 <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 14 }}>Facilitator share</div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div className="pie-wrap" style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                   <PieChart width={100} height={100} style={{ flexShrink: 0 }}>
                     <Pie data={x.protocols} dataKey="share" nameKey="name" cx={48} cy={48} innerRadius={26} outerRadius={48} strokeWidth={2} stroke="var(--pie-stroke)">
                       {x.protocols.map((p, i) => <Cell key={i} fill={safeColor(p.color)} />)}
@@ -532,7 +562,7 @@ export default function App() {
                       return (
                         <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors[i % colors.length], flexShrink: 0 }} />
-                          <div style={{ fontSize: 11, color: 'var(--text-sec)', width: 110, fontWeight: 500 }}>{type}</div>
+                          <div className="evt-label" style={{ fontSize: 11, color: 'var(--text-sec)', width: 110, fontWeight: 500 }}>{type}</div>
                           <div style={{ flex: 1, height: 4, background: 'var(--chart-bg)', borderRadius: 2, overflow: 'hidden' }}>
                             <div style={{ width: Math.max(pct, 0.5) + '%', height: '100%', background: colors[i % colors.length], borderRadius: 2 }} />
                           </div>
@@ -560,7 +590,7 @@ export default function App() {
               </>
             ) : (
               <div style={{ background: 'var(--surface)', border: '1px dashed var(--dashed-gray)', borderRadius: 10, padding: '28px 20px', textAlign: 'center' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 12 }}>
+                <div className="tempo-partners" style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 12 }}>
                   {[['Stripe', 'Co-author'], ['Tempo', 'Settlement L1'], ['Visa', 'Card extension']].map(([n, r]) => (
                     <div key={n}>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{n}</div>
@@ -610,7 +640,7 @@ export default function App() {
 
       {/* FOOTER */}
       <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 18 }}>
+        <div className="footer-inner" style={{ maxWidth: 1160, margin: '0 auto', padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 18 }}>
           <a href="https://github.com/realdora/agenteconomy/issues/new?template=data-source.yml" target="_blank" rel="noopener noreferrer" className="footer-link" style={{ fontSize: 10, fontWeight: 500, letterSpacing: '.06em' }}>
             Submit a data source
           </a>
