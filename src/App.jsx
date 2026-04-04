@@ -223,7 +223,7 @@ export default function App() {
   // Totals
   const combinedEvents = x.totalTxs + ag.totalTxs + (acp.totalMemos || 0) + (tempo.totalEvents || 0)
   const combinedVol = x.totalVolume
-  const standardsCount = 2 + (acp.totalMemos > 0 ? 1 : 0) + (tempo.totalEvents > 0 ? 1 : 0)
+  const standardsCount = 4 // x402, ERC-8004, ERC-8183 (ACP), MPP
 
   // Animated
   const cEvents = useCountUp(combinedEvents)
@@ -322,7 +322,7 @@ export default function App() {
             {[
               { value: '$' + cVol.toLocaleString(), label: 'USD settled', color: GREEN },
               { value: standardsCount, label: 'standards', color: 'var(--text-strong)' },
-              { value: x.chainsTracked, label: 'chains', color: 'var(--text-strong)' },
+              { value: 8, label: 'chains', color: 'var(--text-strong)' },
             ].map((item, i) => (
               <div key={i} style={{ padding: '16px 20px', borderRight: i < 2 ? '1px solid var(--border)' : 'none', textAlign: 'center' }}>
                 <div className="hero-sub" style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, color: item.color, letterSpacing: '-.02em', marginBottom: 2 }}>{item.value}</div>
