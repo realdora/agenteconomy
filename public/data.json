@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-04T18:48:56.160Z",
+  "updatedAt": "2026-04-04T22:07:30.024Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -1371,10 +1371,132 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 0,
-    "uniquePayers": 0,
-    "uniquePayees": 0,
-    "byType": {},
-    "daily": []
+    "totalEvents": 18257,
+    "uniquePayers": 410,
+    "uniquePayees": 44,
+    "byType": {
+      "ChannelOpened": 9482,
+      "CloseRequested": 777,
+      "ChannelExpired": 697,
+      "ChannelClosed": 7022,
+      "Settled": 147,
+      "TopUp": 132
+    },
+    "daily": [
+      {
+        "day": "2026-03-17",
+        "events": 1418,
+        "payers": 9,
+        "payees": 3
+      },
+      {
+        "day": "2026-03-18",
+        "events": 10127,
+        "payers": 46,
+        "payees": 6
+      },
+      {
+        "day": "2026-03-19",
+        "events": 565,
+        "payers": 118,
+        "payees": 16
+      },
+      {
+        "day": "2026-03-20",
+        "events": 778,
+        "payers": 78,
+        "payees": 19
+      },
+      {
+        "day": "2026-03-21",
+        "events": 406,
+        "payers": 29,
+        "payees": 4
+      },
+      {
+        "day": "2026-03-22",
+        "events": 423,
+        "payers": 33,
+        "payees": 3
+      },
+      {
+        "day": "2026-03-23",
+        "events": 347,
+        "payers": 36,
+        "payees": 8
+      },
+      {
+        "day": "2026-03-24",
+        "events": 518,
+        "payers": 48,
+        "payees": 7
+      },
+      {
+        "day": "2026-03-25",
+        "events": 433,
+        "payers": 49,
+        "payees": 7
+      },
+      {
+        "day": "2026-03-26",
+        "events": 377,
+        "payers": 38,
+        "payees": 6
+      },
+      {
+        "day": "2026-03-27",
+        "events": 288,
+        "payers": 29,
+        "payees": 4
+      },
+      {
+        "day": "2026-03-28",
+        "events": 134,
+        "payers": 22,
+        "payees": 2
+      },
+      {
+        "day": "2026-03-29",
+        "events": 279,
+        "payers": 23,
+        "payees": 7
+      },
+      {
+        "day": "2026-03-30",
+        "events": 369,
+        "payers": 26,
+        "payees": 4
+      },
+      {
+        "day": "2026-03-31",
+        "events": 493,
+        "payers": 24,
+        "payees": 8
+      },
+      {
+        "day": "2026-04-01",
+        "events": 393,
+        "payers": 31,
+        "payees": 6
+      },
+      {
+        "day": "2026-04-02",
+        "events": 474,
+        "payers": 19,
+        "payees": 4
+      },
+      {
+        "day": "2026-04-03",
+        "events": 274,
+        "payers": 26,
+        "payees": 3
+      },
+      {
+        "day": "2026-04-04",
+        "events": 161,
+        "payers": 11,
+        "payees": 2
+      }
+    ]
   }
 }
