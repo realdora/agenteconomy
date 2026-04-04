@@ -1,0 +1,50 @@
+name: Submit a data source
+description: Suggest a new on-chain data source for agenteconomy.to
+labels: ["data-source"]
+body:
+  - type: input
+    id: protocol
+    attributes:
+      label: Protocol / Standard name
+      placeholder: e.g. "MCP-Pay", "ERC-XXXX"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Agent payments
+        - Agent identity / registry
+        - Agent-to-agent commerce
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: chain
+    attributes:
+      label: Chain(s)
+      placeholder: e.g. "Base, Ethereum"
+    validations:
+      required: true
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Contract address(es)
+      placeholder: "0x... on Base"
+    validations:
+      required: true
+  - type: input
+    id: dune
+    attributes:
+      label: Dune dashboard or query URL (if available)
+      placeholder: "https://dune.com/..."
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      placeholder: Links to docs, announcement, or anything else relevant
+    validations:
+      required: false
