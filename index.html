@@ -4,16 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Economy Monitor — Live On-Chain AI Agent Data</title>
-    <meta name="description" content="Real-time on-chain data tracking AI agent payment activity across x402, ERC-8004, ERC-8183, and MPP protocols on 8 chains." />
-    <meta property="og:title" content="Agent Economy Monitor — Live On-Chain AI Agent Data" />
+    <meta name="description" content="Real-time on-chain data tracking AI agent payment activity across x402, ERC-8004, ERC-8183, and MPP protocols on 8 chains. Free dashboard for the agentic economy." />
+    <meta name="keywords" content="agent economy, agentic economy, x402 analytics, x402 data, ERC-8004, ERC-8183, AI agent payments, on-chain agent data, machine payments, agent economy dashboard, AI agent transactions, crypto AI agents" />
     <link rel="canonical" href="https://agenteconomy.to/" />
+
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Agent Economy Monitor",
+      "alternateName": "agenteconomy.to",
+      "url": "https://agenteconomy.to"
+    }
+    </script>
+
+    <!-- Structured Data: WebApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Agent Economy Monitor",
       "url": "https://agenteconomy.to",
-      "description": "Real-time on-chain data tracking AI agent payment activity across x402, ERC-8004, ERC-8183, and MPP protocols.",
+      "description": "Real-time on-chain dashboard tracking AI agent payment activity across x402, ERC-8004, ERC-8183, and MPP protocols on 8 chains.",
       "applicationCategory": "Analytics",
       "operatingSystem": "Web",
       "author": {
@@ -28,17 +41,112 @@
       }
     }
     </script>
+
+    <!-- Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "agenteconomy.to",
+      "url": "https://agenteconomy.to",
+      "sameAs": [
+        "https://x.com/realdora_eth",
+        "https://github.com/realdora/agenteconomy"
+      ]
+    }
+    </script>
+
+    <!-- Structured Data: Dataset (surfaces in Google Dataset Search) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Agentic Economy On-Chain Events",
+      "description": "Aggregated on-chain event data for AI agent payment protocols including x402 (HTTP 402 payments), ERC-8004 (agent identity), ERC-8183 (Virtuals ACP agent commerce), and MPP (Tempo/Stripe machine payments). Covers Base, Solana, Polygon, Arbitrum, BNB, Avalanche, SEI, and Tempo chains.",
+      "url": "https://agenteconomy.to",
+      "keywords": ["AI agent economy", "x402 protocol", "ERC-8004", "ERC-8183", "machine payments", "on-chain data", "agentic economy", "agent transactions"],
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "creator": {
+        "@type": "Person",
+        "name": "realdora",
+        "url": "https://x.com/realdora_eth"
+      },
+      "temporalCoverage": "2025-10-01/..",
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://agenteconomy.to/data.json"
+        }
+      ],
+      "variableMeasured": [
+        { "@type": "PropertyValue", "name": "Total On-Chain Events", "unitText": "count" },
+        { "@type": "PropertyValue", "name": "USD Volume Settled", "unitText": "USD" },
+        { "@type": "PropertyValue", "name": "Active Facilitators", "unitText": "count" },
+        { "@type": "PropertyValue", "name": "Chains Tracked", "unitText": "count" }
+      ]
+    }
+    </script>
+
+    <!-- Structured Data: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the agent economy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The agent economy (or agentic economy) refers to the emerging ecosystem where AI agents autonomously transact, pay for services, and settle payments on-chain. It encompasses protocols like x402 (HTTP-native payments), ERC-8004 (agent identity), ERC-8183 (agent-to-agent commerce), and MPP (machine payment protocol by Stripe and Tempo)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does agenteconomy.to track?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "agenteconomy.to is a free, real-time dashboard that tracks on-chain events from AI agent payment protocols across 8 blockchains. It aggregates data from x402 facilitator settlements, ERC-8004 agent registry interactions, Virtuals ACP job memos, and Tempo MPP channel events. Data refreshes every 6 hours from Dune Analytics and direct RPC indexers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the x402 payment protocol?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "x402 is an open HTTP payment standard by Coinbase that uses the HTTP 402 status code. It enables AI agents to pay for API resources per request using stablecoins. Foundation members include Google, Visa, AWS, Circle, Anthropic, and Vercel. x402 is currently the dominant agent payment standard by transaction volume."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is agent economy data collected?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Data is collected from verified smart contracts on Base, Solana, Polygon, BNB, Avalanche, Arbitrum, SEI, and Tempo chains. Sources include Dune Analytics community queries and direct RPC indexers. Raw counts include ecosystem testing and infrastructure activity; genuine commerce is a subset of totals."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Agent Economy Monitor — Live On-Chain AI Agent Data" />
     <meta property="og:description" content="The pulse of the agentic economy. Live on-chain data tracking AI agent payments across x402, ERC-8004, ERC-8183, and MPP." />
     <meta property="og:url" content="https://agenteconomy.to" />
     <meta property="og:image" content="https://agenteconomy.to/api/og" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="agenteconomy.to" />
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Agent Economy Monitor — Live On-Chain AI Agent Data" />
     <meta name="twitter:description" content="The pulse of the agentic economy. Live on-chain data." />
     <meta name="twitter:image" content="https://agenteconomy.to/api/og" />
     <meta name="twitter:site" content="@realdora_eth" />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,5 +158,46 @@
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- SEO: noscript fallback so search engines can index content without JS -->
+    <noscript>
+      <div style="max-width:900px;margin:0 auto;padding:40px 24px;font-family:Inter,system-ui,sans-serif;color:#111827">
+        <h1>Agent Economy Monitor — Tracking the Agentic Economy</h1>
+        <p>agenteconomy.to is the leading free dashboard for real-time on-chain data tracking AI agent payment activity. We aggregate events from 4 open standards across 8 blockchains.</p>
+
+        <h2>What is the Agent Economy?</h2>
+        <p>The agent economy (also called the agentic economy) is the emerging ecosystem where autonomous AI agents transact, pay for services, and settle payments on-chain without human intervention. As AI agents become economic actors, new payment protocols are being built to support machine-to-machine commerce using stablecoins and smart contracts.</p>
+
+        <h2>Protocols We Track</h2>
+
+        <h3>x402 Protocol — HTTP-Native Agent Payments</h3>
+        <p>x402 is an open HTTP payment standard by Coinbase using the HTTP 402 status code. It enables AI agents to pay for API resources per request. Foundation members include Google, Visa, AWS, Circle, Anthropic, Vercel, and Cloudflare. x402 is the dominant agent payment protocol by transaction volume, with over 139 million on-chain events across Base, Solana, Polygon, BNB, Avalanche, Arbitrum, and SEI.</p>
+
+        <h3>ERC-8004 — Agent Identity on Base</h3>
+        <p>ERC-8004 defines AI agent identity and reputation on Base. Proposed by the Ethereum Foundation dAI team with MetaMask, Google, and Coinbase. It tracks agent registry interactions including infrastructure and consumer events, with over 700,000 total events year-to-date.</p>
+
+        <h3>ERC-8183 — Virtuals ACP Agent Commerce</h3>
+        <p>ERC-8183 (Virtuals Agent Commerce Protocol) enables trustless agent-to-agent commerce with escrowed payments and evaluator verification. ACP tracks job lifecycle memos — create, deliver, evaluate, settle — across 3,400+ autonomous agents with over $3M in agent GDP.</p>
+
+        <h3>MPP — Tempo / Stripe Machine Payment Protocol</h3>
+        <p>MPP is an open HTTP payment standard co-authored by Stripe and Tempo. Tempo is a payments-focused EVM-compatible L1 incubated by Stripe and Paradigm. MPP tracks on-chain stablecoin settlement events for agent-to-service payments including channel operations and settlement finalization.</p>
+
+        <h2>Data Sources and Methodology</h2>
+        <p>All data comes from verified on-chain smart contracts. Sources include Dune Analytics community queries by @thechriscen, @hashed_official, and @ax1research, plus direct Tempo RPC indexing. Data refreshes every 6 hours. Raw counts include ecosystem testing, self-dealing, and infrastructure activity. Off-chain payments (Google UCP, Visa TAP) are not tracked.</p>
+
+        <h2>Agent Economy Dashboard Features</h2>
+        <ul>
+          <li>Real-time aggregated on-chain event counter across all 4 standards</li>
+          <li>USD volume settled via x402 protocol</li>
+          <li>Chain distribution analysis (Base, Solana, Polygon, BNB, Avalanche, Arbitrum, SEI, Tempo)</li>
+          <li>Facilitator market share breakdown (Coinbase, Dexter, PayAI, DayDreams, ThirdWeb)</li>
+          <li>Daily and monthly time-series charts with 7-day moving averages</li>
+          <li>Week-over-week delta indicators</li>
+          <li>Light and dark theme support</li>
+        </ul>
+
+        <p>Built by <a href="https://x.com/realdora_eth">@realdora_eth</a>. Open data available at <a href="https://agenteconomy.to/data.json">agenteconomy.to/data.json</a>.</p>
+      </div>
+    </noscript>
   </body>
 </html>

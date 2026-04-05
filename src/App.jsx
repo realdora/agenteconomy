@@ -154,7 +154,7 @@ function Sect({ title, badge, meta, explanation, children }) {
   return (
     <div style={{ marginBottom: 32 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: open ? 8 : 14, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-sec)', letterSpacing: '.08em', fontWeight: 700, textTransform: 'uppercase' }}>{title}</span>
+        <h2 style={{ fontSize: 11, color: 'var(--text-sec)', letterSpacing: '.08em', fontWeight: 700, textTransform: 'uppercase', margin: 0 }}>{title}</h2>
         {badge && <span style={{ fontSize: 9, fontWeight: 600, color: badge.c, background: badge.bg, borderRadius: 4, padding: '2px 6px' }}>{badge.t}</span>}
         <span style={{ width: 1, height: 12, background: 'var(--border)' }} />
         <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>{meta}</span>
@@ -634,6 +634,25 @@ export default function App() {
           <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--border-light)', fontSize: 10, color: 'var(--text-ghost)' }}>
             Data refreshes every 6 hours
           </div>
+        </div>
+
+        {/* ── FAQ ── */}
+        <div className="fade" style={{ marginTop: 24, animationDelay: '.3s' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-faint)', letterSpacing: '.1em', fontWeight: 600, textTransform: 'uppercase', marginBottom: 14 }}>Frequently asked questions</div>
+          {[
+            ['What is the agent economy?', 'The agent economy (or agentic economy) refers to the emerging ecosystem where AI agents autonomously transact, pay for services, and settle payments on-chain. It encompasses protocols like x402 (HTTP-native payments), ERC-8004 (agent identity), ERC-8183 (agent-to-agent commerce), and MPP (machine payment protocol by Stripe and Tempo).'],
+            ['What does agenteconomy.to track?', 'agenteconomy.to is a free, real-time dashboard that tracks on-chain events from AI agent payment protocols across 8 blockchains including Base, Solana, Polygon, and Tempo. It aggregates data from x402 facilitator settlements, ERC-8004 agent registry interactions, Virtuals ACP job memos, and Tempo MPP channel events. Data refreshes every 6 hours.'],
+            ['What is the x402 payment protocol?', 'x402 is an open HTTP payment standard by Coinbase that uses the HTTP 402 status code. It enables AI agents to pay for API resources per request using stablecoins. Foundation members include Google, Visa, AWS, Circle, Anthropic, and Vercel. x402 is the dominant agent payment standard by transaction volume.'],
+            ['How is the data collected?', 'All data comes from verified on-chain smart contracts. Sources include Dune Analytics community queries and direct RPC indexers. Raw counts include ecosystem testing and infrastructure activity — genuine commerce is a subset of totals. Off-chain payments (Google UCP, Visa TAP) are not tracked.'],
+          ].map(([q, a], i) => (
+            <details key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '12px 16px', marginBottom: 6, cursor: 'pointer' }}>
+              <summary style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sec)', listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {q}
+                <span style={{ fontSize: 10, color: 'var(--text-faint)', flexShrink: 0, marginLeft: 8 }}>+</span>
+              </summary>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border-light)' }}>{a}</div>
+            </details>
+          ))}
         </div>
 
       </div>
