@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-04-06T17:45:03.405Z",
-  "totalEvents": 18808,
-  "uniquePayers": 427,
+  "updatedAt": "2026-04-06T23:45:02.398Z",
+  "totalEvents": 18864,
+  "uniquePayers": 428,
   "uniquePayees": 44,
   "byType": {
-    "ChannelOpened": 9755,
+    "ChannelOpened": 9811,
     "CloseRequested": 859,
     "ChannelExpired": 776,
     "ChannelClosed": 7108,
@@ -134,8 +134,8 @@
     },
     {
       "day": "2026-04-06",
-      "events": 228,
-      "payers": 22,
+      "events": 284,
+      "payers": 24,
       "payees": 5
     }
   ]
