@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-07T13:25:03.775Z",
+  "updatedAt": "2026-04-07T19:09:22.871Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -1407,14 +1407,14 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 18998,
-    "uniquePayers": 436,
+    "totalEvents": 19050,
+    "uniquePayers": 437,
     "uniquePayees": 44,
     "byType": {
-      "ChannelOpened": 9859,
-      "CloseRequested": 878,
+      "ChannelOpened": 9906,
+      "CloseRequested": 880,
       "ChannelExpired": 804,
-      "ChannelClosed": 7136,
+      "ChannelClosed": 7139,
       "Settled": 147,
       "TopUp": 174
     },
@@ -1547,9 +1547,9 @@
       },
       {
         "day": "2026-04-07",
-        "events": 131,
-        "payers": 17,
-        "payees": 2
+        "events": 183,
+        "payers": 22,
+        "payees": 3
       }
     ]
   }
