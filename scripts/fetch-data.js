@@ -153,6 +153,55 @@ async function main() {
     console.log(`Tempo data:  ${tempoTotalEvents.toLocaleString()} events, ${tempoPayers} payers, ${tempoPayees} payees`)
   } catch (e) { console.log('Tempo data:  not found (public/tempo-data.json), skipping') }
 
+  // ── Q6: ERC-8004 Multi-chain Registry (Query 6130922) ──
+  const chainName = n => ({ bnb: 'BNB', opbnb: 'opBNB', megaeth: 'MegaETH', avalanche_c: 'Avalanche' }[n] || n.charAt(0).toUpperCase() + n.slice(1))
+  const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
+  let erc8004Chains = {}, erc8004Daily = {}, erc8004TotalAgents = 0
+  try {
+    const rows = await fetchQuery(6130922, 5000)
+    console.log(`Q6130922 (ERC-8004 registry): ${rows.length} rows`)
+    rows.forEach(row => {
+      const chain = row.blockchain || ''
+      if (TESTNETS.has(chain)) return
+      const day = (row.block_date || '').slice(0, 10)
+      const reg = safeNum(row.registered)
+      const name = chainName(chain)
+      if (!erc8004Chains[name]) erc8004Chains[name] = 0
+      erc8004Chains[name] += reg
+      if (day) {
+        if (!erc8004Daily[day]) erc8004Daily[day] = 0
+        erc8004Daily[day] += reg
+      }
+    })
+    erc8004TotalAgents = Object.values(erc8004Chains).reduce((s, v) => s + v, 0)
+  } catch (e) { console.warn('Q6130922 failed:', e.message) }
+
+  // ── Q7: Olas / Autonolas (Query 3344834) ───────────────
+  let olasTotalTxs = 0, olasChains = {}, olasWeekly = []
+  try {
+    const rows = await fetchQuery(3344834, 5000)
+    console.log(`Q3344834 (Olas): ${rows.length} rows`)
+    const latest = rows.reduce((best, r) => (r.time || '') > (best.time || '') ? r : best, {})
+    olasTotalTxs = safeNum(latest.global_cumulative_transactions_number)
+    const weekMap = {}
+    rows.forEach(row => {
+      const week = (row.time || '').slice(0, 10)
+      const chain = row.chain || ''
+      const txs = safeNum(row.total_weekly_transactions_number)
+      const name = chainName(chain)
+      if (!olasChains[name]) olasChains[name] = 0
+      olasChains[name] += txs
+      if (week) {
+        if (!weekMap[week]) weekMap[week] = { txs: 0 }
+        weekMap[week].txs += txs
+      }
+    })
+    olasWeekly = Object.entries(weekMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-52)
+      .map(([week, v]) => ({ week, txs: v.txs }))
+  } catch (e) { console.warn('Q3344834 failed:', e.message) }
+
   // ── Build monthly data ─────────────────────────────────────
   const monthly = Object.entries(monthlyMap)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -206,6 +255,8 @@ async function main() {
       { name: 'x402 Analytics', author: '@hashed_official', queryId: 6084845 },
       { name: 'BASE Agentic Ecosystem', author: '@ax1research', queryId: 6731879 },
       { name: 'Virtuals ACP', author: '@hashed_official', queryId: 6200422 },
+      { name: 'ERC-8004 Trustless Agents', author: '@hashed_official', queryId: 6130922 },
+      { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: 3344834 },
     ],
     x402: {
       totalTxs: Math.round(totalTxs),
@@ -241,6 +292,27 @@ async function main() {
       byType: tempoByType,
       daily: tempoDaily,
     },
+    // ERC-8004 Registry (multi-chain)
+    erc8004Registry: {
+      totalAgents: erc8004TotalAgents,
+      chainsTracked: Object.keys(erc8004Chains).length,
+      chains: Object.entries(erc8004Chains)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 12)
+        .map(([name, agents]) => ({ name, agents })),
+      daily: Object.entries(erc8004Daily)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .slice(-90)
+        .map(([day, agents]) => ({ day, agents })),
+    },
+    // Olas / Autonolas
+    olas: {
+      totalTxs: olasTotalTxs,
+      chains: Object.entries(olasChains)
+        .sort(([,a], [,b]) => b - a)
+        .map(([name, txs]) => ({ name, txs })),
+      weekly: olasWeekly,
+    },
   }
 
   const outPath = join(__dirname, '..', 'public', 'data.json')
@@ -251,8 +323,11 @@ async function main() {
   console.log(`  ERC-8004:     ${data.baseAgentic.totalTxs.toLocaleString()} events, ${data.baseAgentic.daily.length} days`)
   console.log(`  Virtuals ACP: ${data.virtualsAcp.totalMemos.toLocaleString()} memos, ${data.virtualsAcp.daily.length} days`)
   console.log(`  Tempo/MPP:    ${data.tempoMpp.totalEvents.toLocaleString()} events, ${data.tempoMpp.uniquePayers} payers`)
+  console.log(`  ERC-8004 Reg: ${data.erc8004Registry.totalAgents.toLocaleString()} agents across ${data.erc8004Registry.chainsTracked} chains`)
+  console.log(`  Olas:         ${data.olas.totalTxs.toLocaleString()} txs, ${data.olas.chains.length} chains`)
   console.log(`  ─────────────`)
-  console.log(`  COMBINED:     ${(data.x402.totalTxs + data.baseAgentic.totalTxs + data.virtualsAcp.totalMemos + data.tempoMpp.totalEvents).toLocaleString()} on-chain events`)
+  console.log(`  COMBINED:     ${(data.x402.totalTxs + data.baseAgentic.totalTxs + data.virtualsAcp.totalMemos + data.tempoMpp.totalEvents + data.olas.totalTxs).toLocaleString()} on-chain events`)
+  console.log(`  AGENTS:       ${data.erc8004Registry.totalAgents.toLocaleString()} registered (ERC-8004)`)
 }
 
 main().catch(e => { console.error(e); process.exit(1) })

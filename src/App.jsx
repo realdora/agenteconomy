@@ -40,6 +40,8 @@ const FB = {
   baseAgentic: { totalTxs: 709494, daily: [] },
   virtualsAcp: { totalMemos: 0, daily: [] },
   tempoMpp: { totalEvents: 0, uniquePayers: 0, uniquePayees: 0, byType: {}, daily: [] },
+  erc8004Registry: { totalAgents: 0, chainsTracked: 0, chains: [], daily: [] },
+  olas: { totalTxs: 0, chains: [], weekly: [] },
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────
@@ -136,17 +138,21 @@ function Delta({ value, label }) {
   )
 }
 
-function Card({ label, value, sub, accent, delta, deltaLabel }) {
+function Card({ label, value, sub, accent, delta, deltaLabel, hero }) {
   return (
     <div className="card" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '18px 16px', transition: 'box-shadow .2s, border-color .2s' }}>
       <div style={{ fontSize: 10, color: 'var(--text-faint)', letterSpacing: '.1em', fontWeight: 500, textTransform: 'uppercase', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: 'clamp(20px,3vw,28px)', fontWeight: 700, color: accent || 'var(--text)', letterSpacing: '-.02em', marginBottom: 4, fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: hero ? 'clamp(24px,3.5vw,34px)' : 'clamp(20px,3vw,28px)', fontWeight: 700, color: accent || 'var(--text)', letterSpacing: '-.02em', marginBottom: 4, fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{value}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>{sub}</span>
         <Delta value={delta} label={deltaLabel} />
       </div>
     </div>
   )
+}
+
+function Skeleton({ height = 120, style }) {
+  return <div className="skeleton" style={{ height, borderRadius: 10, ...style }} />
 }
 
 function Sect({ title, badge, meta, explanation, children }) {
@@ -203,6 +209,8 @@ export default function App() {
           ...FB, ...d,
           virtualsAcp: d.virtualsAcp || FB.virtualsAcp,
           tempoMpp: d.tempoMpp || FB.tempoMpp,
+          erc8004Registry: d.erc8004Registry || FB.erc8004Registry,
+          olas: d.olas || FB.olas,
         })
       } else if (d.totalTxs !== undefined) {
         // backward compat with old flat format
@@ -219,11 +227,12 @@ export default function App() {
   const ag = data.baseAgentic
   const acp = data.virtualsAcp || FB.virtualsAcp
   const tempo = data.tempoMpp || FB.tempoMpp
+  const erc8004Reg = data.erc8004Registry || FB.erc8004Registry
+  const olas = data.olas || FB.olas
 
-  // Totals
-  const combinedEvents = x.totalTxs + ag.totalTxs + (acp.totalMemos || 0) + (tempo.totalEvents || 0)
+  // Totals (Olas txs added — different protocol/contracts, zero overlap)
+  const combinedEvents = x.totalTxs + ag.totalTxs + (acp.totalMemos || 0) + (tempo.totalEvents || 0) + (olas.totalTxs || 0)
   const combinedVol = x.totalVolume
-  const standardsCount = 4 // x402, ERC-8004, ERC-8183 (ACP), MPP
 
   // Animated
   const cEvents = useCountUp(combinedEvents)
@@ -233,12 +242,15 @@ export default function App() {
   const agTxs = useCountUp(ag.totalTxs)
   const acpMemos = useCountUp(acp.totalMemos || 0)
   const tempoEvts = useCountUp(tempo.totalEvents || 0)
+  const regAgents = useCountUp(erc8004Reg.totalAgents || 0)
+  const olasTxs = useCountUp(olas.totalTxs || 0)
 
   // Deltas
   const x402d7 = calcDelta(x.daily, 'txs', 7)
   const agDelta = calcDelta(ag.daily, 'total', 1)
   const acpDelta = calcDelta(acp.daily, 'memos', 7)
   const tempoDelta = calcDelta(tempo.daily, 'events', 7)
+  const olasDelta = calcDelta(olas.weekly, 'txs', 1)
 
   // Chart
   const chartData = useMemo(() => {
@@ -264,6 +276,9 @@ export default function App() {
         @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
         @keyframes packet{0%{left:-4%;opacity:0}5%{opacity:1}90%{opacity:1}100%{left:104%;opacity:0}}
         @keyframes packetR{0%{right:-4%;opacity:0}5%{opacity:1}90%{opacity:1}100%{right:104%;opacity:0}}
+        @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+        .skeleton{background:linear-gradient(90deg,var(--chart-bg) 25%,var(--border-light) 50%,var(--chart-bg) 75%);background-size:800px 100%;animation:shimmer 1.8s ease-in-out infinite}
+        .sect-divider{height:1px;margin:8px 0 32px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
         *{box-sizing:border-box;margin:0;padding:0}
         a{color:var(--text-muted);text-decoration:none;transition:color .15s}a:hover{color:var(--text)}
         .fade{animation:fadeUp .5s ease both}
@@ -273,6 +288,11 @@ export default function App() {
         .info-tip .info-bubble::before{content:'';position:absolute;bottom:100%;left:16px;border:5px solid transparent;border-bottom-color:var(--border)}
         .info-tip:hover .info-bubble{visibility:visible;opacity:1}
         .footer-link{color:var(--text-faint)!important;text-decoration:none!important;transition:color .15s}.footer-link:hover{color:var(--text-sec)!important}
+        @media(min-width:769px) and (max-width:1024px){
+          .hero-row{grid-template-columns:repeat(2,1fr)!important}
+          .hero-row>div:nth-child(2){border-right:none!important}
+          .hero-row>div:nth-child(1),.hero-row>div:nth-child(2){border-bottom:1px solid var(--border)}
+        }
         @media(max-width:768px){
           .hero-title{font-size:22px!important}
           .g4{grid-template-columns:repeat(2,1fr)!important}
@@ -341,20 +361,21 @@ export default function App() {
             <span>On-chain events tracked</span>
             <span className="info-tip">
               <span style={{ width: 14, height: 14, borderRadius: '50%', border: '1px solid var(--border-focus)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: 'var(--text-faint)', lineHeight: 1, cursor: 'help' }}>?</span>
-              <span className="info-bubble">Aggregate of x402 payment settlements, ERC-8004 agent registry interactions, and Virtuals ACP job memos. Each standard tracks different smart contracts with zero overlap.</span>
+              <span className="info-bubble">Aggregate of x402 settlements, ERC-8004 agentic events, Virtuals ACP memos, Tempo MPP events, and Olas agent transactions. Each protocol tracks different smart contracts with zero overlap.</span>
             </span>
           </div>
           <div className="hero-num" style={{ fontFamily: MONO, fontSize: 'clamp(48px, 8vw, 80px)', fontWeight: 700, lineHeight: 1, letterSpacing: '-.04em', color: 'var(--text-strong)', fontVariantNumeric: 'tabular-nums' }}>
             {cEvents.toLocaleString()}
           </div>
           <FlowLines />
-          <div className="hero-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
+          <div className="hero-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
             {[
               { value: '$' + cVol.toLocaleString(), label: 'USD settled', color: GREEN },
-              { value: standardsCount, label: 'standards', color: 'var(--text-strong)' },
-              { value: 8, label: 'chains', color: 'var(--text-strong)' },
+              { value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
+              { value: 5, label: 'protocols', color: 'var(--text-strong)' },
+              { value: 11, label: 'chains', color: 'var(--text-strong)' },
             ].map((item, i) => (
-              <div key={i} style={{ padding: '16px 20px', borderRight: i < 2 ? '1px solid var(--border)' : 'none', textAlign: 'center' }}>
+              <div key={i} style={{ padding: '16px 20px', borderRight: i < 3 ? '1px solid var(--border)' : 'none', textAlign: 'center' }}>
                 <div className="hero-sub" style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2.5vw, 26px)', fontWeight: 700, color: item.color, letterSpacing: '-.02em', marginBottom: 2 }}>{item.value}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{item.label}</div>
               </div>
@@ -367,7 +388,7 @@ export default function App() {
           <Sect title="x402 Protocol" badge={{ t: 'DOMINANT', bg: 'var(--badge-blue-bg)', c: BLUE }} meta={`${x.facilitatorsTracked} facilitators · ${x.chainsTracked} chains`}
             explanation="x402 is an open HTTP payment standard by Coinbase using HTTP 402 status code. Enables AI agents to pay for APIs per request. Foundation governed by Coinbase + Cloudflare; members include Google, Visa, AWS, Circle, Anthropic, Vercel.">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
-              <Card label="Total Events" value={xTxs.toLocaleString()} sub="all-time" delta={x402d7} deltaLabel="7d" />
+              <Card label="Total Events" value={xTxs.toLocaleString()} sub="all-time" delta={x402d7} deltaLabel="7d" hero />
               <Card label="Total Volume" value={'$' + xVol.toLocaleString()} sub="USD processed" accent={GREEN} />
               <Card label="Facilitators" value={x.facilitatorsTracked} sub="active" />
               <Card label="Chains" value={x.chainsTracked} sub="EVM + Solana" />
@@ -470,12 +491,15 @@ export default function App() {
           </Sect>
         </div>
 
+        <div className="sect-divider" />
         {/* ── ERC-8004 ── */}
         <div className="fade" style={{ animationDelay: '.1s' }}>
-          <Sect title="Base Agentic Ecosystem" badge={{ t: 'ERC-8004', bg: 'var(--badge-purple-bg)', c: '#7C3AED' }} meta="Agent identity · Base"
-            explanation="ERC-8004 defines AI agent identity and reputation on Base. Proposed by the Ethereum Foundation dAI team with MetaMask, Google, Coinbase. Different contracts from x402 — zero overlap.">
+          <Sect title="ERC-8004" badge={{ t: 'IDENTITY', bg: 'var(--badge-purple-bg)', c: '#7C3AED' }} meta={`Agent identity · ${erc8004Reg.chainsTracked || 1}+ chains`}
+            explanation="ERC-8004 defines on-chain identity and reputation for AI agents. Co-authored by MetaMask, Google, Coinbase. Deployed on 20+ EVM chains with identical contract addresses. Base events track agentic activity; registry data tracks agent registrations across all chains. Different contracts from x402 — zero overlap.">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
-              <Card label="Total Events (YTD)" value={agTxs.toLocaleString()} sub="Base chain" delta={agDelta} deltaLabel="WoW" />
+              <Card label="Base Events (YTD)" value={agTxs.toLocaleString()} sub="agentic transactions" delta={agDelta} deltaLabel="WoW" hero />
+              <Card label="Registered Agents" value={regAgents.toLocaleString()} sub="all chains" accent="#7C3AED" />
+              <Card label="Registry Chains" value={erc8004Reg.chainsTracked || 0} sub="mainnets" />
               <Card label="Standard" value="ERC-8004" sub="Identity + reputation" />
             </div>
             {ag.daily.length > 0 && (
@@ -500,9 +524,31 @@ export default function App() {
                 <div style={{ fontSize: 9, color: 'var(--text-ghost)', marginTop: 6 }}>Source: @ax1research / Dune</div>
               </div>
             )}
+            {erc8004Reg.chains.length > 0 && (
+              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '18px 16px', marginTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 14 }}>Agent registrations by chain</div>
+                {erc8004Reg.chains.slice(0, 8).map((c, i) => {
+                  const pct = erc8004Reg.totalAgents > 0 ? (c.agents / erc8004Reg.totalAgents) * 100 : 0
+                  const colors = ['#F0B90B', '#627EEA', '#0052FF', '#FF6B35', '#836EF9', '#35D07F', '#04795B', '#FF4D6A']
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors[i % colors.length], flexShrink: 0 }} />
+                      <div className="chain-label" style={{ fontSize: 11, color: 'var(--text-sec)', width: 64, fontWeight: 500 }}>{c.name}</div>
+                      <div style={{ flex: 1, height: 4, background: 'var(--chart-bg)', borderRadius: 2, overflow: 'hidden' }}>
+                        <div style={{ width: Math.max(pct, 0.5) + '%', height: '100%', background: colors[i % colors.length], borderRadius: 2 }} />
+                      </div>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted)', width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{pct.toFixed(1)}%</div>
+                      <div style={{ fontSize: 9, color: 'var(--text-faint)', width: 44, textAlign: 'right' }}>{fmt(c.agents)}</div>
+                    </div>
+                  )
+                })}
+                <div style={{ fontSize: 9, color: 'var(--text-ghost)', marginTop: 6 }}>Source: @hashed_official / Dune</div>
+              </div>
+            )}
           </Sect>
         </div>
 
+        <div className="sect-divider" />
         {/* ── Virtuals ACP ── */}
         <div className="fade" style={{ animationDelay: '.15s' }}>
           <Sect title="Virtuals ACP" badge={{ t: 'ERC-8183', bg: 'var(--badge-green-bg)', c: GREEN }} meta="Agent Commerce · Base"
@@ -510,7 +556,7 @@ export default function App() {
             {acp.totalMemos > 0 ? (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
-                  <Card label="Total Memos" value={acpMemos.toLocaleString()} sub="cumulative" delta={acpDelta} deltaLabel="7d" />
+                  <Card label="Total Memos" value={acpMemos.toLocaleString()} sub="cumulative" delta={acpDelta} deltaLabel="7d" hero />
                   <Card label="Standard" value="ERC-8183" sub="Agent commerce layer" />
                 </div>
                 {acp.daily.length > 0 && (
@@ -529,17 +575,23 @@ export default function App() {
                 )}
               </>
             ) : (
-              <div style={{ background: 'var(--surface)', border: '1px dashed var(--dashed-blue)', borderRadius: 10, padding: '28px 20px', textAlign: 'center' }}>
-                <div style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, marginBottom: 4 }}>3,400+</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>autonomous agents · $3M+ agent GDP</div>
-                <div style={{ fontSize: 10, color: 'var(--text-faint)' }}>
-                  <a href="https://dune.com/hashed_official/acp-virtuals" target="_blank" rel="noopener noreferrer">dune.com/hashed_official/acp-virtuals</a>
+              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '20px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <Skeleton height={10} style={{ width: 80 }} />
+                  <Skeleton height={10} style={{ width: 60 }} />
+                </div>
+                <Skeleton height={28} style={{ width: 140, marginBottom: 6 }} />
+                <Skeleton height={10} style={{ width: 100, marginBottom: 16 }} />
+                <Skeleton height={120} />
+                <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 12, textAlign: 'center' }}>
+                  Loading from <a href="https://dune.com/hashed_official/acp-virtuals" target="_blank" rel="noopener noreferrer">Dune Analytics</a>
                 </div>
               </div>
             )}
           </Sect>
         </div>
 
+        <div className="sect-divider" />
         {/* ── Tempo / MPP ── */}
         <div className="fade" style={{ animationDelay: '.2s' }}>
           <Sect title="Tempo / MPP" badge={{ t: 'MPP', bg: 'var(--badge-yellow-bg)', c: '#D97706' }} meta="Machine Payments Protocol · Tempo L1"
@@ -547,7 +599,7 @@ export default function App() {
             {tempo.totalEvents > 0 ? (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
-                  <Card label="Total Events" value={tempoEvts.toLocaleString()} sub="on-chain" delta={tempoDelta} deltaLabel="7d" />
+                  <Card label="Total Events" value={tempoEvts.toLocaleString()} sub="on-chain" delta={tempoDelta} deltaLabel="7d" hero />
                   <Card label="Unique Payers" value={tempo.uniquePayers} sub="agent wallets" />
                   <Card label="Unique Payees" value={tempo.uniquePayees} sub="service providers" />
                   <Card label="Protocol" value="MPP" sub="Stripe + Tempo" />
@@ -589,17 +641,98 @@ export default function App() {
                 )}
               </>
             ) : (
-              <div style={{ background: 'var(--surface)', border: '1px dashed var(--dashed-gray)', borderRadius: 10, padding: '28px 20px', textAlign: 'center' }}>
-                <div className="tempo-partners" style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 12 }}>
-                  {[['Stripe', 'Co-author'], ['Tempo', 'Settlement L1'], ['Visa', 'Card extension']].map(([n, r]) => (
-                    <div key={n}>
-                      <div style={{ fontSize: 13, fontWeight: 700 }}>{n}</div>
-                      <div style={{ fontSize: 9, color: 'var(--text-faint)' }}>{r}</div>
-                    </div>
-                  ))}
+              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '20px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <Skeleton height={10} style={{ width: 80 }} />
+                  <Skeleton height={10} style={{ width: 60 }} />
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--text-faint)', marginBottom: 4 }}>Indexer in progress via Tempo RPC</div>
-                <div style={{ fontSize: 10, color: 'var(--text-ghost)' }}>Mainnet live Mar 18, 2026 · EVM-compatible · Stablecoin settlement</div>
+                <Skeleton height={28} style={{ width: 120, marginBottom: 6 }} />
+                <Skeleton height={10} style={{ width: 180, marginBottom: 16 }} />
+                <Skeleton height={120} />
+                <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 12, textAlign: 'center' }}>
+                  Indexer in progress via Tempo RPC · Mainnet live Mar 18, 2026
+                </div>
+              </div>
+            )}
+          </Sect>
+        </div>
+
+        <div className="sect-divider" />
+        {/* ── Olas ── */}
+        <div className="fade" style={{ animationDelay: '.22s' }}>
+          <Sect title="Olas / Autonolas" badge={{ t: 'AUTONOMOUS', bg: 'var(--badge-green-bg)', c: '#04795B' }} meta={`${olas.chains?.length || 0} chains · Gnosis-dominant`}
+            explanation="Olas is a decentralized protocol for co-owned autonomous AI agents. Agents perform on-chain tasks like trading prediction markets and executing DeFi strategies. Over 75% of Safe transactions on Gnosis Chain come from Olas agents. Tracks different contracts from all other protocols — zero overlap.">
+            {olas.totalTxs > 0 ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }} className="g4">
+                  <Card label="Total Transactions" value={olasTxs.toLocaleString()} sub="cumulative" delta={olasDelta} deltaLabel="WoW" hero />
+                  <Card label="Primary Chain" value="Gnosis" sub="prediction markets" />
+                </div>
+                {olas.weekly?.length > 0 && (
+                  <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '18px 16px', marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 14 }}>Weekly transactions</div>
+                    <ResponsiveContainer width="100%" height={160}>
+                      <BarChart data={olas.weekly.slice(-26)} barSize={14} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                        <XAxis dataKey="week" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(olas.weekly.slice(-26).length / 10))} />
+                        <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                        <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                        <Bar dataKey="txs" fill="#04795B" radius={[3, 3, 0, 0]} opacity={0.7} name="Weekly txs" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <div style={{ fontSize: 9, color: 'var(--text-ghost)', marginTop: 6 }}>Source: @adrian0x / Dune</div>
+                  </div>
+                )}
+                {olas.chains?.length > 1 && (() => {
+                  const total = olas.chains.reduce((s, ch) => s + ch.txs, 0)
+                  const top = olas.chains[0]
+                  const rest = olas.chains.slice(1, 6)
+                  const restMax = rest.length > 0 ? rest[0].txs : 1
+                  const topPct = total > 0 ? (top.txs / total) * 100 : 0
+                  const colors = ['#FF0420', '#8247E5', '#0052FF', '#627EEA', '#35D07F']
+                  return (
+                    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '18px 16px' }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 14 }}>Chain distribution</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '10px 12px', background: 'var(--chart-bg)', borderRadius: 8 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#04795B', flexShrink: 0 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sec)' }}>{top.name}</div>
+                          <div style={{ fontSize: 10, color: 'var(--text-faint)' }}>{topPct.toFixed(1)}% · {fmt(top.txs)} txs</div>
+                        </div>
+                        <div style={{ width: 60, height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{ width: topPct + '%', height: '100%', background: '#04795B', borderRadius: 2 }} />
+                        </div>
+                      </div>
+                      {rest.map((c, i) => {
+                        const pct = total > 0 ? (c.txs / total) * 100 : 0
+                        const barPct = restMax > 0 ? (c.txs / restMax) * 100 : 0
+                        return (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors[i % colors.length], flexShrink: 0 }} />
+                            <div className="chain-label" style={{ fontSize: 11, color: 'var(--text-sec)', width: 64, fontWeight: 500 }}>{c.name}</div>
+                            <div style={{ flex: 1, height: 4, background: 'var(--chart-bg)', borderRadius: 2, overflow: 'hidden' }}>
+                              <div style={{ width: Math.max(barPct, 1) + '%', height: '100%', background: colors[i % colors.length], borderRadius: 2 }} />
+                            </div>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)', width: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{pct.toFixed(1)}%</div>
+                            <div style={{ fontSize: 9, color: 'var(--text-faint)', width: 44, textAlign: 'right' }}>{fmt(c.txs)}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+              </>
+            ) : (
+              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '20px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <Skeleton height={10} style={{ width: 80 }} />
+                  <Skeleton height={10} style={{ width: 60 }} />
+                </div>
+                <Skeleton height={28} style={{ width: 160, marginBottom: 6 }} />
+                <Skeleton height={10} style={{ width: 100, marginBottom: 16 }} />
+                <Skeleton height={120} />
+                <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 12, textAlign: 'center' }}>
+                  Loading from <a href="https://dune.com/adrian0x/autonolas-ecosystem-activity" target="_blank" rel="noopener noreferrer">Dune Analytics</a>
+                </div>
               </div>
             )}
           </Sect>
@@ -612,7 +745,7 @@ export default function App() {
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sec)', marginBottom: 6 }}>What we track</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                On-chain events from verified agent contracts. x402 facilitator settlements, ERC-8004 registry interactions, Virtuals ACP job memos, and Tempo/MPP channel events. Each standard tracks different contracts with zero overlap.
+                On-chain events from verified agent contracts. x402 settlements, ERC-8004 registry interactions and agent registrations, Virtuals ACP job memos, Tempo/MPP channel events, and Olas autonomous agent transactions. Each protocol tracks different contracts with zero overlap.
               </div>
             </div>
             <div>
@@ -621,6 +754,8 @@ export default function App() {
                 <a href="https://dune.com/thechriscen/x402-payment-analytics" target="_blank" rel="noopener noreferrer">@thechriscen · x402 Payment Analytics</a><br />
                 <a href="https://dune.com/hashed_official/x402-analytics" target="_blank" rel="noopener noreferrer">@hashed_official · x402 + Virtuals ACP</a><br />
                 <a href="https://dune.com/ax1research/base-agentic-ecosystem" target="_blank" rel="noopener noreferrer">@ax1research · BASE Agentic Ecosystem</a><br />
+                <a href="https://dune.com/hashed_official/erc8004" target="_blank" rel="noopener noreferrer">@hashed_official · ERC-8004 Registry</a><br />
+                <a href="https://dune.com/adrian0x/autonolas-ecosystem-activity" target="_blank" rel="noopener noreferrer">@adrian0x · Olas Ecosystem</a><br />
                 Tempo RPC indexer
               </div>
             </div>
@@ -640,8 +775,8 @@ export default function App() {
         <div className="fade" style={{ marginTop: 24, animationDelay: '.3s' }}>
           <div style={{ fontSize: 10, color: 'var(--text-faint)', letterSpacing: '.1em', fontWeight: 600, textTransform: 'uppercase', marginBottom: 14 }}>Frequently asked questions</div>
           {[
-            ['What is the agent economy?', 'The agent economy (or agentic economy) refers to the emerging ecosystem where AI agents autonomously transact, pay for services, and settle payments on-chain. It encompasses protocols like x402 (HTTP-native payments), ERC-8004 (agent identity), ERC-8183 (agent-to-agent commerce), and MPP (machine payment protocol by Stripe and Tempo).'],
-            ['What does agenteconomy.to track?', 'agenteconomy.to is a free, real-time dashboard that tracks on-chain events from AI agent payment protocols across 8 blockchains including Base, Solana, Polygon, and Tempo. It aggregates data from x402 facilitator settlements, ERC-8004 agent registry interactions, Virtuals ACP job memos, and Tempo MPP channel events. Data refreshes every 6 hours.'],
+            ['What is the agent economy?', 'The agent economy (or agentic economy) refers to the emerging ecosystem where AI agents autonomously transact, pay for services, and settle payments on-chain. It encompasses protocols like x402 (HTTP-native payments), ERC-8004 (agent identity), ERC-8183 (agent-to-agent commerce), MPP (machine payment protocol by Stripe and Tempo), and Olas (autonomous agent network).'],
+            ['What does agenteconomy.to track?', 'agenteconomy.to is a free, real-time dashboard that tracks on-chain events from AI agent protocols across 11+ blockchains including Base, Solana, Gnosis, Polygon, Ethereum, and Tempo. It aggregates data from x402 settlements, ERC-8004 agent registrations, Virtuals ACP job memos, Tempo MPP channel events, and Olas autonomous agent transactions. Data refreshes every 6 hours.'],
             ['What is the x402 payment protocol?', 'x402 is an open HTTP payment standard by Coinbase that uses the HTTP 402 status code. It enables AI agents to pay for API resources per request using stablecoins. Foundation members include Google, Visa, AWS, Circle, Anthropic, and Vercel. x402 is the dominant agent payment standard by transaction volume.'],
             ['How is the data collected?', 'All data comes from verified on-chain smart contracts. Sources include Dune Analytics community queries and direct RPC indexers. Raw counts include ecosystem testing and infrastructure activity — genuine commerce is a subset of totals. Off-chain payments (Google UCP, Visa TAP) are not tracked.'],
           ].map(([q, a], i) => (
