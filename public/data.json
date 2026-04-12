@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-11T18:51:19.632Z",
+  "updatedAt": "2026-04-12T02:52:32.049Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -387,7 +387,7 @@
     ]
   },
   "baseAgentic": {
-    "totalTxs": 744650,
+    "totalTxs": 770007,
     "daily": [
       {
         "day": "2026-01-01",
@@ -964,52 +964,36 @@
         "consumer": 1292,
         "infrastructure": 4814,
         "total": 6106
+      },
+      {
+        "day": "2026-04-07",
+        "consumer": 1169,
+        "infrastructure": 4786,
+        "total": 5955
+      },
+      {
+        "day": "2026-04-08",
+        "consumer": 1140,
+        "infrastructure": 5439,
+        "total": 6579
+      },
+      {
+        "day": "2026-04-09",
+        "consumer": 1154,
+        "infrastructure": 5342,
+        "total": 6496
+      },
+      {
+        "day": "2026-04-10",
+        "consumer": 1292,
+        "infrastructure": 5035,
+        "total": 6327
       }
     ]
   },
   "virtualsAcp": {
-    "totalMemos": 11850157,
+    "totalMemos": 12035460,
     "daily": [
-      {
-        "day": "2026-01-05",
-        "memos": 52050,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-06",
-        "memos": 11398,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-07",
-        "memos": 6742,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-08",
-        "memos": 11414,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-09",
-        "memos": 70398,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-10",
-        "memos": 78559,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-11",
-        "memos": 139455,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-12",
-        "memos": 18941,
-        "senders": 16
-      },
       {
         "day": "2026-01-13",
         "memos": 11865,
@@ -1417,17 +1401,57 @@
       },
       {
         "day": "2026-04-04",
-        "memos": 4676,
+        "memos": 17369,
         "senders": 32
+      },
+      {
+        "day": "2026-04-05",
+        "memos": 24281,
+        "senders": 32
+      },
+      {
+        "day": "2026-04-06",
+        "memos": 26349,
+        "senders": 48
+      },
+      {
+        "day": "2026-04-07",
+        "memos": 29081,
+        "senders": 20
+      },
+      {
+        "day": "2026-04-08",
+        "memos": 32823,
+        "senders": 27
+      },
+      {
+        "day": "2026-04-09",
+        "memos": 25477,
+        "senders": 22
+      },
+      {
+        "day": "2026-04-10",
+        "memos": 18676,
+        "senders": 27
+      },
+      {
+        "day": "2026-04-11",
+        "memos": 14147,
+        "senders": 17
+      },
+      {
+        "day": "2026-04-12",
+        "memos": 1776,
+        "senders": 14
       }
     ]
   },
   "tempoMpp": {
-    "totalEvents": 20218,
-    "uniquePayers": 458,
+    "totalEvents": 20231,
+    "uniquePayers": 459,
     "uniquePayees": 44,
     "byType": {
-      "ChannelOpened": 10423,
+      "ChannelOpened": 10436,
       "CloseRequested": 1096,
       "ChannelExpired": 994,
       "ChannelClosed": 7380,
@@ -1587,8 +1611,8 @@
       },
       {
         "day": "2026-04-11",
-        "events": 416,
-        "payers": 14,
+        "events": 429,
+        "payers": 17,
         "payees": 2
       }
     ]
