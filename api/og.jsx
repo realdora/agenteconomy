@@ -25,11 +25,13 @@ export default async function handler(req) {
   const baseAg = data?.baseAgentic || {}
   const acp = data?.virtualsAcp || {}
   const tempo = data?.tempoMpp || {}
+  const erc8004 = data?.erc8004 || {}
+  const olas = data?.olas || {}
 
-  const totalEvents = (x402.totalTxs || 139277505) + (baseAg.totalTxs || 709494) + (acp.totalMemos || 0) + (tempo.totalEvents || 0)
+  const totalEvents = (x402.totalTxs || 139277505) + (baseAg.totalTxs || 709494) + (acp.totalMemos || 0) + (tempo.totalEvents || 0) + (erc8004.totalRegistrations || 171000) + (olas.totalTransactions || 15700000)
   const totalVol = x402.totalVolume || 38843631
-  const standards = 4
-  const chains = 8
+  const standards = 5
+  const chains = '11+'
 
   const updated = (() => {
     try {
@@ -85,8 +87,8 @@ export default async function handler(req) {
         }}>
           {[
             { value: '$' + fmt(totalVol), label: 'USD settled', color: '#16A34A' },
-            { value: String(standards), label: 'standards', color: '#F9FAFB' },
-            { value: String(chains), label: 'chains', color: '#F9FAFB' },
+            { value: String(standards), label: 'protocols', color: '#F9FAFB' },
+            { value: chains, label: 'chains', color: '#F9FAFB' },
             { value: fmt(x402.totalTxs || 139277505), label: 'x402 events', color: '#3B82F6' },
           ].map((item, i) => (
             <div key={i} style={{
