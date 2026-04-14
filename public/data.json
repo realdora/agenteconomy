@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-14T13:50:09.660Z",
+  "updatedAt": "2026-04-14T19:21:18.015Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,8 +33,8 @@
     }
   ],
   "x402": {
-    "totalTxs": 140774567,
-    "totalVolume": 39354484,
+    "totalTxs": 141110168,
+    "totalVolume": 39366015,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -70,8 +70,8 @@
       },
       {
         "month": "Apr 26",
-        "txs": 1485693,
-        "vol": 510420
+        "txs": 1821294,
+        "vol": 521951
       }
     ],
     "daily": [
@@ -319,12 +319,12 @@
     "protocols": [
       {
         "name": "Coinbase",
-        "share": 31.1,
+        "share": 31,
         "color": "#0052FF"
       },
       {
         "name": "Dexter",
-        "share": 23.5,
+        "share": 23.4,
         "color": "#6366F1"
       },
       {
@@ -334,7 +334,7 @@
       },
       {
         "name": "Other",
-        "share": 13.1,
+        "share": 13.3,
         "color": "#A855F7"
       },
       {
@@ -392,7 +392,7 @@
     ]
   },
   "baseAgentic": {
-    "totalTxs": 793648,
+    "totalTxs": 709494,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1470,14 +1470,14 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 20946,
-    "uniquePayers": 485,
-    "uniquePayees": 46,
+    "totalEvents": 21032,
+    "uniquePayers": 491,
+    "uniquePayees": 47,
     "byType": {
-      "ChannelOpened": 10905,
-      "CloseRequested": 1168,
-      "ChannelExpired": 1063,
-      "ChannelClosed": 7485,
+      "ChannelOpened": 10968,
+      "CloseRequested": 1169,
+      "ChannelExpired": 1064,
+      "ChannelClosed": 7506,
       "Settled": 149,
       "TopUp": 176
     },
@@ -1652,9 +1652,9 @@
       },
       {
         "day": "2026-04-14",
-        "events": 122,
-        "payers": 18,
-        "payees": 2
+        "events": 208,
+        "payers": 29,
+        "payees": 5
       }
     ]
   },
