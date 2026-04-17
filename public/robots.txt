@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://agenteconomy.to/sitemap.xml
+Sitemap: https://www.agenteconomy.to/sitemap.xml
