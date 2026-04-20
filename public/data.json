@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-20T08:13:37.723Z",
+  "updatedAt": "2026-04-20T13:48:59.972Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -1500,15 +1500,15 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 24331,
-    "uniquePayers": 560,
-    "uniquePayees": 57,
+    "totalEvents": 24357,
+    "uniquePayers": 568,
+    "uniquePayees": 58,
     "byType": {
-      "ChannelOpened": 12565,
+      "ChannelOpened": 12587,
       "CloseRequested": 1452,
       "ChannelExpired": 1334,
-      "ChannelClosed": 8649,
-      "Settled": 153,
+      "ChannelClosed": 8652,
+      "Settled": 154,
       "TopUp": 178
     },
     "daily": [
@@ -1718,106 +1718,66 @@
       },
       {
         "day": "2026-04-20",
-        "events": 123,
-        "payers": 23,
-        "payees": 3
+        "events": 149,
+        "payers": 33,
+        "payees": 5
       }
     ]
   },
   "erc8004Registry": {
-    "totalAgents": 189350,
+    "totalAgents": 201271,
     "chainsTracked": 22,
     "chains": [
       {
         "name": "BNB",
-        "agents": 62507
+        "agents": 71671
       },
       {
         "name": "Base",
-        "agents": 45661
+        "agents": 46587
       },
       {
         "name": "Ethereum",
-        "agents": 39491
+        "agents": 39557
       },
       {
         "name": "MegaETH",
-        "agents": 12595
+        "agents": 12609
       },
       {
         "name": "Monad",
-        "agents": 8377
+        "agents": 8380
       },
       {
         "name": "Celo",
-        "agents": 7077
+        "agents": 8279
       },
       {
         "name": "Gnosis",
-        "agents": 3379
+        "agents": 3405
       },
       {
         "name": "Peaq",
-        "agents": 2688
+        "agents": 3063
       },
       {
         "name": "Shape",
-        "agents": 1942
+        "agents": 1955
       },
       {
         "name": "Avalanche",
-        "agents": 1747
+        "agents": 1770
       },
       {
         "name": "Ink",
-        "agents": 1009
+        "agents": 1011
       },
       {
         "name": "Arbitrum",
-        "agents": 857
+        "agents": 900
       }
     ],
     "daily": [
-      {
-        "day": "2026-01-11",
-        "agents": 795
-      },
-      {
-        "day": "2026-01-12",
-        "agents": 256
-      },
-      {
-        "day": "2026-01-13",
-        "agents": 386
-      },
-      {
-        "day": "2026-01-14",
-        "agents": 365
-      },
-      {
-        "day": "2026-01-15",
-        "agents": 4332
-      },
-      {
-        "day": "2026-01-16",
-        "agents": 2
-      },
-      {
-        "day": "2026-01-17",
-        "agents": 1
-      },
-      {
-        "day": "2026-01-18",
-        "agents": 0
-      },
-      {
-        "day": "2026-01-19",
-        "agents": 0
-      },
-      {
-        "day": "2026-01-20",
-        "agents": 0
-      },
       {
         "day": "2026-01-21",
         "agents": 2
@@ -2136,7 +2096,47 @@
       },
       {
         "day": "2026-04-10",
-        "agents": 418
+        "agents": 767
+      },
+      {
+        "day": "2026-04-11",
+        "agents": 852
+      },
+      {
+        "day": "2026-04-12",
+        "agents": 827
+      },
+      {
+        "day": "2026-04-13",
+        "agents": 1144
+      },
+      {
+        "day": "2026-04-14",
+        "agents": 1221
+      },
+      {
+        "day": "2026-04-15",
+        "agents": 1501
+      },
+      {
+        "day": "2026-04-16",
+        "agents": 1364
+      },
+      {
+        "day": "2026-04-17",
+        "agents": 1114
+      },
+      {
+        "day": "2026-04-18",
+        "agents": 1272
+      },
+      {
+        "day": "2026-04-19",
+        "agents": 1590
+      },
+      {
+        "day": "2026-04-20",
+        "agents": 687
       }
     ]
   },
