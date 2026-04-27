@@ -22,6 +22,29 @@ Base, Solana, Gnosis, Polygon, Ethereum, BNB, Avalanche, Arbitrum, Optimism, SEI
 
 ## Versions
 
+### v2.1 — 2026-04-27
+
+UX, data transparency, and maintainability pass.
+
+**Product improvements:**
+- Added protocol comparison table for scanning events, volume, chains, and source links in one view
+- Added visible raw data shortcuts for `data.json`, `tempo-data.json`, GitHub, and protocol comparison
+- Added data freshness state (`Live`, `Cached`, `Stale`, `Fallback`) so failed or old data is no longer silent
+- Replaced misleading loading skeletons for missing protocol data with explicit empty/indexing states
+- Linked chart and section sources directly to Dune dashboards or raw data
+
+**Design and mobile improvements:**
+- Fixed mobile horizontal overflow in protocol cards and chart controls
+- Improved first-screen hierarchy with a stronger dashboard hero and protocol comparison before deep charts
+- Added reduced-motion support for animated counters and data-flow lines
+- Tightened mobile navigation and section info controls
+
+**Code improvements:**
+- Split app constants, source metadata, formatting, totals, and CSS out of `App.jsx`
+- Kept Open Graph totals aligned with the dashboard aggregate event calculation
+- Split Recharts into a separate Vite chunk so the main app bundle remains small
+- Reduced SEO keyword stuffing while keeping structured data and noscript fallback
+
 ### v2 — 2026-04-10
 
 Added multi-chain ERC-8004 agent registry + Olas ecosystem data.
@@ -86,6 +109,24 @@ Tempo RPC ──→ tempo-summary.js ──→ tempo-data.json
 GitHub Actions (every 6h) ────────────┘
 ```
 
+### Project structure
+
+```
+src/
+  App.jsx       # Dashboard layout, sections, charts, and interactions
+  data.js       # Fallback dataset and external source metadata
+  utils.js      # Formatting, moving averages, deltas, freshness, totals
+  styles.css    # Theme tokens, responsive layout, component styles
+  main.jsx      # React entrypoint + Vercel Analytics
+
+api/
+  og.jsx        # Dynamic Open Graph image using the same aggregate event logic
+
+scripts/
+  fetch-data.js       # Dune aggregation pipeline
+  tempo-summary.js    # Tempo MPP aggregation helper
+```
+
 ## Tech stack
 
 - **Frontend**: React 18 + Vite 5
@@ -109,6 +150,11 @@ npm run tempo-summary                  # Aggregate Tempo MPP data
 ```
 
 Automated via GitHub Actions — runs at 00:00, 06:00, 12:00, 18:00 UTC daily.
+
+When `public/data.json` changes, the workflow expects a GitHub Actions secret named
+`VERCEL_DEPLOY_HOOK_URL`. This should be a Vercel Deploy Hook for the `main` branch.
+The workflow fails loudly if the hook is missing so data commits do not silently leave
+production stale.
 
 ## Methodology
 

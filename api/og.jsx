@@ -11,6 +11,19 @@ function fmt(n) {
   return n.toLocaleString()
 }
 
+function computeTotals(data) {
+  const x402 = data?.x402 || {}
+  const baseAg = data?.baseAgentic || {}
+  const acp = data?.virtualsAcp || {}
+  const tempo = data?.tempoMpp || {}
+  const olas = data?.olas || {}
+  return {
+    events: (x402.totalTxs || 139277505) + (baseAg.totalTxs || 709494) + (acp.totalMemos || 0) + (tempo.totalEvents || 0) + (olas.totalTxs || 0),
+    volume: x402.totalVolume || 38843631,
+    x402Events: x402.totalTxs || 139277505,
+  }
+}
+
 export default async function handler(req) {
   // Load live data
   let data
@@ -22,14 +35,9 @@ export default async function handler(req) {
   }
 
   const x402 = data?.x402 || {}
-  const baseAg = data?.baseAgentic || {}
-  const acp = data?.virtualsAcp || {}
-  const tempo = data?.tempoMpp || {}
-  const erc8004 = data?.erc8004 || {}
-  const olas = data?.olas || {}
-
-  const totalEvents = (x402.totalTxs || 139277505) + (baseAg.totalTxs || 709494) + (acp.totalMemos || 0) + (tempo.totalEvents || 0) + (erc8004.totalRegistrations || 171000) + (olas.totalTransactions || 15700000)
-  const totalVol = x402.totalVolume || 38843631
+  const totals = computeTotals(data)
+  const totalEvents = totals.events
+  const totalVol = totals.volume
   const standards = 5
   const chains = '11+'
 
@@ -89,7 +97,7 @@ export default async function handler(req) {
             { value: '$' + fmt(totalVol), label: 'USD settled', color: '#16A34A' },
             { value: String(standards), label: 'protocols', color: '#F9FAFB' },
             { value: chains, label: 'chains', color: '#F9FAFB' },
-            { value: fmt(x402.totalTxs || 139277505), label: 'x402 events', color: '#3B82F6' },
+            { value: fmt(totals.x402Events), label: 'x402 events', color: '#3B82F6' },
           ].map((item, i) => (
             <div key={i} style={{
               flex: 1, padding: '24px 28px',
