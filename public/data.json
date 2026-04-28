@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-28T14:31:39.142Z",
+  "updatedAt": "2026-04-28T19:56:47.747Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,8 +33,8 @@
     }
   ],
   "x402": {
-    "totalTxs": 143443064,
-    "totalVolume": 40444716,
+    "totalTxs": 143510746,
+    "totalVolume": 40445259,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -70,8 +70,8 @@
       },
       {
         "month": "Apr 26",
-        "txs": 4154190,
-        "vol": 1600652
+        "txs": 4221872,
+        "vol": 1601195
       }
     ],
     "daily": [
@@ -324,7 +324,7 @@
       },
       {
         "name": "Dexter",
-        "share": 23.1,
+        "share": 23,
         "color": "#6366F1"
       },
       {
