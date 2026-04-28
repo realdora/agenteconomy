@@ -136,13 +136,29 @@ async function main() {
     requiredFailures.push(message)
     console.warn(`${label} failed:`, error.message)
   }
+  const captureQuery = promise => promise.then(rows => ({ rows }), error => ({ error }))
+  const readQuery = async query => {
+    const result = await query
+    if (result.error) throw result.error
+    return result.rows
+  }
+
+  // Start all Dune calls up front so fresh executions run in parallel instead of serially.
+  const queries = {
+    q6058135: captureQuery(fetchQuery(6058135, 1000)),
+    q6084845: captureQuery(fetchQuery(6084845, 1000)),
+    q6731879: captureQuery(fetchQuery(6731879, 1000)),
+    q6200422: captureQuery(fetchQuery(6200422, 1000)),
+    q6130922: captureQuery(fetchQuery(6130922, 5000)),
+    q3344834: captureQuery(fetchQuery(3344834, 5000)),
+  }
 
   // ── Q1: x402 cumulative + monthly (Query 6058135) ──────────
   let totalTxs = 139277505, totalVolume = 38843631
   let protocolMap = {}, monthlyMap = {}
 
   try {
-    const rows = await fetchQuery(6058135, 1000)
+    const rows = await readQuery(queries.q6058135)
     console.log(`Q6058135 (x402 cumulative): ${rows.length} rows`)
     if (rows.length > 0) {
       totalTxs = safeNum(rows[0].cumulative_txn) || totalTxs
@@ -165,7 +181,7 @@ async function main() {
   // ── Q2: x402 daily breakdown (Query 6084845) ───────────────
   let dailyMap = {}
   try {
-    const rows = await fetchQuery(6084845, 1000)
+    const rows = await readQuery(queries.q6084845)
     console.log(`Q6084845 (x402 daily): ${rows.length} rows`)
     rows.forEach(row => {
       const day = (row.period || '').slice(0, 10)
@@ -178,7 +194,7 @@ async function main() {
   // ── Q3: ERC-8004 Base Agentic (Query 6731879) ──────────────
   let agenticDaily = [], agenticTotalTxs = 0
   try {
-    const rows = await fetchQuery(6731879, 1000)
+    const rows = await readQuery(queries.q6731879)
     console.log(`Q6731879 (ERC-8004): ${rows.length} rows`)
     const agMap = {}
     rows.forEach(row => {
@@ -211,7 +227,7 @@ async function main() {
   // ── Q4: Virtuals ACP memos (Query 6200422) ─────────────────
   let acpTotalMemos = 0, acpDaily = []
   try {
-    const rows = await fetchQuery(6200422, 1000)
+    const rows = await readQuery(queries.q6200422)
     console.log(`Q6200422 (Virtuals ACP): ${rows.length} rows`)
 
     // Rows are per-day per-version (v1, v2). Merge by day.
@@ -256,7 +272,7 @@ async function main() {
   const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
   let erc8004Chains = {}, erc8004Daily = {}, erc8004TotalAgents = 0
   try {
-    const rows = await fetchQuery(6130922, 5000)
+    const rows = await readQuery(queries.q6130922)
     console.log(`Q6130922 (ERC-8004 registry): ${rows.length} rows`)
     rows.forEach(row => {
       const chain = row.blockchain || ''
@@ -277,7 +293,7 @@ async function main() {
   // ── Q7: Olas / Autonolas (Query 3344834) ───────────────
   let olasTotalTxs = 0, olasChains = {}, olasWeekly = []
   try {
-    const rows = await fetchQuery(3344834, 5000)
+    const rows = await readQuery(queries.q3344834)
     console.log(`Q3344834 (Olas): ${rows.length} rows`)
     const latest = rows.reduce((best, r) => (r.time || '') > (best.time || '') ? r : best, {})
     olasTotalTxs = safeNum(latest.global_cumulative_transactions_number)
