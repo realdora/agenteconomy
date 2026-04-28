@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-28T10:09:13.191Z",
+  "updatedAt": "2026-04-28T14:31:39.142Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -313,7 +313,7 @@
       },
       {
         "day": "2026-04-28",
-        "txs": 43121
+        "txs": 99461
       }
     ],
     "protocols": [
@@ -1089,92 +1089,18 @@
         "consumer": 922,
         "infrastructure": 3305,
         "total": 4227
+      },
+      {
+        "day": "2026-04-27",
+        "consumer": 1246,
+        "infrastructure": 3223,
+        "total": 4469
       }
     ]
   },
   "virtualsAcp": {
-    "totalMemos": 12035460,
+    "totalMemos": 12246056,
     "daily": [
-      {
-        "day": "2026-01-13",
-        "memos": 11865,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-14",
-        "memos": 41109,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-15",
-        "memos": 148825,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-16",
-        "memos": 307851,
-        "senders": 17
-      },
-      {
-        "day": "2026-01-17",
-        "memos": 238670,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-18",
-        "memos": 239047,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-19",
-        "memos": 40986,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-20",
-        "memos": 9897,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-21",
-        "memos": 16530,
-        "senders": 32
-      },
-      {
-        "day": "2026-01-22",
-        "memos": 23939,
-        "senders": 17
-      },
-      {
-        "day": "2026-01-23",
-        "memos": 47724,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-24",
-        "memos": 89364,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-25",
-        "memos": 168901,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-26",
-        "memos": 63139,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-27",
-        "memos": 6715,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-28",
-        "memos": 13629,
-        "senders": 40
-      },
       {
         "day": "2026-01-29",
         "memos": 13625,
@@ -1542,8 +1468,88 @@
       },
       {
         "day": "2026-04-12",
-        "memos": 1776,
+        "memos": 16916,
+        "senders": 17
+      },
+      {
+        "day": "2026-04-13",
+        "memos": 28510,
+        "senders": 19
+      },
+      {
+        "day": "2026-04-14",
+        "memos": 19435,
+        "senders": 21
+      },
+      {
+        "day": "2026-04-15",
+        "memos": 18600,
+        "senders": 26
+      },
+      {
+        "day": "2026-04-16",
+        "memos": 10247,
+        "senders": 16
+      },
+      {
+        "day": "2026-04-17",
+        "memos": 12134,
+        "senders": 19
+      },
+      {
+        "day": "2026-04-18",
+        "memos": 14662,
+        "senders": 17
+      },
+      {
+        "day": "2026-04-19",
+        "memos": 12789,
+        "senders": 15
+      },
+      {
+        "day": "2026-04-20",
+        "memos": 10321,
+        "senders": 16
+      },
+      {
+        "day": "2026-04-21",
+        "memos": 10374,
+        "senders": 20
+      },
+      {
+        "day": "2026-04-22",
+        "memos": 10164,
+        "senders": 19
+      },
+      {
+        "day": "2026-04-23",
+        "memos": 13651,
+        "senders": 19
+      },
+      {
+        "day": "2026-04-24",
+        "memos": 11588,
+        "senders": 16
+      },
+      {
+        "day": "2026-04-25",
+        "memos": 10056,
+        "senders": 17
+      },
+      {
+        "day": "2026-04-26",
+        "memos": 6167,
         "senders": 14
+      },
+      {
+        "day": "2026-04-27",
+        "memos": 4899,
+        "senders": 19
+      },
+      {
+        "day": "2026-04-28",
+        "memos": 1859,
+        "senders": 13
       }
     ]
   },
@@ -1797,44 +1803,44 @@
     ]
   },
   "erc8004Registry": {
-    "totalAgents": 201271,
-    "chainsTracked": 22,
+    "totalAgents": 210211,
+    "chainsTracked": 24,
     "chains": [
       {
         "name": "BNB",
-        "agents": 71671
+        "agents": 78624
       },
       {
         "name": "Base",
-        "agents": 46587
+        "agents": 47299
       },
       {
         "name": "Ethereum",
-        "agents": 39557
+        "agents": 39644
       },
       {
         "name": "MegaETH",
-        "agents": 12609
-      },
-      {
-        "name": "Monad",
-        "agents": 8380
+        "agents": 12617
       },
       {
         "name": "Celo",
-        "agents": 8279
+        "agents": 9274
+      },
+      {
+        "name": "Monad",
+        "agents": 8381
       },
       {
         "name": "Gnosis",
-        "agents": 3405
+        "agents": 3419
       },
       {
         "name": "Peaq",
-        "agents": 3063
+        "agents": 3122
       },
       {
         "name": "Shape",
-        "agents": 1955
+        "agents": 1956
       },
       {
         "name": "Avalanche",
@@ -1842,46 +1848,14 @@
       },
       {
         "name": "Ink",
-        "agents": 1011
+        "agents": 1034
       },
       {
         "name": "Arbitrum",
-        "agents": 900
+        "agents": 922
       }
     ],
     "daily": [
-      {
-        "day": "2026-01-21",
-        "agents": 2
-      },
-      {
-        "day": "2026-01-22",
-        "agents": 984
-      },
-      {
-        "day": "2026-01-23",
-        "agents": 4
-      },
-      {
-        "day": "2026-01-24",
-        "agents": 1
-      },
-      {
-        "day": "2026-01-25",
-        "agents": 1
-      },
-      {
-        "day": "2026-01-26",
-        "agents": 0
-      },
-      {
-        "day": "2026-01-27",
-        "agents": 0
-      },
-      {
-        "day": "2026-01-28",
-        "agents": 6
-      },
       {
         "day": "2026-01-29",
         "agents": 13708
@@ -2208,28 +2182,60 @@
       },
       {
         "day": "2026-04-20",
-        "agents": 687
+        "agents": 1098
+      },
+      {
+        "day": "2026-04-21",
+        "agents": 1672
+      },
+      {
+        "day": "2026-04-22",
+        "agents": 1360
+      },
+      {
+        "day": "2026-04-23",
+        "agents": 1084
+      },
+      {
+        "day": "2026-04-24",
+        "agents": 1109
+      },
+      {
+        "day": "2026-04-25",
+        "agents": 791
+      },
+      {
+        "day": "2026-04-26",
+        "agents": 960
+      },
+      {
+        "day": "2026-04-27",
+        "agents": 1090
+      },
+      {
+        "day": "2026-04-28",
+        "agents": 463
       }
     ]
   },
   "olas": {
-    "totalTxs": 15756688,
+    "totalTxs": 16429202,
     "chains": [
       {
         "name": "Gnosis",
-        "txs": 15389077
+        "txs": 15956503
       },
       {
         "name": "Optimism",
-        "txs": 165355
+        "txs": 204574
       },
       {
         "name": "Polygon",
-        "txs": 113381
+        "txs": 146839
       },
       {
         "name": "Base",
-        "txs": 87269
+        "txs": 119680
       },
       {
         "name": "Ethereum",
@@ -2249,22 +2255,6 @@
       }
     ],
     "weekly": [
-      {
-        "week": "2025-04-07",
-        "txs": 273785
-      },
-      {
-        "week": "2025-04-14",
-        "txs": 259146
-      },
-      {
-        "week": "2025-04-21",
-        "txs": 229974
-      },
-      {
-        "week": "2025-04-28",
-        "txs": 182732
-      },
       {
         "week": "2025-05-05",
         "txs": 160392
@@ -2455,7 +2445,23 @@
       },
       {
         "week": "2026-03-30",
-        "txs": 284181
+        "txs": 316492
+      },
+      {
+        "week": "2026-04-06",
+        "txs": 222897
+      },
+      {
+        "week": "2026-04-13",
+        "txs": 180874
+      },
+      {
+        "week": "2026-04-20",
+        "txs": 197258
+      },
+      {
+        "week": "2026-04-27",
+        "txs": 39174
       }
     ]
   }
