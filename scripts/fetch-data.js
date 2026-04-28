@@ -16,12 +16,103 @@ if (!API_KEY) {
 
 const headers = { 'x-dune-api-key': API_KEY }
 
+const DUNE_API_BASE = 'https://api.dune.com/api/v1'
+const CACHE_MAX_AGE_HOURS = Number(process.env.DUNE_CACHE_MAX_AGE_HOURS || 5)
+const REFRESH_MODE = process.env.DUNE_REFRESH_MODE || 'stale' // stale | always | never
+const EXECUTION_TIMEOUT_MS = Number(process.env.DUNE_EXECUTION_TIMEOUT_MS || 15 * 60 * 1000)
+const POLL_INTERVAL_MS = Number(process.env.DUNE_POLL_INTERVAL_MS || 5000)
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+async function duneRequest(path, options = {}) {
+  const url = path.startsWith('http') ? path : `${DUNE_API_BASE}${path}`
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...headers,
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {}),
+    },
+  })
+  const text = await res.text()
+  let json = {}
+  if (text) {
+    try { json = JSON.parse(text) }
+    catch { json = { raw: text } }
+  }
+  if (!res.ok) {
+    const message = json?.error?.message || json?.message || text || `HTTP ${res.status}`
+    throw new Error(message)
+  }
+  return json
+}
+
+function getExecutionEndedAt(payload) {
+  return payload?.execution_ended_at || payload?.submitted_at || null
+}
+
+function ageHours(isoString) {
+  if (!isoString) return Infinity
+  const time = Date.parse(isoString)
+  if (!Number.isFinite(time)) return Infinity
+  return (Date.now() - time) / 36e5
+}
+
+function shouldExecute(latestResult) {
+  if (REFRESH_MODE === 'always') return true
+  if (REFRESH_MODE === 'never') return false
+  return ageHours(getExecutionEndedAt(latestResult)) > CACHE_MAX_AGE_HOURS
+}
+
+function resultRows(payload, context) {
+  if (payload?.error) {
+    throw new Error(`${context}: ${payload.error.message || JSON.stringify(payload.error)}`)
+  }
+  const rows = payload?.result?.rows || []
+  if (rows.length === 0) throw new Error(`${context}: returned 0 rows`)
+  return rows
+}
+
+async function getExecutionResult(executionId, limit) {
+  return duneRequest(`/execution/${executionId}/results?limit=${limit}&allow_partial_results=true`)
+}
+
+async function executeAndWait(queryId, limit) {
+  const started = await duneRequest(`/query/${queryId}/execute`, {
+    method: 'POST',
+    body: JSON.stringify({ performance: process.env.DUNE_PERFORMANCE || 'medium' }),
+  })
+  const executionId = started.execution_id
+  if (!executionId) throw new Error(`Dune ${queryId}: execute response missing execution_id`)
+
+  const startedAt = Date.now()
+  while (Date.now() - startedAt < EXECUTION_TIMEOUT_MS) {
+    const status = await duneRequest(`/execution/${executionId}/status`)
+    if (status.state === 'QUERY_STATE_COMPLETED' || status.state === 'QUERY_STATE_COMPLETED_PARTIAL') {
+      return getExecutionResult(executionId, limit)
+    }
+    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_EXPIRED') {
+      const detail = status?.error?.message || status.state
+      throw new Error(`Dune ${queryId}: execution ${executionId} ${detail}`)
+    }
+    await sleep(POLL_INTERVAL_MS)
+  }
+  throw new Error(`Dune ${queryId}: execution timed out after ${Math.round(EXECUTION_TIMEOUT_MS / 1000)}s`)
+}
+
 async function fetchQuery(queryId, limit = 1000) {
-  const url = `https://api.dune.com/api/v1/query/${queryId}/results?limit=${limit}`
-  const res = await fetch(url, { headers })
-  if (!res.ok) throw new Error(`Dune ${queryId}: HTTP ${res.status}`)
-  const json = await res.json()
-  return json?.result?.rows || []
+  const latest = await duneRequest(`/query/${queryId}/results?limit=${limit}&allow_partial_results=true`)
+  const endedAt = getExecutionEndedAt(latest)
+  const latestAge = ageHours(endedAt)
+
+  if (!shouldExecute(latest)) {
+    console.log(`Dune ${queryId}: using latest result from ${endedAt || 'unknown time'} (${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old)`)
+    return resultRows(latest, `Dune ${queryId} latest result`)
+  }
+
+  console.log(`Dune ${queryId}: latest result is ${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old; executing fresh query`)
+  const fresh = await executeAndWait(queryId, limit)
+  return resultRows(fresh, `Dune ${queryId} fresh execution`)
 }
 
 const PROTOCOL_COLORS = {
@@ -38,6 +129,13 @@ const safeNum = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n }
 
 async function main() {
   console.log('Fetching Dune queries...\n')
+  console.log(`Dune refresh mode: ${REFRESH_MODE}; max cache age: ${CACHE_MAX_AGE_HOURS}h\n`)
+  const requiredFailures = []
+  const recordRequiredFailure = (label, error) => {
+    const message = `${label}: ${error.message}`
+    requiredFailures.push(message)
+    console.warn(`${label} failed:`, error.message)
+  }
 
   // ── Q1: x402 cumulative + monthly (Query 6058135) ──────────
   let totalTxs = 139277505, totalVolume = 38843631
@@ -62,7 +160,7 @@ async function main() {
         }
       })
     }
-  } catch (e) { console.warn('Q6058135 failed:', e.message) }
+  } catch (e) { recordRequiredFailure('Q6058135', e) }
 
   // ── Q2: x402 daily breakdown (Query 6084845) ───────────────
   let dailyMap = {}
@@ -75,7 +173,7 @@ async function main() {
       if (!dailyMap[day]) dailyMap[day] = { txs: 0 }
       dailyMap[day].txs += safeNum(row.txs)
     })
-  } catch (e) { console.warn('Q6084845 failed:', e.message) }
+  } catch (e) { recordRequiredFailure('Q6084845', e) }
 
   // ── Q3: ERC-8004 Base Agentic (Query 6731879) ──────────────
   let agenticDaily = [], agenticTotalTxs = 0
@@ -108,7 +206,7 @@ async function main() {
     })
     const sortedDays = Object.entries(cumByDay).sort(([a], [b]) => b.localeCompare(a))
     if (sortedDays.length > 0) agenticTotalTxs = sortedDays[0][1]
-  } catch (e) { console.warn('Q6731879 failed:', e.message) }
+  } catch (e) { recordRequiredFailure('Q6731879', e) }
 
   // ── Q4: Virtuals ACP memos (Query 6200422) ─────────────────
   let acpTotalMemos = 0, acpDaily = []
@@ -137,7 +235,7 @@ async function main() {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-90)
       .map(([day, v]) => ({ day, memos: v.memos, senders: v.senders }))
-  } catch (e) { console.warn('Q6200422 failed:', e.message) }
+  } catch (e) { recordRequiredFailure('Q6200422', e) }
 
   // ── Q5: Tempo/MPP (from public/tempo-data.json if present) ──
   let tempoTotalEvents = 0, tempoDaily = [], tempoByType = {}, tempoPayers = 0, tempoPayees = 0
@@ -174,7 +272,7 @@ async function main() {
       }
     })
     erc8004TotalAgents = Object.values(erc8004Chains).reduce((s, v) => s + v, 0)
-  } catch (e) { console.warn('Q6130922 failed:', e.message) }
+  } catch (e) { recordRequiredFailure('Q6130922', e) }
 
   // ── Q7: Olas / Autonolas (Query 3344834) ───────────────
   let olasTotalTxs = 0, olasChains = {}, olasWeekly = []
@@ -200,7 +298,11 @@ async function main() {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-52)
       .map(([week, v]) => ({ week, txs: v.txs }))
-  } catch (e) { console.warn('Q3344834 failed:', e.message) }
+  } catch (e) { recordRequiredFailure('Q3344834', e) }
+
+  if (requiredFailures.length > 0) {
+    throw new Error(`Required Dune queries failed; refusing to write a fresh data.json with fallback or partial data.\n- ${requiredFailures.join('\n- ')}`)
+  }
 
   // ── Build monthly data ─────────────────────────────────────
   const monthly = Object.entries(monthlyMap)

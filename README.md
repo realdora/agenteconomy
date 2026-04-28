@@ -145,16 +145,19 @@ npm run dev
 ## Data refresh
 
 ```bash
-DUNE_API_KEY=xxx npm run fetch-data   # Fetch latest from Dune API
+DUNE_API_KEY=xxx npm run fetch-data   # Fetch/refresh Dune data
 npm run tempo-summary                  # Aggregate Tempo MPP data
 ```
 
 Automated via GitHub Actions — runs at 00:00, 06:00, 12:00, 18:00 UTC daily.
+The fetch script reads Dune's latest query results first, then triggers a fresh Dune
+execution when the cached result is older than `DUNE_CACHE_MAX_AGE_HOURS` (default: 5).
+Use `DUNE_REFRESH_MODE=always` or `DUNE_REFRESH_MODE=never` to override that behavior.
 
-When `public/data.json` changes, the workflow expects a GitHub Actions secret named
-`VERCEL_DEPLOY_HOOK_URL`. This should be a Vercel Deploy Hook for the `main` branch.
-The workflow fails loudly if the hook is missing so data commits do not silently leave
-production stale.
+When `public/data.json` changes, the commit to `main` is the primary production deploy
+trigger through the Vercel Git integration. `VERCEL_DEPLOY_HOOK_URL` is optional backup
+insurance; if it is absent or malformed, the workflow emits a warning and relies on
+Vercel Git auto-deploy.
 
 ## Methodology
 

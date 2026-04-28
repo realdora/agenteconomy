@@ -49,15 +49,15 @@ jobs:
           VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
         run: |
           if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
-            echo "::error::Missing VERCEL_DEPLOY_HOOK_URL secret. Data was committed, but production will remain stale until Vercel is triggered."
-            exit 1
+            echo "::warning::Missing VERCEL_DEPLOY_HOOK_URL secret. Vercel Git auto-deploy should still deploy this data commit."
+            exit 0
           fi
           case "$VERCEL_DEPLOY_HOOK_URL" in
             https://api.vercel.com/v1/integrations/deploy/prj_*)
               ;;
             *)
-              echo "::error::VERCEL_DEPLOY_HOOK_URL must be the Vercel deploy hook URL from Project Settings > Git > Deploy Hooks."
-              exit 1
+              echo "::warning::VERCEL_DEPLOY_HOOK_URL is not a Vercel deploy hook URL. Skipping optional deploy hook; Vercel Git auto-deploy should still deploy this data commit."
+              exit 0
               ;;
           esac
           curl --connect-timeout 10 --max-time 30 -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL"
