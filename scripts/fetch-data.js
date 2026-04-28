@@ -21,6 +21,7 @@ const CACHE_MAX_AGE_HOURS = Number(process.env.DUNE_CACHE_MAX_AGE_HOURS || 5)
 const REFRESH_MODE = process.env.DUNE_REFRESH_MODE || 'stale' // stale | always | never
 const EXECUTION_TIMEOUT_MS = Number(process.env.DUNE_EXECUTION_TIMEOUT_MS || 15 * 60 * 1000)
 const POLL_INTERVAL_MS = Number(process.env.DUNE_POLL_INTERVAL_MS || 5000)
+let remainingExecutions = Number(process.env.DUNE_MAX_EXECUTIONS_PER_RUN || 1)
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -73,6 +74,10 @@ function resultRows(payload, context) {
   return rows
 }
 
+function isRateLimitError(error) {
+  return /too many requests|rate limit|http 429/i.test(error?.message || '')
+}
+
 async function getExecutionResult(executionId, limit) {
   return duneRequest(`/execution/${executionId}/results?limit=${limit}&allow_partial_results=true`)
 }
@@ -110,9 +115,21 @@ async function fetchQuery(queryId, limit = 1000) {
     return resultRows(latest, `Dune ${queryId} latest result`)
   }
 
+  if (remainingExecutions <= 0) {
+    console.warn(`Dune ${queryId}: latest result is ${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old, but DUNE_MAX_EXECUTIONS_PER_RUN budget is exhausted; using cached latest result`)
+    return resultRows(latest, `Dune ${queryId} latest result`)
+  }
+  remainingExecutions -= 1
+
   console.log(`Dune ${queryId}: latest result is ${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old; executing fresh query`)
-  const fresh = await executeAndWait(queryId, limit)
-  return resultRows(fresh, `Dune ${queryId} fresh execution`)
+  try {
+    const fresh = await executeAndWait(queryId, limit)
+    return resultRows(fresh, `Dune ${queryId} fresh execution`)
+  } catch (error) {
+    if (!isRateLimitError(error)) throw error
+    console.warn(`Dune ${queryId}: fresh execution was rate limited; using cached latest result instead`)
+    return resultRows(latest, `Dune ${queryId} latest result`)
+  }
 }
 
 const PROTOCOL_COLORS = {
@@ -130,6 +147,7 @@ const safeNum = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n }
 async function main() {
   console.log('Fetching Dune queries...\n')
   console.log(`Dune refresh mode: ${REFRESH_MODE}; max cache age: ${CACHE_MAX_AGE_HOURS}h\n`)
+  console.log(`Dune fresh execution budget: ${remainingExecutions} per run\n`)
   const requiredFailures = []
   const recordRequiredFailure = (label, error) => {
     const message = `${label}: ${error.message}`

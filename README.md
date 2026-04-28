@@ -152,7 +152,9 @@ npm run tempo-summary                  # Aggregate Tempo MPP data
 Automated via GitHub Actions — runs at 00:00, 06:00, 12:00, 18:00 UTC daily.
 The fetch script reads Dune's latest query results first, then triggers a fresh Dune
 execution when the cached result is older than `DUNE_CACHE_MAX_AGE_HOURS` (default: 5).
-Use `DUNE_REFRESH_MODE=always` or `DUNE_REFRESH_MODE=never` to override that behavior.
+To stay within Dune API plan limits, it executes at most `DUNE_MAX_EXECUTIONS_PER_RUN`
+stale queries per run (default: 1) and otherwise uses Dune's latest cached rows. Use
+`DUNE_REFRESH_MODE=always` or `DUNE_REFRESH_MODE=never` to override freshness checks.
 
 When `public/data.json` changes, the commit to `main` is the primary production deploy
 trigger through the Vercel Git integration. `VERCEL_DEPLOY_HOOK_URL` is optional backup
