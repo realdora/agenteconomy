@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-29T03:40:56.380Z",
+  "updatedAt": "2026-04-29T08:23:37.438Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -1095,6 +1095,12 @@
         "consumer": 1246,
         "infrastructure": 3223,
         "total": 4469
+      },
+      {
+        "day": "2026-04-28",
+        "consumer": 820,
+        "infrastructure": 2936,
+        "total": 3756
       }
     ]
   },
@@ -2219,23 +2225,23 @@
     ]
   },
   "olas": {
-    "totalTxs": 16429202,
+    "totalTxs": 16449330,
     "chains": [
       {
         "name": "Gnosis",
-        "txs": 15956503
+        "txs": 15972029
       },
       {
         "name": "Optimism",
-        "txs": 204574
+        "txs": 205475
       },
       {
         "name": "Polygon",
-        "txs": 146839
+        "txs": 149946
       },
       {
         "name": "Base",
-        "txs": 119680
+        "txs": 120274
       },
       {
         "name": "Ethereum",
@@ -2461,7 +2467,7 @@
       },
       {
         "week": "2026-04-27",
-        "txs": 39174
+        "txs": 59302
       }
     ]
   }
