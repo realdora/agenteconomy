@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-30T08:37:38.901Z",
+  "updatedAt": "2026-04-30T14:13:53.474Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,8 +33,8 @@
     }
   ],
   "x402": {
-    "totalTxs": 143738289,
-    "totalVolume": 40456591,
+    "totalTxs": 143813764,
+    "totalVolume": 40457690,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -70,8 +70,8 @@
       },
       {
         "month": "Apr 26",
-        "txs": 4449415,
-        "vol": 1612527
+        "txs": 4524890,
+        "vol": 1613626
       }
     ],
     "daily": [
@@ -319,7 +319,7 @@
     "protocols": [
       {
         "name": "Coinbase",
-        "share": 30.5,
+        "share": 30.4,
         "color": "#0052FF"
       },
       {
@@ -334,7 +334,7 @@
       },
       {
         "name": "Other",
-        "share": 14.7,
+        "share": 14.8,
         "color": "#A855F7"
       },
       {
