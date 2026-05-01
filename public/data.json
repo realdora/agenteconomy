@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-01T03:43:13.645Z",
+  "updatedAt": "2026-05-01T08:24:02.448Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,8 +33,8 @@
     }
   ],
   "x402": {
-    "totalTxs": 143843634,
-    "totalVolume": 40458351,
+    "totalTxs": 143934786,
+    "totalVolume": 40459413,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -70,8 +70,13 @@
       },
       {
         "month": "Apr 26",
-        "txs": 4554760,
-        "vol": 1614287
+        "txs": 4597972,
+        "vol": 1614844
+      },
+      {
+        "month": "May 26",
+        "txs": 47940,
+        "vol": 505
       }
     ],
     "daily": [
