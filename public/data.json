@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-01T13:24:57.180Z",
+  "updatedAt": "2026-05-01T19:23:32.222Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,8 +33,8 @@
     }
   ],
   "x402": {
-    "totalTxs": 143934786,
-    "totalVolume": 40459413,
+    "totalTxs": 144008894,
+    "totalVolume": 40466354,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -75,8 +75,8 @@
       },
       {
         "month": "May 26",
-        "txs": 47940,
-        "vol": 505
+        "txs": 122048,
+        "vol": 7446
       }
     ],
     "daily": [
@@ -334,12 +334,12 @@
       },
       {
         "name": "PayAI",
-        "share": 21,
+        "share": 20.9,
         "color": "#10B981"
       },
       {
         "name": "Other",
-        "share": 14.8,
+        "share": 14.9,
         "color": "#A855F7"
       },
       {
