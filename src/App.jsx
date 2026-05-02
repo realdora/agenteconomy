@@ -698,7 +698,7 @@ export default function App() {
             </div>
           </div>
           <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--border-light)', fontSize: 10, color: 'var(--text-ghost)' }}>
-            Data refreshes every 6 hours. Current state: {freshness.label}.
+            Data refreshes daily. Current state: {freshness.label}.
           </div>
         </section>
 

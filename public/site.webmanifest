@@ -1,7 +1,7 @@
 {
   "name": "Agent Economy Monitor",
   "short_name": "AgentEconomy",
-  "description": "Real-time AI agent payment data across 5 protocols and 11+ chains",
+  "description": "Daily updated AI agent payment data across 5 protocols and 11+ chains",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B0F14",

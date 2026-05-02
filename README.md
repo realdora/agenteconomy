@@ -1,6 +1,6 @@
 # agenteconomy.to
 
-Real-time dashboard tracking the **agentic economy** — on-chain AI agent payment activity across protocols and chains.
+Daily updated dashboard tracking the **agentic economy** — on-chain AI agent payment activity across protocols and chains.
 
 **[agenteconomy.to](https://agenteconomy.to)**
 
@@ -61,7 +61,7 @@ Added multi-chain ERC-8004 agent registry + Olas ecosystem data.
 
 **New data:**
 - **ERC-8004 multi-chain registry** (Dune query 6130922 by @hashed_official) — 171K+ registered agents across 22 EVM chains. Top chains: BNB (54K), Ethereum (39K), Base (39K), MegaETH (13K), Monad (8K)
-- **Olas / Autonolas** (Dune query 3344834 by @adrian0x) — 15.7M cumulative agent transactions. Primary chain: Gnosis (97%). Agents trade prediction markets and execute DeFi strategies
+- **Olas / Autonolas** (Dune query 3344834 by @adrian0x) — 16M+ cumulative agent transactions. Primary chain: Gnosis (97%). Agents trade prediction markets and execute DeFi strategies
 
 **Updated metrics:**
 - Hero event count: 151.9M → 167.6M (added Olas, zero overlap with existing protocols)
@@ -81,9 +81,9 @@ Added multi-chain ERC-8004 agent registry + Olas ecosystem data.
 Initial release with 4 protocol standards.
 
 **Data sources:**
-- **x402** (Dune queries 6058135 + 6084845) — 139M+ payment settlement events across 7 chains
+- **x402** (Dune queries 6058135 + 6084845) — 144M+ payment settlement events across 7 chains
 - **ERC-8004 Base Agentic** (Dune query 6731879 by @ax1research) — 744K agentic events on Base
-- **Virtuals ACP / ERC-8183** (Dune query 6200422 by @hashed_official) — 11.8M job memos
+- **Virtuals ACP / ERC-8183** (Dune query 6200422 by @hashed_official) — 12M+ job memos
 - **Tempo MPP** (RPC indexer) — 19K micropayment channel events
 
 **Features:**
@@ -94,7 +94,7 @@ Initial release with 4 protocol standards.
 - Week-over-week delta indicators
 - Light / dark theme with auto-detection
 - Dynamic OG image with live metrics
-- Data auto-refreshes every 6 hours
+- Data auto-refreshes daily
 
 ## Data sources
 
@@ -116,7 +116,7 @@ Dune API ──→ fetch-data.js ──→ public/data.json ──→ React (App
                                       ↑
 Tempo RPC ──→ tempo-summary.js ──→ tempo-data.json
                                       ↑
-GitHub Actions (every 6h) ────────────┘
+GitHub Actions (daily) ───────────────┘
 ```
 
 ### Project structure
@@ -143,7 +143,7 @@ scripts/
 - **Charts**: Recharts
 - **Hosting**: Vercel
 - **OG image**: Dynamic generation via `@vercel/og`
-- **Data pipeline**: GitHub Actions cron (every 6h) → Dune API → `data.json`
+- **Data pipeline**: GitHub Actions daily cron → Dune API → `data.json`
 
 ## Development
 
