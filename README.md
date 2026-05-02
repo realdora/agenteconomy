@@ -22,6 +22,16 @@ Base, Solana, Gnosis, Polygon, Ethereum, BNB, Avalanche, Arbitrum, Optimism, SEI
 
 ## Versions
 
+### v2.1.1 — 2026-05-03
+
+Maintenance fix for Dune billing/datapoint quota exhaustion.
+
+**Pipeline improvements:**
+- Treat Dune billing/datapoint quota errors as source unavailability, not a broken workflow
+- Reuse cached Dune latest results when fresh execution is blocked by quota/rate limits
+- Keep the existing `public/data.json` unchanged and emit a GitHub warning when all required Dune queries are blocked by quota, preventing partial data writes and repeated failed scheduled runs
+- Allow `DUNE_API_BASE` override for local mock verification of Dune failure modes
+
 ### v2.1 — 2026-04-27
 
 UX, data transparency, and maintainability pass.

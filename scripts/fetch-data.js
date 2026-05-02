@@ -16,7 +16,7 @@ if (!API_KEY) {
 
 const headers = { 'x-dune-api-key': API_KEY }
 
-const DUNE_API_BASE = 'https://api.dune.com/api/v1'
+const DUNE_API_BASE = process.env.DUNE_API_BASE || 'https://api.dune.com/api/v1'
 const CACHE_MAX_AGE_HOURS = Number(process.env.DUNE_CACHE_MAX_AGE_HOURS || 5)
 const REFRESH_MODE = process.env.DUNE_REFRESH_MODE || 'stale' // stale | always | never
 const EXECUTION_TIMEOUT_MS = Number(process.env.DUNE_EXECUTION_TIMEOUT_MS || 15 * 60 * 1000)
@@ -78,6 +78,10 @@ function isRateLimitError(error) {
   return /too many requests|rate limit|http 429/i.test(error?.message || '')
 }
 
+function isQuotaError(error) {
+  return /datapoint limit|billing cycle|subscription settings|configured datapoint|monthly limit|quota/i.test(error?.message || '')
+}
+
 async function getExecutionResult(executionId, limit) {
   return duneRequest(`/execution/${executionId}/results?limit=${limit}&allow_partial_results=true`)
 }
@@ -126,8 +130,8 @@ async function fetchQuery(queryId, limit = 1000) {
     const fresh = await executeAndWait(queryId, limit)
     return resultRows(fresh, `Dune ${queryId} fresh execution`)
   } catch (error) {
-    if (!isRateLimitError(error)) throw error
-    console.warn(`Dune ${queryId}: fresh execution was rate limited; using cached latest result instead`)
+    if (!isRateLimitError(error) && !isQuotaError(error)) throw error
+    console.warn(`Dune ${queryId}: fresh execution was rate/quota limited; using cached latest result instead`)
     return resultRows(latest, `Dune ${queryId} latest result`)
   }
 }
@@ -150,8 +154,8 @@ async function main() {
   console.log(`Dune fresh execution budget: ${remainingExecutions} per run\n`)
   const requiredFailures = []
   const recordRequiredFailure = (label, error) => {
-    const message = `${label}: ${error.message}`
-    requiredFailures.push(message)
+    const message = error.message
+    requiredFailures.push({ label, message, isQuota: isQuotaError(error) })
     console.warn(`${label} failed:`, error.message)
   }
   const captureQuery = promise => promise.then(rows => ({ rows }), error => ({ error }))
@@ -335,7 +339,12 @@ async function main() {
   } catch (e) { recordRequiredFailure('Q3344834', e) }
 
   if (requiredFailures.length > 0) {
-    throw new Error(`Required Dune queries failed; refusing to write a fresh data.json with fallback or partial data.\n- ${requiredFailures.join('\n- ')}`)
+    const formattedFailures = requiredFailures.map(f => `${f.label}: ${f.message}`).join('\n- ')
+    if (requiredFailures.every(f => f.isQuota)) {
+      console.warn(`::warning::Dune billing/datapoint quota blocked required queries. Keeping existing public/data.json unchanged instead of writing partial data.\n- ${formattedFailures}`)
+      return
+    }
+    throw new Error(`Required Dune queries failed; refusing to write a fresh data.json with fallback or partial data.\n- ${formattedFailures}`)
   }
 
   // ── Build monthly data ─────────────────────────────────────
