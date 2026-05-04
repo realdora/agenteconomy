@@ -82,6 +82,15 @@ function isQuotaError(error) {
   return /datapoint limit|billing cycle|subscription settings|configured datapoint|monthly limit|quota/i.test(error?.message || '')
 }
 
+function readExistingData() {
+  try {
+    const dataPath = join(__dirname, '..', 'public', 'data.json')
+    return JSON.parse(readFileSync(dataPath, 'utf8'))
+  } catch {
+    return null
+  }
+}
+
 async function getExecutionResult(executionId, limit) {
   return duneRequest(`/execution/${executionId}/results?limit=${limit}&allow_partial_results=true`)
 }
@@ -152,11 +161,19 @@ async function main() {
   console.log('Fetching Dune queries...\n')
   console.log(`Dune refresh mode: ${REFRESH_MODE}; max cache age: ${CACHE_MAX_AGE_HOURS}h\n`)
   console.log(`Dune fresh execution budget: ${remainingExecutions} per run\n`)
+  const existingData = readExistingData()
   const requiredFailures = []
+  const reusedExistingSections = []
   const recordRequiredFailure = (label, error) => {
     const message = error.message
     requiredFailures.push({ label, message, isQuota: isQuotaError(error) })
     console.warn(`${label} failed:`, error.message)
+  }
+  const reuseExistingSection = (label, sectionName, error) => {
+    if (!isQuotaError(error) || !existingData?.[sectionName]) return false
+    reusedExistingSections.push({ label, sectionName, message: error.message })
+    console.warn(`${label} failed due to Dune quota; reusing existing ${sectionName} data`)
+    return true
   }
   const captureQuery = promise => promise.then(rows => ({ rows }), error => ({ error }))
   const readQuery = async query => {
@@ -293,6 +310,7 @@ async function main() {
   const chainName = n => ({ bnb: 'BNB', opbnb: 'opBNB', megaeth: 'MegaETH', avalanche_c: 'Avalanche' }[n] || n.charAt(0).toUpperCase() + n.slice(1))
   const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
   let erc8004Chains = {}, erc8004Daily = {}, erc8004TotalAgents = 0
+  let erc8004RegistryFallback = null
   try {
     const rows = await readQuery(queries.q6130922)
     console.log(`Q6130922 (ERC-8004 registry): ${rows.length} rows`)
@@ -310,7 +328,13 @@ async function main() {
       }
     })
     erc8004TotalAgents = Object.values(erc8004Chains).reduce((s, v) => s + v, 0)
-  } catch (e) { recordRequiredFailure('Q6130922', e) }
+  } catch (e) {
+    if (reuseExistingSection('Q6130922', 'erc8004Registry', e)) {
+      erc8004RegistryFallback = existingData.erc8004Registry
+    } else {
+      recordRequiredFailure('Q6130922', e)
+    }
+  }
 
   // ── Q7: Olas / Autonolas (Query 3344834) ───────────────
   let olasTotalTxs = 0, olasChains = {}, olasWeekly = []
@@ -438,7 +462,7 @@ async function main() {
       daily: tempoDaily,
     },
     // ERC-8004 Registry (multi-chain)
-    erc8004Registry: {
+    erc8004Registry: erc8004RegistryFallback || {
       totalAgents: erc8004TotalAgents,
       chainsTracked: Object.keys(erc8004Chains).length,
       chains: Object.entries(erc8004Chains)
@@ -463,6 +487,9 @@ async function main() {
   const outPath = join(__dirname, '..', 'public', 'data.json')
   writeFileSync(outPath, JSON.stringify(data, null, 2))
   console.log(`\n✓ data.json written`)
+  reusedExistingSections.forEach(section => {
+    console.log(`  reused:       ${section.sectionName} from existing data (${section.label} quota-limited)`)
+  })
   console.log(`  x402:         ${data.x402.totalTxs.toLocaleString()} txs, $${data.x402.totalVolume.toLocaleString()} vol`)
   console.log(`  x402:         ${data.x402.protocols.length} protocols, ${data.x402.monthly.length} months, ${data.x402.daily.length} days`)
   console.log(`  ERC-8004:     ${data.baseAgentic.totalTxs.toLocaleString()} events, ${data.baseAgentic.daily.length} days`)
