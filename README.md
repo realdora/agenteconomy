@@ -159,7 +159,7 @@ DUNE_API_KEY=xxx npm run fetch-data   # Fetch/refresh Dune data
 npm run tempo-summary                  # Aggregate Tempo MPP data
 ```
 
-Automated via GitHub Actions — runs at 00:00, 06:00, 12:00, 18:00 UTC daily.
+Automated via GitHub Actions — runs once daily at 00:00 UTC.
 The fetch script reads Dune's latest query results first, then triggers a fresh Dune
 execution when the cached result is older than `DUNE_CACHE_MAX_AGE_HOURS` (default: 5).
 To stay within Dune API plan limits, it executes at most `DUNE_MAX_EXECUTIONS_PER_RUN`
