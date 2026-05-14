@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-13T02:02:30.179Z",
+  "updatedAt": "2026-05-14T02:04:59.127Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -80,10 +80,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-03-14",
-        "txs": 188285
-      },
       {
         "day": "2026-03-15",
         "txs": 203283
@@ -318,7 +314,11 @@
       },
       {
         "day": "2026-05-12",
-        "txs": 42080
+        "txs": 155470
+      },
+      {
+        "day": "2026-05-13",
+        "txs": 39489
       }
     ],
     "protocols": [
@@ -1166,87 +1166,36 @@
         "consumer": 1259,
         "infrastructure": 6234,
         "total": 7493
+      },
+      {
+        "day": "2026-05-09",
+        "consumer": 1423,
+        "infrastructure": 7303,
+        "total": 8726
+      },
+      {
+        "day": "2026-05-10",
+        "consumer": 1391,
+        "infrastructure": 5485,
+        "total": 6876
+      },
+      {
+        "day": "2026-05-11",
+        "consumer": 1550,
+        "infrastructure": 6214,
+        "total": 7764
+      },
+      {
+        "day": "2026-05-12",
+        "consumer": 1977,
+        "infrastructure": 8647,
+        "total": 10624
       }
     ]
   },
   "virtualsAcp": {
-    "totalMemos": 12246056,
+    "totalMemos": 12297239,
     "daily": [
-      {
-        "day": "2026-01-29",
-        "memos": 13625,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-30",
-        "memos": 19762,
-        "senders": 16
-      },
-      {
-        "day": "2026-01-31",
-        "memos": 26191,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-01",
-        "memos": 80984,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-02",
-        "memos": 37143,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-03",
-        "memos": 25502,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-04",
-        "memos": 24014,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-05",
-        "memos": 9601,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-06",
-        "memos": 17837,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-07",
-        "memos": 33095,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-08",
-        "memos": 172507,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-09",
-        "memos": 72579,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-10",
-        "memos": 26970,
-        "senders": 32
-      },
-      {
-        "day": "2026-02-11",
-        "memos": 44448,
-        "senders": 16
-      },
-      {
-        "day": "2026-02-12",
-        "memos": 29774,
-        "senders": 32
-      },
       {
         "day": "2026-02-13",
         "memos": 34867,
@@ -1619,8 +1568,83 @@
       },
       {
         "day": "2026-04-28",
-        "memos": 1859,
-        "senders": 13
+        "memos": 8407,
+        "senders": 14
+      },
+      {
+        "day": "2026-04-29",
+        "memos": 8972,
+        "senders": 16
+      },
+      {
+        "day": "2026-04-30",
+        "memos": 4786,
+        "senders": 27
+      },
+      {
+        "day": "2026-05-01",
+        "memos": 2857,
+        "senders": 27
+      },
+      {
+        "day": "2026-05-02",
+        "memos": 2361,
+        "senders": 15
+      },
+      {
+        "day": "2026-05-03",
+        "memos": 2070,
+        "senders": 12
+      },
+      {
+        "day": "2026-05-04",
+        "memos": 3301,
+        "senders": 14
+      },
+      {
+        "day": "2026-05-05",
+        "memos": 3398,
+        "senders": 20
+      },
+      {
+        "day": "2026-05-06",
+        "memos": 2984,
+        "senders": 14
+      },
+      {
+        "day": "2026-05-07",
+        "memos": 4757,
+        "senders": 14
+      },
+      {
+        "day": "2026-05-08",
+        "memos": 4169,
+        "senders": 17
+      },
+      {
+        "day": "2026-05-09",
+        "memos": 1359,
+        "senders": 12
+      },
+      {
+        "day": "2026-05-10",
+        "memos": 1184,
+        "senders": 12
+      },
+      {
+        "day": "2026-05-11",
+        "memos": 1099,
+        "senders": 20
+      },
+      {
+        "day": "2026-05-12",
+        "memos": 1223,
+        "senders": 19
+      },
+      {
+        "day": "2026-05-13",
+        "memos": 115,
+        "senders": 8
       }
     ]
   },
