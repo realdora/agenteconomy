@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-15T02:03:36.569Z",
+  "updatedAt": "2026-05-16T01:55:56.620Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -80,10 +80,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-03-16",
-        "txs": 197406
-      },
       {
         "day": "2026-03-17",
         "txs": 172185
@@ -318,7 +314,11 @@
       },
       {
         "day": "2026-05-14",
-        "txs": 43895
+        "txs": 163078
+      },
+      {
+        "day": "2026-05-15",
+        "txs": 45289
       }
     ],
     "protocols": [
@@ -1190,6 +1190,18 @@
         "consumer": 1977,
         "infrastructure": 8647,
         "total": 10624
+      },
+      {
+        "day": "2026-05-13",
+        "consumer": 3233,
+        "infrastructure": 6678,
+        "total": 9911
+      },
+      {
+        "day": "2026-05-14",
+        "consumer": 1651,
+        "infrastructure": 6138,
+        "total": 7789
       }
     ]
   },
