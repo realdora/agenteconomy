@@ -74,6 +74,18 @@ function resultRows(payload, context) {
   return rows
 }
 
+function assertRowShape(rows, requiredKeys, label) {
+  if (!rows || rows.length === 0) return
+  const first = rows[0]
+  const missing = requiredKeys.filter(k => !(k in first))
+  if (missing.length > 0) {
+    throw new Error(
+      `${label}: row schema changed — missing keys [${missing.join(', ')}]. ` +
+      `Got: [${Object.keys(first).join(', ')}]`
+    )
+  }
+}
+
 function isRateLimitError(error) {
   return /too many requests|rate limit|http 429/i.test(error?.message || '')
 }
@@ -193,11 +205,12 @@ async function main() {
   }
 
   // ── Q1: x402 cumulative + monthly (Query 6058135) ──────────
-  let totalTxs = 139277505, totalVolume = 38843631
+  let totalTxs = 0, totalVolume = 0
   let protocolMap = {}, monthlyMap = {}
 
   try {
     const rows = await readQuery(queries.q6058135)
+    assertRowShape(rows, ['cumulative_txn','cumulative_volume','total_txn','total_vol','facilitator','date_time'], 'Q6058135')
     console.log(`Q6058135 (x402 cumulative): ${rows.length} rows`)
     if (rows.length > 0) {
       totalTxs = safeNum(rows[0].cumulative_txn) || totalTxs
@@ -221,6 +234,7 @@ async function main() {
   let dailyMap = {}
   try {
     const rows = await readQuery(queries.q6084845)
+    assertRowShape(rows, ['period','txs'], 'Q6084845')
     console.log(`Q6084845 (x402 daily): ${rows.length} rows`)
     rows.forEach(row => {
       const day = (row.period || '').slice(0, 10)
@@ -234,6 +248,7 @@ async function main() {
   let agenticDaily = [], agenticTotalTxs = 0
   try {
     const rows = await readQuery(queries.q6731879)
+    assertRowShape(rows, ['day','category','Daily Transactions','Cumulative Transactions'], 'Q6731879')
     console.log(`Q6731879 (ERC-8004): ${rows.length} rows`)
     const agMap = {}
     rows.forEach(row => {
@@ -267,6 +282,7 @@ async function main() {
   let acpTotalMemos = 0, acpDaily = []
   try {
     const rows = await readQuery(queries.q6200422)
+    assertRowShape(rows, ['period','num_of_memo','unique_sender','total_memo'], 'Q6200422')
     console.log(`Q6200422 (Virtuals ACP): ${rows.length} rows`)
 
     // Rows are per-day per-version (v1, v2). Merge by day.
@@ -313,6 +329,7 @@ async function main() {
   let erc8004RegistryFallback = null
   try {
     const rows = await readQuery(queries.q6130922)
+    assertRowShape(rows, ['blockchain','block_date','registered'], 'Q6130922')
     console.log(`Q6130922 (ERC-8004 registry): ${rows.length} rows`)
     rows.forEach(row => {
       const chain = row.blockchain || ''
@@ -340,6 +357,7 @@ async function main() {
   let olasTotalTxs = 0, olasChains = {}, olasWeekly = []
   try {
     const rows = await readQuery(queries.q3344834)
+    assertRowShape(rows, ['time','chain','total_weekly_transactions_number','global_cumulative_transactions_number'], 'Q3344834')
     console.log(`Q3344834 (Olas): ${rows.length} rows`)
     const latest = rows.reduce((best, r) => (r.time || '') > (best.time || '') ? r : best, {})
     olasTotalTxs = safeNum(latest.global_cumulative_transactions_number)
@@ -379,14 +397,7 @@ async function main() {
       const label = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('en-US', { month: 'short', year: '2-digit' })
       return { month: label, txs: Math.round(v.txs), vol: Math.round(v.vol) }
     })
-  const finalMonthly = monthly.length >= 3 ? monthly : [
-    { month: "Oct '25", txs: 28400000, vol: 8200000 },
-    { month: "Nov '25", txs: 61200000, vol: 14300000 },
-    { month: "Dec '25", txs: 22800000, vol: 7100000 },
-    { month: "Jan '26", txs: 14600000, vol: 4800000 },
-    { month: "Feb '26", txs: 8100000,  vol: 2900000 },
-    { month: "Mar '26", txs: 4177505,  vol: 1543631 },
-  ]
+  const finalMonthly = monthly
 
   // ── Build x402 daily (last 60 days) ────────────────────────
   const daily = Object.entries(dailyMap)
@@ -407,14 +418,7 @@ async function main() {
     })),
     ...(otherTxs > 0 ? [{ name: 'Other', share: parseFloat(((otherTxs / totalProtoTxs) * 100).toFixed(1)), color: '#6B7280' }] : [])
   ]
-  const finalProtocols = protocols.length >= 2 ? protocols : [
-    { name: 'Coinbase',  share: 45.4, color: '#0052FF' },
-    { name: 'Dexter',    share: 15.0, color: '#6366F1' },
-    { name: 'PayAI',     share: 13.6, color: '#10B981' },
-    { name: 'DayDreams', share: 11.6, color: '#F59E0B' },
-    { name: 'ThirdWeb',  share: 7.1,  color: '#A855F7' },
-    { name: 'Other',     share: 7.3,  color: '#6B7280' },
-  ]
+  const finalProtocols = protocols
 
   // ── Assemble output ────────────────────────────────────────
   const data = {
@@ -446,7 +450,7 @@ async function main() {
       ],
     },
     baseAgentic: {
-      totalTxs: agenticTotalTxs || 709494,
+      totalTxs: agenticTotalTxs,
       daily: agenticDaily,
     },
     virtualsAcp: {
@@ -482,6 +486,24 @@ async function main() {
         .map(([name, txs]) => ({ name, txs })),
       weekly: olasWeekly,
     },
+  }
+
+  const sanityIssues = []
+  if (data.x402.totalTxs <= 0) sanityIssues.push('x402.totalTxs is 0')
+  if (data.x402.totalVolume <= 0) sanityIssues.push('x402.totalVolume is 0')
+  if (data.x402.monthly.length < 3) sanityIssues.push(`x402.monthly has ${data.x402.monthly.length} entries (<3)`)
+  if (data.x402.daily.length === 0) sanityIssues.push('x402.daily is empty')
+  if (data.x402.protocols.length < 2) sanityIssues.push(`x402.protocols has ${data.x402.protocols.length} entries (<2)`)
+  if (data.baseAgentic.totalTxs <= 0) sanityIssues.push('baseAgentic.totalTxs is 0')
+  if (data.baseAgentic.daily.length === 0) sanityIssues.push('baseAgentic.daily is empty')
+  if (data.virtualsAcp.totalMemos <= 0) sanityIssues.push('virtualsAcp.totalMemos is 0')
+  if (data.virtualsAcp.daily.length === 0) sanityIssues.push('virtualsAcp.daily is empty')
+  if (data.erc8004Registry.totalAgents <= 0) sanityIssues.push('erc8004Registry.totalAgents is 0')
+  if (data.erc8004Registry.chains.length === 0) sanityIssues.push('erc8004Registry.chains is empty')
+  if (data.olas.totalTxs <= 0) sanityIssues.push('olas.totalTxs is 0')
+  if (data.olas.chains.length === 0) sanityIssues.push('olas.chains is empty')
+  if (sanityIssues.length > 0) {
+    throw new Error(`Output sanity failed (refusing to write data.json):\n  - ${sanityIssues.join('\n  - ')}`)
   }
 
   const outPath = join(__dirname, '..', 'public', 'data.json')
