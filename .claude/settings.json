@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(./public/data.json)",
+      "Edit(./public/tempo-data.json)",
+      "Write(./public/data.json)",
+      "Write(./public/tempo-data.json)"
+    ]
+  }
+}
