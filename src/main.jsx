@@ -1,13 +1,24 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+import ReactDOM, { hydrateRoot } from 'react-dom/client'
 import { inject } from '@vercel/analytics'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './styles.css'
 
 inject()
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = document.getElementById('root')
+const initialData = window.__AE_DATA__
+const app = (
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App initialData={initialData} />
+    </BrowserRouter>
   </React.StrictMode>
 )
+
+if (root.hasChildNodes()) {
+  hydrateRoot(root, app)
+} else {
+  ReactDOM.createRoot(root).render(app)
+}

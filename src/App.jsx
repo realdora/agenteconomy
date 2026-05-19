@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import {
   Bar,
   BarChart,
@@ -45,23 +46,33 @@ function useReducedMotion() {
 
 function useCountUp(target, dur = 1400) {
   const reduced = useReducedMotion()
-  const [v, setV] = useState(reduced ? target : 0)
+  const didMount = useRef(false)
+  const current = useRef(target || 0)
+  const [v, setV] = useState(target || 0)
 
   useEffect(() => {
+    current.current = v
+  }, [v])
+
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true
+      return
+    }
     if (reduced) {
       setV(target || 0)
       return
     }
-    if (!target) {
-      setV(0)
-      return
-    }
+    const from = current.current || 0
+    const to = target || 0
+    if (from === to) return
     let start = null
     let id
     const step = t => {
       if (!start) start = t
       const p = Math.min((t - start) / dur, 1)
-      setV(Math.floor((1 - Math.pow(1 - p, 3)) * target))
+      const eased = 1 - Math.pow(1 - p, 3)
+      setV(Math.floor(from + eased * (to - from)))
       if (p < 1) id = requestAnimationFrame(step)
     }
     id = requestAnimationFrame(step)
@@ -71,9 +82,9 @@ function useCountUp(target, dur = 1400) {
   return v
 }
 
-function useDashboardData() {
-  const [data, setData] = useState(FB)
-  const [loadState, setLoadState] = useState('loading')
+function useDashboardData(initialData) {
+  const [data, setData] = useState(() => normalizeData(FB, initialData || FB))
+  const [loadState, setLoadState] = useState(initialData ? 'loaded' : 'loading')
 
   useEffect(() => {
     let alive = true
@@ -98,6 +109,31 @@ function useDashboardData() {
   }, [])
 
   return { data, loadState }
+}
+
+function getInitialDark() {
+  try {
+    const saved = localStorage.getItem('ae-theme')
+    if (saved) return saved === 'dark'
+  } catch {}
+  const h = new Date().getHours()
+  return h < 6 || h >= 18
+}
+
+function useTheme() {
+  const [dark, setDark] = useState(getInitialDark)
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+  }, [dark])
+
+  const toggleTheme = () => setDark(d => {
+    const next = !d
+    try { localStorage.setItem('ae-theme', next ? 'dark' : 'light') } catch {}
+    return next
+  })
+
+  return { dark, toggleTheme }
 }
 
 function LiveDot() {
@@ -222,6 +258,16 @@ function EmptyState({ title, children, sourceKey }) {
   )
 }
 
+function ClientRendered({ children }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  return mounted ? children : null
+}
+
 function BarRows({ rows, total, valueKey = 'txs', colors }) {
   return rows.map((row, i) => {
     const value = row[valueKey] || 0
@@ -295,27 +341,29 @@ function X402Section({ x, xTxs, xVol }) {
           </div>
         </div>
         <div className="chart-wrap">
-          <ResponsiveContainer width="100%" height="100%">
-            {tf === 'day' && chartData.length > 0 ? (
-              <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 10))} />
-                <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                <Bar dataKey="txs" fill={BLUE_L} radius={[3, 3, 0, 0]} barSize={8} name="Daily" />
-                <Line type="monotone" dataKey="ma" stroke={BLUE} strokeWidth={2} dot={false} name="7d avg" />
-              </ComposedChart>
-            ) : (
-              <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
-                <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                <Tooltip content={<ChartTip isMoney={met === 'vol'} />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                <Bar dataKey={met} name={met === 'txs' ? 'Txs' : 'USD'} radius={[4, 4, 0, 0]}>
-                  {chartData.map((_, i) => <Cell key={i} fill={met === 'vol' ? GREEN : BLUE} fillOpacity={0.35 + (i / Math.max(chartData.length, 1)) * 0.65} />)}
-                </Bar>
-                {met === 'txs' && <Line type="monotone" dataKey="vol" yAxisId={0} stroke={GREEN} strokeWidth={1.5} dot={false} opacity={0.45} name="USD context" />}
-              </ComposedChart>
-            )}
-          </ResponsiveContainer>
+          <ClientRendered>
+            <ResponsiveContainer width="100%" height="100%">
+              {tf === 'day' && chartData.length > 0 ? (
+                <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                  <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 10))} />
+                  <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                  <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                  <Bar dataKey="txs" fill={BLUE_L} radius={[3, 3, 0, 0]} barSize={8} name="Daily" />
+                  <Line type="monotone" dataKey="ma" stroke={BLUE} strokeWidth={2} dot={false} name="7d avg" />
+                </ComposedChart>
+              ) : (
+                <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                  <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
+                  <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                  <Tooltip content={<ChartTip isMoney={met === 'vol'} />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                  <Bar dataKey={met} name={met === 'txs' ? 'Txs' : 'USD'} radius={[4, 4, 0, 0]}>
+                    {chartData.map((_, i) => <Cell key={i} fill={met === 'vol' ? GREEN : BLUE} fillOpacity={0.35 + (i / Math.max(chartData.length, 1)) * 0.65} />)}
+                  </Bar>
+                  {met === 'txs' && <Line type="monotone" dataKey="vol" yAxisId={0} stroke={GREEN} strokeWidth={1.5} dot={false} opacity={0.45} name="USD context" />}
+                </ComposedChart>
+              )}
+            </ResponsiveContainer>
+          </ClientRendered>
         </div>
         <SourceLinks sources={SOURCES.x402} />
       </div>
@@ -328,20 +376,22 @@ function X402Section({ x, xTxs, xVol }) {
         <div className="panel">
           <div className="panel-title">Facilitator share</div>
           <div className="pie-wrap">
-            <PieChart width={108} height={108} style={{ flexShrink: 0 }}>
-              <Pie data={x.protocols} dataKey="share" nameKey="name" cx={52} cy={52} innerRadius={28} outerRadius={52} strokeWidth={2} stroke="var(--pie-stroke)">
-                {x.protocols.map((p, i) => <Cell key={i} fill={safeColor(p.color)} />)}
-              </Pie>
-              <Tooltip content={({ active, payload }) => {
-                if (!active || !payload?.length) return null
-                const d = payload[0]
-                return (
-                  <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', boxShadow: '0 4px 12px var(--shadow)', fontSize: 11 }}>
-                    <strong>{d.name}</strong><span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>{d.value}%</span>
-                  </div>
-                )
-              }} />
-            </PieChart>
+            <ClientRendered>
+              <PieChart width={108} height={108} style={{ flexShrink: 0 }}>
+                <Pie data={x.protocols} dataKey="share" nameKey="name" cx={52} cy={52} innerRadius={28} outerRadius={52} strokeWidth={2} stroke="var(--pie-stroke)">
+                  {x.protocols.map((p, i) => <Cell key={i} fill={safeColor(p.color)} />)}
+                </Pie>
+                <Tooltip content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null
+                  const d = payload[0]
+                  return (
+                    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', boxShadow: '0 4px 12px var(--shadow)', fontSize: 11 }}>
+                      <strong>{d.name}</strong><span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>{d.value}%</span>
+                    </div>
+                  )
+                }} />
+              </PieChart>
+            </ClientRendered>
             <div className="legend">
               {x.protocols.map((p, i) => (
                 <div className="bar-row" key={`${p.name}-${i}`}>
@@ -425,15 +475,17 @@ function RegistrySection({ ag, erc8004Reg, agTxs, regAgents }) {
           <div className="panel chart-panel">
             <div className="panel-title">Agentic events</div>
             <div className="chart-wrap" style={{ height: 170 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={ag.daily} barSize={Math.max(4, Math.min(14, 600 / ag.daily.length))}>
-                  <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(ag.daily.length / 10))} />
-                  <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                  <Tooltip content={<ChartTip />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                  <Bar dataKey="infrastructure" stackId="a" fill="#6366F1" name="Infrastructure" />
-                  <Bar dataKey="consumer" stackId="a" fill="#10B981" radius={[2, 2, 0, 0]} name="Consumer" />
-                </BarChart>
-              </ResponsiveContainer>
+              <ClientRendered>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={ag.daily} barSize={Math.max(4, Math.min(14, 600 / ag.daily.length))}>
+                    <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(ag.daily.length / 10))} />
+                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <Tooltip content={<ChartTip />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                    <Bar dataKey="infrastructure" stackId="a" fill="#6366F1" name="Infrastructure" />
+                    <Bar dataKey="consumer" stackId="a" fill="#10B981" radius={[2, 2, 0, 0]} name="Consumer" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ClientRendered>
             </div>
             <SourceLinks sources={[SOURCES.erc8004[0]]} />
           </div>
@@ -467,14 +519,16 @@ function SimpleProtocolSection({ kind, title, badge, meta, explanation, totalLab
             <div className="panel chart-panel">
               <div className="panel-title">{chartTitle}</div>
               <div className="chart-wrap" style={{ height: 170 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                    <XAxis dataKey={kind === 'olas' ? 'week' : 'day'} tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(chartData.length / 12))} />
-                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                    <Tooltip content={<ChartTip unit={unit} />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                    <Bar dataKey={chartKey} fill={barColor} radius={[3, 3, 0, 0]} barSize={kind === 'olas' ? 14 : 6} opacity={0.72} name={chartTitle} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ClientRendered>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                      <XAxis dataKey={kind === 'olas' ? 'week' : 'day'} tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(chartData.length / 12))} />
+                      <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                      <Tooltip content={<ChartTip unit={unit} />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                      <Bar dataKey={chartKey} fill={barColor} radius={[3, 3, 0, 0]} barSize={kind === 'olas' ? 14 : 6} opacity={0.72} name={chartTitle} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ClientRendered>
               </div>
               <SourceLinks sources={SOURCES[sourceKey]} />
             </div>
@@ -499,26 +553,9 @@ function OlasChainPanel({ olas }) {
   )
 }
 
-export default function App() {
-  const { data, loadState } = useDashboardData()
-  const [dark, setDark] = useState(() => {
-    try {
-      const saved = localStorage.getItem('ae-theme')
-      if (saved) return saved === 'dark'
-    } catch {}
-    const h = new Date().getHours()
-    return h < 6 || h >= 18
-  })
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
-  }, [dark])
-
-  const toggleTheme = () => setDark(d => {
-    const next = !d
-    try { localStorage.setItem('ae-theme', next ? 'dark' : 'light') } catch {}
-    return next
-  })
+function DashboardPage({ initialData }) {
+  const { data, loadState } = useDashboardData(initialData)
+  const { dark, toggleTheme } = useTheme()
 
   const x = data.x402
   const ag = data.baseAgentic
@@ -728,5 +765,199 @@ export default function App() {
         </div>
       </footer>
     </div>
+  )
+}
+
+const STAGE_1_ROUTES = [
+  '/',
+  '/x402',
+  '/erc-8004',
+  '/virtuals-acp',
+  '/olas',
+  '/tempo-mpp',
+  '/methodology',
+  '/data',
+]
+
+const ROUTE_CONFIG = {
+  '/x402': {
+    title: 'x402 Protocol',
+    eyebrow: 'Stage 1 route stub',
+    meta: data => `${data.x402.facilitatorsTracked} facilitators · ${data.x402.chainsTracked} chains`,
+    metrics: data => [
+      { label: 'Total Events', value: fmt(data.x402.totalTxs), sub: 'x402 transactions', accent: BLUE },
+      { label: 'Total Volume', value: fmtMoney(data.x402.totalVolume), sub: 'USD settled', accent: GREEN },
+      { label: 'Facilitators', value: data.x402.facilitatorsTracked, sub: 'tracked' },
+      { label: 'Chains', value: data.x402.chainsTracked, sub: 'tracked' },
+    ],
+  },
+  '/erc-8004': {
+    title: 'ERC-8004',
+    eyebrow: 'Stage 1 route stub',
+    meta: data => `${data.erc8004Registry.chainsTracked} registry chains`,
+    metrics: data => [
+      { label: 'Registered Agents', value: fmt(data.erc8004Registry.totalAgents), sub: 'all chains', accent: '#7C3AED' },
+      { label: 'Registry Chains', value: data.erc8004Registry.chainsTracked, sub: 'tracked' },
+      { label: 'Base Events', value: fmt(data.baseAgentic.totalTxs), sub: 'YTD activity', accent: BLUE },
+      { label: 'Standard', value: 'ERC-8004', sub: 'identity + reputation' },
+    ],
+  },
+  '/virtuals-acp': {
+    title: 'Virtuals ACP',
+    eyebrow: 'Stage 1 route stub',
+    meta: () => 'Agent Commerce · Base',
+    metrics: data => [
+      { label: 'Total Memos', value: fmt(data.virtualsAcp.totalMemos), sub: 'ACP lifecycle events', accent: GREEN },
+      { label: 'Standard', value: 'ERC-8183', sub: 'agent commerce layer' },
+      { label: 'Source', value: 'Dune', sub: '@hashed_official' },
+      { label: 'Route', value: '/virtuals-acp', sub: 'SSG stub' },
+    ],
+  },
+  '/olas': {
+    title: 'Olas / Autonolas',
+    eyebrow: 'Stage 1 route stub',
+    meta: data => `${data.olas.chains?.length || 0} chains · Gnosis-dominant`,
+    metrics: data => [
+      { label: 'Total Transactions', value: fmt(data.olas.totalTxs), sub: 'autonomous agent txs', accent: '#04795B' },
+      { label: 'Primary Chain', value: 'Gnosis', sub: 'largest share' },
+      { label: 'Chains', value: data.olas.chains?.length || 0, sub: 'tracked' },
+      { label: 'Weekly Rows', value: data.olas.weekly?.length || 0, sub: 'history loaded' },
+    ],
+  },
+  '/tempo-mpp': {
+    title: 'Tempo / MPP',
+    eyebrow: 'Stage 1 route stub',
+    meta: () => 'Machine Payments Protocol · Tempo L1',
+    metrics: data => [
+      { label: 'Total Events', value: fmt(data.tempoMpp.totalEvents), sub: 'MPP events', accent: BLUE },
+      { label: 'Unique Payers', value: fmt(data.tempoMpp.uniquePayers), sub: 'agent wallets' },
+      { label: 'Unique Payees', value: fmt(data.tempoMpp.uniquePayees), sub: 'service providers' },
+      { label: 'Daily Rows', value: data.tempoMpp.daily?.length || 0, sub: 'history loaded' },
+    ],
+  },
+  '/methodology': {
+    title: 'Methodology',
+    eyebrow: 'Stage 1 route stub',
+    meta: () => 'Data pipeline preserved',
+    metrics: (data, totals) => [
+      { label: 'Protocols', value: totals.protocols, sub: 'tracked' },
+      { label: 'Combined Events', value: fmt(totals.combinedEvents), sub: 'build-time data', accent: BLUE },
+      { label: 'Sources', value: 'Dune + RPC', sub: 'unchanged pipeline' },
+      { label: 'Updated', value: shortDate(data.updatedAt), sub: 'UTC' },
+    ],
+  },
+  '/data': {
+    title: 'Data',
+    eyebrow: 'Stage 1 route stub',
+    meta: () => 'Machine-readable data route',
+    metrics: (data, totals) => [
+      { label: 'Data Endpoint', value: '/data.json', sub: 'unchanged' },
+      { label: 'Tempo Endpoint', value: '/tempo-data.json', sub: 'unchanged' },
+      { label: 'Combined Events', value: fmt(totals.combinedEvents), sub: 'embedded at build', accent: BLUE },
+      { label: 'Updated', value: shortDate(data.updatedAt), sub: 'UTC' },
+    ],
+  },
+}
+
+export { STAGE_1_ROUTES }
+
+function RouteStubPage({ initialData, path }) {
+  const data = normalizeData(FB, initialData || FB)
+  const totals = computeTotals(data)
+  const freshness = getFreshness(data.updatedAt, 'loaded')
+  const { dark, toggleTheme } = useTheme()
+  const config = ROUTE_CONFIG[path]
+  const metrics = config.metrics(data, totals)
+
+  return (
+    <div className="app">
+      <nav className="nav">
+        <div className="nav-inner">
+          <div className="brand-row">
+            <span className="brand">agenteconomy.to</span>
+            <span className="live-pill"><LiveDot />LIVE</span>
+            <button className="theme-btn" type="button" onClick={toggleTheme} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}>
+              {dark ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
+              )}
+            </button>
+          </div>
+          <div className="nav-meta">
+            <span className={`status-pill ${freshness.tone === 'warn' ? 'warn' : ''}`}>{freshness.label}</span>
+            <span>Updated {shortDate(data.updatedAt)}</span>
+            <Link to="/">Dashboard</Link>
+          </div>
+        </div>
+        <div className="mob-meta">
+          <span className={`status-pill ${freshness.tone === 'warn' ? 'warn' : ''}`}>{freshness.label}</span>
+          <span className="mobile-date">{shortDate(data.updatedAt)}</span>
+        </div>
+      </nav>
+
+      <main className="shell">
+        <section className="hero fade">
+          <h1 className="hero-title">{config.title}</h1>
+          <div className="eyebrow">{config.eyebrow}</div>
+          <div className="hero-num">{metrics[0].value}</div>
+          <div className="hero-row">
+            {metrics.slice(0, 4).map((item, i) => (
+              <div className="hero-cell" key={i}>
+                <div className="hero-sub" style={{ color: item.accent || 'var(--text-strong)' }}>{item.value}</div>
+                <div className="hero-label">{item.label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="quick-actions">
+            <Link className="action-link" to="/">Dashboard</Link>
+            <a className="action-link" href="/data.json">Raw JSON</a>
+            <a className="action-link" href="/tempo-data.json">Tempo data</a>
+          </div>
+        </section>
+
+        <section className="section">
+          <div className="section-head">
+            <h2 className="section-title">Build-time route snapshot</h2>
+            <span className="badge" style={{ color: BLUE, background: 'var(--badge-blue-bg)' }}>SSG</span>
+            <span style={{ width: 1, height: 12, background: 'var(--border)' }} />
+            <span className="meta">{config.meta(data)}</span>
+          </div>
+          <div className="grid g4">
+            {metrics.map(item => (
+              <Card key={item.label} {...item} />
+            ))}
+          </div>
+          <div className="panel" style={{ marginTop: 14 }}>
+            <div className="panel-title">Stage 1 scope</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+              This route is pre-rendered so crawlers can receive a route-specific HTML file with current metric values. Full protocol content, per-page metadata, schema, and SEO copy are intentionally left for Stage 2 and Stage 3.
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <div className="footer-inner">
+          <a className="action-link" href="/data.json">Raw data</a>
+          <a className="action-link" href="https://github.com/realdora/agenteconomy/issues/new?template=data-source.yml" target="_blank" rel="noopener noreferrer">Submit a data source</a>
+          <a href="https://x.com/realdora_eth" target="_blank" rel="noopener noreferrer" aria-label="Open realdora on X" style={{ display: 'inline-flex', color: 'var(--text-faint)' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+          </a>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+export default function App({ initialData }) {
+  return (
+    <Routes>
+      <Route path="/" element={<DashboardPage initialData={initialData} />} />
+      {Object.keys(ROUTE_CONFIG).map(path => (
+        <Route key={path} path={path} element={<RouteStubPage initialData={initialData} path={path} />} />
+      ))}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
