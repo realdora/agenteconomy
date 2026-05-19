@@ -268,6 +268,18 @@ function ClientRendered({ children }) {
   return mounted ? children : null
 }
 
+function ThemeIcon({ dark }) {
+  return (
+    <ClientRendered>
+      {dark ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
+      )}
+    </ClientRendered>
+  )
+}
+
 function BarRows({ rows, total, valueKey = 'txs', colors }) {
   return rows.map((row, i) => {
     const value = row[valueKey] || 0
@@ -410,11 +422,11 @@ function X402Section({ x, xTxs, xVol }) {
 
 function ProtocolComparison({ data, totals }) {
   const rows = [
-    { protocol: 'x402', role: 'HTTP-native agent payments', events: data.x402.totalTxs, volume: data.x402.totalVolume, chains: data.x402.chainsTracked, source: SOURCES.x402[0] },
-    { protocol: 'ERC-8004', role: 'Agent identity + reputation', events: data.baseAgentic.totalTxs, agents: data.erc8004Registry.totalAgents, chains: data.erc8004Registry.chainsTracked, source: SOURCES.erc8004[1] },
-    { protocol: 'Virtuals ACP', role: 'Agent-to-agent commerce', events: data.virtualsAcp.totalMemos, volume: null, chains: 1, source: SOURCES.acp[0] },
-    { protocol: 'Tempo / MPP', role: 'Machine payment channels', events: data.tempoMpp.totalEvents, volume: null, chains: 1, source: SOURCES.tempo[0] },
-    { protocol: 'Olas', role: 'Autonomous agent transactions', events: data.olas.totalTxs, volume: null, chains: data.olas.chains?.length || 0, source: SOURCES.olas[0] },
+    { protocol: 'x402', href: '/x402', role: 'HTTP-native agent payments', events: data.x402.totalTxs, volume: data.x402.totalVolume, chains: data.x402.chainsTracked, source: SOURCES.x402[0] },
+    { protocol: 'ERC-8004', href: '/erc-8004', role: 'Agent identity + reputation', events: data.baseAgentic.totalTxs, agents: data.erc8004Registry.totalAgents, chains: data.erc8004Registry.chainsTracked, source: SOURCES.erc8004[1] },
+    { protocol: 'Virtuals ACP', href: '/virtuals-acp', role: 'Agent-to-agent commerce', events: data.virtualsAcp.totalMemos, volume: null, chains: 1, source: SOURCES.acp[0] },
+    { protocol: 'Tempo / MPP', href: '/tempo-mpp', role: 'Machine payment channels', events: data.tempoMpp.totalEvents, volume: null, chains: 1, source: SOURCES.tempo[0] },
+    { protocol: 'Olas', href: '/olas', role: 'Autonomous agent transactions', events: data.olas.totalTxs, volume: null, chains: data.olas.chains?.length || 0, source: SOURCES.olas[0] },
   ]
 
   return (
@@ -439,7 +451,7 @@ function ProtocolComparison({ data, totals }) {
           <tbody>
             {rows.map(row => (
               <tr key={row.protocol}>
-                <td><strong>{row.protocol}</strong>{row.agents ? <div style={{ color: 'var(--text-faint)' }}>{fmt(row.agents)} agents</div> : null}</td>
+                <td><strong><Link to={row.href}>{row.protocol}</Link></strong>{row.agents ? <div style={{ color: 'var(--text-faint)' }}>{fmt(row.agents)} agents</div> : null}</td>
                 <td>{row.role}</td>
                 <td>{row.events ? fmt(row.events) : 'Pending'}</td>
                 <td>{row.volume ? fmtMoney(row.volume) : 'N/A'}</td>
@@ -584,11 +596,7 @@ function DashboardPage({ initialData }) {
             <span className="brand">agenteconomy.to</span>
             <span className="live-pill"><LiveDot />LIVE</span>
             <button className="theme-btn" type="button" onClick={toggleTheme} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}>
-              {dark ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
-              )}
+              <ThemeIcon dark={dark} />
             </button>
           </div>
           <div className="nav-meta">
@@ -779,95 +787,404 @@ const STAGE_1_ROUTES = [
   '/data',
 ]
 
-const ROUTE_CONFIG = {
+export { STAGE_1_ROUTES }
+
+const SITE_URL = 'https://www.agenteconomy.to'
+const DATA_URL = `${SITE_URL}/data.json`
+const TEMPO_DATA_URL = `${SITE_URL}/tempo-data.json`
+
+function routeUrl(path) {
+  return path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`
+}
+
+function fullNumber(value) {
+  return Number(value || 0).toLocaleString()
+}
+
+function pct(value) {
+  return `${Number(value || 0).toFixed(1)}%`
+}
+
+function linkAttrs(href) {
+  return href.startsWith('/') ? {} : { target: '_blank', rel: 'noopener noreferrer' }
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function sourceList(keys) {
+  return keys.flatMap(key => SOURCES[key] || [])
+}
+
+function uniqueSources(sources) {
+  const seen = new Set()
+  return sources.filter(source => {
+    if (!source?.href || seen.has(source.href)) return false
+    seen.add(source.href)
+    return true
+  })
+}
+
+function getTopChain(rows, valueKey) {
+  return [...(rows || [])].sort((a, b) => (b[valueKey] || 0) - (a[valueKey] || 0))[0]
+}
+
+function getOlasGnosisShare(data) {
+  const chains = data.olas?.chains || []
+  const total = chains.reduce((sum, row) => sum + (row.txs || 0), 0)
+  const gnosis = chains.find(row => row.name === 'Gnosis')?.txs || 0
+  return total > 0 ? (gnosis / total) * 100 : 0
+}
+
+function getUpdatedLabel(data) {
+  return shortDate(data.updatedAt) || data.updatedAt || 'Unknown'
+}
+
+const ROUTE_PAGES = {
   '/x402': {
-    title: 'x402 Protocol',
-    eyebrow: 'Stage 1 route stub',
-    meta: data => `${data.x402.facilitatorsTracked} facilitators · ${data.x402.chainsTracked} chains`,
-    metrics: data => [
-      { label: 'Total Events', value: fmt(data.x402.totalTxs), sub: 'x402 transactions', accent: BLUE },
-      { label: 'Total Volume', value: fmtMoney(data.x402.totalVolume), sub: 'USD settled', accent: GREEN },
-      { label: 'Facilitators', value: data.x402.facilitatorsTracked, sub: 'tracked' },
-      { label: 'Chains', value: data.x402.chainsTracked, sub: 'tracked' },
+    title: 'x402 Transaction Volume & Facilitator Data | Agent Economy',
+    description: 'x402 transaction volume dashboard with live payment counts, USD settlement volume, facilitator share, chain distribution, source links, and methodology notes.',
+    h1: 'x402 Transaction Volume and Agent Payment Data',
+    eyebrow: 'x402 transaction volume',
+    meta: data => `${fmtMoney(data.x402.totalVolume)} settled · ${data.x402.facilitatorsTracked} facilitators · ${data.x402.chainsTracked} chains`,
+    heroMetric: data => fullNumber(data.x402.totalTxs),
+    heroLabel: 'on-chain x402 transactions',
+    explainerTitle: 'What is x402?',
+    explainer: [
+      'x402 is an HTTP-native payment standard for machine-readable resource access. The flow uses HTTP 402 as the payment requirement: an agent requests a resource, receives payment instructions, signs a stablecoin payment, and retries with proof of payment.',
+      'Agent Economy tracks x402 through visible on-chain settlement activity. The page separates transaction count, USD settlement volume, facilitator share, and chain distribution so builders can see both usage scale and concentration.',
+      'The metric is useful because agent/API payment activity is measurable on-chain, but raw settlement activity should not be read as pure verified end-user commerce. Testing, infrastructure activity, and self-directed usage can be present in the totals.',
     ],
+    metricsTitle: 'How big is x402 now?',
+    metrics: data => {
+      const topChain = getTopChain(data.x402.chains, 'txs')
+      const topFacilitator = data.x402.protocols?.[0]
+      return [
+        { label: 'Total transactions', value: fullNumber(data.x402.totalTxs), unit: 'count', field: 'x402.totalTxs', source: SOURCES.x402[0] },
+        { label: 'USD settlement volume', value: `$${fullNumber(data.x402.totalVolume)}`, unit: 'USD', field: 'x402.totalVolume', source: SOURCES.x402[0] },
+        { label: 'Facilitators tracked', value: fullNumber(data.x402.facilitatorsTracked), unit: 'facilitators', field: 'x402.facilitatorsTracked', source: SOURCES.x402[1] },
+        { label: 'Chains tracked', value: fullNumber(data.x402.chainsTracked), unit: 'chains', field: 'x402.chainsTracked', source: SOURCES.x402[1] },
+        { label: 'Largest chain', value: topChain ? `${topChain.name} · ${fullNumber(topChain.txs)}` : 'N/A', unit: 'transactions', field: 'x402.chains[]', source: SOURCES.x402[0] },
+        { label: 'Largest facilitator share', value: topFacilitator ? `${topFacilitator.name} · ${topFacilitator.share}%` : 'N/A', unit: 'share', field: 'x402.protocols[]', source: SOURCES.x402[1] },
+      ]
+    },
+    methodology: [
+      'x402 data is pulled from public Dune dashboards and embedded into `public/data.json` by the daily GitHub Actions pipeline.',
+      'The route uses the same fields as the dashboard: `x402.totalTxs`, `x402.totalVolume`, `x402.protocols`, `x402.chains`, and daily/monthly trend arrays.',
+      'Caveat: raw on-chain settlement events can include tests, infrastructure activity, and repeated service calls. The page reports visible protocol activity, not audited organic commerce.',
+    ],
+    sourceKeys: ['x402'],
+    faq: data => [
+      { q: 'What does x402 transaction volume measure?', a: `It measures visible x402 on-chain settlement events in the Agent Economy dataset. The current build embeds ${fullNumber(data.x402.totalTxs)} transactions from data.json.` },
+      { q: 'How much x402 payment volume is tracked?', a: `The current x402 USD settlement field is $${fullNumber(data.x402.totalVolume)}, sourced from public Dune x402 dashboards and refreshed through the daily pipeline.` },
+      { q: 'Which chains show x402 activity?', a: `The dataset currently tracks ${data.x402.chainsTracked} x402 chains. The largest rows include ${data.x402.chains.slice(0, 3).map(row => row.name).join(', ')}.` },
+      { q: 'Is x402 the same as Tempo MPP?', a: 'No. The x402 brief describes HTTP 402 per-resource payments, while the MPP brief frames Tempo MPP as a machine payment/channel style protocol. Agent Economy tracks both separately.' },
+      { q: 'Does x402 volume equal verified organic commerce?', a: 'No. The methodology notes treat raw on-chain activity as a market signal that can include testing, infrastructure traffic, and self-directed activity.' },
+    ],
+    datasetName: 'x402 Transaction Volume Dataset',
+    datasetDescription: 'Live x402 payment transaction, USD settlement, facilitator, and chain distribution fields from Agent Economy data.json.',
+    schemaTopic: 'x402 transaction volume',
   },
   '/erc-8004': {
-    title: 'ERC-8004',
-    eyebrow: 'Stage 1 route stub',
-    meta: data => `${data.erc8004Registry.chainsTracked} registry chains`,
-    metrics: data => [
-      { label: 'Registered Agents', value: fmt(data.erc8004Registry.totalAgents), sub: 'all chains', accent: '#7C3AED' },
-      { label: 'Registry Chains', value: data.erc8004Registry.chainsTracked, sub: 'tracked' },
-      { label: 'Base Events', value: fmt(data.baseAgentic.totalTxs), sub: 'YTD activity', accent: BLUE },
-      { label: 'Standard', value: 'ERC-8004', sub: 'identity + reputation' },
+    title: 'ERC-8004 Agent Registry Data Across Chains | Agent Economy',
+    description: 'ERC-8004 agent registry data with live registered-agent totals, chain distribution, identity methodology, source links, and agent economy context today.',
+    h1: 'ERC-8004 Agent Registry Data Across Chains',
+    eyebrow: 'ERC-8004 agent registry',
+    meta: data => `${fullNumber(data.erc8004Registry.totalAgents)} registered agents · ${data.erc8004Registry.chainsTracked} chains`,
+    heroMetric: data => fullNumber(data.erc8004Registry.totalAgents),
+    heroLabel: 'registered AI agents',
+    explainerTitle: 'What is ERC-8004?',
+    explainer: [
+      'ERC-8004 is the identity and reputation layer in the Agent Economy protocol map. It lets agents register an on-chain identity before they transact, build reputation, or participate in other agent workflows.',
+      'Agent Economy keeps ERC-8004 registrations separate from payment events. Registered agents are an identity supply metric, while Base Agentic activity is an event metric sourced from a separate dashboard.',
+      'The registry matters because payment protocols need agents that can be addressed, evaluated, and counted across chains. This page focuses on registration counts and chain distribution rather than treating identity registration as direct commerce.',
     ],
+    metricsTitle: 'How big is the ERC-8004 registry now?',
+    metrics: data => {
+      const topChain = getTopChain(data.erc8004Registry.chains, 'agents')
+      return [
+        { label: 'Registered agents', value: fullNumber(data.erc8004Registry.totalAgents), unit: 'agents', field: 'erc8004Registry.totalAgents', source: SOURCES.erc8004[1] },
+        { label: 'Registry chains', value: fullNumber(data.erc8004Registry.chainsTracked), unit: 'chains', field: 'erc8004Registry.chainsTracked', source: SOURCES.erc8004[1] },
+        { label: 'Largest registry chain', value: topChain ? `${topChain.name} · ${fullNumber(topChain.agents)}` : 'N/A', unit: 'agents', field: 'erc8004Registry.chains[]', source: SOURCES.erc8004[1] },
+        { label: 'Base agentic events', value: fullNumber(data.baseAgentic.totalTxs), unit: 'events', field: 'baseAgentic.totalTxs', source: SOURCES.erc8004[0] },
+        { label: 'Standard tracked', value: 'ERC-8004', unit: 'identity registry', field: 'erc8004Registry', source: SOURCES.erc8004[1] },
+      ]
+    },
+    methodology: [
+      'ERC-8004 registry data comes from the multi-chain Dune registry source listed in the dashboard source metadata.',
+      'Base Agentic events are shown as a separate activity signal because registrations and transactions are different things. This avoids inflating payment/event totals with identity records.',
+      'The daily pipeline embeds `erc8004Registry.totalAgents`, `erc8004Registry.chainsTracked`, `erc8004Registry.chains`, and `baseAgentic.totalTxs` into the prerendered page.',
+    ],
+    sourceKeys: ['erc8004'],
+    faq: data => [
+      { q: 'What does the ERC-8004 agent registry count?', a: `It counts registered AI agents in the ERC-8004 registry dataset. The current build embeds ${fullNumber(data.erc8004Registry.totalAgents)} registered agents.` },
+      { q: 'Are ERC-8004 registrations counted as payment transactions?', a: 'No. Agent Economy treats identity registrations separately from payment or job events so the aggregate event count is not inflated by registry supply.' },
+      { q: 'Which chain has the most ERC-8004 registered agents?', a: `The current top chain is ${getTopChain(data.erc8004Registry.chains, 'agents')?.name || 'unavailable'} in the embedded chain distribution.` },
+      { q: 'Why track Base Agentic events on an ERC-8004 page?', a: 'Base Agentic activity is a related agentic activity source, but it is displayed separately from the registry total because it measures events rather than registered identities.' },
+    ],
+    datasetName: 'ERC-8004 Agent Registry Dataset',
+    datasetDescription: 'Live ERC-8004 registered agent totals, chain counts, and related Base Agentic activity fields from Agent Economy data.json.',
+    schemaTopic: 'ERC-8004 agent registry',
   },
   '/virtuals-acp': {
-    title: 'Virtuals ACP',
-    eyebrow: 'Stage 1 route stub',
-    meta: () => 'Agent Commerce · Base',
-    metrics: data => [
-      { label: 'Total Memos', value: fmt(data.virtualsAcp.totalMemos), sub: 'ACP lifecycle events', accent: GREEN },
-      { label: 'Standard', value: 'ERC-8183', sub: 'agent commerce layer' },
-      { label: 'Source', value: 'Dune', sub: '@hashed_official' },
-      { label: 'Route', value: '/virtuals-acp', sub: 'SSG stub' },
+    title: 'Virtuals ACP / ERC-8183 Agent Commerce Data | Agent Economy',
+    description: 'Virtuals ACP agent commerce data with live ERC-8183 memo counts, agent GDP context, Base methodology, source links, and protocol-specific FAQ updated.',
+    h1: 'Virtuals ACP Agent Commerce and ERC-8183 Data',
+    eyebrow: 'Virtuals ACP',
+    meta: data => `${fullNumber(data.virtualsAcp.totalMemos)} ACP memos · ERC-8183 · Base`,
+    heroMetric: data => fullNumber(data.virtualsAcp.totalMemos),
+    heroLabel: 'ACP lifecycle memos',
+    explainerTitle: 'What is Virtuals ACP?',
+    explainer: [
+      'Virtuals ACP, the Agent Commerce Protocol, is the agent-to-agent commerce surface in the Agent Economy map. The existing dashboard describes ACP as an ERC-8183 flow for job creation, delivery, evaluation, and settlement.',
+      'Agent Economy tracks ACP through on-chain memos rather than treating every memo as a final paid transaction. A memo is a lifecycle event in the job flow, which makes it useful for measuring marketplace activity without overstating final commerce.',
+      'This page pairs the live memo count with methodology and source links so researchers can distinguish ACP activity from x402 API payments, ERC-8004 identity registration, Olas autonomous activity, and Tempo MPP channel events.',
     ],
+    metricsTitle: 'How big is Virtuals ACP now?',
+    metrics: data => [
+      { label: 'Total ACP memos', value: fullNumber(data.virtualsAcp.totalMemos), unit: 'memos', field: 'virtualsAcp.totalMemos', source: SOURCES.acp[0] },
+      { label: 'Daily rows loaded', value: fullNumber(data.virtualsAcp.daily?.length || 0), unit: 'days', field: 'virtualsAcp.daily[]', source: SOURCES.acp[0] },
+      { label: 'Standard', value: 'ERC-8183', unit: 'agent commerce', field: 'virtualsAcp', source: SOURCES.acp[0] },
+      { label: 'Primary chain', value: 'Base', unit: 'chain', field: 'virtualsAcp', source: SOURCES.acp[0] },
+    ],
+    methodology: [
+      'Virtuals ACP data is sourced from the public Dune ACP dashboard referenced in `src/data.js` and the project README.',
+      'The live table uses `virtualsAcp.totalMemos` and `virtualsAcp.daily` from `data.json`. These are job lifecycle memos, not a direct USD GDP field.',
+      'Caveat: ACP memo counts can include every lifecycle step. The page describes them as commerce-process activity, not as one-to-one completed purchases.',
+    ],
+    sourceKeys: ['acp'],
+    faq: data => [
+      { q: 'What is Virtuals ACP?', a: 'Virtuals ACP is the Agent Commerce Protocol route tracked by Agent Economy for agent-to-agent commerce workflow activity on Base.' },
+      { q: 'What is ERC-8183 in this context?', a: 'ERC-8183 is the agent commerce standard label used by the dashboard for ACP job lifecycle flows such as create, deliver, evaluate, and settle.' },
+      { q: 'What does an ACP memo count represent?', a: `It represents an on-chain lifecycle memo in the ACP flow. The current build embeds ${fullNumber(data.virtualsAcp.totalMemos)} total memos from data.json.` },
+      { q: 'Does the ACP memo count equal agent GDP?', a: 'No. The current Agent Economy dataset exposes memo counts. The page keeps agent GDP as context and does not convert memos into a USD value.' },
+    ],
+    datasetName: 'Virtuals ACP ERC-8183 Memo Dataset',
+    datasetDescription: 'Live Virtuals ACP memo count and daily memo fields from Agent Economy data.json.',
+    schemaTopic: 'Virtuals ACP agent commerce',
   },
   '/olas': {
-    title: 'Olas / Autonolas',
-    eyebrow: 'Stage 1 route stub',
-    meta: data => `${data.olas.chains?.length || 0} chains · Gnosis-dominant`,
-    metrics: data => [
-      { label: 'Total Transactions', value: fmt(data.olas.totalTxs), sub: 'autonomous agent txs', accent: '#04795B' },
-      { label: 'Primary Chain', value: 'Gnosis', sub: 'largest share' },
-      { label: 'Chains', value: data.olas.chains?.length || 0, sub: 'tracked' },
-      { label: 'Weekly Rows', value: data.olas.weekly?.length || 0, sub: 'history loaded' },
+    title: 'Olas Autonolas Transaction Data | Agent Economy',
+    description: 'Olas Autonolas data with live autonomous-agent transaction totals, Gnosis-dominant chain distribution, methodology, source links, and protocol FAQ now.',
+    h1: 'Olas Autonolas Data and Autonomous Agent Transactions',
+    eyebrow: 'Olas Autonolas data',
+    meta: data => `${fullNumber(data.olas.totalTxs)} transactions · ${data.olas.chains?.length || 0} chains`,
+    heroMetric: data => fullNumber(data.olas.totalTxs),
+    heroLabel: 'autonomous agent transactions',
+    explainerTitle: 'What is Olas?',
+    explainer: [
+      'Olas, also known as Autonolas in the existing source material, is a decentralized protocol for co-owned autonomous AI agent services. Agent Economy tracks it as a separate family of autonomous agent transactions.',
+      'The Olas row is not an HTTP payment standard like x402 and not an identity registry like ERC-8004. It captures autonomous agent service activity, including the Gnosis-dominant transaction footprint shown in the current dataset.',
+      'The page uses Olas transaction totals, weekly history, and chain distribution to show where autonomous agent activity is visible on-chain.',
     ],
+    metricsTitle: 'How big is Olas now?',
+    metrics: data => {
+      const topChain = getTopChain(data.olas.chains, 'txs')
+      return [
+        { label: 'Total transactions', value: fullNumber(data.olas.totalTxs), unit: 'transactions', field: 'olas.totalTxs', source: SOURCES.olas[0] },
+        { label: 'Chains tracked', value: fullNumber(data.olas.chains?.length || 0), unit: 'chains', field: 'olas.chains[]', source: SOURCES.olas[0] },
+        { label: 'Largest chain', value: topChain ? `${topChain.name} · ${fullNumber(topChain.txs)}` : 'N/A', unit: 'transactions', field: 'olas.chains[]', source: SOURCES.olas[0] },
+        { label: 'Gnosis share', value: pct(getOlasGnosisShare(data)), unit: 'share', field: 'olas.chains[]', source: SOURCES.olas[0] },
+        { label: 'Weekly rows loaded', value: fullNumber(data.olas.weekly?.length || 0), unit: 'weeks', field: 'olas.weekly[]', source: SOURCES.olas[0] },
+      ]
+    },
+    methodology: [
+      'Olas data comes from the public Autonolas/Olas ecosystem Dune source listed in the dashboard metadata.',
+      'The daily pipeline stores cumulative transaction count, weekly history, and chain distribution under `olas` in `data.json`.',
+      'Caveat: Olas activity measures autonomous agent transactions. It is intentionally tracked outside x402, ACP, MPP, and ERC-8004 registration counts to avoid mixing protocol roles.',
+    ],
+    sourceKeys: ['olas'],
+    faq: data => [
+      { q: 'What does Olas Autonolas data measure?', a: `It measures autonomous agent transactions in the Olas ecosystem source. The current build embeds ${fullNumber(data.olas.totalTxs)} total transactions.` },
+      { q: 'Why is Gnosis important for Olas?', a: `The current chain distribution is Gnosis-dominant, with ${pct(getOlasGnosisShare(data))} of tracked Olas transactions on Gnosis in data.json.` },
+      { q: 'Is Olas activity counted as x402 payment volume?', a: 'No. Olas is tracked as autonomous agent transaction activity and kept separate from x402 HTTP payment settlements.' },
+      { q: 'How often is Olas data refreshed?', a: 'It refreshes through the same daily Agent Economy pipeline that embeds data.json into each prerendered route.' },
+    ],
+    datasetName: 'Olas Autonolas Transaction Dataset',
+    datasetDescription: 'Live Olas autonomous agent transaction totals, weekly history, and chain distribution fields from Agent Economy data.json.',
+    schemaTopic: 'Olas Autonolas data',
   },
   '/tempo-mpp': {
-    title: 'Tempo / MPP',
-    eyebrow: 'Stage 1 route stub',
-    meta: () => 'Machine Payments Protocol · Tempo L1',
-    metrics: data => [
-      { label: 'Total Events', value: fmt(data.tempoMpp.totalEvents), sub: 'MPP events', accent: BLUE },
-      { label: 'Unique Payers', value: fmt(data.tempoMpp.uniquePayers), sub: 'agent wallets' },
-      { label: 'Unique Payees', value: fmt(data.tempoMpp.uniquePayees), sub: 'service providers' },
-      { label: 'Daily Rows', value: data.tempoMpp.daily?.length || 0, sub: 'history loaded' },
+    title: 'Tempo MPP Machine Payment Protocol Data | Agent Economy',
+    description: 'Tempo MPP machine payment protocol data with live channel-event counts, payer and payee totals, Tempo methodology, source data, and protocol FAQ today.',
+    h1: 'Tempo MPP Machine Payment Protocol Data',
+    eyebrow: 'Tempo MPP',
+    meta: data => `${fullNumber(data.tempoMpp.totalEvents)} events · ${fullNumber(data.tempoMpp.uniquePayers)} payers`,
+    heroMetric: data => fullNumber(data.tempoMpp.totalEvents),
+    heroLabel: 'MPP channel events',
+    explainerTitle: 'What is Tempo MPP?',
+    explainer: [
+      'Tempo MPP is the machine payment protocol route in the Agent Economy map. The x402-vs-MPP brief frames it as a machine payment/channel style approach associated with Tempo and Stripe infrastructure.',
+      'Agent Economy tracks MPP separately from x402 because the two payment patterns are different: x402 emphasizes HTTP 402 per-resource payments, while MPP points toward machine payment channels and stablecoin micropayments on Tempo.',
+      'The current route reports Tempo RPC-indexed events, unique payers, unique payees, event types, and daily rows. This is narrower than Dune-backed x402 coverage and should be interpreted as early Tempo-specific visible activity.',
     ],
+    metricsTitle: 'How big is Tempo MPP now?',
+    metrics: data => [
+      { label: 'Total MPP events', value: fullNumber(data.tempoMpp.totalEvents), unit: 'events', field: 'tempoMpp.totalEvents', source: SOURCES.tempo[0] },
+      { label: 'Unique payers', value: fullNumber(data.tempoMpp.uniquePayers), unit: 'addresses', field: 'tempoMpp.uniquePayers', source: SOURCES.tempo[0] },
+      { label: 'Unique payees', value: fullNumber(data.tempoMpp.uniquePayees), unit: 'addresses', field: 'tempoMpp.uniquePayees', source: SOURCES.tempo[0] },
+      { label: 'Event types', value: fullNumber(Object.keys(data.tempoMpp.byType || {}).length), unit: 'types', field: 'tempoMpp.byType', source: SOURCES.tempo[0] },
+      { label: 'Daily rows loaded', value: fullNumber(data.tempoMpp.daily?.length || 0), unit: 'days', field: 'tempoMpp.daily[]', source: SOURCES.tempo[0] },
+    ],
+    methodology: [
+      'Tempo MPP data is produced by the local RPC indexer summary and exposed through `tempo-data.json`, then merged into `data.json` for the dashboard.',
+      'The route uses `tempoMpp.totalEvents`, `tempoMpp.uniquePayers`, `tempoMpp.uniquePayees`, `tempoMpp.byType`, and `tempoMpp.daily` at build time.',
+      'Caveat: the x402-vs-MPP brief treats MPP as earlier and narrower in visible data coverage. This route reports Tempo-specific indexed activity rather than broad market share.',
+    ],
+    sourceKeys: ['tempo'],
+    faq: data => [
+      { q: 'What does Tempo MPP data measure?', a: `It measures RPC-indexed Machine Payment Protocol events on Tempo. The current build embeds ${fullNumber(data.tempoMpp.totalEvents)} total events.` },
+      { q: 'How is MPP different from x402?', a: 'The project brief describes x402 as HTTP 402 per-resource payments and MPP as a machine payment/channel style protocol. Agent Economy keeps their metrics separate.' },
+      { q: 'What are unique payers and payees?', a: `They are distinct addresses extracted by the Tempo summary script. The current build shows ${fullNumber(data.tempoMpp.uniquePayers)} payers and ${fullNumber(data.tempoMpp.uniquePayees)} payees.` },
+      { q: 'Why is Tempo MPP coverage narrower than x402?', a: 'The current MPP source is a Tempo RPC indexer rather than multiple public Dune dashboards. The page presents it as early visible activity, not a complete cross-chain market.' },
+    ],
+    datasetName: 'Tempo MPP Machine Payment Dataset',
+    datasetDescription: 'Live Tempo MPP event, payer, payee, event-type, and daily fields from Agent Economy data.json and tempo-data.json.',
+    schemaTopic: 'Tempo MPP machine payment protocol',
+    distributions: [DATA_URL, TEMPO_DATA_URL],
   },
   '/methodology': {
-    title: 'Methodology',
-    eyebrow: 'Stage 1 route stub',
-    meta: () => 'Data pipeline preserved',
-    metrics: (data, totals) => [
-      { label: 'Protocols', value: totals.protocols, sub: 'tracked' },
-      { label: 'Combined Events', value: fmt(totals.combinedEvents), sub: 'build-time data', accent: BLUE },
-      { label: 'Sources', value: 'Dune + RPC', sub: 'unchanged pipeline' },
-      { label: 'Updated', value: shortDate(data.updatedAt), sub: 'UTC' },
+    title: 'Agentic Payment Data Methodology | Agent Economy',
+    description: 'Agentic payment data methodology for x402, ERC-8004, Virtuals ACP, Tempo MPP, and Olas, with source references, caveats, and update flow for researchers.',
+    h1: 'How Agentic Payment Data Is Tracked',
+    eyebrow: 'agentic payment data methodology',
+    meta: (data, totals) => `${fmt(totals.combinedEvents)} aggregate events · ${totals.protocols} protocols · daily refresh`,
+    heroMetric: (data, totals) => fullNumber(totals.combinedEvents),
+    heroLabel: 'aggregate on-chain events',
+    explainerTitle: 'Overall approach',
+    explainer: [
+      'Agent Economy is a daily-updated static dashboard for measurable on-chain agent activity. The project brief defines its core coverage as x402, ERC-8004, ERC-8183 / Virtuals ACP, Tempo MPP, and Olas across 11+ chains.',
+      'The methodology is deliberately conservative: each protocol keeps its native unit. x402 reports settlement transactions and USD volume, ERC-8004 reports registered agents, ACP reports lifecycle memos, MPP reports indexed channel events, and Olas reports autonomous agent transactions.',
+      'This avoids pretending that every protocol emits the same kind of economic event. The combined event total is a high-level footprint, while the page-level tables preserve protocol-specific meaning.',
     ],
+    metricsTitle: 'Current methodology snapshot',
+    metrics: (data, totals) => [
+      { label: 'Aggregate events', value: fullNumber(totals.combinedEvents), unit: 'events', field: 'computed: x402 + baseAgentic + virtualsAcp + tempoMpp + olas', source: { label: 'Agent Economy aggregate logic', href: 'https://github.com/realdora/agenteconomy' } },
+      { label: 'Protocols tracked', value: fullNumber(totals.protocols), unit: 'protocol families', field: 'computeTotals().protocols', source: { label: 'Agent Economy README', href: 'https://github.com/realdora/agenteconomy' } },
+      { label: 'Chains tracked', value: `${totals.chains}+`, unit: 'chains', field: 'computeTotals().chains', source: { label: 'Agent Economy README', href: 'https://github.com/realdora/agenteconomy' } },
+      { label: 'Registered agents', value: fullNumber(totals.registeredAgents), unit: 'agents', field: 'erc8004Registry.totalAgents', source: SOURCES.erc8004[1] },
+      { label: 'Refresh cadence', value: 'Daily', unit: 'UTC', field: 'GitHub Actions cron', source: { label: 'Agent Economy README', href: 'https://github.com/realdora/agenteconomy' } },
+    ],
+    methodRows: () => [
+      { protocol: 'x402', unit: 'settlement transactions and USD volume', fields: 'x402.totalTxs, x402.totalVolume, x402.protocols, x402.chains', source: SOURCES.x402[0].label, caveat: 'Raw settlements are not pure verified end-user commerce.' },
+      { protocol: 'ERC-8004', unit: 'registered agents and registry chain distribution', fields: 'erc8004Registry.totalAgents, erc8004Registry.chains', source: SOURCES.erc8004[1].label, caveat: 'Identity registration is separate from payment activity.' },
+      { protocol: 'Virtuals ACP', unit: 'job lifecycle memos', fields: 'virtualsAcp.totalMemos, virtualsAcp.daily', source: SOURCES.acp[0].label, caveat: 'Memos are workflow events, not necessarily completed purchases.' },
+      { protocol: 'Tempo MPP', unit: 'RPC-indexed channel events', fields: 'tempoMpp.totalEvents, tempoMpp.uniquePayers, tempoMpp.uniquePayees', source: SOURCES.tempo[0].label, caveat: 'Coverage is Tempo-specific and early.' },
+      { protocol: 'Olas', unit: 'autonomous agent transactions', fields: 'olas.totalTxs, olas.chains, olas.weekly', source: SOURCES.olas[0].label, caveat: 'Kept separate from HTTP payment and registry metrics.' },
+    ],
+    methodology: [
+      'The fetch pipeline reads Dune latest results, optionally executes stale queries, merges Tempo RPC summary data, writes `public/data.json`, and relies on Vercel Git auto-deploy.',
+      'Data quality notes from the README apply across routes: raw counts include ecosystem testing, self-dealing, and infrastructure activity; genuine commerce is a subset of totals; off-chain payment protocols are not included.',
+      'All Stage 2 pages embed the current `data.json` values at build time so crawlers can read current metrics without executing JavaScript.',
+    ],
+    sourceKeys: ['x402', 'erc8004', 'acp', 'tempo', 'olas'],
+    faq: data => [
+      { q: 'How is agentic payment data tracked?', a: 'Agent Economy combines public Dune sources and a Tempo RPC summary into data.json, then prerenders each route with those values at build time.' },
+      { q: 'Why are ERC-8004 agents not counted as payment events?', a: 'ERC-8004 measures registered agent identities. The methodology keeps it separate from payment or job-event metrics to avoid mixing units.' },
+      { q: 'How often does the dataset update?', a: `The pipeline runs daily. This build embeds the dataset updated at ${data.updatedAt}.` },
+      { q: 'What are the main caveats?', a: 'Raw on-chain activity can include testing, self-dealing, and infrastructure activity. The dataset tracks visible protocol activity, not audited organic commerce.' },
+    ],
+    datasetName: 'Agentic Payment Data Methodology Dataset',
+    datasetDescription: 'Methodology and source references for Agent Economy protocol data fields and aggregate calculations.',
+    schemaTopic: 'agentic payment data methodology',
   },
   '/data': {
-    title: 'Data',
-    eyebrow: 'Stage 1 route stub',
-    meta: () => 'Machine-readable data route',
-    metrics: (data, totals) => [
-      { label: 'Data Endpoint', value: '/data.json', sub: 'unchanged' },
-      { label: 'Tempo Endpoint', value: '/tempo-data.json', sub: 'unchanged' },
-      { label: 'Combined Events', value: fmt(totals.combinedEvents), sub: 'embedded at build', accent: BLUE },
-      { label: 'Updated', value: shortDate(data.updatedAt), sub: 'UTC' },
+    title: 'Agentic Payment Data API Schema | Agent Economy',
+    description: 'Agentic payment data API reference for data.json fields, units, update cadence, source coverage, caveats, and consuming the live dataset without scraping.',
+    h1: 'Agentic Payment Data API and data.json Schema',
+    eyebrow: 'agentic payment data API',
+    meta: (data, totals) => `${fmt(totals.combinedEvents)} events · public JSON · daily refresh`,
+    heroMetric: (data, totals) => fullNumber(totals.combinedEvents),
+    heroLabel: 'events available in data.json',
+    explainerTitle: 'What does the data API expose?',
+    explainer: [
+      'Agent Economy exposes the same dataset that powers the dashboard at `/data.json`. It is machine-readable JSON intended for researchers, builders, journalists, and AI/search systems that need protocol-level agent economy data without scraping the UI.',
+      '`data.json` includes aggregate x402, ERC-8004, Virtuals ACP, Tempo MPP, and Olas fields. Tempo also has a raw summary endpoint at `/tempo-data.json` for the RPC-indexed MPP source.',
+      'The dataset refreshes through the daily GitHub Actions pipeline. Vercel rebuilds after data changes, so route HTML and JSON stay aligned with the latest committed data.',
     ],
+    metricsTitle: 'Current data.json fields',
+    metrics: (data, totals) => [
+      { label: 'combinedEvents', value: fullNumber(totals.combinedEvents), unit: 'computed count', field: 'computed aggregate', source: { label: 'Agent Economy aggregate logic', href: 'https://github.com/realdora/agenteconomy' } },
+      { label: 'x402.totalTxs', value: fullNumber(data.x402.totalTxs), unit: 'transactions', field: 'x402.totalTxs', source: { label: 'data.json', href: '/data.json' } },
+      { label: 'erc8004Registry.totalAgents', value: fullNumber(data.erc8004Registry.totalAgents), unit: 'agents', field: 'erc8004Registry.totalAgents', source: { label: 'data.json', href: '/data.json' } },
+      { label: 'virtualsAcp.totalMemos', value: fullNumber(data.virtualsAcp.totalMemos), unit: 'memos', field: 'virtualsAcp.totalMemos', source: { label: 'data.json', href: '/data.json' } },
+      { label: 'tempoMpp.totalEvents', value: fullNumber(data.tempoMpp.totalEvents), unit: 'events', field: 'tempoMpp.totalEvents', source: { label: 'data.json', href: '/data.json' } },
+      { label: 'olas.totalTxs', value: fullNumber(data.olas.totalTxs), unit: 'transactions', field: 'olas.totalTxs', source: { label: 'data.json', href: '/data.json' } },
+      { label: 'updatedAt', value: data.updatedAt, unit: 'ISO datetime', field: 'updatedAt', source: { label: 'data.json', href: '/data.json' } },
+    ],
+    methodRows: () => [
+      { protocol: 'x402', unit: 'count, USD, facilitator share, chain rows', fields: 'x402.totalTxs, x402.totalVolume, x402.protocols, x402.chains', source: '/data.json', caveat: 'Settlement activity, not audited organic commerce.' },
+      { protocol: 'ERC-8004', unit: 'agent count and chain rows', fields: 'erc8004Registry.totalAgents, erc8004Registry.chainsTracked, erc8004Registry.chains', source: '/data.json', caveat: 'Identity supply metric, not a payment count.' },
+      { protocol: 'Virtuals ACP', unit: 'memo count and daily rows', fields: 'virtualsAcp.totalMemos, virtualsAcp.daily', source: '/data.json', caveat: 'Lifecycle memos, not necessarily completed purchases.' },
+      { protocol: 'Tempo MPP', unit: 'event count, addresses, event types', fields: 'tempoMpp.totalEvents, tempoMpp.uniquePayers, tempoMpp.uniquePayees, tempoMpp.byType', source: '/data.json and /tempo-data.json', caveat: 'Tempo-specific RPC indexer coverage.' },
+      { protocol: 'Olas', unit: 'transaction count, chain rows, weekly rows', fields: 'olas.totalTxs, olas.chains, olas.weekly', source: '/data.json', caveat: 'Autonomous agent activity tracked separately.' },
+    ],
+    methodology: [
+      'Fetch `/data.json` directly for the canonical dashboard dataset. Use `/tempo-data.json` only when you need to inspect the Tempo MPP summary source separately.',
+      'Fields are intentionally nested by protocol so consumers can avoid mixing units. Treat `combinedEvents` as a dashboard aggregate, not a universal economic volume metric.',
+      'The license for dataset schema in the existing homepage JSON-LD is CC BY 4.0. The repo code remains MIT licensed.',
+    ],
+    sourceKeys: ['x402', 'erc8004', 'acp', 'tempo', 'olas'],
+    faq: data => [
+      { q: 'Where is the Agent Economy data API?', a: 'The public dataset is available at https://www.agenteconomy.to/data.json, with a Tempo-specific source summary at https://www.agenteconomy.to/tempo-data.json.' },
+      { q: 'Can I use data.json without rendering the dashboard?', a: 'Yes. The file is plain JSON and contains the same protocol fields embedded into the prerendered route HTML.' },
+      { q: 'How fresh is the API data?', a: `The current build embeds data updated at ${data.updatedAt}. The pipeline is configured for a daily UTC refresh.` },
+      { q: 'What unit should I use for combinedEvents?', a: 'Use count, and label it as an aggregate protocol-event footprint. Do not treat it as USD volume or verified organic commerce.' },
+    ],
+    datasetName: 'Agentic Payment Data API Dataset',
+    datasetDescription: 'Machine-readable Agent Economy data.json schema and live protocol fields for x402, ERC-8004, Virtuals ACP, Tempo MPP, and Olas.',
+    schemaTopic: 'agentic payment data API',
+    distributions: [DATA_URL, TEMPO_DATA_URL],
   },
 }
 
-export { STAGE_1_ROUTES }
+const ROUTE_LINKS = Object.entries(ROUTE_PAGES).map(([path, config]) => ({
+  path,
+  title: config.h1,
+  description: config.description,
+}))
 
-function RouteStubPage({ initialData, path }) {
+function getRouteData(initialData) {
   const data = normalizeData(FB, initialData || FB)
-  const totals = computeTotals(data)
+  return { data, totals: computeTotals(data) }
+}
+
+function getPageConfig(path) {
+  const config = ROUTE_PAGES[path]
+  if (!config) throw new Error(`Unknown route config: ${path}`)
+  return config
+}
+
+function getMetrics(config, data, totals) {
+  return config.metrics(data, totals)
+}
+
+function getFaq(config, data, totals) {
+  return config.faq(data, totals)
+}
+
+function renderSourceLink(source) {
+  return (
+    <a href={source.href} {...linkAttrs(source.href)}>
+      {source.label}
+    </a>
+  )
+}
+
+function ProtocolRoutePage({ initialData, path }) {
+  const { data, totals } = getRouteData(initialData)
+  const config = getPageConfig(path)
+  const metrics = getMetrics(config, data, totals)
+  const faqs = getFaq(config, data, totals)
+  const sources = uniqueSources([...metrics.map(row => row.source), ...sourceList(config.sourceKeys)])
   const freshness = getFreshness(data.updatedAt, 'loaded')
   const { dark, toggleTheme } = useTheme()
-  const config = ROUTE_CONFIG[path]
-  const metrics = config.metrics(data, totals)
 
   return (
     <div className="app">
@@ -877,11 +1194,7 @@ function RouteStubPage({ initialData, path }) {
             <span className="brand">agenteconomy.to</span>
             <span className="live-pill"><LiveDot />LIVE</span>
             <button className="theme-btn" type="button" onClick={toggleTheme} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}>
-              {dark ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
-              )}
+              <ThemeIcon dark={dark} />
             </button>
           </div>
           <div className="nav-meta">
@@ -898,40 +1211,155 @@ function RouteStubPage({ initialData, path }) {
 
       <main className="shell">
         <section className="hero fade">
-          <h1 className="hero-title">{config.title}</h1>
+          <h1 className="hero-title">{config.h1}</h1>
           <div className="eyebrow">{config.eyebrow}</div>
-          <div className="hero-num">{metrics[0].value}</div>
+          <div className="hero-num">{config.heroMetric(data, totals)}</div>
+          <div style={{ marginTop: 0, marginBottom: 12, color: 'var(--text-muted)', fontSize: 12 }}>{config.heroLabel}</div>
           <div className="hero-row">
             {metrics.slice(0, 4).map((item, i) => (
               <div className="hero-cell" key={i}>
-                <div className="hero-sub" style={{ color: item.accent || 'var(--text-strong)' }}>{item.value}</div>
+                <div className="hero-sub" style={{ color: i === 0 ? BLUE : 'var(--text-strong)' }}>{item.value}</div>
                 <div className="hero-label">{item.label}</div>
               </div>
             ))}
           </div>
           <div className="quick-actions">
             <Link className="action-link" to="/">Dashboard</Link>
+            {path !== '/methodology' && <Link className="action-link" to="/methodology">Methodology</Link>}
+            {path !== '/data' && <Link className="action-link" to="/data">Data API</Link>}
             <a className="action-link" href="/data.json">Raw JSON</a>
-            <a className="action-link" href="/tempo-data.json">Tempo data</a>
           </div>
         </section>
 
-        <section className="section">
+        <section className="section" data-section="explainer">
           <div className="section-head">
-            <h2 className="section-title">Build-time route snapshot</h2>
-            <span className="badge" style={{ color: BLUE, background: 'var(--badge-blue-bg)' }}>SSG</span>
+            <h2 className="section-title">{config.explainerTitle}</h2>
+            <span className="badge" style={{ color: BLUE, background: 'var(--badge-blue-bg)' }}>EXPLAINER</span>
             <span style={{ width: 1, height: 12, background: 'var(--border)' }} />
-            <span className="meta">{config.meta(data)}</span>
+            <span className="meta">{config.meta(data, totals)}</span>
           </div>
-          <div className="grid g4">
-            {metrics.map(item => (
-              <Card key={item.label} {...item} />
+          <div className="panel">
+            {config.explainer.map(paragraph => (
+              <p key={paragraph} style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.8, margin: '0 0 12px' }}>{paragraph}</p>
             ))}
           </div>
+        </section>
+
+        <section className="section" data-section="metrics">
+          <div className="section-head">
+            <h2 className="section-title">{config.metricsTitle}</h2>
+            <span className="badge" style={{ color: GREEN, background: 'var(--badge-green-bg)' }}>LIVE</span>
+            <span style={{ width: 1, height: 12, background: 'var(--border)' }} />
+            <span className="meta">Updated {getUpdatedLabel(data)}</span>
+          </div>
+          <div className="comparison">
+            <table>
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                  <th>Unit</th>
+                  <th>data.json field</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {metrics.map(row => (
+                  <tr key={row.label}>
+                    <td><strong>{row.label}</strong></td>
+                    <td>{row.value}</td>
+                    <td>{row.unit}</td>
+                    <td>{row.field}</td>
+                    <td>{renderSourceLink(row.source)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="panel" style={{ marginTop: 14 }}>
-            <div className="panel-title">Stage 1 scope</div>
+            <div className="panel-title">Last updated</div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              This route is pre-rendered so crawlers can receive a route-specific HTML file with current metric values. Full protocol content, per-page metadata, schema, and SEO copy are intentionally left for Stage 2 and Stage 3.
+              <time dateTime={data.updatedAt}>{getUpdatedLabel(data)}</time>. This route was prerendered with the same `data.json` values used by the dashboard.
+            </div>
+          </div>
+        </section>
+
+        <section className="section" data-section="methodology">
+          <div className="section-head">
+            <h2 className="section-title">How this data is tracked</h2>
+            <span className="badge" style={{ color: '#7C3AED', background: 'var(--badge-purple-bg)' }}>METHODOLOGY</span>
+          </div>
+          {config.methodRows && (
+            <div className="comparison" style={{ marginBottom: 14 }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Protocol</th>
+                    <th>Unit</th>
+                    <th>Fields</th>
+                    <th>Source</th>
+                    <th>Caveat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {config.methodRows(data, totals).map(row => (
+                    <tr key={row.protocol}>
+                      <td><strong>{row.protocol}</strong></td>
+                      <td>{row.unit}</td>
+                      <td>{row.fields}</td>
+                      <td>{row.source}</td>
+                      <td>{row.caveat}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <div className="panel">
+            {config.methodology.map(paragraph => (
+              <p key={paragraph} style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.8, margin: '0 0 12px' }}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
+
+        <section className="section" data-section="sources">
+          <div className="section-head">
+            <h2 className="section-title">Data sources</h2>
+            <span className="badge" style={{ color: BLUE, background: 'var(--badge-blue-bg)' }}>SOURCES</span>
+          </div>
+          <div className="panel">
+            <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--text-muted)', fontSize: 12, lineHeight: 1.9 }}>
+              {sources.map(source => (
+                <li key={source.href}>{renderSourceLink(source)}</li>
+              ))}
+              <li><a href="/data.json">Agent Economy raw dataset</a></li>
+              <li><a href="https://github.com/realdora/agenteconomy" target="_blank" rel="noopener noreferrer">Agent Economy GitHub repository</a></li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="section" data-section="faq">
+          <div className="section-head">
+            <h2 className="section-title">FAQ</h2>
+            <span className="badge" style={{ color: GREEN, background: 'var(--badge-green-bg)' }}>JSON-LD</span>
+          </div>
+          {faqs.map(item => (
+            <details className="details-card" key={item.q}>
+              <summary>{item.q}<span style={{ color: 'var(--text-faint)', marginLeft: 8 }}>+</span></summary>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border-light)' }}>{item.a}</div>
+            </details>
+          ))}
+        </section>
+
+        <section className="section">
+          <div className="panel">
+            <div className="panel-title">Related routes</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+              {ROUTE_LINKS.filter(route => route.path !== path).map((route, i, arr) => (
+                <span key={route.path}>
+                  <Link to={route.path}>{route.title}</Link>{i < arr.length - 1 ? ' · ' : ''}
+                </span>
+              ))}
             </div>
           </div>
         </section>
@@ -954,10 +1382,184 @@ export default function App({ initialData }) {
   return (
     <Routes>
       <Route path="/" element={<DashboardPage initialData={initialData} />} />
-      {Object.keys(ROUTE_CONFIG).map(path => (
-        <Route key={path} path={path} element={<RouteStubPage initialData={initialData} path={path} />} />
+      {Object.keys(ROUTE_PAGES).map(path => (
+        <Route key={path} path={path} element={<ProtocolRoutePage initialData={initialData} path={path} />} />
       ))}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
+}
+
+export function getRouteHead(path, initialData) {
+  if (path === '/') return null
+  const { data, totals } = getRouteData(initialData)
+  const config = getPageConfig(path)
+  const url = routeUrl(path)
+  return {
+    title: config.title,
+    description: config.description,
+    canonical: url,
+    ogTitle: config.title,
+    ogDescription: config.description,
+    ogUrl: url,
+    twitterTitle: config.title,
+    twitterDescription: config.description,
+    jsonLd: getRouteJsonLd(path, data, totals),
+    noscript: getRouteNoscript(path, data, totals),
+  }
+}
+
+export function getHomepageCollectionJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Agent Economy Protocol Pages',
+    url: routeUrl('/'),
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: ROUTE_LINKS.map((route, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: route.title,
+        url: routeUrl(route.path),
+      })),
+    },
+  }
+}
+
+function getRouteJsonLd(path, data, totals) {
+  const config = getPageConfig(path)
+  const url = routeUrl(path)
+  const metrics = getMetrics(config, data, totals)
+  const faqs = getFaq(config, data, totals)
+  const distributions = config.distributions || [DATA_URL]
+
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      headline: config.h1,
+      description: config.description,
+      url,
+      mainEntityOfPage: url,
+      dateModified: data.updatedAt,
+      author: {
+        '@type': 'Person',
+        name: 'realdora',
+        url: 'https://x.com/realdora_eth',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'agenteconomy.to',
+        url: SITE_URL,
+      },
+      about: config.schemaTopic,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Dataset',
+      name: config.datasetName,
+      description: config.datasetDescription,
+      url,
+      sameAs: DATA_URL,
+      license: 'https://creativecommons.org/licenses/by/4.0/',
+      creator: {
+        '@type': 'Person',
+        name: 'realdora',
+        url: 'https://x.com/realdora_eth',
+      },
+      dateModified: data.updatedAt,
+      distribution: distributions.map(contentUrl => ({
+        '@type': 'DataDownload',
+        encodingFormat: 'application/json',
+        contentUrl,
+      })),
+      variableMeasured: metrics.map(row => ({
+        '@type': 'PropertyValue',
+        name: row.label,
+        propertyID: row.field,
+        unitText: row.unit,
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map(item => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Agent Economy',
+          item: routeUrl('/'),
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: config.h1,
+          item: url,
+        },
+      ],
+    },
+  ]
+}
+
+function getRouteNoscript(path, data, totals) {
+  const config = getPageConfig(path)
+  const metrics = getMetrics(config, data, totals)
+  const faqs = getFaq(config, data, totals)
+  const sources = uniqueSources([...metrics.map(row => row.source), ...sourceList(config.sourceKeys)])
+
+  const metricRows = metrics.map(row => `
+          <tr>
+            <td>${escapeHtml(row.label)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.unit)}</td>
+            <td>${escapeHtml(row.field)}</td>
+            <td><a href="${escapeHtml(row.source.href)}">${escapeHtml(row.source.label)}</a></td>
+          </tr>`).join('')
+
+  const sourceItems = sources.map(source => `
+          <li><a href="${escapeHtml(source.href)}">${escapeHtml(source.label)}</a></li>`).join('')
+
+  const faqItems = faqs.map(item => `
+        <h3>${escapeHtml(item.q)}</h3>
+        <p>${escapeHtml(item.a)}</p>`).join('')
+
+  return `    <noscript>
+      <div style="max-width:900px;margin:0 auto;padding:40px 24px;font-family:Inter,system-ui,sans-serif;color:#111827">
+        <h1>${escapeHtml(config.h1)}</h1>
+        <p>${escapeHtml(config.description)}</p>
+
+        <h2>${escapeHtml(config.explainerTitle)}</h2>
+${config.explainer.map(paragraph => `        <p>${escapeHtml(paragraph)}</p>`).join('\n')}
+
+        <h2>${escapeHtml(config.metricsTitle)}</h2>
+        <table>
+          <tr><th>Metric</th><th>Value</th><th>Unit</th><th>data.json field</th><th>Source</th></tr>${metricRows}
+        </table>
+        <p>Last updated: <time datetime="${escapeHtml(data.updatedAt)}">${escapeHtml(getUpdatedLabel(data))}</time>.</p>
+
+        <h2>How this data is tracked</h2>
+${config.methodology.map(paragraph => `        <p>${escapeHtml(paragraph)}</p>`).join('\n')}
+
+        <h2>Data sources</h2>
+        <ul>${sourceItems}
+          <li><a href="/data.json">Agent Economy raw dataset</a></li>
+          <li><a href="https://github.com/realdora/agenteconomy">Agent Economy GitHub repository</a></li>
+        </ul>
+
+        <h2>FAQ</h2>${faqItems}
+      </div>
+    </noscript>`
 }
