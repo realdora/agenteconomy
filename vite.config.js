@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   plugins: [react()],
   build: {
     chunkSizeWarningLimit: 650,
-    rollupOptions: {
+    rollupOptions: isSsrBuild ? {} : {
       output: {
         manualChunks: {
           charts: ['recharts'],
@@ -14,4 +14,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
