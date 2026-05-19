@@ -141,6 +141,13 @@ No Vercel config change was needed for the Stage 1 static routes. Vercel's stati
 
 The existing `/api/og` rewrite remains unchanged because fixing `/api/og` is Stage 3.
 
+PR #3 Vercel checks passed:
+
+- `Vercel`: pass, deployment completed.
+- `Vercel Preview Comments`: pass.
+
+The preview URL is protected by Vercel SSO and returns 401 to unauthenticated `curl` requests, including `/`, `/x402`, `/data`, and `/data.json`. That prevented public route-body verification on the preview deployment from this environment, but the Vercel deployment itself completed successfully and local `dist/` + `vite preview` route verification passed.
+
 ## Acceptance Checklist
 
 - [x] `STAGE_1_DECISION.md` was committed before implementation changes.
