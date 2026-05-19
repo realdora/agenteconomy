@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-18T02:10:22.975Z",
+  "updatedAt": "2026-05-19T02:09:21.100Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -1202,6 +1202,24 @@
         "consumer": 1651,
         "infrastructure": 6138,
         "total": 7789
+      },
+      {
+        "day": "2026-05-15",
+        "consumer": 2236,
+        "infrastructure": 6177,
+        "total": 8413
+      },
+      {
+        "day": "2026-05-16",
+        "consumer": 2148,
+        "infrastructure": 5565,
+        "total": 7713
+      },
+      {
+        "day": "2026-05-17",
+        "consumer": 2211,
+        "infrastructure": 5020,
+        "total": 7231
       }
     ]
   },
