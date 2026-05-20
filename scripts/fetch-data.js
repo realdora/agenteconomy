@@ -198,7 +198,7 @@ async function main() {
   const queries = {
     q6058135: captureQuery(fetchQuery(6058135, 1000)),
     q6084845: captureQuery(fetchQuery(6084845, 1000)),
-    q6731879: captureQuery(fetchQuery(6731879, 1000)),
+    q6731879: captureQuery(fetchQuery(6731879, 5000)),
     q6200422: captureQuery(fetchQuery(6200422, 1000)),
     q6130922: captureQuery(fetchQuery(6130922, 5000)),
     q3344834: captureQuery(fetchQuery(3344834, 5000)),
@@ -248,7 +248,9 @@ async function main() {
   let agenticDaily = [], agenticTotalTxs = 0
   try {
     const rows = await readQuery(queries.q6731879)
-    assertRowShape(rows, ['day','category','Daily Transactions','Cumulative Transactions'], 'Q6731879')
+    // Schema changed 2026-05-20: upstream dropped 'Cumulative Transactions' column.
+    // Derive cumulative by summing Daily Transactions across the full returned window.
+    assertRowShape(rows, ['day','category','Daily Transactions'], 'Q6731879')
     console.log(`Q6731879 (ERC-8004): ${rows.length} rows`)
     const agMap = {}
     rows.forEach(row => {
@@ -264,18 +266,7 @@ async function main() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([day, v]) => ({ day, consumer: v.consumer, infrastructure: v.infrastructure, total: v.consumer + v.infrastructure }))
 
-    // Sum cumulative across ALL categories for latest day
-    const cumByDay = {}
-    rows.forEach(r => {
-      const day = r.day || ''
-      const cum = safeNum(r['Cumulative Transactions'])
-      if (day && cum > 0) {
-        if (!cumByDay[day]) cumByDay[day] = 0
-        cumByDay[day] += cum
-      }
-    })
-    const sortedDays = Object.entries(cumByDay).sort(([a], [b]) => b.localeCompare(a))
-    if (sortedDays.length > 0) agenticTotalTxs = sortedDays[0][1]
+    agenticTotalTxs = agenticDaily.reduce((sum, d) => sum + d.total, 0)
   } catch (e) { recordRequiredFailure('Q6731879', e) }
 
   // ── Q4: Virtuals ACP memos (Query 6200422) ─────────────────
