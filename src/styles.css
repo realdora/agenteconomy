@@ -727,6 +727,49 @@ button {
   border-bottom: none;
 }
 
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.related-link {
+  display: flex;
+  min-width: 0;
+  min-height: 92px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+
+.related-link:hover {
+  border-color: var(--border-focus);
+  box-shadow: 0 4px 20px var(--card-shadow);
+  transform: translateY(-1px);
+}
+
+.related-title {
+  color: var(--text-sec);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.related-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 .method-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

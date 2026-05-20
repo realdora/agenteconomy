@@ -8,6 +8,8 @@ const distDir = join(root, 'dist')
 const serverEntry = join(root, 'dist-ssr', 'entry-server.js')
 const templatePath = join(distDir, 'index.html')
 const dataPath = join(root, 'public', 'data.json')
+const siteUrl = 'https://agenteconomy.to'
+const writeCleanUrlFiles = process.env.BUILD_CLEAN_URLS === '1'
 
 function safeJsonForHtml(value) {
   return JSON.stringify(value)
@@ -43,6 +45,47 @@ function outputPathForRoute(route) {
 function cleanUrlOutputPathForRoute(route) {
   if (route === '/') return null
   return join(distDir, `${route.replace(/^\//, '')}.html`)
+}
+
+function routeUrl(route) {
+  return route === '/' ? `${siteUrl}/` : `${siteUrl}${route}`
+}
+
+function routePriority(route) {
+  if (route === '/') return '1.0'
+  if (route === '/x402' || route === '/erc-8004') return '0.9'
+  if (route === '/tempo-mpp') return '0.7'
+  return '0.8'
+}
+
+function escapeXml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
+function buildSitemap(routes, updatedAt) {
+  const modified = new Date(updatedAt)
+  if (Number.isNaN(modified.getTime())) {
+    throw new Error(`Invalid data.updatedAt for sitemap lastmod: ${updatedAt}`)
+  }
+
+  const lastmod = modified.toISOString()
+  const urls = routes.map(route => `  <url>
+    <loc>${escapeXml(routeUrl(route))}</loc>
+    <lastmod>${escapeXml(lastmod)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>${routePriority(route)}</priority>
+  </url>`).join('\n')
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`
 }
 
 function replaceRequired(html, pattern, replacement, label) {
@@ -120,8 +163,11 @@ for (const route of STAGE_1_ROUTES) {
   await mkdir(dirname(outputPath), { recursive: true })
   await writeFile(outputPath, html)
   const cleanOutputPath = cleanUrlOutputPathForRoute(route)
-  if (cleanOutputPath) {
+  if (writeCleanUrlFiles && cleanOutputPath) {
     await writeFile(cleanOutputPath, html)
   }
   console.log(`pre-rendered ${route} -> ${outputPath.replace(`${root}/`, '')}`)
 }
+
+await writeFile(join(distDir, 'sitemap.xml'), buildSitemap(STAGE_1_ROUTES, data.updatedAt))
+console.log('generated sitemap.xml')
