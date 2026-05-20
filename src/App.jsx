@@ -1,18 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
-import {
-  Bar,
-  BarChart,
-  Cell,
-  ComposedChart,
-  Line,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
 import { FB, SOURCES } from './data'
 import {
   BLUE,
@@ -28,6 +15,8 @@ import {
   safeColor,
   shortDate,
 } from './utils'
+
+const LazyCharts = lazy(() => import('./Charts.jsx'))
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false)
@@ -268,6 +257,16 @@ function ClientRendered({ children }) {
   return mounted ? children : null
 }
 
+function ChartSurface({ children }) {
+  return (
+    <ClientRendered>
+      <Suspense fallback={null}>
+        <LazyCharts>{children}</LazyCharts>
+      </Suspense>
+    </ClientRendered>
+  )
+}
+
 function ThemeIcon({ dark }) {
   return (
     <ClientRendered>
@@ -353,29 +352,31 @@ function X402Section({ x, xTxs, xVol }) {
           </div>
         </div>
         <div className="chart-wrap">
-          <ClientRendered>
-            <ResponsiveContainer width="100%" height="100%">
-              {tf === 'day' && chartData.length > 0 ? (
-                <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                  <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 10))} />
-                  <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                  <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                  <Bar dataKey="txs" fill={BLUE_L} radius={[3, 3, 0, 0]} barSize={8} name="Daily" />
-                  <Line type="monotone" dataKey="ma" stroke={BLUE} strokeWidth={2} dot={false} name="7d avg" />
-                </ComposedChart>
-              ) : (
-                <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                  <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
-                  <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                  <Tooltip content={<ChartTip isMoney={met === 'vol'} />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                  <Bar dataKey={met} name={met === 'txs' ? 'Txs' : 'USD'} radius={[4, 4, 0, 0]}>
-                    {chartData.map((_, i) => <Cell key={i} fill={met === 'vol' ? GREEN : BLUE} fillOpacity={0.35 + (i / Math.max(chartData.length, 1)) * 0.65} />)}
-                  </Bar>
-                  {met === 'txs' && <Line type="monotone" dataKey="vol" yAxisId={0} stroke={GREEN} strokeWidth={1.5} dot={false} opacity={0.45} name="USD context" />}
-                </ComposedChart>
-              )}
-            </ResponsiveContainer>
-          </ClientRendered>
+          <ChartSurface>
+            {({ Bar, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis }) => (
+              <ResponsiveContainer width="100%" height="100%">
+                {tf === 'day' && chartData.length > 0 ? (
+                  <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                    <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 10))} />
+                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                    <Bar dataKey="txs" fill={BLUE_L} radius={[3, 3, 0, 0]} barSize={8} name="Daily" />
+                    <Line type="monotone" dataKey="ma" stroke={BLUE} strokeWidth={2} dot={false} name="7d avg" />
+                  </ComposedChart>
+                ) : (
+                  <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                    <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
+                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <Tooltip content={<ChartTip isMoney={met === 'vol'} />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                    <Bar dataKey={met} name={met === 'txs' ? 'Txs' : 'USD'} radius={[4, 4, 0, 0]}>
+                      {chartData.map((_, i) => <Cell key={i} fill={met === 'vol' ? GREEN : BLUE} fillOpacity={0.35 + (i / Math.max(chartData.length, 1)) * 0.65} />)}
+                    </Bar>
+                    {met === 'txs' && <Line type="monotone" dataKey="vol" yAxisId={0} stroke={GREEN} strokeWidth={1.5} dot={false} opacity={0.45} name="USD context" />}
+                  </ComposedChart>
+                )}
+              </ResponsiveContainer>
+            )}
+          </ChartSurface>
         </div>
         <SourceLinks sources={SOURCES.x402} />
       </div>
@@ -388,22 +389,24 @@ function X402Section({ x, xTxs, xVol }) {
         <div className="panel">
           <div className="panel-title">Facilitator share</div>
           <div className="pie-wrap">
-            <ClientRendered>
-              <PieChart width={108} height={108} style={{ flexShrink: 0 }}>
-                <Pie data={x.protocols} dataKey="share" nameKey="name" cx={52} cy={52} innerRadius={28} outerRadius={52} strokeWidth={2} stroke="var(--pie-stroke)">
-                  {x.protocols.map((p, i) => <Cell key={i} fill={safeColor(p.color)} />)}
-                </Pie>
-                <Tooltip content={({ active, payload }) => {
-                  if (!active || !payload?.length) return null
-                  const d = payload[0]
-                  return (
-                    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', boxShadow: '0 4px 12px var(--shadow)', fontSize: 11 }}>
-                      <strong>{d.name}</strong><span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>{d.value}%</span>
-                    </div>
-                  )
-                }} />
-              </PieChart>
-            </ClientRendered>
+            <ChartSurface>
+              {({ Cell, Pie, PieChart, Tooltip }) => (
+                <PieChart width={108} height={108} style={{ flexShrink: 0 }}>
+                  <Pie data={x.protocols} dataKey="share" nameKey="name" cx={52} cy={52} innerRadius={28} outerRadius={52} strokeWidth={2} stroke="var(--pie-stroke)">
+                    {x.protocols.map((p, i) => <Cell key={i} fill={safeColor(p.color)} />)}
+                  </Pie>
+                  <Tooltip content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null
+                    const d = payload[0]
+                    return (
+                      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px', boxShadow: '0 4px 12px var(--shadow)', fontSize: 11 }}>
+                        <strong>{d.name}</strong><span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>{d.value}%</span>
+                      </div>
+                    )
+                  }} />
+                </PieChart>
+              )}
+            </ChartSurface>
             <div className="legend">
               {x.protocols.map((p, i) => (
                 <div className="bar-row" key={`${p.name}-${i}`}>
@@ -487,17 +490,19 @@ function RegistrySection({ ag, erc8004Reg, agTxs, regAgents }) {
           <div className="panel chart-panel">
             <div className="panel-title">Agentic events</div>
             <div className="chart-wrap" style={{ height: 170 }}>
-              <ClientRendered>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={ag.daily} barSize={Math.max(4, Math.min(14, 600 / ag.daily.length))}>
-                    <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(ag.daily.length / 10))} />
-                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                    <Tooltip content={<ChartTip />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                    <Bar dataKey="infrastructure" stackId="a" fill="#6366F1" name="Infrastructure" />
-                    <Bar dataKey="consumer" stackId="a" fill="#10B981" radius={[2, 2, 0, 0]} name="Consumer" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ClientRendered>
+              <ChartSurface>
+                {({ Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis }) => (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={ag.daily} barSize={Math.max(4, Math.min(14, 600 / ag.daily.length))}>
+                      <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(ag.daily.length / 10))} />
+                      <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                      <Tooltip content={<ChartTip />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                      <Bar dataKey="infrastructure" stackId="a" fill="#6366F1" name="Infrastructure" />
+                      <Bar dataKey="consumer" stackId="a" fill="#10B981" radius={[2, 2, 0, 0]} name="Consumer" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </ChartSurface>
             </div>
             <SourceLinks sources={[SOURCES.erc8004[0]]} />
           </div>
@@ -531,16 +536,18 @@ function SimpleProtocolSection({ kind, title, badge, meta, explanation, totalLab
             <div className="panel chart-panel">
               <div className="panel-title">{chartTitle}</div>
               <div className="chart-wrap" style={{ height: 170 }}>
-                <ClientRendered>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                      <XAxis dataKey={kind === 'olas' ? 'week' : 'day'} tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(chartData.length / 12))} />
-                      <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
-                      <Tooltip content={<ChartTip unit={unit} />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                      <Bar dataKey={chartKey} fill={barColor} radius={[3, 3, 0, 0]} barSize={kind === 'olas' ? 14 : 6} opacity={0.72} name={chartTitle} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ClientRendered>
+                <ChartSurface>
+                  {({ Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis }) => (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+                        <XAxis dataKey={kind === 'olas' ? 'week' : 'day'} tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(chartData.length / 12))} />
+                        <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                        <Tooltip content={<ChartTip unit={unit} />} cursor={{ fill: 'var(--cursor-fill)' }} />
+                        <Bar dataKey={chartKey} fill={barColor} radius={[3, 3, 0, 0]} barSize={kind === 'olas' ? 14 : 6} opacity={0.72} name={chartTitle} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </ChartSurface>
               </div>
               <SourceLinks sources={SOURCES[sourceKey]} />
             </div>
