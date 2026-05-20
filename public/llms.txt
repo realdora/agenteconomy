@@ -1,0 +1,36 @@
+# Agent Economy
+
+> Agent Economy is a daily updated AI agent payment data dashboard for measurable on-chain agentic commerce across x402, ERC-8004, Virtuals ACP, Olas, and Tempo MPP.
+
+Site purpose: make agenteconomy.to the discoverable authority on agentic payment data for search engines, AI answer engines, researchers, builders, analysts, and journalists.
+
+Coverage notes:
+- Data refreshes daily through the GitHub Actions pipeline and Vercel rebuilds.
+- Raw counts can include tests, infrastructure activity, and self-directed usage. Treat totals as visible protocol activity, not audited organic commerce.
+- Dataset license: CC BY 4.0 for the public data schema and published metrics.
+- Contact: https://x.com/realdora_eth
+
+## Core Pages
+
+- [Homepage](https://agenteconomy.to/): AI agent payment data dashboard with aggregate on-chain event counts, USD settlement volume, protocol comparison, chain distribution, and methodology.
+- [x402](https://agenteconomy.to/x402): x402 transaction volume, USD settlement volume, facilitator share, chain distribution, sources, methodology, and FAQ.
+- [ERC-8004](https://agenteconomy.to/erc-8004): ERC-8004 registered-agent totals, registry chain distribution, related Base Agentic events, identity methodology, and FAQ.
+- [Virtuals ACP](https://agenteconomy.to/virtuals-acp): Virtuals Agent Commerce Protocol / ERC-8183 memo counts, daily rows, Base context, source notes, and FAQ.
+- [Olas](https://agenteconomy.to/olas): Olas / Autonolas autonomous-agent transaction totals, weekly history, Gnosis-dominant chain distribution, and methodology.
+- [Tempo MPP](https://agenteconomy.to/tempo-mpp): Tempo Machine Payment Protocol event counts, payer/payee totals, event types, raw Tempo source notes, and FAQ.
+- [Methodology](https://agenteconomy.to/methodology): Conservative aggregation rules, data sources, caveats, update flow, protocol units, and field-level methodology.
+- [Data API](https://agenteconomy.to/data): Machine-readable data.json schema, field units, source coverage, update cadence, caveats, and usage guidance.
+
+## Data Endpoints
+
+- [data.json](https://agenteconomy.to/data.json): Canonical public JSON dataset powering the dashboard and prerendered pages.
+- [tempo-data.json](https://agenteconomy.to/tempo-data.json): Tempo MPP RPC-indexed source summary that is merged into data.json.
+
+## Discovery
+
+- [Sitemap](https://agenteconomy.to/sitemap.xml): Indexable route list with daily lastmod values generated at build time.
+- [GitHub repository](https://github.com/realdora/agenteconomy): Source code, issue tracker, and data-source contribution path.
+
+## Optional
+
+- [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): License used for the public data schema and published dashboard metrics.

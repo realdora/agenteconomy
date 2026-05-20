@@ -613,7 +613,7 @@ function DashboardPage({ initialData }) {
 
       <main className="shell">
         <section className="hero fade">
-          <h1 className="hero-title">Tracking the<br />agentic economy.</h1>
+          <h1 className="hero-title">AI Agent Payment Data Dashboard</h1>
           <div className="eyebrow">On-chain events tracked</div>
           <div className="hero-num">{cEvents.toLocaleString()}</div>
           <FlowLines />
@@ -789,12 +789,19 @@ const STAGE_1_ROUTES = [
 
 export { STAGE_1_ROUTES }
 
-const SITE_URL = 'https://www.agenteconomy.to'
+const SITE_URL = 'https://agenteconomy.to'
 const DATA_URL = `${SITE_URL}/data.json`
 const TEMPO_DATA_URL = `${SITE_URL}/tempo-data.json`
+const PROTOCOL_ROUTES = ['/x402', '/erc-8004', '/virtuals-acp', '/olas', '/tempo-mpp']
+const METHODOLOGY_ROUTE = '/methodology'
+const DATA_ROUTE = '/data'
 
 function routeUrl(path) {
   return path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`
+}
+
+function protocolRelatedRoutes(path) {
+  return [...PROTOCOL_ROUTES.filter(route => route !== path), METHODOLOGY_ROUTE, DATA_ROUTE]
 }
 
 function fullNumber(value) {
@@ -890,6 +897,7 @@ const ROUTE_PAGES = {
     datasetName: 'x402 Transaction Volume Dataset',
     datasetDescription: 'Live x402 payment transaction, USD settlement, facilitator, and chain distribution fields from Agent Economy data.json.',
     schemaTopic: 'x402 transaction volume',
+    relatedRoutes: protocolRelatedRoutes('/x402'),
   },
   '/erc-8004': {
     title: 'ERC-8004 Agent Registry Data Across Chains | Agent Economy',
@@ -931,6 +939,7 @@ const ROUTE_PAGES = {
     datasetName: 'ERC-8004 Agent Registry Dataset',
     datasetDescription: 'Live ERC-8004 registered agent totals, chain counts, and related Base Agentic activity fields from Agent Economy data.json.',
     schemaTopic: 'ERC-8004 agent registry',
+    relatedRoutes: protocolRelatedRoutes('/erc-8004'),
   },
   '/virtuals-acp': {
     title: 'Virtuals ACP / ERC-8183 Agent Commerce Data | Agent Economy',
@@ -968,6 +977,7 @@ const ROUTE_PAGES = {
     datasetName: 'Virtuals ACP ERC-8183 Memo Dataset',
     datasetDescription: 'Live Virtuals ACP memo count and daily memo fields from Agent Economy data.json.',
     schemaTopic: 'Virtuals ACP agent commerce',
+    relatedRoutes: protocolRelatedRoutes('/virtuals-acp'),
   },
   '/olas': {
     title: 'Olas Autonolas Transaction Data | Agent Economy',
@@ -1009,6 +1019,7 @@ const ROUTE_PAGES = {
     datasetName: 'Olas Autonolas Transaction Dataset',
     datasetDescription: 'Live Olas autonomous agent transaction totals, weekly history, and chain distribution fields from Agent Economy data.json.',
     schemaTopic: 'Olas Autonolas data',
+    relatedRoutes: protocolRelatedRoutes('/olas'),
   },
   '/tempo-mpp': {
     title: 'Tempo MPP Machine Payment Protocol Data | Agent Economy',
@@ -1048,6 +1059,7 @@ const ROUTE_PAGES = {
     datasetDescription: 'Live Tempo MPP event, payer, payee, event-type, and daily fields from Agent Economy data.json and tempo-data.json.',
     schemaTopic: 'Tempo MPP machine payment protocol',
     distributions: [DATA_URL, TEMPO_DATA_URL],
+    relatedRoutes: protocolRelatedRoutes('/tempo-mpp'),
   },
   '/methodology': {
     title: 'Agentic Payment Data Methodology | Agent Economy',
@@ -1093,6 +1105,8 @@ const ROUTE_PAGES = {
     datasetName: 'Agentic Payment Data Methodology Dataset',
     datasetDescription: 'Methodology and source references for Agent Economy protocol data fields and aggregate calculations.',
     schemaTopic: 'agentic payment data methodology',
+    relatedTitle: 'Related protocols and data',
+    relatedRoutes: [...PROTOCOL_ROUTES, DATA_ROUTE],
   },
   '/data': {
     title: 'Agentic Payment Data API Schema | Agent Economy',
@@ -1132,7 +1146,7 @@ const ROUTE_PAGES = {
     ],
     sourceKeys: ['x402', 'erc8004', 'acp', 'tempo', 'olas'],
     faq: data => [
-      { q: 'Where is the Agent Economy data API?', a: 'The public dataset is available at https://www.agenteconomy.to/data.json, with a Tempo-specific source summary at https://www.agenteconomy.to/tempo-data.json.' },
+      { q: 'Where is the Agent Economy data API?', a: 'The public dataset is available at https://agenteconomy.to/data.json, with a Tempo-specific source summary at https://agenteconomy.to/tempo-data.json.' },
       { q: 'Can I use data.json without rendering the dashboard?', a: 'Yes. The file is plain JSON and contains the same protocol fields embedded into the prerendered route HTML.' },
       { q: 'How fresh is the API data?', a: `The current build embeds data updated at ${data.updatedAt}. The pipeline is configured for a daily UTC refresh.` },
       { q: 'What unit should I use for combinedEvents?', a: 'Use count, and label it as an aggregate protocol-event footprint. Do not treat it as USD volume or verified organic commerce.' },
@@ -1141,6 +1155,8 @@ const ROUTE_PAGES = {
     datasetDescription: 'Machine-readable Agent Economy data.json schema and live protocol fields for x402, ERC-8004, Virtuals ACP, Tempo MPP, and Olas.',
     schemaTopic: 'agentic payment data API',
     distributions: [DATA_URL, TEMPO_DATA_URL],
+    relatedTitle: 'Related protocols and methodology',
+    relatedRoutes: [...PROTOCOL_ROUTES, METHODOLOGY_ROUTE],
   },
 }
 
@@ -1149,6 +1165,17 @@ const ROUTE_LINKS = Object.entries(ROUTE_PAGES).map(([path, config]) => ({
   title: config.h1,
   description: config.description,
 }))
+
+function getRelatedRoutes(config) {
+  return (config.relatedRoutes || []).map(path => {
+    const relatedConfig = getPageConfig(path)
+    return {
+      path,
+      title: relatedConfig.h1,
+      description: relatedConfig.description,
+    }
+  })
+}
 
 function getRouteData(initialData) {
   const data = normalizeData(FB, initialData || FB)
@@ -1174,6 +1201,28 @@ function renderSourceLink(source) {
     <a href={source.href} {...linkAttrs(source.href)}>
       {source.label}
     </a>
+  )
+}
+
+function RelatedRoutesSection({ config }) {
+  const relatedRoutes = getRelatedRoutes(config)
+  if (!relatedRoutes.length) return null
+
+  return (
+    <section className="section" data-section="related">
+      <div className="section-head">
+        <h2 className="section-title">{config.relatedTitle || 'Related protocols'}</h2>
+        <span className="badge" style={{ color: GREEN, background: 'var(--badge-green-bg)' }}>LINKS</span>
+      </div>
+      <div className="related-grid">
+        {relatedRoutes.map(route => (
+          <Link className="related-link" to={route.path} key={route.path}>
+            <span className="related-title">{route.title}</span>
+            <span className="related-desc">{route.description}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -1351,18 +1400,7 @@ function ProtocolRoutePage({ initialData, path }) {
           ))}
         </section>
 
-        <section className="section">
-          <div className="panel">
-            <div className="panel-title">Related routes</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              {ROUTE_LINKS.filter(route => route.path !== path).map((route, i, arr) => (
-                <span key={route.path}>
-                  <Link to={route.path}>{route.title}</Link>{i < arr.length - 1 ? ' · ' : ''}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
+        <RelatedRoutesSection config={config} />
       </main>
 
       <footer className="footer">
@@ -1413,7 +1451,8 @@ export function getHomepageCollectionJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Agent Economy Protocol Pages',
+    name: 'AI Agent Payment Data Dashboard',
+    description: 'Daily updated AI agent payment data dashboard for x402, ERC-8004, Virtuals ACP, Olas, Tempo MPP, methodology, and raw JSON endpoints.',
     url: routeUrl('/'),
     mainEntity: {
       '@type': 'ItemList',
@@ -1519,6 +1558,7 @@ function getRouteNoscript(path, data, totals) {
   const metrics = getMetrics(config, data, totals)
   const faqs = getFaq(config, data, totals)
   const sources = uniqueSources([...metrics.map(row => row.source), ...sourceList(config.sourceKeys)])
+  const relatedRoutes = getRelatedRoutes(config)
 
   const metricRows = metrics.map(row => `
           <tr>
@@ -1535,6 +1575,9 @@ function getRouteNoscript(path, data, totals) {
   const faqItems = faqs.map(item => `
         <h3>${escapeHtml(item.q)}</h3>
         <p>${escapeHtml(item.a)}</p>`).join('')
+
+  const relatedItems = relatedRoutes.map(route => `
+          <li><a href="${escapeHtml(route.path)}">${escapeHtml(route.title)}</a>: ${escapeHtml(route.description)}</li>`).join('')
 
   return `    <noscript>
       <div style="max-width:900px;margin:0 auto;padding:40px 24px;font-family:Inter,system-ui,sans-serif;color:#111827">
@@ -1560,6 +1603,9 @@ ${config.methodology.map(paragraph => `        <p>${escapeHtml(paragraph)}</p>`)
         </ul>
 
         <h2>FAQ</h2>${faqItems}
+
+        <h2>${escapeHtml(config.relatedTitle || 'Related protocols')}</h2>
+        <ul>${relatedItems}</ul>
       </div>
     </noscript>`
 }
