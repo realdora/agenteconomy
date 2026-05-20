@@ -1,3 +1,26 @@
+/*
+ * Self-hosted Google Fonts variable files (Latin subset).
+ * Each family is served from a single variable WOFF2 file containing the full
+ * weight axis. The `font-weight` range on @font-face lets the browser
+ * interpolate to any used weight (400–800 for Inter, 500–700 for JetBrains
+ * Mono in current copy).
+ */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/inter-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-500.woff2") format("woff2");
+}
+
 :root {
   --bg: #fafafa;
   --surface: #fff;

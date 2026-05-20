@@ -22,6 +22,44 @@ Base, Solana, Gnosis, Polygon, Ethereum, BNB, Avalanche, Arbitrum, Optimism, SEI
 
 ## Versions
 
+### v3.0 — 2026-05-20
+
+Full SEO + AI engine discoverability buildout. Migrated from CSR React SPA to Vite + static site generation with per-route prerendered HTML, per-route metadata, bare-domain canonical, and AI-engine signals.
+
+**Architecture:**
+- Vite SSG via custom prerender script (`scripts/prerender.js` + `src/entry-server.jsx`) generating route-level HTML at build time for `/`, `/x402`, `/erc-8004`, `/virtuals-acp`, `/olas`, `/tempo-mpp`, `/methodology`, `/data`
+- React Router with `BrowserRouter` (client) and `StaticRouter` (server) for isomorphic routing
+- `public/data.json` embedded into prerendered HTML at build time via `window.__AE_DATA__`; the client refetches `/data.json` post-mount for live data
+
+**SEO + discoverability:**
+- Per-route `<title>`, `<meta description>`, `<link rel="canonical">`, OG/Twitter cards, and route-specific JSON-LD (TechArticle, Dataset, FAQPage, BreadcrumbList) — replaces the homepage template inheritance
+- Bare-domain canonical migration: `agenteconomy.to` is now primary, `www.agenteconomy.to` 301s to bare across all routes
+- Build-time sitemap generation with `lastmod` tied to `data.json` updatedAt
+- robots.txt with explicit Allow for GPTBot, ClaudeBot, PerplexityBot, Google-Extended, anthropic-ai, CCBot, ChatGPT-User
+- `/llms.txt` per llmstxt.org for AI engine context
+- `/api/og` rewritten as Edge function (`api/og.js`) with Vercel deployment-protection bypass forwarding
+
+**Performance:**
+- Self-hosted Inter + JetBrains Mono variable fonts (Latin subset) under `public/fonts/`, eliminating Google Fonts DNS/TLS roundtrip
+- Recharts lazy-loaded via `src/Charts.jsx` + `React.lazy` — chart bundle no longer in initial JS graph
+- Lighthouse: Performance 78 → 91, LCP 3.3s → 2.7s, CLS 0.097 → 0.00006
+
+**Security headers** (via `vercel.json`):
+- X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-Frame-Options, Strict-Transport-Security
+
+**Measurement:**
+- Optional Google Analytics 4 integration via `VITE_GA_MEASUREMENT_ID` env var
+- Auto-tracks page views, outbound link clicks, `data.json` / `tempo-data.json` downloads
+- AI engine referrer detection (chat.openai.com, chatgpt.com, perplexity.ai, claude.ai, gemini.google.com, copilot.microsoft.com, bing.com/chat) via `ai_engine_source` custom parameter
+- Snippet is a no-op when `VITE_GA_MEASUREMENT_ID` is unset
+
+### v2.1.2 — 2026-05-20
+
+Data pipeline hotfix.
+
+- Q6731879 (Base Agentic Ecosystem) upstream dropped the `Cumulative Transactions` column; derive cumulative by summing daily transactions across the returned window
+- Bumped Dune fetch row limit 1000 → 5000 so the derivation covers full Base agentic history
+
 ### v2.1.1 — 2026-05-03
 
 Maintenance fix for Dune billing/datapoint quota exhaustion.
@@ -112,38 +150,74 @@ Raw data available at [`agenteconomy.to/data.json`](https://agenteconomy.to/data
 ## Architecture
 
 ```
-Dune API ──→ fetch-data.js ──→ public/data.json ──→ React (App.jsx)
-                                      ↑
-Tempo RPC ──→ tempo-summary.js ──→ tempo-data.json
-                                      ↑
-GitHub Actions (daily) ───────────────┘
+Dune API ──→ fetch-data.js ──→ public/data.json
+                                      │
+                                      ↓ (embedded at build time)
+GitHub Actions (daily) ──→ commit ──→ Vercel build
+                                          │
+                                          ↓
+                              vite build + prerender.js
+                                          │
+                                          ↓
+                             dist/<route>/index.html × 8
+                                          │
+                                          ↓
+                              Vercel CDN (bare-domain primary)
+                                          │
+              ┌───────────────────────────┼───────────────────────────┐
+              ↓                           ↓                           ↓
+         Crawlers /                Real browsers                 /api/og
+        AI engines              (hydrate React app)         (edge function)
 ```
 
 ### Project structure
 
 ```
 src/
-  App.jsx       # Dashboard layout, sections, charts, and interactions
-  data.js       # Fallback dataset and external source metadata
-  utils.js      # Formatting, moving averages, deltas, freshness, totals
-  styles.css    # Theme tokens, responsive layout, component styles
-  main.jsx      # React entrypoint + Vercel Analytics
+  App.jsx          # Dashboard + per-route content components, lazy chart wrapper
+  Charts.jsx       # Recharts re-exports (lazy-loaded by React.lazy)
+  data.js          # Fallback dataset and external source metadata
+  utils.js         # Formatting, moving averages, deltas, freshness, totals
+  styles.css       # @font-face declarations, theme tokens, layout
+  main.jsx         # Browser entry: BrowserRouter, hydrate, Vercel Analytics
+  entry-server.jsx # SSR entry: StaticRouter, render, head metadata exports
 
 api/
-  og.jsx        # Dynamic Open Graph image using the same aggregate event logic
+  og.js            # Dynamic Open Graph image (Vercel Edge runtime, @vercel/og)
 
 scripts/
-  fetch-data.js       # Dune aggregation pipeline
-  tempo-summary.js    # Tempo MPP aggregation helper
+  fetch-data.js     # Dune aggregation pipeline → public/data.json
+  prerender.js      # Builds dist/<route>/index.html + dist/sitemap.xml
+  tempo-summary.js  # Tempo MPP aggregation helper
+
+public/
+  fonts/            # Self-hosted Inter + JetBrains Mono variable WOFF2
+  data.json         # Daily-refreshed dataset (cron-managed, do not edit)
+  tempo-data.json   # Tempo MPP daily-refreshed dataset
+  sitemap.xml       # Source fallback (production sitemap is generated into dist/)
+  robots.txt        # AI bot allow rules + sitemap reference
+  llms.txt          # AI engine site context per llmstxt.org
 ```
 
 ## Tech stack
 
-- **Frontend**: React 18 + Vite 5
-- **Charts**: Recharts
-- **Hosting**: Vercel
-- **OG image**: Dynamic generation via `@vercel/og`
-- **Data pipeline**: GitHub Actions daily cron → Dune API → `data.json`
+- **Frontend**: React 18 + Vite 5 with static site generation
+- **Routing**: React Router (BrowserRouter on client, StaticRouter on server)
+- **Charts**: Recharts (lazy-loaded post-mount)
+- **Hosting**: Vercel (bare-domain primary, www 308 redirects to bare)
+- **OG image**: Edge function via `@vercel/og`
+- **Analytics**: Vercel Analytics + optional Google Analytics 4 (env-var gated)
+- **Data pipeline**: GitHub Actions daily cron → Dune API → `data.json` → Vercel rebuild
+- **Sitemap**: Generated at build time from `data.json.updatedAt`
+
+## Environment variables
+
+| Variable | Purpose | Required |
+|---|---|---|
+| `DUNE_API_KEY` | Authenticates the daily fetch-data pipeline | Yes (in GitHub Actions secrets) |
+| `VITE_GA_MEASUREMENT_ID` | Google Analytics 4 measurement ID (format `G-XXXXXXXXXX`). When unset, GA4 snippet is not injected. | Optional (set in Vercel project env vars for Production) |
+| `VERCEL_DEPLOY_HOOK_URL` | Optional secondary deploy trigger after cron commit | Optional (warning emitted when absent) |
+| `BUILD_CLEAN_URLS` | Set to `1` to also emit `dist/<route>.html` flat files for local `vite preview` convenience | Optional |
 
 ## Development
 
