@@ -1,19 +1,37 @@
+/*
+ * Landing page styles — Token Terminal-style magazine layout.
+ *
+ * Palette: warm cream background, warm-brown tiles, near-black text,
+ * deep green accent. Distinct from the dashboard's dark mode by design
+ * (landing = marketing / editorial; dashboard = utilitarian).
+ *
+ * Z-index trick: tiles sit ABOVE headlines so headlines crop into tiles
+ * (the TT magazine-cover effect). The product card and subhead inline
+ * sit above everything.
+ */
+
 .landing {
-  --bg: #0b0f14;
-  --surface: #111827;
-  --surface-elev: #1a2331;
-  --border: #1e293b;
-  --border-light: #2a3142;
-  --text: #f9fafb;
-  --text-sec: #d1d5db;
-  --text-muted: #9ca3af;
-  --text-faint: #4b5563;
-  --accent: #00ff88;
-  --accent-soft: rgba(0, 255, 136, 0.12);
-  --accent-line: rgba(0, 255, 136, 0.3);
-  --tile-bg: #1a2331;
-  --tile-border: #2a3142;
-  --dot-color: rgba(255, 255, 255, 0.025);
+  --bg: #F2EEE4;
+  --surface: #FFFFFF;
+  --surface-elev: #FFFFFF;
+  --border: #E0D8C8;
+  --border-light: #EAE3D3;
+  --text: #0E0E0C;
+  --text-sec: #3A352E;
+  --text-muted: #6B6055;
+  --text-faint: #A89D8E;
+  --accent: #16A34A;
+  --accent-soft: rgba(22, 163, 74, 0.10);
+  --accent-line: rgba(22, 163, 74, 0.25);
+
+  --tile-warm-1: #8B6F47;
+  --tile-warm-2: #6B5A47;
+  --tile-warm-3: #4A3F33;
+  --tile-canopy: #4D5C3A;
+  --tile-shadow: #2F2820;
+  --tile-bg: #6B5A47;
+  --tile-border: #4A3F33;
+
   position: relative;
   isolation: isolate;
   z-index: 1;
@@ -21,6 +39,7 @@
   max-width: 1680px;
   margin: 0 auto;
   padding: 24px 48px 64px;
+  background: var(--bg);
   color: var(--text);
   font-family: "Inter", -apple-system, system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01";
@@ -41,22 +60,7 @@
   padding: 0;
 }
 
-.landing::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background-color: var(--bg);
-  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-}
-
-.landing > * {
-  position: relative;
-  z-index: 1;
-}
-
+/* ------- TOP TICKER (mono, low-contrast on cream) ------- */
 .landing .ticker {
   display: flex;
   gap: 28px;
@@ -69,6 +73,7 @@
   font-family: "JetBrains Mono", "SF Mono", monospace;
   font-size: 11px;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .landing .ticker .chip strong {
@@ -77,20 +82,15 @@
   font-weight: 600;
 }
 
-.landing .ticker .spacer {
-  flex: 1;
-}
+.landing .ticker .spacer { flex: 1; }
 
+/* ------- NAV ------- */
 .landing .nav {
-  position: static;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 32px;
   padding: 0 0 32px;
-  border: 0;
-  background: transparent;
-  backdrop-filter: none;
 }
 
 .landing .brand {
@@ -100,7 +100,6 @@
   font-family: "JetBrains Mono", monospace;
   font-size: 15px;
   font-weight: 600;
-  white-space: normal;
 }
 
 .landing .brand .cursor {
@@ -113,11 +112,7 @@
   animation: landing-blink 1.2s steps(2, end) infinite;
 }
 
-@keyframes landing-blink {
-  50% {
-    opacity: 0;
-  }
-}
+@keyframes landing-blink { 50% { opacity: 0; } }
 
 .landing .nav-links {
   display: flex;
@@ -133,9 +128,7 @@
   transition: color 0.15s;
 }
 
-.landing .nav-links a:hover {
-  color: var(--text);
-}
+.landing .nav-links a:hover { color: var(--text); }
 
 .landing .nav-cta {
   display: inline-flex;
@@ -144,27 +137,30 @@
   padding: 10px 18px;
   border-radius: 8px;
   background: var(--accent);
-  color: #0b0f14;
+  color: #FFFFFF;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 0.15s;
+  transition: transform 0.15s, background 0.15s;
 }
 
 .landing .nav-cta:hover {
-  color: #0b0f14;
+  color: #FFFFFF;
+  background: #138a3e;
   transform: translateY(-1px);
 }
 
+/* ------- META STRIP (above hero) ------- */
 .landing .meta-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
   color: var(--text-muted);
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .landing .meta-row .left {
@@ -181,25 +177,41 @@
   border-radius: 50%;
   background: var(--accent);
   transform: translateY(-1px);
+  animation: landing-pulse 2s ease-in-out infinite;
 }
 
+@keyframes landing-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ================================================================
+ * HERO STAGE — magazine grid with dramatic crops
+ * ================================================================
+ * Z-index layering for the TT crop effect:
+ *   z=1: headlines (cropped by tiles above)
+ *   z=2: tiles (sit on top of headlines to create the cut effect)
+ *   z=3: subhead inline (above tiles, italic accent)
+ *   z=4: product card (always topmost)
+ */
 .landing .hero-stage {
   position: relative;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: repeat(8, minmax(72px, 92px));
-  gap: 12px;
-  margin-bottom: 48px;
+  grid-template-rows: repeat(8, minmax(80px, 100px));
+  gap: 14px;
+  margin-bottom: 56px;
 }
 
+/* ------- TILES (z-index 2, ABOVE headlines for crop effect) ------- */
 .landing .tile {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid var(--tile-border);
   border-radius: 16px;
   background: var(--tile-bg);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
 .landing .tile img {
@@ -211,57 +223,40 @@
   object-fit: cover;
 }
 
-.landing .tile--banner {
-  grid-column: 5 / 9;
-  grid-row: 1 / 2;
-}
+/* Tile placements — extended slightly so headlines crop INTO them */
+.landing .tile--banner    { grid-column:  6 / 10; grid-row: 1 / 3; }
+.landing .tile--top-sq    { grid-column:  4 / 6;  grid-row: 2 / 4; }
+.landing .tile--right-tall{ grid-column: 10 / 13; grid-row: 1 / 6; }
+.landing .tile--left-bot  { grid-column:  1 / 5;  grid-row: 5 / 9; }
+.landing .tile--mid-bot   { grid-column:  5 / 10; grid-row: 7 / 9; }
 
-.landing .tile--top-sq {
-  grid-column: 4 / 5;
-  grid-row: 2 / 3;
-}
-
-.landing .tile--right-tall {
-  grid-column: 9 / 13;
-  grid-row: 1 / 6;
-}
-
-.landing .tile--left-bot {
-  grid-column: 1 / 5;
-  grid-row: 5 / 9;
-}
-
-.landing .tile--mid-bot {
-  grid-column: 5 / 9;
-  grid-row: 6 / 9;
-}
-
+/* ------- HEADLINES (z-index 1 — get cropped by tiles) ------- */
 .landing .headline {
-  z-index: 3;
+  z-index: 1;
   align-self: start;
   color: var(--text);
   font-family: "Inter", sans-serif;
-  font-size: clamp(64px, 9.5vw, 168px);
+  font-size: clamp(72px, 11vw, 192px);
   font-weight: 800;
-  line-height: 0.9;
+  line-height: 0.88;
+  letter-spacing: -0.048em;
   pointer-events: none;
 }
 
 .landing .headline--top {
-  grid-column: 1 / 7;
+  grid-column: 1 / 11;
   grid-row: 1 / 4;
 }
 
 .landing .headline--bot {
-  grid-column: 7 / 13;
+  grid-column: 6 / 13;
   grid-row: 6 / 9;
   text-align: left;
 }
 
-.landing .headline .dot {
-  color: var(--accent);
-}
+.landing .headline .dot { color: var(--accent); }
 
+/* ------- SUBHEAD inline italic (z-index 3, above tiles) ------- */
 .landing .subhead-inline {
   z-index: 3;
   grid-column: 1 / 5;
@@ -270,10 +265,11 @@
   padding-bottom: 12px;
   color: var(--text-sec);
   font-family: "Inter", sans-serif;
-  font-size: clamp(26px, 3.4vw, 56px);
+  font-size: clamp(28px, 3.6vw, 60px);
   font-style: italic;
   font-weight: 500;
   line-height: 1;
+  letter-spacing: -0.025em;
 }
 
 .landing .subhead-inline em {
@@ -282,18 +278,24 @@
   font-weight: 600;
 }
 
+/* ================================================================
+ * PRODUCT CARD — center, always topmost
+ * ================================================================ */
 .landing .product-card {
   z-index: 4;
   display: flex;
-  grid-column: 4 / 9;
-  grid-row: 3 / 6;
   flex-direction: column;
-  gap: 14px;
-  padding: 22px 26px 18px;
+  grid-column: 4 / 9;
+  grid-row: 3 / 7;
+  gap: 16px;
+  padding: 24px 28px 20px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--surface-elev);
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: var(--surface);
+  box-shadow:
+    0 24px 64px -12px rgba(46, 36, 24, 0.18),
+    0 8px 24px -8px rgba(46, 36, 24, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
 }
 
 .landing .product-card-head {
@@ -320,6 +322,7 @@
   color: var(--text);
   font-size: 16px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .landing .product-card-sub {
@@ -327,6 +330,7 @@
   color: var(--text-muted);
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
+  letter-spacing: 0.04em;
 }
 
 .landing .product-card-stats {
@@ -334,8 +338,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 22px;
   align-items: end;
-  padding: 4px 0 6px;
-  border-bottom: 1px solid var(--border);
+  padding: 6px 0 10px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .landing .stat-label {
@@ -344,15 +348,17 @@
   font-family: "JetBrains Mono", monospace;
   font-size: 10px;
   text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .landing .stat-value {
   color: var(--text);
   font-family: "Inter", sans-serif;
-  font-size: 36px;
+  font-size: 38px;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .landing .stat-value.delta {
@@ -362,7 +368,7 @@
 
 .landing .product-card-chart {
   flex: 1;
-  min-height: 80px;
+  min-height: 90px;
   margin-top: 6px;
 }
 
@@ -375,20 +381,23 @@
 .landing .chart-axis {
   display: flex;
   justify-content: space-between;
-  margin-top: 4px;
+  margin-top: 6px;
   color: var(--text-faint);
   font-family: "JetBrains Mono", monospace;
   font-size: 9px;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
+/* ================================================================
+ * PITCH + CTA below hero
+ * ================================================================ */
 .landing .pitch-row {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 40px;
   align-items: end;
-  margin-top: 0;
-  padding-top: 32px;
+  padding-top: 36px;
   border-top: 1px solid var(--border);
 }
 
@@ -396,7 +405,7 @@
   max-width: 720px;
   color: var(--text-sec);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .landing .pitch-text strong {
@@ -404,15 +413,22 @@
   font-weight: 600;
 }
 
+.landing .pitch-text em {
+  color: var(--text);
+  font-style: italic;
+  font-weight: 500;
+}
+
 .landing .pitch-cta {
   display: inline-flex;
   align-items: center;
   justify-self: end;
   gap: 8px;
-  padding: 14px 22px;
+  padding: 14px 24px;
   border: 1px solid var(--accent);
   border-radius: 999px;
-  color: var(--accent);
+  background: var(--accent);
+  color: #FFFFFF;
   font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -422,8 +438,8 @@
 }
 
 .landing .pitch-cta:hover {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: #138a3e;
+  color: #FFFFFF;
   transform: translateY(-1px);
 }
 
@@ -436,23 +452,16 @@
   transform: translateX(3px);
 }
 
+/* ================================================================
+ * RESPONSIVE — stack on mobile
+ * ================================================================ */
 @media (max-width: 1100px) {
-  .landing {
-    padding: 20px 24px 48px;
-  }
+  .landing { padding: 20px 24px 48px; }
 
-  .landing .nav-links {
-    display: none;
-  }
+  .landing .nav-links { display: none; }
 
-  .landing .ticker {
-    gap: 14px;
-    font-size: 10px;
-  }
-
-  .landing .meta-row {
-    font-size: 10px;
-  }
+  .landing .ticker { gap: 14px; font-size: 10px; }
+  .landing .meta-row { font-size: 10px; }
 
   .landing .hero-stage {
     grid-template-columns: 1fr;
@@ -473,22 +482,11 @@
     grid-row: auto;
   }
 
-  .landing .tile {
-    aspect-ratio: 16 / 9;
-  }
+  .landing .tile { aspect-ratio: 16 / 9; }
+  .landing .tile--top-sq { max-width: 240px; aspect-ratio: 1 / 1; }
+  .landing .tile--right-tall { aspect-ratio: 4 / 5; }
 
-  .landing .tile--top-sq {
-    max-width: 240px;
-    aspect-ratio: 1 / 1;
-  }
-
-  .landing .tile--right-tall {
-    aspect-ratio: 4 / 5;
-  }
-
-  .landing .headline {
-    font-size: clamp(48px, 12vw, 96px);
-  }
+  .landing .headline { font-size: clamp(52px, 13vw, 96px); }
 
   .landing .subhead-inline {
     align-self: auto;
@@ -500,7 +498,5 @@
     gap: 24px;
   }
 
-  .landing .pitch-cta {
-    justify-self: start;
-  }
+  .landing .pitch-cta { justify-self: start; }
 }

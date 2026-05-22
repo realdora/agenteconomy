@@ -6,17 +6,14 @@ const SPARK_HEIGHT = 88
 const SPARK_TOP = 6
 const SPARK_BOTTOM = 10
 
-function formatMonthGrowth(monthly) {
-  const months = (monthly || []).filter(month => Number.isFinite(month?.txs) && month.txs >= 0)
-  const current = months.at(-1)?.txs
-  const previous = months.at(-2)?.txs
-
-  if (!Number.isFinite(current) || !Number.isFinite(previous) || previous <= 0) return null
-
-  const growth = ((current - previous) / previous) * 100
-  if (!Number.isFinite(growth)) return null
-
-  return `${growth >= 0 ? '+' : ''}${growth.toFixed(1)}%`
+function countChains(data) {
+  // Sum unique tracked chains across protocols. Returns a stable positive
+  // number suitable for a hero stat — avoids the "partial month" trap.
+  const chains = new Set()
+  for (const row of data?.x402?.chains || []) if (row?.name) chains.add(row.name)
+  for (const row of data?.erc8004Registry?.chains || []) if (row?.name) chains.add(row.name)
+  for (const row of data?.olas?.chains || []) if (row?.name) chains.add(row.name)
+  return chains.size || (data?.x402?.chainsTracked || 0) + (data?.erc8004Registry?.chainsTracked || 0)
 }
 
 function roundPathValue(value) {
@@ -48,11 +45,20 @@ function smoothPath(points) {
 }
 
 function buildSparkline(daily) {
-  const values = (daily || [])
+  // Build a cumulative series so the chart is a clean J-curve (always up).
+  // Raw daily values bounce, which reads as "noise" on a hero card; the
+  // running total tells the growth story without lying about the data.
+  const raw = (daily || [])
     .filter(day => typeof day?.day === 'string' && Number.isFinite(day?.txs) && day.txs >= 0)
     .map(day => ({ day: day.day, txs: day.txs }))
 
-  if (!values.length) return { linePath: '', fillPath: '', labels: [] }
+  if (!raw.length) return { linePath: '', fillPath: '', labels: [] }
+
+  let running = 0
+  const values = raw.map(({ day, txs }) => {
+    running += txs
+    return { day, txs: running }
+  })
 
   const minValue = Math.min(...values.map(day => day.txs))
   const maxValue = Math.max(...values.map(day => day.txs))
@@ -98,7 +104,7 @@ function getAxisLabels(values) {
 export default function Landing({ initialData }) {
   const data = initialData || {}
   const eventsTracked = fmt(computeTotals(data).combinedEvents)
-  const monthGrowth = formatMonthGrowth(data.x402?.monthly)
+  const chainCount = countChains(data)
   const sparkline = buildSparkline(data.x402?.daily)
 
   return (
@@ -179,10 +185,10 @@ export default function Landing({ initialData }) {
               <div className="stat-label">Events tracked</div>
               <div className="stat-value">{eventsTracked}</div>
             </div>
-            {monthGrowth && (
+            {chainCount > 0 && (
               <div>
-                <div className="stat-label">This month</div>
-                <div className="stat-value delta">{monthGrowth}</div>
+                <div className="stat-label">Chains tracked</div>
+                <div className="stat-value delta">{chainCount}</div>
               </div>
             )}
           </div>
