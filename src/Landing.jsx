@@ -1,6 +1,106 @@
 import './landing.css'
+import { computeTotals, fmt } from './utils.js'
 
-export default function Landing({ initialData: _initialData }) {
+const SPARK_WIDTH = 320
+const SPARK_HEIGHT = 88
+const SPARK_TOP = 6
+const SPARK_BOTTOM = 10
+
+function formatMonthGrowth(monthly) {
+  const months = (monthly || []).filter(month => Number.isFinite(month?.txs) && month.txs >= 0)
+  const current = months.at(-1)?.txs
+  const previous = months.at(-2)?.txs
+
+  if (!Number.isFinite(current) || !Number.isFinite(previous) || previous <= 0) return null
+
+  const growth = ((current - previous) / previous) * 100
+  if (!Number.isFinite(growth)) return null
+
+  return `${growth >= 0 ? '+' : ''}${growth.toFixed(1)}%`
+}
+
+function roundPathValue(value) {
+  return Number(value.toFixed(2))
+}
+
+function chartPoint(x, y) {
+  return `${roundPathValue(x)},${roundPathValue(y)}`
+}
+
+function smoothPath(points) {
+  if (points.length < 2) return ''
+
+  return points.slice(1).reduce((path, next, index) => {
+    const current = points[index]
+    const previous = points[index - 1] || current
+    const after = points[index + 2] || next
+    const c1 = {
+      x: current.x + (next.x - previous.x) / 6,
+      y: current.y + (next.y - previous.y) / 6,
+    }
+    const c2 = {
+      x: next.x - (after.x - current.x) / 6,
+      y: next.y - (after.y - current.y) / 6,
+    }
+
+    return `${path} C${chartPoint(c1.x, c1.y)} ${chartPoint(c2.x, c2.y)} ${chartPoint(next.x, next.y)}`
+  }, `M${chartPoint(points[0].x, points[0].y)}`)
+}
+
+function buildSparkline(daily) {
+  const values = (daily || [])
+    .filter(day => typeof day?.day === 'string' && Number.isFinite(day?.txs) && day.txs >= 0)
+    .map(day => ({ day: day.day, txs: day.txs }))
+
+  if (!values.length) return { linePath: '', fillPath: '', labels: [] }
+
+  const minValue = Math.min(...values.map(day => day.txs))
+  const maxValue = Math.max(...values.map(day => day.txs))
+  const valueRange = maxValue - minValue
+  const chartRange = SPARK_HEIGHT - SPARK_TOP - SPARK_BOTTOM
+  const points = values.map((day, index) => ({
+    x: values.length === 1 ? 0 : index / (values.length - 1) * SPARK_WIDTH,
+    y: valueRange === 0
+      ? SPARK_TOP + chartRange / 2
+      : SPARK_TOP + (maxValue - day.txs) / valueRange * chartRange,
+  }))
+
+  if (points.length === 1) points.push({ x: SPARK_WIDTH, y: points[0].y })
+
+  const linePath = smoothPath(points)
+  return {
+    linePath,
+    fillPath: `${linePath} L${SPARK_WIDTH},${SPARK_HEIGHT} L0,${SPARK_HEIGHT} Z`,
+    labels: getAxisLabels(values),
+  }
+}
+
+function formatDayLabel(day) {
+  const date = new Date(`${day}T00:00:00Z`)
+  if (Number.isNaN(date.getTime())) return day
+
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+function getAxisLabels(values) {
+  if (!values.length) return []
+
+  return [0, 0.25, 0.5, 0.75, 1]
+    .map(progress => Math.round((values.length - 1) * progress))
+    .filter((index, position, indices) => indices.indexOf(index) === position)
+    .map(index => formatDayLabel(values[index].day))
+}
+
+export default function Landing({ initialData }) {
+  const data = initialData || {}
+  const eventsTracked = fmt(computeTotals(data).combinedEvents)
+  const monthGrowth = formatMonthGrowth(data.x402?.monthly)
+  const sparkline = buildSparkline(data.x402?.daily)
+
   return (
     <div className="landing">
       <div className="ticker">
@@ -77,12 +177,14 @@ export default function Landing({ initialData: _initialData }) {
           <div className="product-card-stats">
             <div>
               <div className="stat-label">Events tracked</div>
-              <div className="stat-value">173.5M</div>
+              <div className="stat-value">{eventsTracked}</div>
             </div>
-            <div>
-              <div className="stat-label">This month</div>
-              <div className="stat-value delta">+16.3%</div>
-            </div>
+            {monthGrowth && (
+              <div>
+                <div className="stat-label">This month</div>
+                <div className="stat-value delta">{monthGrowth}</div>
+              </div>
+            )}
           </div>
 
           <div className="product-card-chart">
@@ -93,16 +195,14 @@ export default function Landing({ initialData: _initialData }) {
                   <stop offset="100%" stopColor="#00FF88" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <path d="M0,78 L18,76 L36,74 L54,72 L72,70 L90,67 L108,63 L126,60 L144,55 L162,50 L180,45 L198,40 L216,33 L234,27 L252,22 L270,16 L288,12 L306,8 L320,5 L320,88 L0,88 Z" fill="url(#sparkGrad)" />
-              <path d="M0,78 L18,76 L36,74 L54,72 L72,70 L90,67 L108,63 L126,60 L144,55 L162,50 L180,45 L198,40 L216,33 L234,27 L252,22 L270,16 L288,12 L306,8 L320,5" fill="none" stroke="#00FF88" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              {sparkline.fillPath && <path d={sparkline.fillPath} fill="url(#sparkGrad)" />}
+              {sparkline.linePath && <path d={sparkline.linePath} fill="none" stroke="#00FF88" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />}
             </svg>
-            <div className="chart-axis">
-              <span>Jan 2024</span>
-              <span>Jul 2024</span>
-              <span>Jan 2025</span>
-              <span>Jul 2025</span>
-              <span>May 2026</span>
-            </div>
+            {sparkline.labels.length > 0 && (
+              <div className="chart-axis">
+                {sparkline.labels.map(label => <span key={label}>{label}</span>)}
+              </div>
+            )}
           </div>
         </article>
       </section>
