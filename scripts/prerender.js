@@ -53,6 +53,7 @@ function routeUrl(route) {
 
 function routePriority(route) {
   if (route === '/') return '1.0'
+  if (route === '/dashboard') return '0.9'
   if (route === '/x402' || route === '/erc-8004') return '0.9'
   if (route === '/tempo-mpp') return '0.7'
   return '0.8'
@@ -89,24 +90,15 @@ ${urls}
 }
 
 function replaceRequired(html, pattern, replacement, label) {
-  const next = html.replace(pattern, replacement)
-  if (next === html) {
+  const hasMatch = typeof pattern === 'string' ? html.includes(pattern) : pattern.test(html)
+  if (!hasMatch) {
     throw new Error(`Failed to replace ${label}`)
   }
-  return next
+  return html.replace(pattern, replacement)
 }
 
 function jsonLdBlock(value) {
   return `    <script type="application/ld+json">\n${safeJsonForScript(value).split('\n').map(line => `    ${line}`).join('\n')}\n    </script>`
-}
-
-function applyHomepageStructuredData(html, collectionJsonLd) {
-  return replaceRequired(
-    html,
-    '    <!-- Open Graph -->',
-    `${jsonLdBlock(collectionJsonLd)}\n\n    <!-- Open Graph -->`,
-    'homepage CollectionPage JSON-LD'
-  )
 }
 
 function applyRouteHead(html, head) {
@@ -120,20 +112,24 @@ function applyRouteHead(html, head) {
   next = replaceRequired(next, /<meta name="twitter:title" content="[^"]*" \/>/, `<meta name="twitter:title" content="${escapeAttr(head.twitterTitle)}" />`, 'twitter:title')
   next = replaceRequired(next, /<meta name="twitter:description" content="[^"]*" \/>/, `<meta name="twitter:description" content="${escapeAttr(head.twitterDescription)}" />`, 'twitter:description')
 
-  const routeJsonLd = head.jsonLd.map(jsonLdBlock).join('\n\n')
-  next = replaceRequired(
-    next,
-    /    <!-- Structured Data: WebSite -->[\s\S]*?    <!-- Open Graph -->/,
-    `${routeJsonLd}\n\n    <!-- Open Graph -->`,
-    'route JSON-LD blocks'
-  )
+  if (head.jsonLd) {
+    const routeJsonLd = head.jsonLd.map(jsonLdBlock).join('\n\n')
+    next = replaceRequired(
+      next,
+      /    <!-- Structured Data: WebSite -->[\s\S]*?    <!-- Open Graph -->/,
+      `${routeJsonLd}\n\n    <!-- Open Graph -->`,
+      'route JSON-LD blocks'
+    )
+  }
 
-  next = replaceRequired(
-    next,
-    /    <!-- SEO: noscript fallback so search engines can index content without JS -->\n    <noscript>[\s\S]*?    <\/noscript>/,
-    `    <!-- SEO: route-specific noscript fallback -->\n${head.noscript}`,
-    'route noscript'
-  )
+  if (head.noscript) {
+    next = replaceRequired(
+      next,
+      /    <!-- SEO: noscript fallback so search engines can index content without JS -->\n    <noscript>[\s\S]*?    <\/noscript>/,
+      `    <!-- SEO: route-specific noscript fallback -->\n${head.noscript}`,
+      'route noscript'
+    )
+  }
 
   return next
 }
@@ -144,7 +140,7 @@ const [template, rawData] = await Promise.all([
 ])
 
 const data = JSON.parse(rawData)
-const { render, STAGE_1_ROUTES, getHomepageCollectionJsonLd, getRouteHead } = await import(serverEntry)
+const { render, STAGE_1_ROUTES, getRouteHead } = await import(serverEntry)
 const serializedData = safeJsonForHtml(data)
 
 for (const route of STAGE_1_ROUTES) {
@@ -153,11 +149,7 @@ for (const route of STAGE_1_ROUTES) {
     .replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
     .replace('</body>', `    <script>window.__AE_DATA__=${serializedData}</script>\n  </body>`)
 
-  if (route === '/') {
-    html = applyHomepageStructuredData(html, getHomepageCollectionJsonLd())
-  } else {
-    html = applyRouteHead(html, getRouteHead(route, data))
-  }
+  html = applyRouteHead(html, getRouteHead(route, data))
 
   const outputPath = outputPathForRoute(route)
   await mkdir(dirname(outputPath), { recursive: true })

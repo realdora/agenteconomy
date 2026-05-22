@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { FB, SOURCES } from './data'
+import Landing from './Landing.jsx'
 import {
   BLUE,
   BLUE_L,
@@ -785,6 +786,7 @@ function DashboardPage({ initialData }) {
 
 const STAGE_1_ROUTES = [
   '/',
+  '/dashboard',
   '/x402',
   '/erc-8004',
   '/virtuals-acp',
@@ -802,6 +804,10 @@ const TEMPO_DATA_URL = `${SITE_URL}/tempo-data.json`
 const PROTOCOL_ROUTES = ['/x402', '/erc-8004', '/virtuals-acp', '/olas', '/tempo-mpp']
 const METHODOLOGY_ROUTE = '/methodology'
 const DATA_ROUTE = '/data'
+const LANDING_TITLE = 'Onchain payments by AI agents · agenteconomy.to'
+const LANDING_DESCRIPTION = 'A daily index of onchain payments by AI agents — every x402, ERC-8004, Virtuals ACP, Olas, and Tempo MPP transaction, aggregated into a single live view.'
+const DASHBOARD_TITLE = 'Agent Economy Monitor — On-Chain AI Agent Payment Data Dashboard'
+const DASHBOARD_DESCRIPTION = 'AI agent payment data dashboard tracking x402, ERC-8004, ACP, Olas, and Tempo MPP activity with daily on-chain counts, source links, and raw JSON files.'
 
 function routeUrl(path) {
   return path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`
@@ -1172,6 +1178,14 @@ const ROUTE_LINKS = Object.entries(ROUTE_PAGES).map(([path, config]) => ({
   title: config.h1,
   description: config.description,
 }))
+const LANDING_COLLECTION_LINKS = [
+  {
+    path: '/dashboard',
+    title: 'AI Agent Payment Data Dashboard',
+    description: DASHBOARD_DESCRIPTION,
+  },
+  ...ROUTE_LINKS,
+]
 
 function getRelatedRoutes(config) {
   return (config.relatedRoutes || []).map(path => {
@@ -1256,7 +1270,7 @@ function ProtocolRoutePage({ initialData, path }) {
           <div className="nav-meta">
             <span className={`status-pill ${freshness.tone === 'warn' ? 'warn' : ''}`}>{freshness.label}</span>
             <span>Updated {shortDate(data.updatedAt)}</span>
-            <Link to="/">Dashboard</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </div>
         </div>
         <div className="mob-meta">
@@ -1280,7 +1294,7 @@ function ProtocolRoutePage({ initialData, path }) {
             ))}
           </div>
           <div className="quick-actions">
-            <Link className="action-link" to="/">Dashboard</Link>
+            <Link className="action-link" to="/dashboard">Dashboard</Link>
             {path !== '/methodology' && <Link className="action-link" to="/methodology">Methodology</Link>}
             {path !== '/data' && <Link className="action-link" to="/data">Data API</Link>}
             <a className="action-link" href="/data.json">Raw JSON</a>
@@ -1426,7 +1440,8 @@ function ProtocolRoutePage({ initialData, path }) {
 export default function App({ initialData }) {
   return (
     <Routes>
-      <Route path="/" element={<DashboardPage initialData={initialData} />} />
+      <Route path="/" element={<Landing initialData={initialData} />} />
+      <Route path="/dashboard" element={<DashboardPage initialData={initialData} />} />
       {Object.keys(ROUTE_PAGES).map(path => (
         <Route key={path} path={path} element={<ProtocolRoutePage initialData={initialData} path={path} />} />
       ))}
@@ -1436,7 +1451,39 @@ export default function App({ initialData }) {
 }
 
 export function getRouteHead(path, initialData) {
-  if (path === '/') return null
+  if (path === '/') {
+    const url = routeUrl(path)
+    return {
+      title: LANDING_TITLE,
+      description: LANDING_DESCRIPTION,
+      canonical: url,
+      ogTitle: LANDING_TITLE,
+      ogDescription: LANDING_DESCRIPTION,
+      ogUrl: url,
+      twitterTitle: LANDING_TITLE,
+      twitterDescription: LANDING_DESCRIPTION,
+      jsonLd: getLandingJsonLd(),
+      noscript: getLandingNoscript(),
+    }
+  }
+
+  if (path === '/dashboard') {
+    const url = routeUrl(path)
+    return {
+      title: DASHBOARD_TITLE,
+      description: DASHBOARD_DESCRIPTION,
+      canonical: url,
+      ogTitle: DASHBOARD_TITLE,
+      ogDescription: DASHBOARD_DESCRIPTION,
+      ogUrl: url,
+      twitterTitle: DASHBOARD_TITLE,
+      twitterDescription: DASHBOARD_DESCRIPTION,
+      // The dashboard keeps the long-form template JSON-LD and noscript FAQ content.
+      jsonLd: null,
+      noscript: null,
+    }
+  }
+
   const { data, totals } = getRouteData(initialData)
   const config = getPageConfig(path)
   const url = routeUrl(path)
@@ -1458,12 +1505,12 @@ export function getHomepageCollectionJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'AI Agent Payment Data Dashboard',
-    description: 'Daily updated AI agent payment data dashboard for x402, ERC-8004, Virtuals ACP, Olas, Tempo MPP, methodology, and raw JSON endpoints.',
+    name: LANDING_TITLE,
+    description: LANDING_DESCRIPTION,
     url: routeUrl('/'),
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: ROUTE_LINKS.map((route, index) => ({
+      itemListElement: LANDING_COLLECTION_LINKS.map((route, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         name: route.title,
@@ -1471,6 +1518,46 @@ export function getHomepageCollectionJsonLd() {
       })),
     },
   }
+}
+
+function getLandingJsonLd() {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'AI Agent Payment Data Dashboard',
+      alternateName: ['agenteconomy.to', 'Agent Economy Dashboard', 'AI Agent Payment Tracker', 'Agentic Economy Monitor', 'Crypto AI Dashboard'],
+      url: SITE_URL,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'agenteconomy.to',
+      url: SITE_URL,
+      sameAs: [
+        'https://x.com/realdora_eth',
+        'https://github.com/realdora/agenteconomy',
+      ],
+    },
+    getHomepageCollectionJsonLd(),
+  ]
+}
+
+function getLandingNoscript() {
+  const landingLinks = LANDING_COLLECTION_LINKS.map(route => `
+          <li><a href="${escapeHtml(route.path)}">${escapeHtml(route.title)}</a></li>`).join('')
+
+  return `    <noscript>
+      <div style="max-width:900px;margin:0 auto;padding:40px 24px;font-family:Inter,system-ui,sans-serif;color:#111827">
+        <h1>${escapeHtml(LANDING_TITLE)}</h1>
+        <p>${escapeHtml(LANDING_DESCRIPTION)}</p>
+        <p><a href="/dashboard">Open dashboard</a></p>
+
+        <h2>Explore Agent Economy data</h2>
+        <ul>${landingLinks}
+        </ul>
+      </div>
+    </noscript>`
 }
 
 function getRouteJsonLd(path, data, totals) {
