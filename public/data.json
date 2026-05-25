@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-24T02:06:00.733Z",
+  "updatedAt": "2026-05-25T02:14:25.225Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -80,14 +80,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-03-24",
-        "txs": 27998
-      },
-      {
-        "day": "2026-03-25",
-        "txs": 35396
-      },
       {
         "day": "2026-03-26",
         "txs": 37635
@@ -318,7 +310,15 @@
       },
       {
         "day": "2026-05-22",
-        "txs": 49700
+        "txs": 183310
+      },
+      {
+        "day": "2026-05-23",
+        "txs": 184323
+      },
+      {
+        "day": "2026-05-24",
+        "txs": 49261
       }
     ],
     "protocols": [
@@ -397,7 +397,7 @@
     ]
   },
   "baseAgentic": {
-    "totalTxs": 1022548,
+    "totalTxs": 1053123,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1232,6 +1232,30 @@
         "consumer": 2060,
         "infrastructure": 5070,
         "total": 7130
+      },
+      {
+        "day": "2026-05-20",
+        "consumer": 1700,
+        "infrastructure": 5482,
+        "total": 7182
+      },
+      {
+        "day": "2026-05-21",
+        "consumer": 1476,
+        "infrastructure": 5840,
+        "total": 7316
+      },
+      {
+        "day": "2026-05-22",
+        "consumer": 1357,
+        "infrastructure": 7153,
+        "total": 8510
+      },
+      {
+        "day": "2026-05-23",
+        "consumer": 1084,
+        "infrastructure": 6483,
+        "total": 7567
       }
     ]
   },
