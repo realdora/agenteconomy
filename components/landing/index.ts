@@ -1,0 +1,10 @@
+export { HeaderSection } from './HeaderSection';
+export { AnnouncementSection } from './AnnouncementSection';
+export { HeroSection } from './HeroSection';
+export { LogoCloudSection } from './LogoCloudSection';
+export { PlatformSection } from './PlatformSection';
+export { ProductsSection } from './ProductsSection';
+export { TestimonialsSection } from './TestimonialsSection';
+export { SolutionsSection } from './SolutionsSection';
+export { ContactSection } from './ContactSection';
+export { FooterSection } from './FooterSection';

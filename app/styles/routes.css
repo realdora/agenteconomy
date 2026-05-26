@@ -1,0 +1,73 @@
+.tt-route-page {
+  margin: 0 auto;
+  max-width: 1240px;
+  min-height: 64vh;
+  padding: 96px 20px 120px;
+}
+
+.tt-route-hero {
+  align-items: end;
+  display: grid;
+  gap: 36px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.tt-route-kicker {
+  color: hsl(var(--fg-secondary));
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.tt-route-hero h1 {
+  color: hsl(var(--fg-default));
+  font-size: clamp(64px, 9vw, 132px);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 0.92;
+  margin: 0;
+}
+
+.tt-route-hero p {
+  color: hsl(var(--fg-secondary));
+  font-size: 20px;
+  line-height: 1.45;
+  margin: 24px 0 0;
+  max-width: 680px;
+}
+
+.tt-route-home-link {
+  color: hsl(var(--fg-secondary));
+  font-size: 15px;
+  padding-bottom: 10px;
+}
+
+.tt-route-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 72px;
+}
+
+.tt-route-card {
+  background: hsl(var(--bg-surface));
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  min-height: 210px;
+  padding: 24px;
+}
+
+.tt-route-card span {
+  color: hsl(var(--fg-default));
+  display: block;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tt-route-card p {
+  color: hsl(var(--fg-secondary));
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 16px 0 0;
+}

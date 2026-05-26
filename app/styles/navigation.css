@@ -1,0 +1,202 @@
+.tt-nav-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: hsl(var(--fg-secondary));
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 10px 0;
+  transition: color 160ms ease;
+}
+
+.tt-nav-link:hover,
+.tt-nav-link[data-is-open="true"] {
+  color: hsl(var(--fg-default));
+}
+
+.tt-explorer-button,
+.tt-route-home-link,
+.tt-hero-cta {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 500;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.tt-explorer-button {
+  background: rgba(49, 243, 164, 0.1);
+  border: 1px solid rgba(49, 243, 164, 0.16);
+  border-radius: 10px;
+  color: rgb(110 231 183);
+  font-size: 14px;
+  height: 38px;
+  padding: 0 15px;
+}
+
+.tt-icon-control {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: hsl(var(--fg-default));
+  cursor: pointer;
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.tt-icon-control:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tt-nav-panel {
+  background:
+    radial-gradient(circle at 50% 100%, rgba(105, 105, 255, 0.12), transparent 45%),
+    hsl(var(--bg-surface) / 0.96);
+  border: 1px solid var(--border-default);
+  border-radius: 24px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+  left: 50%;
+  max-width: 1160px;
+  padding: 12px;
+  position: absolute;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: calc(100vw - 64px);
+  z-index: 120;
+}
+
+.tt-nav-panel-grid {
+  border-radius: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.tt-nav-panel-card {
+  border-right: 1px solid var(--border-default);
+  color: hsl(var(--fg-default));
+  display: grid;
+  gap: 18px;
+  min-height: 250px;
+  overflow: hidden;
+  padding: 32px 36px;
+  position: relative;
+  text-decoration: none;
+}
+
+.tt-nav-panel-card:nth-child(2n),
+.tt-nav-panel-card:last-child {
+  border-right: 0;
+}
+
+.tt-nav-panel-card:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.tt-nav-panel-card-title {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.tt-nav-panel-card-copy {
+  color: hsl(var(--fg-secondary));
+  font-size: 18px;
+  line-height: 1.35;
+  margin-top: 8px;
+}
+
+.tt-nav-panel-card-art {
+  align-self: end;
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  height: 142px;
+  opacity: 0.82;
+  overflow: hidden;
+  position: relative;
+}
+
+.tt-nav-panel-card-art::before {
+  background: linear-gradient(180deg, transparent, hsl(var(--bg-surface)) 88%);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.tt-nav-panel-card-line {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  bottom: 24px;
+  height: 56px;
+  left: 36%;
+  position: absolute;
+  right: 28px;
+}
+
+.tt-nav-panel-card-line::before {
+  background: linear-gradient(120deg, transparent 0 18%, rgba(255, 255, 255, 0.08) 18% 20%, transparent 20% 100%);
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.tt-nav-panel-card-orbit {
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  height: 190px;
+  position: absolute;
+  right: 48px;
+  top: 20px;
+  width: 390px;
+}
+
+.tt-mobile-menu {
+  -webkit-overflow-scrolling: touch;
+  background: hsl(var(--bg-surface) / 0.95);
+  border-top: 1px solid var(--border-default);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48);
+  left: 0;
+  max-height: calc(100dvh - 65px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 20px max(20px, env(safe-area-inset-bottom));
+  position: absolute;
+  right: 0;
+  scrollbar-width: thin;
+  top: 100%;
+  touch-action: pan-y;
+  z-index: 110;
+}
+
+.tt-mobile-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 48px;
+}
+
+.tt-mobile-nav-link,
+.tt-mobile-nav-card {
+  border-radius: 10px;
+  color: hsl(var(--fg-default));
+  display: flex;
+  padding: 12px;
+  text-decoration: none;
+}
+
+.tt-mobile-nav-link {
+  font-weight: 500;
+}
+
+.tt-mobile-nav-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-default);
+  flex-direction: column;
+  gap: 3px;
+}

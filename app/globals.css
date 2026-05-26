@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-denton: "Denton", "Denton Fallback", "Times New Roman", Georgia, serif;
+}
+
+html {
+  background: hsl(0 0% 2.5%);
+}
+
+body {
+  min-width: 320px;
+}
+
+img,
+svg {
+  max-width: none;
+}
