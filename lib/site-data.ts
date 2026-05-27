@@ -59,31 +59,21 @@ export type HeroSlide = {
 
 export const navMenus: NavMenu[] = [
   {
-    label: "Products",
+    label: "Protocols",
     panel: {
-      title: "Products",
-      subtitle: "Research, model, and ship with standardized crypto fundamentals.",
+      title: "Protocols",
+      subtitle: "The 5 standards powering on-chain agent payments.",
       items: [
-        { title: "Explorer", description: "Browse market data", href: "/products/explorer", accent: "from-emerald-400/30" },
-        { title: "Studio", description: "Build analysis views", href: "/products/studio", accent: "from-sky-400/25" },
-        { title: "MCP", description: "Ask AI with live data", href: "/products/mcp", accent: "from-violet-400/25" },
-        { title: "Sheets", description: "Pull metrics into models", href: "/products/sheets", accent: "from-amber-400/25" },
+        { title: "x402", description: "HTTP 402 payment standard for agents", href: "/x402", accent: "from-emerald-400/30" },
+        { title: "ERC-8004", description: "Ethereum agent-to-agent transactions", href: "/erc-8004", accent: "from-sky-400/25" },
+        { title: "Virtuals ACP", description: "Agent Commerce Protocol", href: "/virtuals-acp", accent: "from-violet-400/25" },
+        { title: "Olas", description: "Autonomous agent network", href: "/olas", accent: "from-amber-400/25" },
+        { title: "Tempo MPP", description: "Multi-Party Payment Protocol", href: "/tempo-mpp", accent: "from-cyan-400/25" },
       ],
     },
   },
-  {
-    label: "Get Listed",
-    panel: {
-      title: "Get Listed",
-      subtitle: "Add your protocol or chain to a standardized data surface.",
-      items: [
-        { title: "Apps", description: "Your project powered by our platform", href: "/explorer/listings/apps", accent: "from-cyan-400/25" },
-        { title: "Chains", description: "Your ecosystem, standardized", href: "/explorer/listings/chains", accent: "from-violet-400/25" },
-      ],
-    },
-  },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Resources", href: "/resources" },
+  { label: "Methodology", href: "/methodology" },
+  { label: "Data", href: "/data" },
   { label: "About", href: "/about" },
 ];
 

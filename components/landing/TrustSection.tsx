@@ -13,6 +13,10 @@ type Brand = {
   name: string;
   style: BrandStyle;
   prefix?: string;
+  logo?: string; // path to logo file
+  logoHeight?: number; // px, defaults to 26
+  showLabel?: boolean; // when true and logo set, render logo as mark + name text after
+  logoFilter?: string; // CSS filter override. If undefined, applies default white-silhouette. Pass "none" to preserve original color.
 };
 
 const STANDARDS: Brand[] = [
@@ -35,33 +39,86 @@ const X402_PARTNERS: Brand[] = [
 ];
 
 const DATA_SOURCES: Brand[] = [
-  { name: "DUNE", style: "sans-spaced", prefix: "◆" },
-  { name: "Base", style: "sans-medium" },
-  { name: "Arbitrum", style: "sans-medium" },
-  { name: "METAMASK", style: "sans-spaced" },
-  { name: "TEMPO RPC", style: "sans-spaced" },
+  { name: "Dune", style: "sans-medium", prefix: "◆" },
+  {
+    name: "base",
+    style: "sans-medium",
+    logo: "/logos/datasources/base.svg",
+    logoHeight: 24,
+    showLabel: true,
+    logoFilter: "none",
+  },
+  {
+    name: "Arbitrum",
+    style: "sans-medium",
+    logo: "/logos/datasources/arbitrum.svg",
+    logoHeight: 24,
+    showLabel: true,
+    logoFilter: "none",
+  },
+  {
+    name: "MetaMask",
+    style: "sans-medium",
+    logo: "/logos/datasources/metamask.svg",
+    logoHeight: 24,
+    showLabel: true,
+    logoFilter: "none",
+  },
+  {
+    name: "Tempo",
+    style: "sans-medium",
+    logo: "/logos/datasources/tempo.svg",
+    logoHeight: 24,
+    showLabel: true,
+  },
 ];
 
 function brandClass(style: BrandStyle): string {
   switch (style) {
     case "sans-bold":
-      return "font-sans font-bold text-[22px] tracking-tight text-stone-900";
+      return "font-sans font-bold text-[22px] tracking-tight text-white";
     case "sans-medium":
-      return "font-sans font-medium text-[22px] tracking-tight text-stone-800";
+      return "font-sans font-medium text-[22px] tracking-tight text-white/90";
     case "sans-spaced":
-      return "font-sans font-medium text-[15px] uppercase tracking-[0.18em] text-stone-700";
+      return "font-sans font-medium text-[15px] uppercase tracking-[0.18em] text-white/80";
     case "sans-lower":
-      return "font-sans font-medium text-[22px] lowercase tracking-tight text-stone-800";
+      return "font-sans font-medium text-[22px] lowercase tracking-tight text-white/90";
     case "serif-italic":
-      return "font-display italic font-normal text-[24px] text-stone-800";
+      return "font-display italic font-normal text-[24px] text-white/90";
     case "serif-italic-bold":
-      return "font-display italic font-bold text-[24px] text-stone-900";
+      return "font-display italic font-bold text-[24px] text-white";
     case "serif-regular":
-      return "font-display text-[22px] text-stone-800";
+      return "font-display text-[22px] text-white/90";
   }
 }
 
 function BrandWordmark({ brand }: { brand: Brand }) {
+  if (brand.logo) {
+    const filter =
+      brand.logoFilter !== undefined
+        ? brand.logoFilter === "none"
+          ? undefined
+          : brand.logoFilter
+        : "brightness(0) invert(1) opacity(0.85)";
+    const imgStyle = {
+      height: brand.logoHeight ?? 26,
+      width: "auto" as const,
+      ...(filter ? { filter } : {}),
+    };
+    if (brand.showLabel) {
+      return (
+        <span className={`inline-flex items-center gap-2 ${brandClass(brand.style)}`} aria-label={brand.name}>
+          <img src={brand.logo} alt="" style={imgStyle} />
+          {brand.name}
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center" aria-label={brand.name}>
+        <img src={brand.logo} alt={brand.name} style={imgStyle} />
+      </span>
+    );
+  }
   return (
     <span className={`inline-flex items-baseline gap-2 ${brandClass(brand.style)}`}>
       {brand.prefix ? (
@@ -74,12 +131,12 @@ function BrandWordmark({ brand }: { brand: Brand }) {
 
 function BrandRow({ label, brands }: { label: string; brands: Brand[] }) {
   return (
-    <div className="grid grid-cols-[180px_1fr] items-center gap-6 py-7 border-b border-stone-400/30 last:border-b-0">
-      <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-500">{label}</div>
+    <div className="grid grid-cols-[180px_1fr] items-center gap-6 py-7 border-b border-white/10 last:border-b-0">
+      <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">{label}</div>
       <div className="flex flex-wrap items-baseline gap-x-0">
         {brands.map((brand, i) => (
           <span key={brand.name} className="inline-flex items-baseline">
-            {i > 0 ? <span className="text-stone-300 mx-7 text-[18px] font-light select-none">|</span> : null}
+            {i > 0 ? <span className="text-white/15 mx-7 text-[18px] font-light select-none">|</span> : null}
             <BrandWordmark brand={brand} />
           </span>
         ))}
@@ -90,19 +147,12 @@ function BrandRow({ label, brands }: { label: string; brands: Brand[] }) {
 
 export function TrustSection() {
   return (
-    <section className="bg-[#ece6d8] py-20 md:py-28 lg:py-32">
+    <section className="py-20 md:py-28 lg:py-32">
       <div className="w-[1240px] max-w-full mx-auto px-5">
-        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-16 mb-14 md:mb-20">
-          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-500 leading-[1.8]">
-            //&nbsp;&nbsp;TRUST&nbsp;·&nbsp;SOURCES
-            <br />
-            ·&nbsp;STANDARDS
-          </div>
-          <p className="font-display italic text-[22px] md:text-[28px] leading-snug text-stone-900 max-w-3xl text-balance">
-            Every number traces back to a public smart contract. The protocols we track are co-authored by:
-          </p>
-        </div>
-        <div className="border-t border-stone-400/30">
+        <p className="font-display italic text-[22px] md:text-[28px] leading-snug text-white max-w-3xl text-balance mb-14 md:mb-20">
+          Standards, partners, and data sources behind on-chain agent payments.
+        </p>
+        <div className="border-t border-white/10">
           <BrandRow label="STANDARDS BY" brands={STANDARDS} />
           <BrandRow label="X402 PARTNERS" brands={X402_PARTNERS} />
           <BrandRow label="DATA SOURCED FROM" brands={DATA_SOURCES} />

@@ -8,6 +8,7 @@ import { PlatformSection } from "@/components/landing/PlatformSection";
 import { ProductsSection } from "@/components/landing/ProductsSection";
 import { SolutionsSection } from "@/components/landing/SolutionsSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { TrustSection } from "@/components/landing/TrustSection";
 
 export default function Home() {
   return (
@@ -16,10 +17,13 @@ export default function Home() {
       {/* TODO: re-enable AnnouncementSection when there's something to announce */}
       {/* <AnnouncementSection /> */}
       <HeroSection />
-      <LogoCloudSection />
+      {/* Replaced TT LogoCloudSection — see <TrustSection /> below */}
+      {/* <LogoCloudSection /> */}
+      <TrustSection />
       <PlatformSection />
       <ProductsSection />
-      <TestimonialsSection />
+      {/* Replaced by TrustSection above; no real testimonials yet */}
+      {/* <TestimonialsSection /> */}
       <SolutionsSection />
       <ContactSection />
       <FooterSection />
