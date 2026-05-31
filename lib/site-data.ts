@@ -36,25 +36,8 @@ export type HeroSlide = {
     secondary: string;
     strip: string;
   };
-  panel:
-    | {
-        kind: "financial";
-        title: string;
-        subtitle: string;
-        rows: HeroMetric[];
-      }
-    | {
-        kind: "asset";
-        title: string;
-        subtitle: string;
-        series: Array<{ name: string; color: string; values: number[] }>;
-      }
-    | {
-        kind: "pipeline";
-        title: string;
-        subtitle: string;
-        chips: string[];
-      };
+  // Panel design is self-contained per kind in HeroPanels.tsx (real data.json values hardcoded).
+  panel: { kind: "track" } | { kind: "price" } | { kind: "cite" };
 };
 
 export const navMenus: NavMenu[] = [
@@ -84,25 +67,15 @@ export const heroSlides: HeroSlide[] = [
     cta: "Open agenteconomy.to",
     href: "https://agenteconomy.to",
     palette: {
-      base: "#9a6134",
-      glow: "rgba(221, 153, 93, 0.28)",
+      base: "#0a2e22",
+      glow: "rgba(0, 255, 136, 0.16)",
     },
     images: {
       primary: "/images/hero-illustration-bank.webp",
       secondary: "/images/hero-illustration-construction.webp",
       strip: "/images/hero-illustration-bank.webp",
     },
-    panel: {
-      kind: "financial",
-      title: "Financial Statement",
-      subtitle: "Ethereum",
-      rows: [
-        { label: "Fees", values: ["$94.64m", "$62.82m", "$62.82m", "$103.72m"] },
-        { label: "(Supply-side fees)", values: ["$38.30m", "$27.96m", "$27.96m", "$35.51m"] },
-        { label: "Revenue", values: ["$56.33m", "$34.85m", "$34.85m", "$68.22m"] },
-        { label: "(Expenses)", values: ["$265.95m", "$217.14m", "$217.14m", "$197.39m"] },
-      ],
-    },
+    panel: { kind: "track" },
   },
   {
     id: "explore",
@@ -110,25 +83,15 @@ export const heroSlides: HeroSlide[] = [
     cta: "Open agenteconomy.to",
     href: "https://agenteconomy.to",
     palette: {
-      base: "#16695c",
-      glow: "rgba(38, 207, 157, 0.18)",
+      base: "#2b2110",
+      glow: "rgba(245, 166, 35, 0.15)",
     },
     images: {
       primary: "/images/hero-illustration-mountains.webp",
       secondary: "/images/hero-illustration-warehouse.webp",
       strip: "/images/hero-illustration-mountains.webp",
     },
-    panel: {
-      kind: "asset",
-      title: "Asset management",
-      subtitle: "Top 5 projects",
-      series: [
-        { name: "BlackRock (BUIDL)", color: "#31f3a4", values: [8, 6, 9, 14, 28, 36, 38, 39, 42] },
-        { name: "Bitwise (ETHW)", color: "#4c6df5", values: [6, 5, 10, 18, 23, 28, 29, 31, 30] },
-        { name: "Ondo (OUSG)", color: "#9e5dd7", values: [5, 4, 7, 11, 12, 13, 13, 14, 13] },
-        { name: "Franklin", color: "#f5a4ff", values: [4, 3, 5, 6, 7, 8, 8, 7, 8] },
-      ],
-    },
+    panel: { kind: "price" },
   },
   {
     id: "trust",
@@ -136,20 +99,15 @@ export const heroSlides: HeroSlide[] = [
     cta: "Open agenteconomy.to",
     href: "https://agenteconomy.to",
     palette: {
-      base: "#7650d6",
-      glow: "rgba(143, 89, 255, 0.2)",
+      base: "#221a40",
+      glow: "rgba(158, 123, 255, 0.16)",
     },
     images: {
       primary: "/images/hero-illustration-warehouse.webp",
       secondary: "/images/hero-illustration-construction.webp",
       strip: "/images/hero-illustration-warehouse.webp",
     },
-    panel: {
-      kind: "pipeline",
-      title: "Data pipeline",
-      subtitle: "Verified metrics",
-      chips: ["Expenses", "Active users", "Revenue", "TVL"],
-    },
+    panel: { kind: "cite" },
   },
 ];
 
