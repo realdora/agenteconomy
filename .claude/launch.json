@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start"],
       "port": 5174
+    },
+    {
+      "name": "agenteconomy-v4-lan",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:lan"],
+      "port": 5174
     }
   ]
 }

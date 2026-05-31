@@ -6,6 +6,7 @@
     "dev": "next dev -H 127.0.0.1 -p 5174",
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 5174",
+    "start:lan": "next start -H 0.0.0.0 -p 5174",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
