@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-31T02:28:37.109Z",
+  "updatedAt": "2026-06-01T02:41:14.665Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,8 +33,8 @@
     }
   ],
   "x402": {
-    "totalTxs": 149044622,
-    "totalVolume": 40626270,
+    "totalTxs": 149241538,
+    "totalVolume": 40638956,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -75,19 +75,16 @@
       },
       {
         "month": "May 26",
-        "txs": 5157776,
-        "vol": 167362
+        "txs": 5339356,
+        "vol": 179790
+      },
+      {
+        "month": "Jun 26",
+        "txs": 15336,
+        "vol": 259
       }
     ],
     "daily": [
-      {
-        "day": "2026-03-31",
-        "txs": 18750
-      },
-      {
-        "day": "2026-04-01",
-        "txs": 26855
-      },
       {
         "day": "2026-04-02",
         "txs": 17941
@@ -318,13 +315,21 @@
       },
       {
         "day": "2026-05-29",
-        "txs": 49674
+        "txs": 183771
+      },
+      {
+        "day": "2026-05-30",
+        "txs": 182960
+      },
+      {
+        "day": "2026-05-31",
+        "txs": 50524
       }
     ],
     "protocols": [
       {
         "name": "Coinbase",
-        "share": 29.4,
+        "share": 29.3,
         "color": "#0052FF"
       },
       {
@@ -334,12 +339,12 @@
       },
       {
         "name": "PayAI",
-        "share": 20.4,
+        "share": 20.3,
         "color": "#10B981"
       },
       {
         "name": "Other",
-        "share": 17.6,
+        "share": 17.7,
         "color": "#A855F7"
       },
       {
@@ -397,7 +402,7 @@
     ]
   },
   "baseAgentic": {
-    "totalTxs": 1092099,
+    "totalTxs": 1104023,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1286,6 +1291,18 @@
         "consumer": 1368,
         "infrastructure": 6231,
         "total": 7599
+      },
+      {
+        "day": "2026-05-29",
+        "consumer": 1099,
+        "infrastructure": 4731,
+        "total": 5830
+      },
+      {
+        "day": "2026-05-30",
+        "consumer": 1968,
+        "infrastructure": 4126,
+        "total": 6094
       }
     ]
   },
