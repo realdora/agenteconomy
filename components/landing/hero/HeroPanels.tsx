@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 
 import type { HeroSlide } from "@/lib/site-data";
 
-// Hero data cards — track (green) / price (amber) / cite (violet).
-// Real values from agenteconomy.to/data.json. Absolute-centered in the panel slot.
+// 3 data cards — track / price / cite. Real agenteconomy.to/data.json values.
+// They FILL the original TT panel slot (tt-hero-panel-wrap, height:100%) — TT layout untouched.
 
-const CARD = "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[540px] max-w-[92vw] h-[300px] rounded-2xl border border-white/12 bg-black/45 backdrop-blur-md p-7 flex flex-col";
+const CARD = "relative h-full w-full rounded-[22px] border border-white/12 bg-[#0d0d11] p-5 flex flex-col overflow-hidden";
 
 export function HeroPanel({ slide }: { slide: HeroSlide }) {
   if (slide.panel.kind === "price") return <PricePanel />;
@@ -16,8 +16,8 @@ export function HeroPanel({ slide }: { slide: HeroSlide }) {
 }
 
 // ─── sparkline (draw-on) ───
-const SPARK_W = 104;
-const SPARK_H = 24;
+const SPARK_W = 96;
+const SPARK_H = 22;
 function sparkPoints(data: number[]) {
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -59,7 +59,6 @@ function TrackPanel() {
   const [vals, setVals] = useState(TRACK.map(() => 0));
   const [block, setBlock] = useState(23455201);
   const [drawn, setDrawn] = useState(false);
-
   useEffect(() => {
     const dur = 1300;
     const start = performance.now();
@@ -82,22 +81,21 @@ function TrackPanel() {
       clearInterval(live);
     };
   }, []);
-
   return (
     <div className={CARD}>
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: TRACK_GREEN }} />
-          <span className="text-white font-medium text-[15px]">Tracking live</span>
+          <span className="text-white font-medium text-[14px]">Tracking live</span>
         </div>
-        <span className="font-mono text-[11px] text-white/40 tabular-nums">block {block.toLocaleString()}</span>
+        <span className="font-mono text-[10px] text-white/40 tabular-nums">block {block.toLocaleString()}</span>
       </div>
-      <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">6 protocols · 24 chains · from block tip</div>
-      <div className="flex-1 flex flex-col justify-center gap-3.5">
+      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40 mt-0.5">6 protocols · 24 chains · from block tip</div>
+      <div className="flex-1 flex flex-col justify-center gap-2.5">
         {TRACK.map((r, i) => (
-          <div key={r.proto} className="flex items-center justify-between gap-4">
-            <span className="text-white/80 text-[14px] w-28">{r.proto}</span>
-            <span className="text-white font-medium tabular-nums text-[15px] w-20 text-right">
+          <div key={r.proto} className="flex items-center justify-between gap-3">
+            <span className="text-white/80 text-[13px] w-24">{r.proto}</span>
+            <span className="text-white font-medium tabular-nums text-[14px] w-16 text-right">
               {vals[i].toFixed(1)}
               {r.suffix}
             </span>
@@ -117,7 +115,6 @@ const SHARE = [
   { label: "DayDreams", pct: 8, color: "#F59E0B" },
   { label: "Other", pct: 20, color: "#8a8f98" },
 ];
-
 function PricePanel() {
   const [v, setV] = useState(0);
   const [grown, setGrown] = useState(false);
@@ -140,16 +137,16 @@ function PricePanel() {
   }, []);
   return (
     <div className={CARD}>
-      <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/45">Agent payment volume · x402</div>
+      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Agent payment volume · x402</div>
       <div className="flex-1 flex flex-col justify-center">
-        <div className="text-white font-medium text-[52px] leading-none tracking-tight tabular-nums">${v.toFixed(1)}M</div>
-        <div className="font-mono text-[12px] text-white/45 mt-2 mb-6">settled · 7 chains · 18 facilitators</div>
-        <div className="flex h-3 rounded-full overflow-hidden mb-4">
+        <div className="text-white font-medium text-[46px] leading-none tracking-tight tabular-nums">${v.toFixed(1)}M</div>
+        <div className="font-mono text-[11px] text-white/45 mt-2 mb-5">settled · 7 chains · 18 facilitators</div>
+        <div className="flex h-2.5 rounded-full overflow-hidden mb-3">
           {SHARE.map((s, i) => (
             <div key={s.label} style={{ width: grown ? `${s.pct}%` : "0%", background: s.color, transition: `width 1.1s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s` }} />
           ))}
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-2 font-mono text-[11px]">
+        <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 font-mono text-[10px]">
           {SHARE.map((s) => (
             <span key={s.label} className="flex items-center gap-1.5 text-white/60">
               <span className="w-2 h-2 rounded-sm" style={{ background: s.color }} />
@@ -162,10 +159,10 @@ function PricePanel() {
   );
 }
 
-// ─── CITE (chain of blocks + synced scanner; keyframes in hero.css) ───
+// ─── CITE (chain of blocks + synced scanner) ───
 const CITE_BLOCKS = ["x402", "olas", "ACP", "ERC", "tempo"];
-const CITE_BLOCK_W = 82;
-const CITE_CONN_W = 26;
+const CITE_BLOCK_W = 78;
+const CITE_CONN_W = 22;
 const CITE_TOTAL_W = CITE_BLOCKS.length * CITE_BLOCK_W + (CITE_BLOCKS.length - 1) * CITE_CONN_W;
 const CITE_DELAYS = CITE_BLOCKS.map((_, i) => +(((i * (CITE_BLOCK_W + CITE_CONN_W) + CITE_BLOCK_W / 2) / CITE_TOTAL_W) * 3.5).toFixed(3));
 
@@ -183,7 +180,7 @@ function CitePanel() {
         @keyframes ix-line { 0%{background:#9E7BFF} 14%{background:rgba(255,255,255,0.28)} 100%{background:rgba(255,255,255,0.28)} }
         .ix-line { background: rgba(255,255,255,0.28); animation: ix-line 3.5s linear infinite; }
       `}</style>
-      <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">Indexing on-chain</div>
+      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">Indexing on-chain</div>
       <div className="flex-1 flex items-center">
         <div className="relative mx-auto" style={{ width: CITE_TOTAL_W }}>
           <span className="absolute top-1/2 left-0 right-0 h-[2px] -translate-y-1/2" style={{ background: "rgba(255,255,255,0.14)" }} />
@@ -193,7 +190,7 @@ function CitePanel() {
             {CITE_BLOCKS.map((b, i) => (
               <div key={b} className="ix-blk relative rounded-lg border overflow-hidden" style={{ width: CITE_BLOCK_W, animationDelay: `${CITE_DELAYS[i]}s` }}>
                 <div className="ix-head px-2 py-1 font-mono text-[9px] uppercase tracking-[0.12em] border-b border-white/10">{b}</div>
-                <div className="px-2 py-2.5 flex flex-col gap-1.5">
+                <div className="px-2 py-2 flex flex-col gap-1.5">
                   <span className="ix-line block h-[3px] rounded-full w-full" style={{ animationDelay: `${CITE_DELAYS[i]}s` }} />
                   <span className="ix-line block h-[3px] rounded-full w-[68%]" style={{ animationDelay: `${CITE_DELAYS[i]}s` }} />
                   <span className="ix-line block h-[3px] rounded-full w-[85%]" style={{ animationDelay: `${CITE_DELAYS[i]}s` }} />
@@ -203,7 +200,7 @@ function CitePanel() {
           </div>
         </div>
       </div>
-      <p className="font-display italic text-white text-[19px] leading-snug">Trace any number back to its block.</p>
+      <p className="font-display italic text-white text-[17px] leading-snug">Trace any number back to its block.</p>
     </div>
   );
 }

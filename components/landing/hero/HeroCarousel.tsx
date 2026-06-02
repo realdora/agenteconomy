@@ -12,7 +12,7 @@ import { HeroImageTile } from "./HeroImageTile";
 import { HeroPanel } from "./HeroPanels";
 import { HeroProgressButton } from "./HeroProgressButton";
 
-const SLIDE_DURATION_MS = 5000;
+const SLIDE_DURATION_MS = 3000;
 
 export function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);

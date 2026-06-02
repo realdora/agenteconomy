@@ -67,8 +67,8 @@ export const heroSlides: HeroSlide[] = [
     cta: "Open agenteconomy.to",
     href: "https://agenteconomy.to",
     palette: {
-      base: "#0a2e22",
-      glow: "rgba(0, 255, 136, 0.16)",
+      base: "#9a6134",
+      glow: "rgba(221, 153, 93, 0.28)",
     },
     images: {
       primary: "/images/hero-illustration-bank.webp",
@@ -83,8 +83,8 @@ export const heroSlides: HeroSlide[] = [
     cta: "Open agenteconomy.to",
     href: "https://agenteconomy.to",
     palette: {
-      base: "#2b2110",
-      glow: "rgba(245, 166, 35, 0.15)",
+      base: "#16695c",
+      glow: "rgba(38, 207, 157, 0.18)",
     },
     images: {
       primary: "/images/hero-illustration-mountains.webp",
@@ -99,8 +99,8 @@ export const heroSlides: HeroSlide[] = [
     cta: "Open agenteconomy.to",
     href: "https://agenteconomy.to",
     palette: {
-      base: "#221a40",
-      glow: "rgba(158, 123, 255, 0.16)",
+      base: "#7650d6",
+      glow: "rgba(143, 89, 255, 0.2)",
     },
     images: {
       primary: "/images/hero-illustration-warehouse.webp",
