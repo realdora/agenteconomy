@@ -5,13 +5,15 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { HighlightSection } from "@/components/landing/HighlightSection";
 import { PlatformSection } from "@/components/landing/PlatformSection";
 import { TrustSection } from "@/components/landing/TrustSection";
+import { getAgentData } from "@/lib/agent-data";
 
-export default function Home() {
+export default async function Home() {
+  const data = await getAgentData();
   return (
     <>
       <HeaderSection />
       {/* <AnnouncementSection /> */}
-      <HeroSection />
+      <HeroSection data={data} />
       <TrustSection />
       <HighlightSection />
       <PlatformSection />

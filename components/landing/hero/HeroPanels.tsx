@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 
+import type { AgentData, TrackRow } from "@/lib/agent-data";
 import type { HeroSlide } from "@/lib/site-data";
 
 // 3 data cards — track / price / cite. Real agenteconomy.to/data.json values.
@@ -10,10 +11,10 @@ import type { HeroSlide } from "@/lib/site-data";
 
 const CARD = "relative h-full w-full rounded-[22px] border border-white/12 bg-[#0d0d11] p-5 flex flex-col overflow-hidden";
 
-export function HeroPanel({ slide }: { slide: HeroSlide }) {
-  if (slide.panel.kind === "price") return <PricePanel />;
+export function HeroPanel({ slide, data }: { slide: HeroSlide; data: AgentData }) {
+  if (slide.panel.kind === "price") return <PricePanel price={data.price} />;
   if (slide.panel.kind === "cite") return <CitePanel />;
-  return <TrackPanel />;
+  return <TrackPanel track={data.track} />;
 }
 
 // ─── sparkline (draw-on) ───
@@ -48,16 +49,18 @@ function Spark({ data, color, idx, drawn }: { data: number[]; color: string; idx
 }
 
 // ─── TRACK ───
-const TRACK = [
-  { proto: "x402", target: 148.6, suffix: "M", spark: [86, 93, 99, 99, 100, 99, 97, 98, 99] },
-  { proto: "Olas", target: 16.4, suffix: "M", spark: [28, 26, 44, 47, 56, 100, 64, 47, 54] },
-  { proto: "Virtuals ACP", target: 12.3, suffix: "M", spark: [69, 71, 62, 100, 87, 27, 23, 21, 24] },
-  { proto: "ERC-8004", target: 216.7, suffix: "K", spark: [83, 100, 94, 84, 64, 70, 97, 94, 78] },
+// Sparkline shapes are illustrative (data.json has no per-protocol recent series);
+// the row labels + totals are live.
+const TRACK_SPARKS = [
+  [86, 93, 99, 99, 100, 99, 97, 98, 99],
+  [28, 26, 44, 47, 56, 100, 64, 47, 54],
+  [69, 71, 62, 100, 87, 27, 23, 21, 24],
+  [83, 100, 94, 84, 64, 70, 97, 94, 78],
 ];
 const TRACK_GREEN = "#00FF88";
 
-function TrackPanel() {
-  const [vals, setVals] = useState(TRACK.map(() => 0));
+function TrackPanel({ track }: { track: TrackRow[] }) {
+  const [vals, setVals] = useState(() => track.map(() => 0));
   const [block, setBlock] = useState(23455201);
   const [drawn, setDrawn] = useState(false);
   useEffect(() => {
@@ -67,7 +70,7 @@ function TrackPanel() {
     const tick = (now: number) => {
       const t = Math.min((now - start) / dur, 1);
       const e = 1 - Math.pow(1 - t, 3);
-      setVals(TRACK.map((r) => r.target * e));
+      setVals(track.map((r) => r.value * e));
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -81,7 +84,7 @@ function TrackPanel() {
       clearTimeout(drawT);
       clearInterval(live);
     };
-  }, []);
+  }, [track]);
   return (
     <div className={CARD}>
       <div className="flex items-center justify-between">
@@ -93,14 +96,14 @@ function TrackPanel() {
       </div>
       <div className="tt-track-sub font-mono uppercase text-white/40 mt-0.5">6 protocols · 24 chains · from block tip</div>
       <div className="flex-1 flex flex-col justify-center gap-2.5">
-        {TRACK.map((r, i) => (
+        {track.map((r, i) => (
           <div key={r.proto} className="flex items-center justify-between gap-3">
             <span className="text-white/80 text-[13px] w-24">{r.proto}</span>
             <span className="text-white font-medium tabular-nums text-[14px] w-16 text-right">
               {vals[i].toFixed(1)}
               {r.suffix}
             </span>
-            <Spark data={r.spark} color={TRACK_GREEN} idx={i} drawn={drawn} />
+            <Spark data={TRACK_SPARKS[i] ?? TRACK_SPARKS[0]} color={TRACK_GREEN} idx={i} drawn={drawn} />
           </div>
         ))}
       </div>
@@ -109,14 +112,7 @@ function TrackPanel() {
 }
 
 // ─── PRICE ───
-const SHARE = [
-  { label: "Coinbase", pct: 29.4, color: "#0052FF" },
-  { label: "Dexter", pct: 22.2, color: "#6366F1" },
-  { label: "PayAI", pct: 20.4, color: "#10B981" },
-  { label: "DayDreams", pct: 8, color: "#F59E0B" },
-  { label: "Other", pct: 20, color: "#8a8f98" },
-];
-function PricePanel() {
+function PricePanel({ price }: { price: AgentData["price"] }) {
   const [v, setV] = useState(0);
   const [grown, setGrown] = useState(false);
   useEffect(() => {
@@ -126,7 +122,7 @@ function PricePanel() {
     const tick = (now: number) => {
       const t = Math.min((now - start) / dur, 1);
       const e = 1 - Math.pow(1 - t, 3);
-      setV(40.6 * e);
+      setV(price.volumeM * e);
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -135,20 +131,20 @@ function PricePanel() {
       cancelAnimationFrame(raf);
       clearTimeout(g);
     };
-  }, []);
+  }, [price]);
   return (
     <div className={CARD}>
       <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Agent payment volume · x402</div>
       <div className="flex-1 flex flex-col justify-center">
         <div className="text-white font-medium text-[46px] leading-none tracking-tight tabular-nums">${v.toFixed(1)}M</div>
-        <div className="font-mono text-[11px] text-white/45 mt-2 mb-5">settled · 7 chains · 18 facilitators</div>
+        <div className="font-mono text-[11px] text-white/45 mt-2 mb-5">settled · {price.chains} chains · {price.facilitators} facilitators</div>
         <div className="flex h-2.5 rounded-full overflow-hidden mb-3">
-          {SHARE.map((s, i) => (
+          {price.share.map((s, i) => (
             <div key={s.label} style={{ width: grown ? `${s.pct}%` : "0%", background: s.color, transition: `width 1.1s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s` }} />
           ))}
         </div>
         <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 font-mono text-[10px]">
-          {SHARE.map((s) => (
+          {price.share.map((s) => (
             <span key={s.label} className="flex items-center gap-1.5 text-white/60">
               <span className="w-2 h-2 rounded-sm" style={{ background: s.color }} />
               {s.label} {s.pct}%

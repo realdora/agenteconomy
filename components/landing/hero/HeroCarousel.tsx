@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
+import { formatEvents, type AgentData } from "@/lib/agent-data";
 import { heroSlides } from "@/lib/site-data";
 
 import { HeroGridGuides } from "./HeroGridGuides";
@@ -14,7 +15,7 @@ import { HeroProgressButton } from "./HeroProgressButton";
 
 const SLIDE_DURATION_MS = 3000;
 
-export function HeroCarousel() {
+export function HeroCarousel({ data }: { data: AgentData }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const activeSlide = heroSlides[activeIndex];
@@ -66,7 +67,7 @@ export function HeroCarousel() {
         <HeroImageTile src={activeSlide.images.primary} className="tt-hero-large-right" />
 
         <div className="tt-hero-panel-wrap">
-          <HeroPanel slide={activeSlide} />
+          <HeroPanel slide={activeSlide} data={data} />
         </div>
 
         <div className="tt-hero-you-can">
@@ -102,8 +103,8 @@ export function HeroCarousel() {
 
       <div className="tt-hero-copy-row">
         <p>
-          agent economy is the data authority for on-chain agentic payments. We cover 5 protocols, 11+ chains, and
-          173M+ events tracked daily — every number traces back to a public smart contract.
+          agent economy is the data authority for on-chain agentic payments. We cover 5 protocols, 11+ chains, and{" "}
+          {formatEvents(data.totalEvents)}+ events tracked daily — every number traces back to a public smart contract.
         </p>
         <Link href={activeSlide.href} className="tt-hero-cta">
           {activeSlide.cta}
