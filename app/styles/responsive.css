@@ -99,8 +99,9 @@
       "youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan youcan"
       "changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext changetext";
     grid-template-columns: repeat(16, minmax(0, 1fr));
-    grid-template-rows: 30px 30px 50vw 30px 30px;
-    height: 375px;
+    /* panel slot floored at 216px so the tallest card (track: 4 rows + sparklines) never clips */
+    grid-template-rows: 30px 30px max(52vw, 216px) 30px 30px;
+    height: auto;
     min-height: 0;
     padding: 0 5px;
     width: 100%;
@@ -203,4 +204,36 @@
   .tt-route-hero h1 {
     font-size: clamp(56px, 17vw, 82px);
   }
+}
+
+/* Cite hero chain: once blocks shrink on narrow phones, tighten the block labels
+   so "tempo"/"olas" don't clip. Width itself is fluid via --cite-total-w. */
+@media (max-width: 430px) {
+  .tt-cite-card .ix-head {
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+
+/* ── Mobile adaptation helpers ──
+   This project's Tailwind build does NOT apply arbitrary-value responsive variants
+   (e.g. md:text-[13px], md:grid-cols-[180px_1fr]) — the base arbitrary utility wins by
+   source order. So these properties are driven via plain CSS instead. Base = desktop. */
+.tt-trust-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 24px; }
+.tt-trust-sep { margin: 0 28px; }
+.tt-term-pre { font-size: 13px; }
+.tt-term-label { font-size: 11px; letter-spacing: 0.18em; }
+.tt-term-block { font-size: 11px; }
+.tt-track-sub { font-size: 10px; letter-spacing: 0.14em; }
+
+@media (max-width: 760px) {
+  .tt-trust-row { grid-template-columns: 1fr; align-items: start; gap: 12px; }
+  .tt-trust-sep { margin: 0 14px; }
+  .tt-term-pre { font-size: 11px; }
+  .tt-term-label { font-size: 9px; letter-spacing: 0.12em; }
+  .tt-term-block { font-size: 9px; }
+  .tt-term-stream { display: none; }
+  .tt-track-sub { font-size: 9px; letter-spacing: 0.08em; }
 }

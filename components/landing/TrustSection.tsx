@@ -131,12 +131,12 @@ function BrandWordmark({ brand }: { brand: Brand }) {
 
 function BrandRow({ label, brands }: { label: string; brands: Brand[] }) {
   return (
-    <div className="grid grid-cols-[180px_1fr] items-center gap-6 py-7 border-b border-white/10 last:border-b-0">
+    <div className="tt-trust-row py-7 border-b border-white/10 last:border-b-0">
       <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">{label}</div>
       <div className="flex flex-wrap items-baseline gap-x-0">
         {brands.map((brand, i) => (
           <span key={brand.name} className="inline-flex items-baseline">
-            {i > 0 ? <span className="text-white/15 mx-7 text-[18px] font-light select-none">|</span> : null}
+            {i > 0 ? <span className="tt-trust-sep text-white/15 text-[18px] font-light select-none">|</span> : null}
             <BrandWordmark brand={brand} />
           </span>
         ))}

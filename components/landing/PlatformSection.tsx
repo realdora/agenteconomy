@@ -85,20 +85,20 @@ export function PlatformSection() {
               <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
               <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
               <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-              <span className="ml-3 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
-                agenteconomy.to/data.json — streaming
+              <span className="tt-term-label ml-3 font-mono uppercase text-white/40">
+                agenteconomy.to/data.json<span className="tt-term-stream"> — streaming</span>
               </span>
-              <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-white/40">
+              <span className="tt-term-block ml-auto flex items-center gap-2 font-mono text-white/40 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] animate-pulse" />
                 block {block.toLocaleString()}
               </span>
             </div>
 
-            <pre className="font-mono text-[13px] leading-[1.7] text-white/85 px-6 py-6 overflow-x-auto">
-{`{`}
-{`  "schema": "agenteconomy/v1",`}
-{`  "block_tip": ${block},`}
-{`  "events": [`}
+            <pre className="tt-term-pre font-mono leading-[1.7] text-white/85 px-4 py-5 md:px-6 md:py-6 overflow-x-auto">
+{`{
+  "schema": "agenteconomy/v1",
+  "block_tip": ${block},
+  "events": [`}
 {events.map((e, i) => (
   <span
     key={`${e.block}-${e.txHash}-${i}`}
@@ -114,8 +114,8 @@ export function PlatformSection() {
 {`    }`}{i < events.length - 1 ? "," : ""}{"\n"}
   </span>
 ))}
-{`  ]`}
-{`}`}
+{`  ]
+}`}
             </pre>
             <style>{`@keyframes fadeInRow { 0% { background: rgba(0,255,136,0.10); opacity: 0; } 60% { opacity: 1; } 100% { background: transparent; opacity: 1; } }`}</style>
           </div>

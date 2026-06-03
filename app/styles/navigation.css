@@ -158,11 +158,12 @@
 
 .tt-mobile-menu {
   -webkit-overflow-scrolling: touch;
-  background: hsl(var(--bg-surface) / 0.95);
+  background: hsl(var(--bg-surface));
   border-top: 1px solid var(--border-default);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48);
   left: 0;
-  max-height: calc(100dvh - 65px);
+  max-height: calc(100dvh - 64px);
+  min-height: calc(100dvh - 64px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 12px 20px max(20px, env(safe-area-inset-bottom));

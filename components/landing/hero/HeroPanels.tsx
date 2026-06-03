@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 
 import type { HeroSlide } from "@/lib/site-data";
@@ -90,7 +91,7 @@ function TrackPanel() {
         </div>
         <span className="font-mono text-[10px] text-white/40 tabular-nums">block {block.toLocaleString()}</span>
       </div>
-      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40 mt-0.5">6 protocols · 24 chains · from block tip</div>
+      <div className="tt-track-sub font-mono uppercase text-white/40 mt-0.5">6 protocols · 24 chains · from block tip</div>
       <div className="flex-1 flex flex-col justify-center gap-2.5">
         {TRACK.map((r, i) => (
           <div key={r.proto} className="flex items-center justify-between gap-3">
@@ -168,11 +169,23 @@ const CITE_DELAYS = CITE_BLOCKS.map((_, i) => +(((i * (CITE_BLOCK_W + CITE_CONN_
 
 function CitePanel() {
   return (
-    <div className={CARD}>
+    <div
+      className={`${CARD} tt-cite-card`}
+      style={
+        {
+          // Fluid chain width: full 478px on desktop/tablet, shrinks to fit narrow phones.
+          // block + connector derive from total, so the scanner keyframes (which animate to
+          // var(--cite-total-w)) and the scale-invariant per-block delays stay perfectly synced.
+          "--cite-total-w": `min(${CITE_TOTAL_W}px, calc(100vw - 104px))`,
+          "--cite-block-w": `calc(var(--cite-total-w) * ${CITE_BLOCK_W / CITE_TOTAL_W})`,
+          "--cite-conn-w": `calc(var(--cite-total-w) * ${CITE_CONN_W / CITE_TOTAL_W})`,
+        } as CSSProperties
+      }
+    >
       <style>{`
-        @keyframes ix-scan { 0%{left:0;opacity:0} 5%{opacity:1} 94%{opacity:1} 100%{left:${CITE_TOTAL_W}px;opacity:0} }
+        @keyframes ix-scan { 0%{left:0;opacity:0} 5%{opacity:1} 94%{opacity:1} 100%{left:var(--cite-total-w);opacity:0} }
         .ix-scan { left:0; background: linear-gradient(180deg, transparent, #9E7BFF, transparent); box-shadow: 0 0 18px #9E7BFF; animation: ix-scan 3.5s linear infinite; }
-        @keyframes ix-fill { 0%{width:0} 100%{width:${CITE_TOTAL_W}px} }
+        @keyframes ix-fill { 0%{width:0} 100%{width:var(--cite-total-w)} }
         .ix-fill { width:0; background: linear-gradient(90deg, #9E7BFF, rgba(158,123,255,0.4)); animation: ix-fill 3.5s linear infinite; }
         @keyframes ix-blk { 0%{border-color:#9E7BFF;box-shadow:0 0 26px rgba(158,123,255,0.55);background:rgba(158,123,255,0.18);transform:scale(1.06)} 14%{border-color:rgba(255,255,255,0.14);box-shadow:none;background:rgba(255,255,255,0.03);transform:scale(1)} 100%{border-color:rgba(255,255,255,0.14);box-shadow:none;background:rgba(255,255,255,0.03);transform:scale(1)} }
         .ix-blk { border-color:rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); transform-origin:center; animation: ix-blk 3.5s linear infinite; }
@@ -182,13 +195,13 @@ function CitePanel() {
       `}</style>
       <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">Indexing on-chain</div>
       <div className="flex-1 flex items-center">
-        <div className="relative mx-auto" style={{ width: CITE_TOTAL_W }}>
+        <div className="relative mx-auto" style={{ width: "var(--cite-total-w)" }}>
           <span className="absolute top-1/2 left-0 right-0 h-[2px] -translate-y-1/2" style={{ background: "rgba(255,255,255,0.14)" }} />
           <span className="ix-fill absolute top-1/2 left-0 h-[2px] -translate-y-1/2" />
           <span className="ix-scan absolute top-[-10px] bottom-[-10px] w-[3px] rounded-full" />
-          <div className="relative flex items-center" style={{ gap: CITE_CONN_W }}>
+          <div className="relative flex items-center" style={{ gap: "var(--cite-conn-w)" }}>
             {CITE_BLOCKS.map((b, i) => (
-              <div key={b} className="ix-blk relative rounded-lg border overflow-hidden" style={{ width: CITE_BLOCK_W, animationDelay: `${CITE_DELAYS[i]}s` }}>
+              <div key={b} className="ix-blk relative rounded-lg border overflow-hidden" style={{ width: "var(--cite-block-w)", animationDelay: `${CITE_DELAYS[i]}s` }}>
                 <div className="ix-head px-2 py-1 font-mono text-[9px] uppercase tracking-[0.12em] border-b border-white/10">{b}</div>
                 <div className="px-2 py-2 flex flex-col gap-1.5">
                   <span className="ix-line block h-[3px] rounded-full w-full" style={{ animationDelay: `${CITE_DELAYS[i]}s` }} />
