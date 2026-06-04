@@ -15,7 +15,7 @@ export default async function Home() {
       {/* <AnnouncementSection /> */}
       <HeroSection data={data} />
       <TrustSection />
-      <HighlightSection />
+      <HighlightSection data={data} />
       <PlatformSection />
       <FooterSection />
     </>

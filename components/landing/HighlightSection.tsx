@@ -1,16 +1,13 @@
 "use client";
 
-// HighlightSection — FT-style hero chart with left-to-right reveal animation
-// Re-triggers on each scroll-into-view via IntersectionObserver + key bump
+// HighlightSection — FT-style hero chart with a left-to-right reveal.
+// Plots CUMULATIVE x402 monthly transactions (real data.json values; the raw
+// per-period series are too volatile to read as "growth"). Counts up to the
+// cumulative total. Re-triggers on each scroll-into-view via IntersectionObserver.
 
 import { useEffect, useRef, useState } from "react";
 
-// 30 daily data points (mock) — agentic payment events, in millions
-// Day 30 = 173M to match hero claim "173M+ events tracked daily"
-const SERIES = [
-  22, 26, 25, 30, 32, 36, 40, 39, 44, 49, 53, 56, 57, 62, 67,
-  73, 78, 84, 89, 93, 100, 106, 112, 118, 126, 134, 142, 151, 161, 173,
-];
+import type { AgentData } from "@/lib/agent-data";
 
 const W = 1180;
 const H = 360;
@@ -19,14 +16,14 @@ const PAD_R = 20;
 const PAD_T = 40;
 const PAD_B = 50;
 
-function buildPath() {
-  const max = Math.max(...SERIES);
+function buildPath(series: number[]) {
+  const max = Math.max(...series);
   const min = 0;
   const range = max - min || 1;
   const innerW = W - PAD_L - PAD_R;
   const innerH = H - PAD_T - PAD_B;
-  const step = innerW / (SERIES.length - 1);
-  const points = SERIES.map((v, i) => {
+  const step = innerW / (series.length - 1);
+  const points = series.map((v, i) => {
     const x = PAD_L + i * step;
     const y = PAD_T + innerH - ((v - min) / range) * innerH;
     return { x, y };
@@ -41,14 +38,24 @@ function buildPath() {
   return { linePath, areaPath, lastX, lastY, max };
 }
 
-export function HighlightSection() {
-  const { linePath, areaPath, lastX, lastY, max } = buildPath();
-  const growthPct = Math.round(((SERIES[SERIES.length - 1] - SERIES[0]) / SERIES[0]) * 100);
+function formatUpdated(iso: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+export function HighlightSection({ data }: { data: AgentData }) {
+  const series = data.highlight.series;
+  const total = data.highlight.totalM;
+  const { linePath, areaPath, lastX, lastY, max } = buildPath(series);
+  const updated = formatUpdated(data.updatedAt);
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const [playKey, setPlayKey] = useState(0);
   const wasInViewRef = useRef(false);
 
-  // count-up animation for the +N% number
+  // count-up animation toward the cumulative total
   const [count, setCount] = useState(0);
   useEffect(() => {
     setCount(0);
@@ -61,7 +68,7 @@ export function HighlightSection() {
         const elapsed = Date.now() - start - startDelay;
         const t = Math.min(elapsed / dur, 1);
         const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
-        setCount(Math.round(growthPct * eased));
+        setCount(Math.round(total * eased));
         if (t >= 1 && intervalId) clearInterval(intervalId);
       }, 30);
     }, startDelay);
@@ -69,7 +76,7 @@ export function HighlightSection() {
       clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [playKey, growthPct]);
+  }, [playKey, total]);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -107,19 +114,18 @@ export function HighlightSection() {
               Agentic payment volume is pulling away from human-initiated transactions.
             </h2>
             <p className="text-white/55 max-w-3xl text-[15px] leading-relaxed">
-              Daily on-chain agent payment events, 30 days.
+              Cumulative x402 transactions by month — the dominant agent-payment standard.
               <br />
               <br />
-              Counts include x402, ERC-8004, Virtuals ACP, Olas, and Tempo MPP. All series reconstructible from
-              block tip, ingested in real time.
+              Every point is reconstructible from block tip{updated ? `, updated ${updated}` : ""}.
             </p>
           </div>
           <div className="flex-shrink-0 flex flex-col items-start lg:items-end gap-3 lg:ml-12">
             <div className="font-medium text-[#00FF88] text-[56px] md:text-[72px] lg:text-[88px] leading-none tracking-[-0.02em] tabular-nums">
-              +{count}%
+              {count}M
             </div>
             <div key={`callout-cap-${playKey}`} className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 hc-callout">
-              30-day growth
+              x402 transactions · cumulative
             </div>
           </div>
         </div>
@@ -161,7 +167,7 @@ export function HighlightSection() {
 
             {/* x-axis labels */}
             <text x={PAD_L} y={H - PAD_B + 24} fill="rgba(255,255,255,0.35)" fontSize="11" fontFamily="var(--font-geist-mono), monospace">
-              30 days ago
+              {data.highlight.startLabel}
             </text>
             <text x={W - PAD_R} y={H - PAD_B + 24} textAnchor="end" fill="rgba(255,255,255,0.35)" fontSize="11" fontFamily="var(--font-geist-mono), monospace">
               today
@@ -180,7 +186,7 @@ export function HighlightSection() {
         </div>
 
         <p className="text-white/55 text-[14px] leading-relaxed max-w-3xl mt-6 font-display italic">
-          Source: agenteconomy.to/data.json
+          Source: agenteconomy.to/data.json{updated ? ` · updated ${updated}` : ""}
         </p>
       </div>
     </section>

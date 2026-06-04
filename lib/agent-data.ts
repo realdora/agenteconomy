@@ -18,6 +18,12 @@ export type AgentData = {
     share: SharePart[];
   };
   totalEvents: number; // summed across all tracked protocols
+  highlight: {
+    series: number[]; // cumulative x402 transactions, in millions
+    totalM: number; // final cumulative value
+    startLabel: string; // first month, e.g. "Oct 25"
+    endLabel: string; // last month, e.g. "Jun 26"
+  };
   isLive: boolean; // false when the fallback snapshot was used
 };
 
@@ -44,6 +50,12 @@ export const FALLBACK: AgentData = {
     ],
   },
   totalEvents: 179_000_000,
+  highlight: {
+    series: [4.1, 56.7, 110.9, 130.1, 134.2, 139.3, 143.9, 149.2, 149.4],
+    totalM: 149.4,
+    startLabel: "Oct 25",
+    endLabel: "Jun 26",
+  },
   isLive: false,
 };
 
@@ -81,6 +93,23 @@ export async function getAgentData(): Promise<AgentData> {
       (d.baseAgentic?.totalTxs ?? 0) +
       (d.tempoMpp?.totalEvents ?? 0);
 
+    // Cumulative x402 monthly transactions — a real, monotonically-rising curve
+    // (the raw per-period series are too volatile to plot as "growth").
+    const monthly: Array<{ month?: string; txs?: number }> = Array.isArray(x.monthly) ? x.monthly : [];
+    let cum = 0;
+    const series = monthly.map((m) => {
+      cum += m.txs ?? 0;
+      return round1(cum / 1e6);
+    });
+    const highlight = series.length
+      ? {
+          series,
+          totalM: series[series.length - 1],
+          startLabel: monthly[0]?.month ?? "",
+          endLabel: monthly[monthly.length - 1]?.month ?? "",
+        }
+      : FALLBACK.highlight;
+
     return {
       updatedAt: typeof d.updatedAt === "string" ? d.updatedAt : null,
       track: [
@@ -96,6 +125,7 @@ export async function getAgentData(): Promise<AgentData> {
         share: Array.isArray(x.protocols) && x.protocols.length ? buildShare(x.protocols) : FALLBACK.price.share,
       },
       totalEvents: totalEvents || FALLBACK.totalEvents,
+      highlight,
       isLive: true,
     };
   } catch {
