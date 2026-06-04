@@ -38,13 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="stylesheet" href="/css/18bo3xybony97.css" />
-        <link rel="stylesheet" href="/css/0z-8tf3sp3ovs.css" />
-      </head>
-      <body className="theme-dark geistsans_d5a4f12f-module__UWyvRW__variable geistmono_157ca88a-module__DG41QG__variable">
-        {children}
-      </body>
+      <body className="theme-dark">{children}</body>
     </html>
   );
 }

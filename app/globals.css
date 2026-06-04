@@ -2,12 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Fonts ──
+   Migrated off the Token Terminal prebuilt CSS so the site owns its font loading.
+   woff2 files live in /public/fonts. */
+@font-face {
+  font-family: GeistMono;
+  src: url(/fonts/GeistMono_Variable.p.17jn9btb_52pq.woff2) format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: GeistSans;
+  src: url(/fonts/Geist_Variable-s.p.0-te~ja_gpvcf.woff2) format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: "GeistSans Fallback";
+  src: local(Arial);
+  ascent-override: 94.56%;
+  descent-override: 27.76%;
+  line-gap-override: 0%;
+  size-adjust: 106.28%;
+}
+@font-face {
+  font-family: Denton;
+  src: url(/fonts/Denton_Regular-s.p.07x_slr5ebkwx.woff2) format("woff2");
+  font-display: swap;
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Denton Fallback";
+  src: local(Arial);
+  ascent-override: 91.8%;
+  descent-override: 27%;
+  line-gap-override: 24.3%;
+  size-adjust: 92.59%;
+}
+
 :root {
+  /* font stacks (consumed by tailwind.config fontFamily) */
+  --font-geist-sans: "GeistSans", "GeistSans Fallback";
+  --font-geist-mono: "GeistMono", ui-monospace, SFMono-Regular, "Roboto Mono", Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
   --font-denton: "Denton", "Denton Fallback", "Times New Roman", Georgia, serif;
+
+  /* design tokens (dark) — migrated from the TT prebuilt CSS */
+  --bg-default: 240 10% 6%;
+  --bg-surface: 252 12% 8%;
+  --fg-default: 0 0% 100%;
+  --fg-secondary: 225 9% 64%;
+  --border-default: #202028;
 }
 
 html {
   background: hsl(0 0% 2.5%);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 body {
