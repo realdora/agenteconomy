@@ -9,7 +9,7 @@ import { formatEvents, getAgentData } from "@/lib/agent-data";
 export const metadata: Metadata = {
   title: "Methodology | agent economy",
   description:
-    "How agent economy reconstructs every metric directly from on-chain block data — no estimates, no black boxes.",
+    "How agent economy builds every metric from public on-chain activity — sourced via Dune and direct indexing, traceable and citable.",
 };
 
 const PRINCIPLES = [

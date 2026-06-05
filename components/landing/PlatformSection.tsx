@@ -64,9 +64,9 @@ export function PlatformSection() {
                 What you get, as JSON
               </h2>
               <p className="text-fg-secondary text-base text-balance leading-relaxed">
-                Schema-stable, MCP-native, version-pinned. Every event we surface is reconstructible from the
-                transaction hash. Below is a sample of the agenteconomy.to/data.json stream — new entries are
-                appearing in real time as blocks land.
+                Schema-stable, MCP-native, version-pinned. Every event carries its transaction hash. Below is a
+                sample of the agenteconomy.to/data.json stream — new entries are appearing in real time as blocks
+                land.
               </p>
             </div>
             <a

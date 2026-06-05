@@ -118,7 +118,7 @@ export const heroSlides: HeroSlide[] = [
 export const siteRoutes: Record<string, { title: string; description: string }> = {
   "/data": {
     title: "Data",
-    description: "The agenteconomy.to dataset: schema-stable, MCP-native, and reconstructible from block tip.",
+    description: "The agenteconomy.to dataset: schema-stable, MCP-native, sourced from public on-chain data.",
   },
   "/about": {
     title: "About",

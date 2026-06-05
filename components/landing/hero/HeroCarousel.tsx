@@ -104,7 +104,7 @@ export function HeroCarousel({ data }: { data: AgentData }) {
       <div className="tt-hero-copy-row">
         <p>
           agent economy is the data authority for on-chain agentic payments. We cover 5 protocols, 11+ chains, and{" "}
-          {formatEvents(data.totalEvents)}+ events tracked daily — every number traces back to a public smart contract.
+          {formatEvents(data.totalEvents)}+ events tracked daily — every number is built from public on-chain activity.
         </p>
         <Link href={activeSlide.href} className="tt-hero-cta">
           {activeSlide.cta}

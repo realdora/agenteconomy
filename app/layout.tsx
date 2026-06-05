@@ -12,11 +12,11 @@ const TITLE = "agent economy — the data authority for on-chain agentic payment
 export async function generateMetadata(): Promise<Metadata> {
   const { totalEvents } = await getAgentData();
   const ev = `${formatEvents(totalEvents)}+`;
-  const social = `5 protocols, 11+ chains, ${ev} on-chain agent-payment events tracked daily — every number traces back to a public smart contract.`;
+  const social = `5 protocols, 11+ chains, ${ev} on-chain agent-payment events tracked daily — built from public on-chain activity, not self-reported.`;
   return {
     metadataBase: new URL("https://agenteconomy.to"),
     title: TITLE,
-    description: `The data authority for on-chain agentic payments. 5 protocols, 11+ chains, ${ev} events tracked daily — every number traces back to a public smart contract.`,
+    description: `The data authority for on-chain agentic payments. 5 protocols, 11+ chains, ${ev} events tracked daily — built from public on-chain activity, not self-reported.`,
     applicationName: "agent economy",
     openGraph: {
       type: "website",

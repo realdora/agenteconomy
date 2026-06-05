@@ -117,7 +117,7 @@ export function HighlightSection({ data }: { data: AgentData }) {
               Cumulative x402 transactions by month — the dominant agent-payment standard.
               <br />
               <br />
-              Every point is reconstructible from block tip{updated ? `, updated ${updated}` : ""}.
+              Sourced from public on-chain data{updated ? `, updated ${updated}` : ""}.
             </p>
           </div>
           <div className="flex-shrink-0 flex flex-col items-start lg:items-end gap-3 lg:ml-12">
