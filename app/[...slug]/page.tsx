@@ -1,48 +1,30 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
-import { MockRoutePage } from "@/components/routes/MockRoutePage";
-import { mockRoutes } from "@/lib/site-data";
+import { RoutePlaceholder } from "@/components/routes/RoutePlaceholder";
+import { siteRoutes } from "@/lib/site-data";
 
 type RoutePageProps = {
-  params: Promise<{
-    slug: string[];
-  }>;
+  params: Promise<{ slug: string[] }>;
 };
 
-function titleFromPath(path: string) {
-  return path
-    .split("/")
-    .filter(Boolean)
-    .map((part) => part.replace(/-/g, " "))
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" / ");
-}
-
-function getRouteContent(path: string) {
-  return (
-    mockRoutes[path] ?? {
-      title: titleFromPath(path),
-      description: "A mocked route page used to prove navigation, routing, and layout structure.",
-      metrics: ["Overview", "Data model", "Workflow"],
-    }
-  );
-}
+// Only the known nav routes exist; anything else 404s.
+export const dynamicParams = false;
 
 export async function generateMetadata({ params }: RoutePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const path = `/${slug.join("/")}`;
-  const route = getRouteContent(path);
-
+  const route = siteRoutes[`/${slug.join("/")}`];
+  if (!route) return {};
   return {
-    title: `${route.title} | Token Terminal mock`,
+    title: `${route.title} | agent economy`,
     description: route.description,
   };
 }
 
 export function generateStaticParams() {
-  return Object.keys(mockRoutes).map((path) => ({
+  return Object.keys(siteRoutes).map((path) => ({
     slug: path.split("/").filter(Boolean),
   }));
 }
@@ -50,12 +32,13 @@ export function generateStaticParams() {
 export default async function RoutePage({ params }: RoutePageProps) {
   const { slug } = await params;
   const path = `/${slug.join("/")}`;
-  const route = getRouteContent(path);
+  const route = siteRoutes[path];
+  if (!route) notFound();
 
   return (
     <>
       <HeaderSection />
-      <MockRoutePage path={path} title={route.title} description={route.description} metrics={route.metrics} />
+      <RoutePlaceholder path={path} title={route.title} description={route.description} />
       <FooterSection />
     </>
   );

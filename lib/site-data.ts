@@ -111,55 +111,40 @@ export const heroSlides: HeroSlide[] = [
   },
 ];
 
-export const mockRoutes: Record<string, { title: string; description: string; metrics: string[] }> = {
-  "/products/explorer": {
-    title: "Explorer",
-    description: "A mock route for browsing standardized protocol and chain fundamentals.",
-    metrics: ["1,200+ applications", "100+ chains", "Daily updates"],
+// Real nav destinations. Each renders an on-brand placeholder for now (RoutePlaceholder);
+// real content gets built out page by page. Paths match the nav hrefs in navMenus.
+export const siteRoutes: Record<string, { title: string; description: string }> = {
+  "/methodology": {
+    title: "Methodology",
+    description:
+      "How agent economy reconstructs every metric directly from on-chain block data — no estimates, no black boxes.",
   },
-  "/products/studio": {
-    title: "Studio",
-    description: "A mock route for building saved analysis views and investor workflows.",
-    metrics: ["Custom dashboards", "Watchlists", "Shared workspaces"],
-  },
-  "/products/mcp": {
-    title: "MCP",
-    description: "A mock route for connecting AI agents to Token Terminal-style data.",
-    metrics: ["Tool calls", "Context packs", "Auditable outputs"],
-  },
-  "/products/sheets": {
-    title: "Sheets",
-    description: "A mock route for analysts pulling fundamentals into spreadsheet models.",
-    metrics: ["Formula imports", "Refresh controls", "Templates"],
-  },
-  "/pricing": {
-    title: "Pricing",
-    description: "Mock pricing tiers for teams, funds, and protocol operators.",
-    metrics: ["Starter", "Professional", "Enterprise"],
-  },
-  "/resources": {
-    title: "Resources",
-    description: "Mock research notes, engineering posts, and market explainers.",
-    metrics: ["Research", "Engineering", "Newsletter"],
+  "/data": {
+    title: "Data",
+    description: "The agenteconomy.to dataset: schema-stable, MCP-native, and reconstructible from block tip.",
   },
   "/about": {
     title: "About",
-    description: "Mock company page for the structured routing layer.",
-    metrics: ["Mission", "Customers", "Careers"],
+    description: "agent economy is the data authority for on-chain agentic payments.",
   },
-  "/explorer": {
-    title: "Explorer",
-    description: "Mock explorer entry point for navigating market fundamentals.",
-    metrics: ["Chains", "Assets", "Applications"],
+  "/x402": {
+    title: "x402",
+    description: "The HTTP 402 payment standard for autonomous agents.",
   },
-  "/explorer/listings/apps": {
-    title: "Get Listed: Apps",
-    description: "Mock application listing workflow for protocol operators.",
-    metrics: ["Schema review", "Metric mapping", "Launch QA"],
+  "/erc-8004": {
+    title: "ERC-8004",
+    description: "Ethereum agent-to-agent transactions.",
   },
-  "/explorer/listings/chains": {
-    title: "Get Listed: Chains",
-    description: "Mock chain listing workflow for ecosystem teams.",
-    metrics: ["Indexer setup", "Coverage audit", "Public launch"],
+  "/virtuals-acp": {
+    title: "Virtuals ACP",
+    description: "The Agent Commerce Protocol.",
+  },
+  "/olas": {
+    title: "Olas",
+    description: "Autonomous agent network.",
+  },
+  "/tempo-mpp": {
+    title: "Tempo MPP",
+    description: "Multi-Party Payment Protocol.",
   },
 };

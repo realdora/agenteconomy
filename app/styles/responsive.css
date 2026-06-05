@@ -202,7 +202,8 @@
   }
 
   .tt-route-hero h1 {
-    font-size: clamp(56px, 17vw, 82px);
+    /* smaller floor so long single words (e.g. "Methodology") don't overflow narrow phones */
+    font-size: clamp(40px, 12vw, 56px);
   }
 }
 

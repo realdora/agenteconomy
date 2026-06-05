@@ -77,9 +77,9 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex flex-1 items-center justify-end">
-            <Link href="/explorer" className="tt-explorer-button">
+            <a href="https://agenteconomy.to" className="tt-explorer-button">
               Go to Explorer
-            </Link>
+            </a>
           </div>
         </div>
 
