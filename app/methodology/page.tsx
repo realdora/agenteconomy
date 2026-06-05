@@ -1,0 +1,165 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
+import { FooterSection } from "@/components/landing/FooterSection";
+import { HeaderSection } from "@/components/landing/HeaderSection";
+import { formatEvents, getAgentData } from "@/lib/agent-data";
+
+export const metadata: Metadata = {
+  title: "Methodology | agent economy",
+  description:
+    "How agent economy reconstructs every metric directly from on-chain block data — no estimates, no black boxes.",
+};
+
+const PRINCIPLES = [
+  {
+    n: "01",
+    title: "Sourced on-chain",
+    body: "Every figure traces to a public contract event. Nothing is self-reported, surveyed, or supplied by the protocols themselves.",
+  },
+  {
+    n: "02",
+    title: "No estimates, no black box",
+    body: "We don't model, extrapolate, or fill gaps. What you see is what actually settled on-chain — including the quiet weeks.",
+  },
+  {
+    n: "03",
+    title: "Reproducible",
+    body: "Same blocks in, same numbers out. Every figure can be recomputed from the chain by anyone, with no privileged access.",
+  },
+];
+
+const PIPELINE = [
+  {
+    step: "Read from block tip",
+    body: "We index events from the chain head backward across every tracked network. Series are rebuilt from the tip each run, so revisions and reorgs self-correct.",
+  },
+  {
+    step: "Decode & normalize",
+    body: "Raw logs become typed events — protocol, chain, agent, amount, timestamp — and are deduplicated against everything already ingested.",
+  },
+  {
+    step: "Aggregate",
+    body: "Totals, daily and monthly series, and market share are computed from those events on the fly — never stored as opinions or hand-tuned.",
+  },
+  {
+    step: "Publish",
+    body: "Everything lands in a single schema-stable, MCP-native data.json that refreshes continuously. One source, versioned and citable.",
+  },
+];
+
+const COVERAGE = [
+  { name: "x402", what: "HTTP 402 agent payments — settled volume, facilitators, and per-app market share." },
+  { name: "ERC-8004", what: "On-chain agent registry — agents registered across every supported chain." },
+  { name: "Virtuals ACP", what: "Agent Commerce Protocol — memo throughput between autonomous agents." },
+  { name: "Olas", what: "Autonomous agent network — transaction activity across its deployments." },
+  { name: "Tempo MPP", what: "Multi-Party Payment channels — opens, settlements, and unique payers/payees." },
+  { name: "Base agentic", what: "Agentic activity on Base — consumer vs. infrastructure transaction split." },
+];
+
+export default async function MethodologyPage() {
+  const data = await getAgentData();
+  const events = formatEvents(data.totalEvents);
+
+  return (
+    <>
+      <HeaderSection />
+      <main className="tt-route-page">
+        {/* Hero */}
+        <section className="tt-route-hero">
+          <div>
+            <div className="tt-route-kicker">/methodology</div>
+            <h1>Methodology</h1>
+            <p>
+              Every metric on agent economy is reconstructed directly from on-chain block data. No estimates, no
+              surveys, no black boxes — if it&apos;s a number here, you can recompute it from a public contract.
+            </p>
+          </div>
+          <Link href="/" className="tt-route-home-link">
+            Back to home
+            <ArrowRightIcon />
+          </Link>
+        </section>
+
+        {/* Principles */}
+        <section className="mt-24 border-t border-white/10 pt-12">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-10">Principles</div>
+          <div className="grid gap-x-10 gap-y-12 md:grid-cols-3">
+            {PRINCIPLES.map((p) => (
+              <div key={p.n}>
+                <div className="font-mono text-[13px] text-[#00FF88] mb-4">{p.n}</div>
+                <h3 className="text-white font-medium text-[20px] tracking-tight mb-2.5">{p.title}</h3>
+                <p className="text-white/55 text-[15px] leading-relaxed">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Pipeline */}
+        <section className="mt-24 border-t border-white/10 pt-12">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">From block to number</div>
+          <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-12">
+            Four steps, run continuously — nothing in between is hidden.
+          </p>
+          <ol className="flex flex-col">
+            {PIPELINE.map((s, i) => (
+              <li
+                key={s.step}
+                className="grid grid-cols-[auto_1fr] gap-x-6 md:gap-x-10 py-7 border-t border-white/10 first:border-t-0"
+              >
+                <span className="font-mono text-[13px] text-white/35 tabular-nums pt-1">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3 className="text-white font-medium text-[19px] tracking-tight mb-2">{s.step}</h3>
+                  <p className="text-white/55 text-[15px] leading-relaxed max-w-2xl">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Coverage */}
+        <section className="mt-24 border-t border-white/10 pt-12">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">What we track</div>
+          <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-3">
+            5 standards across 11+ chains — {events}+ events reconstructed and counting.
+          </p>
+          <p className="text-white/55 text-[15px] leading-relaxed max-w-3xl mb-12">
+            Coverage is sourced through direct RPC indexing and Dune, then cross-checked against the contracts
+            themselves. Each protocol below maps to specific on-chain events.
+          </p>
+          <div className="grid gap-x-10 gap-y-9 md:grid-cols-2">
+            {COVERAGE.map((c) => (
+              <div key={c.name} className="grid grid-cols-[150px_1fr] gap-x-6 items-baseline border-t border-white/10 pt-5">
+                <span className="text-white font-medium text-[17px] tracking-tight">{c.name}</span>
+                <p className="text-white/55 text-[14px] leading-relaxed">{c.what}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="mt-24 border-t border-white/10 pt-12 flex flex-col items-start gap-6">
+          <p className="font-display italic text-white text-[28px] leading-snug max-w-2xl">
+            Don&apos;t take our word for it — every number is live, and the raw feed is one request away.
+          </p>
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+            <a href="https://agenteconomy.to" className="tt-hero-cta">
+              Open agenteconomy.to
+              <ArrowRightIcon />
+            </a>
+            <a
+              href="https://agenteconomy.to/data.json"
+              className="font-mono text-[13px] uppercase tracking-[0.16em] text-white/55 hover:text-white transition"
+            >
+              View data.json →
+            </a>
+          </div>
+        </section>
+      </main>
+      <FooterSection />
+    </>
+  );
+}

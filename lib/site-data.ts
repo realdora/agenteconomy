@@ -113,12 +113,9 @@ export const heroSlides: HeroSlide[] = [
 
 // Real nav destinations. Each renders an on-brand placeholder for now (RoutePlaceholder);
 // real content gets built out page by page. Paths match the nav hrefs in navMenus.
+// NOTE: routes with a dedicated page (e.g. app/methodology/page.tsx) are intentionally
+// omitted here so the catch-all doesn't shadow them. Remaining entries render the placeholder.
 export const siteRoutes: Record<string, { title: string; description: string }> = {
-  "/methodology": {
-    title: "Methodology",
-    description:
-      "How agent economy reconstructs every metric directly from on-chain block data — no estimates, no black boxes.",
-  },
   "/data": {
     title: "Data",
     description: "The agenteconomy.to dataset: schema-stable, MCP-native, and reconstructible from block tip.",
