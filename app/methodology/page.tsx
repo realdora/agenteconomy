@@ -15,33 +15,33 @@ export const metadata: Metadata = {
 const PRINCIPLES = [
   {
     n: "01",
-    title: "Sourced on-chain",
-    body: "Every figure traces to a public contract event. Nothing is self-reported, surveyed, or supplied by the protocols themselves.",
+    title: "On-chain, not self-reported",
+    body: "Every figure comes from public blockchain activity — not numbers the protocols publish about themselves, not surveys, not vanity dashboards.",
   },
   {
     n: "02",
-    title: "No estimates, no black box",
-    body: "We don't model, extrapolate, or fill gaps. What you see is what actually settled on-chain — including the quiet weeks.",
+    title: "Actuals, not projections",
+    body: "We show what actually happened on-chain — not forecasts or smoothed trends. The quiet weeks stay quiet; we don't fill the gaps.",
   },
   {
     n: "03",
-    title: "Reproducible",
-    body: "Same blocks in, same numbers out. Every figure can be recomputed from the chain by anyone, with no privileged access.",
+    title: "Traceable to the source",
+    body: "Sourced from public on-chain data — through Dune and direct indexing — and normalized into one open dataset you can audit and cite.",
   },
 ];
 
 const PIPELINE = [
   {
-    step: "Read from block tip",
-    body: "We index events from the chain head backward across every tracked network. Series are rebuilt from the tip each run, so revisions and reorgs self-correct.",
+    step: "Pull from the chain",
+    body: "Agent-payment events are sourced from public on-chain data — through Dune and direct RPC indexing — across every tracked network.",
   },
   {
     step: "Decode & normalize",
-    body: "Raw logs become typed events — protocol, chain, agent, amount, timestamp — and are deduplicated against everything already ingested.",
+    body: "Raw events become one consistent shape — protocol, chain, agent, amount, timestamp — and are deduplicated across sources.",
   },
   {
     step: "Aggregate",
-    body: "Totals, daily and monthly series, and market share are computed from those events on the fly — never stored as opinions or hand-tuned.",
+    body: "Totals, daily and monthly series, and market share are computed from those events — not hand-entered or adjusted.",
   },
   {
     step: "Publish",
@@ -72,8 +72,9 @@ export default async function MethodologyPage() {
             <div className="tt-route-kicker">/methodology</div>
             <h1>Methodology</h1>
             <p>
-              Every metric on agent economy is reconstructed directly from on-chain block data. No estimates, no
-              surveys, no black boxes — if it&apos;s a number here, you can recompute it from a public contract.
+              Every metric on agent economy is built from public on-chain activity — real transactions, not figures
+              the protocols report about themselves, and not survey data. Each number traces back to the on-chain
+              events behind it.
             </p>
           </div>
           <Link href="/" className="tt-route-home-link">
@@ -100,7 +101,7 @@ export default async function MethodologyPage() {
         <section className="mt-24 border-t border-white/10 pt-12">
           <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">From block to number</div>
           <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-12">
-            Four steps, run continuously — nothing in between is hidden.
+            Four steps, run continuously — from public chain data to one clean feed.
           </p>
           <ol className="flex flex-col">
             {PIPELINE.map((s, i) => (
@@ -124,11 +125,11 @@ export default async function MethodologyPage() {
         <section className="mt-24 border-t border-white/10 pt-12">
           <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">What we track</div>
           <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-3">
-            5 standards across 11+ chains — {events}+ events reconstructed and counting.
+            5 standards across 11+ chains — {events}+ on-chain events tracked and counting.
           </p>
           <p className="text-white/55 text-[15px] leading-relaxed max-w-3xl mb-12">
-            Coverage is sourced through direct RPC indexing and Dune, then cross-checked against the contracts
-            themselves. Each protocol below maps to specific on-chain events.
+            Coverage is sourced from public on-chain data through Dune and direct indexing. Each protocol below maps
+            to specific on-chain events.
           </p>
           <div className="grid gap-x-10 gap-y-9 md:grid-cols-2">
             {COVERAGE.map((c) => (
