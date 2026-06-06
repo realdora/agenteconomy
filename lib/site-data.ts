@@ -110,30 +110,3 @@ export const heroSlides: HeroSlide[] = [
     panel: { kind: "cite" },
   },
 ];
-
-// Real nav destinations. Each renders an on-brand placeholder for now (RoutePlaceholder);
-// real content gets built out page by page. Paths match the nav hrefs in navMenus.
-// NOTE: routes with a dedicated page (e.g. app/methodology/page.tsx) are intentionally
-// omitted here so the catch-all doesn't shadow them. Remaining entries render the placeholder.
-export const siteRoutes: Record<string, { title: string; description: string }> = {
-  "/x402": {
-    title: "x402",
-    description: "The HTTP 402 payment standard for autonomous agents.",
-  },
-  "/erc-8004": {
-    title: "ERC-8004",
-    description: "Ethereum agent-to-agent transactions.",
-  },
-  "/virtuals-acp": {
-    title: "Virtuals ACP",
-    description: "The Agent Commerce Protocol.",
-  },
-  "/olas": {
-    title: "Olas",
-    description: "Autonomous agent network.",
-  },
-  "/tempo-mpp": {
-    title: "Tempo MPP",
-    description: "Multi-Party Payment Protocol.",
-  },
-};
