@@ -19,7 +19,7 @@ const SCHEMA = [
   { key: "virtualsAcp", what: "Agent Commerce Protocol — memo throughput between agents, daily." },
   { key: "erc8004Registry", what: "On-chain agent registry — agents registered per chain, daily." },
   { key: "baseAgentic", what: "Agentic activity on Base — consumer vs. infrastructure split, daily." },
-  { key: "tempoMpp", what: "Multi-Party Payment channels — events by type, unique payers/payees, daily." },
+  { key: "tempoMpp", what: "Machine Payments Protocol — channel events by type, unique payers/payees, daily." },
   { key: "sources", what: "Provenance for every series — where each number is indexed from." },
   { key: "updatedAt", what: "Timestamp of the last refresh." },
 ];
