@@ -15,13 +15,13 @@ export const metadata: Metadata = {
 // Top-level shape of agenteconomy.to/data.json. Descriptions are the data fields
 // each key holds — what each protocol *is* lives on its own page (linked via href).
 const SCHEMA: { key: string; what: string; href?: string }[] = [
-  { key: "x402", href: "/x402", what: "Settled volume, facilitators, per-app market share, plus monthly and daily series." },
+  { key: "x402", href: "/x402", what: "Transactions, settled volume, facilitators, market share, and monthly / daily / per-chain series." },
   { key: "olas", href: "/olas", what: "Total transactions, a per-chain breakdown, and a weekly series." },
-  { key: "virtualsAcp", href: "/virtuals-acp", what: "Memo throughput between agents, daily." },
-  { key: "erc8004Registry", href: "/erc-8004", what: "Agents registered, per chain and daily." },
-  { key: "baseAgentic", what: "Consumer vs. infrastructure transaction split on Base, daily." },
-  { key: "tempoMpp", href: "/tempo-mpp", what: "Channel events by type, unique payers and payees, daily." },
-  { key: "sources", what: "Provenance for every series — where each number is indexed from." },
+  { key: "virtualsAcp", href: "/virtuals-acp", what: "Total memos, plus daily memos and unique senders." },
+  { key: "erc8004Registry", href: "/erc-8004", what: "Agents registered — total, per chain, and daily." },
+  { key: "baseAgentic", what: "Base transactions, split daily into consumer vs. infrastructure." },
+  { key: "tempoMpp", href: "/tempo-mpp", what: "Channel events, unique payers and payees, a breakdown by type, and a daily series." },
+  { key: "sources", what: "The Dune queries behind the data — name, author, and query ID for each." },
   { key: "updatedAt", what: "Timestamp of the last refresh." },
 ];
 
@@ -97,7 +97,7 @@ export default async function DataPage() {
         <section className="mt-24 border-t border-white/10 pt-12">
           <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">What&apos;s inside</div>
           <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-12">
-            Eight top-level keys — one per tracked standard, plus provenance and a timestamp.
+            Eight top-level keys — five tracked protocols, Base activity, the sources behind them, and a timestamp.
           </p>
           <div className="flex flex-col">
             {SCHEMA.map((row) => (
