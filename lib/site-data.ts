@@ -116,10 +116,6 @@ export const heroSlides: HeroSlide[] = [
 // NOTE: routes with a dedicated page (e.g. app/methodology/page.tsx) are intentionally
 // omitted here so the catch-all doesn't shadow them. Remaining entries render the placeholder.
 export const siteRoutes: Record<string, { title: string; description: string }> = {
-  "/about": {
-    title: "About",
-    description: "agent economy is the data authority for on-chain agentic payments.",
-  },
   "/x402": {
     title: "x402",
     description: "The HTTP 402 payment standard for autonomous agents.",
