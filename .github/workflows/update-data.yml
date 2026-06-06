@@ -24,6 +24,7 @@ jobs:
           node-version: '24'
 
       - name: Fetch Dune data
+        id: fetch-data
         env:
           DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
         run: node scripts/fetch-data.js
@@ -61,3 +62,11 @@ jobs:
               ;;
           esac
           curl --connect-timeout 10 --max-time 30 -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL"
+
+      # Freshness SLA gate — runs AFTER commit/deploy so stale-but-honest data
+      # still ships; the red run is the signal that a human needs to look.
+      - name: Freshness SLA gate
+        if: steps.fetch-data.outputs.sla_breach == 'true'
+        run: |
+          echo "::error::A data source breached its freshness SLA. See 'Fetch Dune data' logs for details."
+          exit 1

@@ -91,8 +91,9 @@ export function getFreshness(updatedAt, loadState) {
   const updated = new Date(updatedAt)
   if (Number.isNaN(updated.getTime())) return { label: 'Unknown freshness', tone: 'warn' }
   const hours = (Date.now() - updated.getTime()) / 36e5
-  if (hours > 12) return { label: 'Stale data', tone: 'warn' }
-  if (hours > 6) return { label: 'Cached data', tone: 'ok' }
+  // The pipeline refreshes daily; data under ~26h old is as fresh as it gets.
+  if (hours > 30) return { label: 'Stale data', tone: 'warn' }
+  if (hours > 26) return { label: 'Cached data', tone: 'ok' }
   return { label: 'Live data', tone: 'ok' }
 }
 
@@ -106,6 +107,19 @@ export function shortDate(updatedAt) {
       timeZone: 'UTC',
       timeZoneName: 'short',
     })
+  } catch {
+    return ''
+  }
+}
+
+// Compact per-section freshness suffix, e.g. " \u00b7 as of Jun 6". Sections show
+// the execution time of their own Dune query (data.json meta), not the build time.
+export function asOfLabel(iso) {
+  if (!iso) return ''
+  try {
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return ''
+    return ` \u00b7 as of ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}`
   } catch {
     return ''
   }

@@ -1,12 +1,25 @@
-// scripts/fetch-data.js
-// Fetches cached results from Dune queries + (future) Tempo RPC.
+// scripts/fetch-data.js — Dune data pipeline v3
+//
+// Design (2026-06-06 rework after free-tier credit exhaustion):
+//   1. Probe before download: a limit=1 request tells us the latest execution_id.
+//      If it matches what data.json already embeds, we reuse the existing section
+//      and download nothing (API reads bill by the MB).
+//   2. Sequential executions: free plan allows 1 concurrent SQL query, so fresh
+//      executions run one at a time, prioritized by how overdue each query is.
+//   3. Per-source freshness SLA: a transient failure falls back to the newest
+//      usable data with a warning; the run only goes red (via the workflow SLA
+//      gate) when a source breaches its SLA — i.e. when a human needs to act.
+//   4. Monotonicity: cumulative metrics must not shrink vs the previous build;
+//      a >2% drop means the upstream query changed and needs human review.
+//
 // Run: DUNE_API_KEY=xxx node scripts/fetch-data.js
 
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, appendFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const OUT_DIR = process.env.DATA_OUT_DIR || join(__dirname, '..', 'public')
 const API_KEY = process.env.DUNE_API_KEY
 
 if (!API_KEY) {
@@ -14,40 +27,116 @@ if (!API_KEY) {
   process.exit(1)
 }
 
-const headers = { 'x-dune-api-key': API_KEY }
-
 const DUNE_API_BASE = process.env.DUNE_API_BASE || 'https://api.dune.com/api/v1'
-const CACHE_MAX_AGE_HOURS = Number(process.env.DUNE_CACHE_MAX_AGE_HOURS || 5)
-const REFRESH_MODE = process.env.DUNE_REFRESH_MODE || 'stale' // stale | always | never
 const EXECUTION_TIMEOUT_MS = Number(process.env.DUNE_EXECUTION_TIMEOUT_MS || 15 * 60 * 1000)
 const POLL_INTERVAL_MS = Number(process.env.DUNE_POLL_INTERVAL_MS || 5000)
-let remainingExecutions = Number(process.env.DUNE_MAX_EXECUTIONS_PER_RUN || 1)
+const RETRY_DELAY_MS = Number(process.env.DUNE_RETRY_DELAY_MS || 15000)
+// Free/community accounts can only execute on the `small` engine (community
+// cluster, 2-min timeout) — `medium`/`large` are rejected with "Invalid
+// performance tier". Verified 2026-06-06 on the project's free API key. This is
+// also why the incremental fork is mandatory: a full-history rescan cannot
+// finish inside small's 2-min cap regardless of credits.
+const PERFORMANCE = process.env.DUNE_PERFORMANCE || 'small'
+const MAX_EXECUTIONS = Number(process.env.DUNE_MAX_EXECUTIONS_PER_RUN || 3)
 
+const headers = { 'x-dune-api-key': API_KEY }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+// ── Query registry ───────────────────────────────────────────
+// maxAgeHours: refresh when older than this (cadence follows the data's own
+//   granularity — Olas is weekly data, the registry moves slowly).
+// slaHours: red line. Falling back to cached/previous data is fine until the
+//   effective data age crosses this; then the workflow SLA gate fails the run.
+// Query ids are env-overridable so swapping in our incremental forks is a
+//   config change, not a code change.
+const QUERIES = [
+  {
+    key: 'x402Cumulative',
+    id: Number(process.env.DUNE_QID_X402_CUMULATIVE || 6058135),
+    limit: 1000,
+    maxAgeHours: 20,
+    slaHours: 54,
+    label: 'x402 cumulative',
+  },
+  {
+    key: 'x402Daily',
+    id: Number(process.env.DUNE_QID_X402_DAILY || 6084845),
+    limit: 5000,
+    maxAgeHours: 20,
+    slaHours: 54,
+    label: 'x402 daily',
+  },
+  {
+    key: 'baseAgentic',
+    id: Number(process.env.DUNE_QID_BASE_AGENTIC || 6731879),
+    limit: 5000,
+    maxAgeHours: 20,
+    slaHours: 54,
+    label: 'ERC-8004 Base agentic',
+  },
+  {
+    key: 'virtualsAcp',
+    id: Number(process.env.DUNE_QID_VIRTUALS_ACP || 6200422),
+    limit: 1000,
+    maxAgeHours: 20,
+    slaHours: 54,
+    label: 'Virtuals ACP',
+  },
+  {
+    key: 'erc8004Registry',
+    id: Number(process.env.DUNE_QID_REGISTRY || 6130922),
+    limit: 5000,
+    maxAgeHours: 40,
+    slaHours: 120,
+    label: 'ERC-8004 registry',
+  },
+  {
+    key: 'olas',
+    id: Number(process.env.DUNE_QID_OLAS || 3344834),
+    limit: 5000,
+    maxAgeHours: 156,
+    slaHours: 360,
+    label: 'Olas (weekly data)',
+  },
+]
+
+// ── HTTP ─────────────────────────────────────────────────────
 async function duneRequest(path, options = {}) {
   const url = path.startsWith('http') ? path : `${DUNE_API_BASE}${path}`
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...headers,
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(options.headers || {}),
-    },
-  })
-  const text = await res.text()
-  let json = {}
-  if (text) {
-    try { json = JSON.parse(text) }
-    catch { json = { raw: text } }
-  }
-  if (!res.ok) {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(options.headers || {}),
+      },
+    })
+    const text = await res.text()
+    let json = {}
+    if (text) {
+      try { json = JSON.parse(text) }
+      catch { json = { raw: text } }
+    }
+    if (res.ok) return json
     const message = json?.error?.message || json?.message || text || `HTTP ${res.status}`
-    throw new Error(message)
+    const retryable = res.status === 429 || res.status >= 500
+    if (retryable && attempt < 3) {
+      console.warn(`Dune API ${res.status} on ${path}; retrying in ${RETRY_DELAY_MS / 1000}s (attempt ${attempt}/2)`)
+      await sleep(RETRY_DELAY_MS)
+      continue
+    }
+    const error = new Error(message)
+    error.status = res.status
+    throw error
   }
-  return json
 }
 
+function isQuotaError(error) {
+  return /datapoint limit|billing cycle|subscription settings|configured datapoint|monthly limit|quota|credit/i.test(error?.message || '')
+}
+
+// ── Helpers ──────────────────────────────────────────────────
 function getExecutionEndedAt(payload) {
   return payload?.execution_ended_at || payload?.submitted_at || null
 }
@@ -57,12 +146,6 @@ function ageHours(isoString) {
   const time = Date.parse(isoString)
   if (!Number.isFinite(time)) return Infinity
   return (Date.now() - time) / 36e5
-}
-
-function shouldExecute(latestResult) {
-  if (REFRESH_MODE === 'always') return true
-  if (REFRESH_MODE === 'never') return false
-  return ageHours(getExecutionEndedAt(latestResult)) > CACHE_MAX_AGE_HOURS
 }
 
 function resultRows(payload, context) {
@@ -86,74 +169,11 @@ function assertRowShape(rows, requiredKeys, label) {
   }
 }
 
-function isRateLimitError(error) {
-  return /too many requests|rate limit|http 429/i.test(error?.message || '')
-}
-
-function isQuotaError(error) {
-  return /datapoint limit|billing cycle|subscription settings|configured datapoint|monthly limit|quota/i.test(error?.message || '')
-}
-
 function readExistingData() {
   try {
-    const dataPath = join(__dirname, '..', 'public', 'data.json')
-    return JSON.parse(readFileSync(dataPath, 'utf8'))
+    return JSON.parse(readFileSync(join(OUT_DIR, 'data.json'), 'utf8'))
   } catch {
     return null
-  }
-}
-
-async function getExecutionResult(executionId, limit) {
-  return duneRequest(`/execution/${executionId}/results?limit=${limit}&allow_partial_results=true`)
-}
-
-async function executeAndWait(queryId, limit) {
-  const started = await duneRequest(`/query/${queryId}/execute`, {
-    method: 'POST',
-    body: JSON.stringify({ performance: process.env.DUNE_PERFORMANCE || 'medium' }),
-  })
-  const executionId = started.execution_id
-  if (!executionId) throw new Error(`Dune ${queryId}: execute response missing execution_id`)
-
-  const startedAt = Date.now()
-  while (Date.now() - startedAt < EXECUTION_TIMEOUT_MS) {
-    const status = await duneRequest(`/execution/${executionId}/status`)
-    if (status.state === 'QUERY_STATE_COMPLETED' || status.state === 'QUERY_STATE_COMPLETED_PARTIAL') {
-      return getExecutionResult(executionId, limit)
-    }
-    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_EXPIRED') {
-      const detail = status?.error?.message || status.state
-      throw new Error(`Dune ${queryId}: execution ${executionId} ${detail}`)
-    }
-    await sleep(POLL_INTERVAL_MS)
-  }
-  throw new Error(`Dune ${queryId}: execution timed out after ${Math.round(EXECUTION_TIMEOUT_MS / 1000)}s`)
-}
-
-async function fetchQuery(queryId, limit = 1000) {
-  const latest = await duneRequest(`/query/${queryId}/results?limit=${limit}&allow_partial_results=true`)
-  const endedAt = getExecutionEndedAt(latest)
-  const latestAge = ageHours(endedAt)
-
-  if (!shouldExecute(latest)) {
-    console.log(`Dune ${queryId}: using latest result from ${endedAt || 'unknown time'} (${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old)`)
-    return resultRows(latest, `Dune ${queryId} latest result`)
-  }
-
-  if (remainingExecutions <= 0) {
-    console.warn(`Dune ${queryId}: latest result is ${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old, but DUNE_MAX_EXECUTIONS_PER_RUN budget is exhausted; using cached latest result`)
-    return resultRows(latest, `Dune ${queryId} latest result`)
-  }
-  remainingExecutions -= 1
-
-  console.log(`Dune ${queryId}: latest result is ${Number.isFinite(latestAge) ? latestAge.toFixed(1) : 'unknown'}h old; executing fresh query`)
-  try {
-    const fresh = await executeAndWait(queryId, limit)
-    return resultRows(fresh, `Dune ${queryId} fresh execution`)
-  } catch (error) {
-    if (!isRateLimitError(error) && !isQuotaError(error)) throw error
-    console.warn(`Dune ${queryId}: fresh execution was rate/quota limited; using cached latest result instead`)
-    return resultRows(latest, `Dune ${queryId} latest result`)
   }
 }
 
@@ -165,93 +185,79 @@ const PROTOCOL_COLORS = {
   'Corbits': '#84CC16', 'X402rs': '#64748B', 'AurraCloud': '#06B6D4',
   'Questflow': '#8B5CF6', 'Polygon': '#8247E5', 'Virtuals Protocol': '#22C55E',
 }
-const FALLBACK_COLORS = ['#6366F1','#10B981','#F59E0B','#A855F7','#14B8A6','#EC4899','#F97316','#64748B']
+const FALLBACK_COLORS = ['#6366F1', '#10B981', '#F59E0B', '#A855F7', '#14B8A6', '#EC4899', '#F97316', '#64748B']
 const getColor = (name, idx) => PROTOCOL_COLORS[name] || FALLBACK_COLORS[idx % FALLBACK_COLORS.length]
 const safeNum = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n }
+const chainName = n => ({ bnb: 'BNB', opbnb: 'opBNB', megaeth: 'MegaETH', avalanche_c: 'Avalanche' }[n] || n.charAt(0).toUpperCase() + n.slice(1))
+const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
 
-async function main() {
-  console.log('Fetching Dune queries...\n')
-  console.log(`Dune refresh mode: ${REFRESH_MODE}; max cache age: ${CACHE_MAX_AGE_HOURS}h\n`)
-  console.log(`Dune fresh execution budget: ${remainingExecutions} per run\n`)
-  const existingData = readExistingData()
-  const requiredFailures = []
-  const reusedExistingSections = []
-  const recordRequiredFailure = (label, error) => {
-    const message = error.message
-    requiredFailures.push({ label, message, isQuota: isQuotaError(error) })
-    console.warn(`${label} failed:`, error.message)
-  }
-  const reuseExistingSection = (label, sectionName, error) => {
-    if (!isQuotaError(error) || !existingData?.[sectionName]) return false
-    reusedExistingSections.push({ label, sectionName, message: error.message })
-    console.warn(`${label} failed due to Dune quota; reusing existing ${sectionName} data`)
-    return true
-  }
-  const captureQuery = promise => promise.then(rows => ({ rows }), error => ({ error }))
-  const readQuery = async query => {
-    const result = await query
-    if (result.error) throw result.error
-    return result.rows
-  }
-
-  // Start all Dune calls up front so fresh executions run in parallel instead of serially.
-  const queries = {
-    q6058135: captureQuery(fetchQuery(6058135, 1000)),
-    q6084845: captureQuery(fetchQuery(6084845, 1000)),
-    q6731879: captureQuery(fetchQuery(6731879, 5000)),
-    q6200422: captureQuery(fetchQuery(6200422, 1000)),
-    q6130922: captureQuery(fetchQuery(6130922, 5000)),
-    q3344834: captureQuery(fetchQuery(3344834, 5000)),
-  }
-
-  // ── Q1: x402 cumulative + monthly (Query 6058135) ──────────
-  let totalTxs = 0, totalVolume = 0
-  let protocolMap = {}, monthlyMap = {}
-
-  try {
-    const rows = await readQuery(queries.q6058135)
-    assertRowShape(rows, ['cumulative_txn','cumulative_volume','total_txn','total_vol','facilitator','date_time'], 'Q6058135')
-    console.log(`Q6058135 (x402 cumulative): ${rows.length} rows`)
-    if (rows.length > 0) {
-      totalTxs = safeNum(rows[0].cumulative_txn) || totalTxs
-      totalVolume = safeNum(rows[0].cumulative_volume) || totalVolume
-      rows.forEach(row => {
-        const name = row.facilitator || 'Other'
-        if (!protocolMap[name]) protocolMap[name] = { txs: 0, vol: 0 }
-        protocolMap[name].txs += safeNum(row.total_txn)
-        protocolMap[name].vol += safeNum(row.total_vol)
-        const month = (row.date_time || '').slice(0, 7)
-        if (month) {
-          if (!monthlyMap[month]) monthlyMap[month] = { txs: 0, vol: 0 }
-          monthlyMap[month].txs += safeNum(row.total_txn)
-          monthlyMap[month].vol += safeNum(row.total_vol)
-        }
+// ── Per-query parsers: raw rows → fragment ───────────────────
+const PARSERS = {
+  x402Cumulative(rows) {
+    assertRowShape(rows, ['cumulative_txn', 'cumulative_volume', 'total_txn', 'total_vol', 'facilitator', 'date_time'], 'Q x402Cumulative')
+    const protocolMap = {}, monthlyMap = {}
+    const totalTxs = safeNum(rows[0].cumulative_txn)
+    const totalVolume = safeNum(rows[0].cumulative_volume)
+    rows.forEach(row => {
+      const name = row.facilitator || 'Other'
+      if (!protocolMap[name]) protocolMap[name] = { txs: 0, vol: 0 }
+      protocolMap[name].txs += safeNum(row.total_txn)
+      protocolMap[name].vol += safeNum(row.total_vol)
+      const month = (row.date_time || '').slice(0, 7)
+      if (month) {
+        if (!monthlyMap[month]) monthlyMap[month] = { txs: 0, vol: 0 }
+        monthlyMap[month].txs += safeNum(row.total_txn)
+        monthlyMap[month].vol += safeNum(row.total_vol)
+      }
+    })
+    const monthly = Object.entries(monthlyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => {
+        const [year, month] = key.split('-')
+        const label = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('en-US', { month: 'short', year: '2-digit' })
+        return { month: label, txs: Math.round(v.txs), vol: Math.round(v.vol) }
       })
+    const protocolEntries = Object.entries(protocolMap).sort(([, a], [, b]) => b.txs - a.txs)
+    const totalProtoTxs = protocolEntries.reduce((s, [, v]) => s + v.txs, 0) || totalTxs
+    const top6 = protocolEntries.slice(0, 6)
+    const otherTxs = protocolEntries.slice(6).reduce((s, [, v]) => s + v.txs, 0)
+    const protocols = [
+      ...top6.map(([name, v], i) => ({
+        name,
+        share: parseFloat(((v.txs / totalProtoTxs) * 100).toFixed(1)),
+        color: getColor(name, i),
+      })),
+      ...(otherTxs > 0 ? [{ name: 'Other', share: parseFloat(((otherTxs / totalProtoTxs) * 100).toFixed(1)), color: '#6B7280' }] : []),
+    ]
+    return {
+      totalTxs: Math.round(totalTxs),
+      totalVolume: Math.round(totalVolume),
+      facilitatorsTracked: Object.keys(protocolMap).length,
+      monthly,
+      protocols,
     }
-  } catch (e) { recordRequiredFailure('Q6058135', e) }
+  },
 
-  // ── Q2: x402 daily breakdown (Query 6084845) ───────────────
-  let dailyMap = {}
-  try {
-    const rows = await readQuery(queries.q6084845)
-    assertRowShape(rows, ['period','txs'], 'Q6084845')
-    console.log(`Q6084845 (x402 daily): ${rows.length} rows`)
+  x402Daily(rows) {
+    assertRowShape(rows, ['period', 'txs'], 'Q x402Daily')
+    const dailyMap = {}
     rows.forEach(row => {
       const day = (row.period || '').slice(0, 10)
       if (!day) return
       if (!dailyMap[day]) dailyMap[day] = { txs: 0 }
       dailyMap[day].txs += safeNum(row.txs)
     })
-  } catch (e) { recordRequiredFailure('Q6084845', e) }
+    const daily = Object.entries(dailyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-60)
+      .map(([day, v]) => ({ day, txs: Math.round(v.txs) }))
+    return { daily }
+  },
 
-  // ── Q3: ERC-8004 Base Agentic (Query 6731879) ──────────────
-  let agenticDaily = [], agenticTotalTxs = 0
-  try {
-    const rows = await readQuery(queries.q6731879)
-    // Schema changed 2026-05-20: upstream dropped 'Cumulative Transactions' column.
-    // Derive cumulative by summing Daily Transactions across the full returned window.
-    assertRowShape(rows, ['day','category','Daily Transactions'], 'Q6731879')
-    console.log(`Q6731879 (ERC-8004): ${rows.length} rows`)
+  baseAgentic(rows) {
+    // Schema changed 2026-05-20: upstream dropped 'Cumulative Transactions'.
+    // Derive cumulative by summing Daily Transactions across the returned window.
+    assertRowShape(rows, ['day', 'category', 'Daily Transactions'], 'Q baseAgentic')
     const agMap = {}
     rows.forEach(row => {
       const day = row.day || ''
@@ -262,174 +268,334 @@ async function main() {
       if (cat === 'consumer') agMap[day].consumer += txs
       else agMap[day].infrastructure += txs
     })
-    agenticDaily = Object.entries(agMap)
+    const daily = Object.entries(agMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([day, v]) => ({ day, consumer: v.consumer, infrastructure: v.infrastructure, total: v.consumer + v.infrastructure }))
+    return { totalTxs: daily.reduce((sum, d) => sum + d.total, 0), daily }
+  },
 
-    agenticTotalTxs = agenticDaily.reduce((sum, d) => sum + d.total, 0)
-  } catch (e) { recordRequiredFailure('Q6731879', e) }
-
-  // ── Q4: Virtuals ACP memos (Query 6200422) ─────────────────
-  let acpTotalMemos = 0, acpDaily = []
-  try {
-    const rows = await readQuery(queries.q6200422)
-    assertRowShape(rows, ['period','num_of_memo','unique_sender','total_memo'], 'Q6200422')
-    console.log(`Q6200422 (Virtuals ACP): ${rows.length} rows`)
-
-    // Rows are per-day per-version (v1, v2). Merge by day.
+  virtualsAcp(rows) {
+    assertRowShape(rows, ['period', 'num_of_memo', 'unique_sender', 'total_memo'], 'Q virtualsAcp')
+    // Rows are per-day per-version (v1, v2). Merge by day; total_memo is cumulative.
     const acpMap = {}
     let maxTotalMemo = 0
-
     rows.forEach(row => {
       const day = (row.period || '').slice(0, 10)
       if (!day) return
       if (!acpMap[day]) acpMap[day] = { memos: 0, senders: 0 }
       acpMap[day].memos += safeNum(row.num_of_memo)
       acpMap[day].senders = Math.max(acpMap[day].senders, safeNum(row.unique_sender))
-
-      // total_memo is cumulative — take the highest value across all rows
       const tm = safeNum(row.total_memo)
       if (tm > maxTotalMemo) maxTotalMemo = tm
     })
-
-    acpTotalMemos = maxTotalMemo
-    acpDaily = Object.entries(acpMap)
+    const daily = Object.entries(acpMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-90)
       .map(([day, v]) => ({ day, memos: v.memos, senders: v.senders }))
-  } catch (e) { recordRequiredFailure('Q6200422', e) }
+    return { totalMemos: maxTotalMemo, daily }
+  },
 
-  // ── Q5: Tempo/MPP (from public/tempo-data.json if present) ──
-  let tempoTotalEvents = 0, tempoDaily = [], tempoByType = {}, tempoPayers = 0, tempoPayees = 0
-  try {
-    const tempoPath = join(__dirname, '..', 'public', 'tempo-data.json')
-    const raw = readFileSync(tempoPath, 'utf8')
-    const td = JSON.parse(raw)
-    tempoTotalEvents = td.totalEvents || 0
-    tempoPayers = td.uniquePayers || 0
-    tempoPayees = td.uniquePayees || 0
-    tempoByType = td.byType || {}
-    tempoDaily = (td.daily || []).slice(-90)
-    console.log(`Tempo data:  ${tempoTotalEvents.toLocaleString()} events, ${tempoPayers} payers, ${tempoPayees} payees`)
-  } catch (e) { console.log('Tempo data:  not found (public/tempo-data.json), skipping') }
-
-  // ── Q6: ERC-8004 Multi-chain Registry (Query 6130922) ──
-  const chainName = n => ({ bnb: 'BNB', opbnb: 'opBNB', megaeth: 'MegaETH', avalanche_c: 'Avalanche' }[n] || n.charAt(0).toUpperCase() + n.slice(1))
-  const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
-  let erc8004Chains = {}, erc8004Daily = {}, erc8004TotalAgents = 0
-  let erc8004RegistryFallback = null
-  try {
-    const rows = await readQuery(queries.q6130922)
-    assertRowShape(rows, ['blockchain','block_date','registered'], 'Q6130922')
-    console.log(`Q6130922 (ERC-8004 registry): ${rows.length} rows`)
+  erc8004Registry(rows) {
+    assertRowShape(rows, ['blockchain', 'block_date', 'registered'], 'Q erc8004Registry')
+    const chains = {}, dailyMap = {}
     rows.forEach(row => {
       const chain = row.blockchain || ''
       if (TESTNETS.has(chain)) return
       const day = (row.block_date || '').slice(0, 10)
       const reg = safeNum(row.registered)
       const name = chainName(chain)
-      if (!erc8004Chains[name]) erc8004Chains[name] = 0
-      erc8004Chains[name] += reg
+      if (!chains[name]) chains[name] = 0
+      chains[name] += reg
       if (day) {
-        if (!erc8004Daily[day]) erc8004Daily[day] = 0
-        erc8004Daily[day] += reg
+        if (!dailyMap[day]) dailyMap[day] = 0
+        dailyMap[day] += reg
       }
     })
-    erc8004TotalAgents = Object.values(erc8004Chains).reduce((s, v) => s + v, 0)
-  } catch (e) {
-    if (reuseExistingSection('Q6130922', 'erc8004Registry', e)) {
-      erc8004RegistryFallback = existingData.erc8004Registry
-    } else {
-      recordRequiredFailure('Q6130922', e)
+    return {
+      totalAgents: Object.values(chains).reduce((s, v) => s + v, 0),
+      chainsTracked: Object.keys(chains).length,
+      chains: Object.entries(chains)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 12)
+        .map(([name, agents]) => ({ name, agents })),
+      daily: Object.entries(dailyMap)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .slice(-90)
+        .map(([day, agents]) => ({ day, agents })),
     }
-  }
+  },
 
-  // ── Q7: Olas / Autonolas (Query 3344834) ───────────────
-  let olasTotalTxs = 0, olasChains = {}, olasWeekly = []
-  try {
-    const rows = await readQuery(queries.q3344834)
-    assertRowShape(rows, ['time','chain','total_weekly_transactions_number','global_cumulative_transactions_number'], 'Q3344834')
-    console.log(`Q3344834 (Olas): ${rows.length} rows`)
+  olas(rows) {
+    assertRowShape(rows, ['time', 'chain', 'total_weekly_transactions_number', 'global_cumulative_transactions_number'], 'Q olas')
     const latest = rows.reduce((best, r) => (r.time || '') > (best.time || '') ? r : best, {})
-    olasTotalTxs = safeNum(latest.global_cumulative_transactions_number)
-    const weekMap = {}
+    const chains = {}, weekMap = {}
     rows.forEach(row => {
       const week = (row.time || '').slice(0, 10)
       const chain = row.chain || ''
       const txs = safeNum(row.total_weekly_transactions_number)
       const name = chainName(chain)
-      if (!olasChains[name]) olasChains[name] = 0
-      olasChains[name] += txs
+      if (!chains[name]) chains[name] = 0
+      chains[name] += txs
       if (week) {
         if (!weekMap[week]) weekMap[week] = { txs: 0 }
         weekMap[week].txs += txs
       }
     })
-    olasWeekly = Object.entries(weekMap)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-52)
-      .map(([week, v]) => ({ week, txs: v.txs }))
-  } catch (e) { recordRequiredFailure('Q3344834', e) }
-
-  if (requiredFailures.length > 0) {
-    const formattedFailures = requiredFailures.map(f => `${f.label}: ${f.message}`).join('\n- ')
-    if (requiredFailures.every(f => f.isQuota)) {
-      console.warn(`::warning::Dune billing/datapoint quota blocked required queries. Keeping existing public/data.json unchanged instead of writing partial data.\n- ${formattedFailures}`)
-      return
+    return {
+      totalTxs: safeNum(latest.global_cumulative_transactions_number),
+      chains: Object.entries(chains)
+        .sort(([, a], [, b]) => b - a)
+        .map(([name, txs]) => ({ name, txs })),
+      weekly: Object.entries(weekMap)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .slice(-52)
+        .map(([week, v]) => ({ week, txs: v.txs })),
     }
-    throw new Error(`Required Dune queries failed; refusing to write a fresh data.json with fallback or partial data.\n- ${formattedFailures}`)
+  },
+}
+
+// Rebuild a fragment from the previous data.json (used when the upstream
+// execution is unchanged, or as a fallback after a failed refresh).
+const REUSERS = {
+  x402Cumulative: d => d?.x402 && {
+    totalTxs: d.x402.totalTxs,
+    totalVolume: d.x402.totalVolume,
+    facilitatorsTracked: d.x402.facilitatorsTracked,
+    monthly: d.x402.monthly,
+    protocols: d.x402.protocols,
+  },
+  x402Daily: d => (d?.x402?.daily ? { daily: d.x402.daily } : null),
+  baseAgentic: d => d?.baseAgentic || null,
+  virtualsAcp: d => d?.virtualsAcp || null,
+  erc8004Registry: d => d?.erc8004Registry || null,
+  olas: d => d?.olas || null,
+}
+
+// Cumulative metrics that must never shrink: fragment field → label.
+const MONOTONIC = {
+  x402Cumulative: [['totalTxs', 'x402 total txs'], ['totalVolume', 'x402 total volume']],
+  virtualsAcp: [['totalMemos', 'ACP total memos']],
+  olas: [['totalTxs', 'Olas total txs']],
+}
+
+// ── Execution (sequential: free plan = 1 concurrent query) ───
+async function executeAndWait(query) {
+  const started = await duneRequest(`/query/${query.id}/execute`, {
+    method: 'POST',
+    body: JSON.stringify({ performance: PERFORMANCE }),
+  })
+  const executionId = started.execution_id
+  if (!executionId) throw new Error(`Dune ${query.id}: execute response missing execution_id`)
+  const startedAt = Date.now()
+  while (Date.now() - startedAt < EXECUTION_TIMEOUT_MS) {
+    const status = await duneRequest(`/execution/${executionId}/status`)
+    if (status.state === 'QUERY_STATE_COMPLETED' || status.state === 'QUERY_STATE_COMPLETED_PARTIAL') {
+      return duneRequest(`/execution/${executionId}/results?limit=${query.limit}&allow_partial_results=true`)
+    }
+    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_EXPIRED') {
+      const detail = status?.error?.message || status.state
+      throw new Error(`Dune ${query.id}: execution ${executionId} ${detail}`)
+    }
+    await sleep(POLL_INTERVAL_MS)
+  }
+  throw new Error(`Dune ${query.id}: execution timed out after ${Math.round(EXECUTION_TIMEOUT_MS / 1000)}s`)
+}
+
+// ── Main ─────────────────────────────────────────────────────
+async function main() {
+  console.log('Dune pipeline v3')
+  console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE}\n`)
+
+  const existing = readExistingData()
+  const prevMeta = existing?.meta?.queries || {}
+  const warnings = []
+  const hardFailures = []
+
+  // Phase 1 — probe every query (limit=1, KB-scale read).
+  const states = []
+  for (const query of QUERIES) {
+    const state = { query, probe: null, probeError: null }
+    try {
+      state.probe = await duneRequest(`/query/${query.id}/results?limit=1&allow_partial_results=true`)
+      if (state.probe?.error) {
+        state.probeError = new Error(`latest execution failed: ${state.probe.error.message || JSON.stringify(state.probe.error)}`)
+        state.probe = null
+      }
+    } catch (error) {
+      state.probeError = error
+    }
+    if (state.probe) {
+      state.latestId = state.probe.execution_id || null
+      state.latestEndedAt = getExecutionEndedAt(state.probe)
+      state.latestAge = ageHours(state.latestEndedAt)
+    } else {
+      state.latestAge = Infinity
+      console.warn(`probe ${query.label}: ${state.probeError.message}`)
+    }
+    states.push(state)
   }
 
-  // ── Build monthly data ─────────────────────────────────────
-  const monthly = Object.entries(monthlyMap)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, v]) => {
-      const [year, month] = key.split('-')
-      const label = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('en-US', { month: 'short', year: '2-digit' })
-      return { month: label, txs: Math.round(v.txs), vol: Math.round(v.vol) }
-    })
-  const finalMonthly = monthly
+  // Phase 2 — decide refreshes, most-overdue first, strictly sequential.
+  const dueStates = states
+    .filter(s => s.latestAge > s.query.maxAgeHours)
+    .sort((a, b) => (b.latestAge / b.query.maxAgeHours) - (a.latestAge / a.query.maxAgeHours))
+  let executionsUsed = 0
+  for (const state of dueStates) {
+    if (executionsUsed >= MAX_EXECUTIONS) {
+      console.warn(`${state.query.label}: due for refresh but execution budget (${MAX_EXECUTIONS}) is spent; using newest available data`)
+      continue
+    }
+    const ageLabel = Number.isFinite(state.latestAge) ? `${state.latestAge.toFixed(1)}h old` : 'unavailable'
+    console.log(`${state.query.label}: latest result ${ageLabel}; executing fresh (engine ${PERFORMANCE})`)
+    executionsUsed += 1
+    try {
+      state.execResult = await executeAndWait(state.query)
+      state.execId = state.execResult.execution_id || null
+      state.execEndedAt = getExecutionEndedAt(state.execResult) || new Date().toISOString()
+    } catch (error) {
+      state.execError = error
+      const kind = isQuotaError(error) ? 'quota' : 'execution'
+      warnings.push(`${state.query.label}: fresh ${kind} failure (${error.message}); falling back to newest available data`)
+      console.warn(warnings[warnings.length - 1])
+    }
+  }
 
-  // ── Build x402 daily (last 60 days) ────────────────────────
-  const daily = Object.entries(dailyMap)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-60)
-    .map(([day, v]) => ({ day, txs: Math.round(v.txs) }))
+  // Phase 3 — materialize fragments, downloading only what changed.
+  const fragments = {}
+  const metaOut = {}
+  const fragmentSources = {}
+  for (const state of states) {
+    const { query } = state
+    const prev = prevMeta[query.key]
+    let rows = null
+    let source = null
+    let executionId = null
+    let executedAt = null
 
-  // ── Build protocol shares ──────────────────────────────────
-  const protocolEntries = Object.entries(protocolMap).sort(([, a], [, b]) => b.txs - a.txs)
-  const totalProtoTxs = protocolEntries.reduce((s, [, v]) => s + v.txs, 0) || totalTxs
-  const top6 = protocolEntries.slice(0, 6)
-  const otherTxs = protocolEntries.slice(6).reduce((s, [, v]) => s + v.txs, 0)
-  const protocols = [
-    ...top6.map(([name, v], i) => ({
-      name,
-      share: parseFloat(((v.txs / totalProtoTxs) * 100).toFixed(1)),
-      color: getColor(name, i),
-    })),
-    ...(otherTxs > 0 ? [{ name: 'Other', share: parseFloat(((otherTxs / totalProtoTxs) * 100).toFixed(1)), color: '#6B7280' }] : [])
-  ]
-  const finalProtocols = protocols
+    try {
+      if (state.execResult) {
+        rows = resultRows(state.execResult, `${query.label} fresh execution`)
+        source = 'execution'
+        executionId = state.execId
+        executedAt = state.execEndedAt
+      } else if (state.probe && prev && state.latestId && prev.executionId === state.latestId) {
+        const fragment = REUSERS[query.key](existing)
+        if (fragment) {
+          fragments[query.key] = fragment
+          metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt }
+          fragmentSources[query.key] = 'unchanged'
+          console.log(`${query.label}: unchanged (execution ${state.latestId}); skipping download`)
+          continue
+        }
+        // data.json lacked the section (e.g. schema evolution) — fall through to a full fetch.
+      }
 
-  // ── Assemble output ────────────────────────────────────────
+      if (!rows && state.probe) {
+        const full = await duneRequest(`/query/${query.id}/results?limit=${query.limit}&allow_partial_results=true`)
+        rows = resultRows(full, `${query.label} latest result`)
+        source = 'latest'
+        executionId = full.execution_id || state.latestId
+        executedAt = getExecutionEndedAt(full) || state.latestEndedAt
+      }
+
+      if (rows) {
+        if (rows.length >= query.limit) {
+          warnings.push(`${query.label}: returned exactly limit=${query.limit} rows — possible truncation, verify upstream ordering`)
+          console.warn(warnings[warnings.length - 1])
+        }
+        fragments[query.key] = PARSERS[query.key](rows)
+        metaOut[query.key] = { queryId: query.id, executionId, executedAt }
+        fragmentSources[query.key] = source
+        console.log(`${query.label}: ${rows.length} rows (${source})`)
+        continue
+      }
+
+      // No fresh data and no readable latest result — reuse the previous build.
+      const fragment = REUSERS[query.key](existing)
+      if (fragment && prev) {
+        fragments[query.key] = fragment
+        metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt }
+        fragmentSources[query.key] = 'previous-build'
+        warnings.push(`${query.label}: Dune unreachable (${state.probeError?.message || 'no data'}); reusing previous build`)
+        console.warn(warnings[warnings.length - 1])
+        continue
+      }
+      throw state.probeError || new Error(`${query.label}: no data available from any source`)
+    } catch (error) {
+      hardFailures.push(`${query.label}: ${error.message}`)
+      console.error(`${query.label} FAILED: ${error.message}`)
+    }
+  }
+
+  if (hardFailures.length > 0) {
+    throw new Error(`No usable data for required queries:\n- ${hardFailures.join('\n- ')}`)
+  }
+
+  // Phase 4 — monotonicity: cumulative metrics must not shrink.
+  for (const [key, checks] of Object.entries(MONOTONIC)) {
+    if (fragmentSources[key] !== 'execution' && fragmentSources[key] !== 'latest') continue
+    const prevFragment = REUSERS[key](existing)
+    if (!prevFragment) continue
+    for (const [field, label] of checks) {
+      const oldV = safeNum(prevFragment[field])
+      const newV = safeNum(fragments[key][field])
+      if (oldV > 0 && newV < oldV) {
+        const dropPct = ((oldV - newV) / oldV) * 100
+        const msg = `${label} shrank ${dropPct.toFixed(2)}% (${oldV.toLocaleString()} → ${newV.toLocaleString()})`
+        if (dropPct > 2) throw new Error(`Monotonicity violation (refusing to write): ${msg} — upstream query likely changed, needs review`)
+        warnings.push(`${msg} — within 2% tolerance, accepting (likely upstream restatement)`)
+        console.warn(warnings[warnings.length - 1])
+      }
+    }
+  }
+
+  // Phase 5 — Tempo/MPP from local file (pushed by the Tempo indexer).
+  let tempoMpp = existing?.tempoMpp || { totalEvents: 0, uniquePayers: 0, uniquePayees: 0, byType: {}, daily: [] }
+  try {
+    const td = JSON.parse(readFileSync(join(OUT_DIR, 'tempo-data.json'), 'utf8'))
+    tempoMpp = {
+      totalEvents: td.totalEvents || 0,
+      uniquePayers: td.uniquePayers || 0,
+      uniquePayees: td.uniquePayees || 0,
+      byType: td.byType || {},
+      daily: (td.daily || []).slice(-90),
+    }
+  } catch { console.log('Tempo data: public/tempo-data.json not found, keeping previous values') }
+
+  // Phase 6 — assemble. Per-section asOf = the execution time of the data it
+  // shows (x402 combines two queries: surface the older stamp, honesty first).
+  const f = fragments
+  const asOf = key => metaOut[key].executedAt || null
+  const olderOf = (a, b) => (!a ? b : !b ? a : (Date.parse(a) <= Date.parse(b) ? a : b))
+  const updatedAt = Object.values(metaOut)
+    .map(m => m.executedAt)
+    .filter(Boolean)
+    .sort()
+    .at(-1) || new Date().toISOString()
+
   const data = {
-    updatedAt: new Date().toISOString(),
+    updatedAt,
+    meta: {
+      schema: 3,
+      queries: metaOut,
+    },
     sources: [
-      { name: 'x402 Payment Analytics', author: '@thechriscen', queryId: 6058135 },
-      { name: 'x402 Analytics', author: '@hashed_official', queryId: 6084845 },
-      { name: 'BASE Agentic Ecosystem', author: '@ax1research', queryId: 6731879 },
-      { name: 'Virtuals ACP', author: '@hashed_official', queryId: 6200422 },
-      { name: 'ERC-8004 Trustless Agents', author: '@hashed_official', queryId: 6130922 },
-      { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: 3344834 },
+      { name: 'x402 Payment Analytics', author: '@thechriscen', queryId: QUERIES[0].id },
+      { name: 'x402 Analytics', author: '@hashed_official', queryId: QUERIES[1].id },
+      { name: 'BASE Agentic Ecosystem', author: '@ax1research', queryId: QUERIES[2].id },
+      { name: 'Virtuals ACP', author: '@hashed_official', queryId: QUERIES[3].id },
+      { name: 'ERC-8004 Trustless Agents', author: '@hashed_official', queryId: QUERIES[4].id },
+      { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: QUERIES[5].id },
     ],
     x402: {
-      totalTxs: Math.round(totalTxs),
-      totalVolume: Math.round(totalVolume),
-      facilitatorsTracked: Object.keys(protocolMap).length || 15,
+      asOf: olderOf(asOf('x402Cumulative'), asOf('x402Daily')),
+      totalTxs: f.x402Cumulative.totalTxs,
+      totalVolume: f.x402Cumulative.totalVolume,
+      facilitatorsTracked: f.x402Cumulative.facilitatorsTracked || 15,
       chainsTracked: 7,
-      monthly: finalMonthly,
-      daily,
-      protocols: finalProtocols,
+      monthly: f.x402Cumulative.monthly,
+      daily: f.x402Daily.daily,
+      protocols: f.x402Cumulative.protocols,
       chains: [
         { name: 'Base',      txs: 72058130, color: '#0052FF' },
         { name: 'Solana',    txs: 47231681, color: '#9945FF' },
@@ -440,45 +606,14 @@ async function main() {
         { name: 'SEI',       txs: 142,      color: '#9D4EDD' },
       ],
     },
-    baseAgentic: {
-      totalTxs: agenticTotalTxs,
-      daily: agenticDaily,
-    },
-    virtualsAcp: {
-      totalMemos: acpTotalMemos,
-      daily: acpDaily,
-    },
-    // Tempo/MPP
-    tempoMpp: {
-      totalEvents: tempoTotalEvents,
-      uniquePayers: tempoPayers,
-      uniquePayees: tempoPayees,
-      byType: tempoByType,
-      daily: tempoDaily,
-    },
-    // ERC-8004 Registry (multi-chain)
-    erc8004Registry: erc8004RegistryFallback || {
-      totalAgents: erc8004TotalAgents,
-      chainsTracked: Object.keys(erc8004Chains).length,
-      chains: Object.entries(erc8004Chains)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 12)
-        .map(([name, agents]) => ({ name, agents })),
-      daily: Object.entries(erc8004Daily)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .slice(-90)
-        .map(([day, agents]) => ({ day, agents })),
-    },
-    // Olas / Autonolas
-    olas: {
-      totalTxs: olasTotalTxs,
-      chains: Object.entries(olasChains)
-        .sort(([,a], [,b]) => b - a)
-        .map(([name, txs]) => ({ name, txs })),
-      weekly: olasWeekly,
-    },
+    baseAgentic: { asOf: asOf('baseAgentic'), ...f.baseAgentic },
+    virtualsAcp: { asOf: asOf('virtualsAcp'), ...f.virtualsAcp },
+    tempoMpp,
+    erc8004Registry: { asOf: asOf('erc8004Registry'), ...f.erc8004Registry },
+    olas: { asOf: asOf('olas'), ...f.olas },
   }
 
+  // Phase 7 — sanity gates (refuse to publish a hollow build).
   const sanityIssues = []
   if (data.x402.totalTxs <= 0) sanityIssues.push('x402.totalTxs is 0')
   if (data.x402.totalVolume <= 0) sanityIssues.push('x402.totalVolume is 0')
@@ -497,22 +632,43 @@ async function main() {
     throw new Error(`Output sanity failed (refusing to write data.json):\n  - ${sanityIssues.join('\n  - ')}`)
   }
 
-  const outPath = join(__dirname, '..', 'public', 'data.json')
-  writeFileSync(outPath, JSON.stringify(data, null, 2))
-  console.log(`\n✓ data.json written`)
-  reusedExistingSections.forEach(section => {
-    console.log(`  reused:       ${section.sectionName} from existing data (${section.label} quota-limited)`)
-  })
-  console.log(`  x402:         ${data.x402.totalTxs.toLocaleString()} txs, $${data.x402.totalVolume.toLocaleString()} vol`)
-  console.log(`  x402:         ${data.x402.protocols.length} protocols, ${data.x402.monthly.length} months, ${data.x402.daily.length} days`)
+  // Phase 8 — freshness SLA. Breaches don't block publishing (stale-but-visible
+  // beats hidden), but they flag the workflow SLA gate so the run goes red.
+  const slaBreaches = []
+  for (const query of QUERIES) {
+    const effectiveAge = ageHours(metaOut[query.key].executedAt)
+    if (effectiveAge > query.slaHours) {
+      slaBreaches.push(`${query.label}: data is ${effectiveAge.toFixed(1)}h old (SLA ${query.slaHours}h)`)
+    }
+  }
+
+  // Phase 9 — write only when something actually changed (keeps git history
+  // and Vercel deploys meaningful).
+  const serialized = JSON.stringify(data, null, 2)
+  const previousSerialized = existing ? JSON.stringify(existing, null, 2) : null
+  const changed = serialized !== previousSerialized
+  if (changed) {
+    writeFileSync(join(OUT_DIR, 'data.json'), serialized)
+    console.log('\n✓ data.json written')
+  } else {
+    console.log('\n— no data changes; skipping write')
+  }
+
+  console.log(`  x402:         ${data.x402.totalTxs.toLocaleString()} txs, $${data.x402.totalVolume.toLocaleString()} vol (as of ${data.x402.asOf})`)
   console.log(`  ERC-8004:     ${data.baseAgentic.totalTxs.toLocaleString()} events, ${data.baseAgentic.daily.length} days`)
   console.log(`  Virtuals ACP: ${data.virtualsAcp.totalMemos.toLocaleString()} memos, ${data.virtualsAcp.daily.length} days`)
   console.log(`  Tempo/MPP:    ${data.tempoMpp.totalEvents.toLocaleString()} events, ${data.tempoMpp.uniquePayers} payers`)
   console.log(`  ERC-8004 Reg: ${data.erc8004Registry.totalAgents.toLocaleString()} agents across ${data.erc8004Registry.chainsTracked} chains`)
   console.log(`  Olas:         ${data.olas.totalTxs.toLocaleString()} txs, ${data.olas.chains.length} chains`)
-  console.log(`  ─────────────`)
-  console.log(`  COMBINED:     ${(data.x402.totalTxs + data.baseAgentic.totalTxs + data.virtualsAcp.totalMemos + data.tempoMpp.totalEvents + data.olas.totalTxs).toLocaleString()} on-chain events`)
-  console.log(`  AGENTS:       ${data.erc8004Registry.totalAgents.toLocaleString()} registered (ERC-8004)`)
+  console.log(`  executions:   ${executionsUsed}; downloads skipped: ${Object.values(fragmentSources).filter(v => v === 'unchanged').length}/${QUERIES.length}`)
+  warnings.forEach(w => console.log(`::warning::${w}`))
+
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\n`)
+  }
+  if (slaBreaches.length > 0) {
+    console.error(`::error::Freshness SLA breached (data published, but needs attention):\n- ${slaBreaches.join('\n- ')}`)
+  }
 }
 
 main().catch(e => { console.error(e); process.exit(1) })

@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { FB, SOURCES } from './data'
 import {
+  asOfLabel,
   BLUE,
   BLUE_L,
   GREEN,
@@ -316,7 +317,7 @@ function X402Section({ x, xTxs, xVol }) {
     <Section
       title="x402 Protocol"
       badge={{ t: 'DOMINANT', bg: 'var(--badge-blue-bg)', c: BLUE }}
-      meta={`${x.facilitatorsTracked} facilitators · ${x.chainsTracked} chains`}
+      meta={`${x.facilitatorsTracked} facilitators · ${x.chainsTracked} chains${asOfLabel(x.asOf)}`}
       explanation="x402 is an open HTTP payment standard using HTTP 402 responses for per-request stablecoin payments. The chart below separates activity trend, facilitator share, and chain concentration."
     >
       <div className="grid g4" style={{ marginBottom: 14 }}>
@@ -476,7 +477,7 @@ function RegistrySection({ ag, erc8004Reg, agTxs, regAgents }) {
     <Section
       title="ERC-8004"
       badge={{ t: 'IDENTITY', bg: 'var(--badge-purple-bg)', c: '#7C3AED' }}
-      meta={`Agent identity · ${erc8004Reg.chainsTracked || 1}+ chains`}
+      meta={`Agent identity · ${erc8004Reg.chainsTracked || 1}+ chains${asOfLabel(erc8004Reg.asOf || ag.asOf)}`}
       explanation="ERC-8004 provides agent identity and reputation primitives. Base activity and multi-chain registry data are shown separately to keep transactions and agent registrations distinct."
     >
       <div className="grid g4" style={{ marginBottom: 14 }}>
@@ -657,7 +658,7 @@ function DashboardPage({ initialData }) {
           kind="acp"
           title="Virtuals ACP"
           badge={{ t: 'ERC-8183', bg: 'var(--badge-green-bg)', c: GREEN }}
-          meta="Agent Commerce · Base"
+          meta={`Agent Commerce · Base${asOfLabel(acp.asOf)}`}
           explanation="ERC-8183 enables trustless agent-to-agent commerce with escrowed payments and evaluator verification. ACP tracks job lifecycle memos across create, deliver, evaluate, and settle."
           totalLabel="Total Memos"
           totalValue={acp.totalMemos || 0}
@@ -708,7 +709,7 @@ function DashboardPage({ initialData }) {
           kind="olas"
           title="Olas / Autonolas"
           badge={{ t: 'AUTONOMOUS', bg: 'var(--badge-green-bg)', c: '#04795B' }}
-          meta={`${olas.chains?.length || 0} chains · Gnosis-dominant`}
+          meta={`${olas.chains?.length || 0} chains · Gnosis-dominant${asOfLabel(olas.asOf)}`}
           explanation="Olas is a decentralized protocol for co-owned autonomous AI agents. It tracks a separate family of autonomous agent transactions from the other standards."
           totalLabel="Total Transactions"
           totalValue={olas.totalTxs || 0}
