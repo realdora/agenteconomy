@@ -79,13 +79,13 @@
 }
 
 .tt-nav-panel-card {
+  align-items: flex-start;
   border-right: 1px solid var(--border-default);
   color: hsl(var(--fg-default));
-  display: grid;
-  gap: 18px;
-  min-height: 250px;
+  display: flex;
+  gap: 16px;
   overflow: hidden;
-  padding: 32px 36px;
+  padding: 22px 26px;
   position: relative;
   text-decoration: none;
 }
@@ -99,61 +99,49 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
+.tt-nav-panel-card-mark {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-default);
+  border-radius: 11px;
+  display: flex;
+  flex: 0 0 auto;
+  height: 44px;
+  justify-content: center;
+  overflow: hidden;
+  width: 44px;
+}
+
+.tt-nav-panel-card-mark img {
+  height: 26px;
+  object-fit: contain;
+  width: 26px;
+}
+
+.tt-nav-panel-card-monogram {
+  color: #00ff88;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.tt-nav-panel-card-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .tt-nav-panel-card-title {
-  font-size: 24px;
+  font-size: 17px;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .tt-nav-panel-card-copy {
   color: hsl(var(--fg-secondary));
-  font-size: 18px;
-  line-height: 1.35;
-  margin-top: 8px;
-}
-
-.tt-nav-panel-card-art {
-  align-self: end;
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  height: 142px;
-  opacity: 0.82;
-  overflow: hidden;
-  position: relative;
-}
-
-.tt-nav-panel-card-art::before {
-  background: linear-gradient(180deg, transparent, hsl(var(--bg-surface)) 88%);
-  content: "";
-  inset: 0;
-  position: absolute;
-}
-
-.tt-nav-panel-card-line {
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  bottom: 24px;
-  height: 56px;
-  left: 36%;
-  position: absolute;
-  right: 28px;
-}
-
-.tt-nav-panel-card-line::before {
-  background: linear-gradient(120deg, transparent 0 18%, rgba(255, 255, 255, 0.08) 18% 20%, transparent 20% 100%);
-  content: "";
-  inset: 0;
-  position: absolute;
-}
-
-.tt-nav-panel-card-orbit {
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  height: 190px;
-  position: absolute;
-  right: 48px;
-  top: 20px;
-  width: 390px;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-top: 4px;
 }
 
 .tt-mobile-menu {

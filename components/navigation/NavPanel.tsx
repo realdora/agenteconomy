@@ -13,14 +13,17 @@ export function NavPanel({ panel, onNavigate }: NavPanelProps) {
       <div className="tt-nav-panel-grid">
         {panel.items.map((item) => (
           <Link key={item.href} href={item.href} className="tt-nav-panel-card group" onClick={onNavigate}>
-            <div className={`tt-nav-panel-card-art bg-gradient-to-t ${item.accent ?? "from-neutral-500/20"} to-transparent`}>
-              <div className="tt-nav-panel-card-line" />
-              <div className="tt-nav-panel-card-orbit" />
-            </div>
-            <div>
-              <div className="tt-nav-panel-card-title">{item.title}</div>
-              <div className="tt-nav-panel-card-copy">{item.description}</div>
-            </div>
+            <span className="tt-nav-panel-card-mark">
+              {item.logo ? (
+                <img src={item.logo} alt="" />
+              ) : (
+                <span className="tt-nav-panel-card-monogram">{item.mark ?? item.title.charAt(0)}</span>
+              )}
+            </span>
+            <span className="tt-nav-panel-card-body">
+              <span className="tt-nav-panel-card-title">{item.title}</span>
+              <span className="tt-nav-panel-card-copy">{item.description}</span>
+            </span>
           </Link>
         ))}
       </div>

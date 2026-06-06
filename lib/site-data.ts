@@ -3,6 +3,8 @@ export type NavPanelItem = {
   description: string;
   href: string;
   accent?: string;
+  logo?: string; // path to an icon logo; falls back to a typographic mark when absent
+  mark?: string; // monogram fallback (defaults to the first character of title)
 };
 
 export type NavPanel = {
@@ -51,7 +53,7 @@ export const navMenus: NavMenu[] = [
         { title: "ERC-8004", description: "Ethereum agent-to-agent transactions", href: "/erc-8004", accent: "from-sky-400/25" },
         { title: "Virtuals ACP", description: "Agent Commerce Protocol", href: "/virtuals-acp", accent: "from-violet-400/25" },
         { title: "Olas", description: "Autonomous agent network", href: "/olas", accent: "from-amber-400/25" },
-        { title: "Tempo MPP", description: "Multi-Party Payment Protocol", href: "/tempo-mpp", accent: "from-cyan-400/25" },
+        { title: "Tempo MPP", description: "Multi-Party Payment Protocol", href: "/tempo-mpp", accent: "from-cyan-400/25", logo: "/logos/datasources/tempo.svg" },
       ],
     },
   },
