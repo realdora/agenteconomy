@@ -153,6 +153,9 @@ async function runPipeline(scenario, { seedDataJson } = {}) {
       ...process.env,
       DUNE_API_KEY: 'test-key',
       DUNE_API_BASE: `http://127.0.0.1:${port}`,
+      // Pin query ids to the fixture ids (script defaults now point at the forks).
+      DUNE_QID_X402_CUMULATIVE: '6058135',
+      DUNE_QID_REGISTRY: '6130922',
       DATA_OUT_DIR: outDir,
       DUNE_POLL_INTERVAL_MS: '20',
       DUNE_RETRY_DELAY_MS: '50',

@@ -52,7 +52,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const QUERIES = [
   {
     key: 'x402Cumulative',
-    id: Number(process.env.DUNE_QID_X402_CUMULATIVE || 6058135),
+    // 7666075 = our incremental fork; set DUNE_QID_X402_CUMULATIVE=6058135 to revert to upstream.
+    id: Number(process.env.DUNE_QID_X402_CUMULATIVE || 7666075),
     limit: 5000, // incremental fork emits per-(day, facilitator); ~250d × N facilitators
 
     maxAgeHours: 20,
@@ -85,7 +86,8 @@ const QUERIES = [
   },
   {
     key: 'erc8004Registry',
-    id: Number(process.env.DUNE_QID_REGISTRY || 6130922),
+    // 7666083 = our incremental fork; set DUNE_QID_REGISTRY=6130922 to revert to upstream.
+    id: Number(process.env.DUNE_QID_REGISTRY || 7666083),
     limit: 5000,
     maxAgeHours: 40,
     slaHours: 120,
