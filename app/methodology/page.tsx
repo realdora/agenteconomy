@@ -89,7 +89,7 @@ export default function MethodologyPage() {
         {/* CTA */}
         <section className="mt-24 border-t border-white/10 pt-12 flex flex-col items-start gap-6">
           <p className="font-display italic text-white text-[28px] leading-snug max-w-2xl">
-            Don&apos;t take our word for it — every number is live, and the raw feed is one request away.
+            The raw feed behind every figure is public — one request away.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
             <a href="https://agenteconomy.to" className="tt-hero-cta">
