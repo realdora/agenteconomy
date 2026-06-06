@@ -12,14 +12,15 @@ export const metadata: Metadata = {
     "One open dataset for on-chain agentic payments — schema-stable, MCP-native, and free. Everything the site shows, as JSON.",
 };
 
-// Top-level shape of agenteconomy.to/data.json.
-const SCHEMA = [
-  { key: "x402", what: "HTTP 402 payments — settled volume, facilitators, per-app share, monthly & daily series." },
-  { key: "olas", what: "Autonomous agent network — total transactions, per-chain breakdown, weekly series." },
-  { key: "virtualsAcp", what: "Agent Commerce Protocol — memo throughput between agents, daily." },
-  { key: "erc8004Registry", what: "On-chain agent registry — agents registered per chain, daily." },
-  { key: "baseAgentic", what: "Agentic activity on Base — consumer vs. infrastructure split, daily." },
-  { key: "tempoMpp", what: "Machine Payments Protocol — channel events by type, unique payers/payees, daily." },
+// Top-level shape of agenteconomy.to/data.json. Descriptions are the data fields
+// each key holds — what each protocol *is* lives on its own page (linked via href).
+const SCHEMA: { key: string; what: string; href?: string }[] = [
+  { key: "x402", href: "/x402", what: "Settled volume, facilitators, per-app market share, plus monthly and daily series." },
+  { key: "olas", href: "/olas", what: "Total transactions, a per-chain breakdown, and a weekly series." },
+  { key: "virtualsAcp", href: "/virtuals-acp", what: "Memo throughput between agents, daily." },
+  { key: "erc8004Registry", href: "/erc-8004", what: "Agents registered, per chain and daily." },
+  { key: "baseAgentic", what: "Consumer vs. infrastructure transaction split on Base, daily." },
+  { key: "tempoMpp", href: "/tempo-mpp", what: "Channel events by type, unique payers and payees, daily." },
   { key: "sources", what: "Provenance for every series — where each number is indexed from." },
   { key: "updatedAt", what: "Timestamp of the last refresh." },
 ];
@@ -104,7 +105,13 @@ export default async function DataPage() {
                 key={row.key}
                 className="grid grid-cols-[1fr] md:grid-cols-[220px_1fr] gap-x-8 gap-y-1.5 py-5 border-t border-white/10 first:border-t-0"
               >
-                <span className="font-mono text-[15px] text-[#00FF88]">{row.key}</span>
+                {row.href ? (
+                  <Link href={row.href} className="font-mono text-[15px] text-[#00FF88] hover:underline w-fit">
+                    {row.key}
+                  </Link>
+                ) : (
+                  <span className="font-mono text-[15px] text-[#00FF88]">{row.key}</span>
+                )}
                 <p className="text-white/55 text-[14px] leading-relaxed max-w-2xl">{row.what}</p>
               </div>
             ))}
