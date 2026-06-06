@@ -12,24 +12,6 @@ export const metadata: Metadata = {
     "How agent economy builds every metric from public on-chain activity — sourced via Dune and direct indexing, traceable and citable.",
 };
 
-const PRINCIPLES = [
-  {
-    n: "01",
-    title: "On-chain, not self-reported",
-    body: "Every figure comes from public blockchain activity — not numbers the protocols publish about themselves, not surveys, not vanity dashboards.",
-  },
-  {
-    n: "02",
-    title: "Actuals, not projections",
-    body: "We show what actually happened on-chain — not forecasts or smoothed trends. The quiet weeks stay quiet; we don't fill the gaps.",
-  },
-  {
-    n: "03",
-    title: "Traceable to the source",
-    body: "Sourced from public on-chain data — through Dune and direct indexing — and normalized into one open dataset you can audit and cite.",
-  },
-];
-
 const PIPELINE = [
   {
     step: "Pull from the chain",
@@ -71,30 +53,12 @@ export default async function MethodologyPage() {
           <div>
             <div className="tt-route-kicker">/methodology</div>
             <h1>Methodology</h1>
-            <p>
-              Every metric on agent economy is built from public on-chain activity — real transactions, not figures
-              the protocols report about themselves, and not survey data. Each number traces back to the on-chain
-              events behind it.
-            </p>
+            <p>Every metric on agent economy is built from public on-chain activity — here&apos;s exactly how.</p>
           </div>
           <Link href="/" className="tt-route-home-link">
             Back to home
             <ArrowRightIcon />
           </Link>
-        </section>
-
-        {/* Principles */}
-        <section className="mt-24 border-t border-white/10 pt-12">
-          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-10">Principles</div>
-          <div className="grid gap-x-10 gap-y-12 md:grid-cols-3">
-            {PRINCIPLES.map((p) => (
-              <div key={p.n}>
-                <div className="font-mono text-[13px] text-[#00FF88] mb-4">{p.n}</div>
-                <h3 className="text-white font-medium text-[20px] tracking-tight mb-2.5">{p.title}</h3>
-                <p className="text-white/55 text-[15px] leading-relaxed">{p.body}</p>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* Pipeline */}
