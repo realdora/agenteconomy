@@ -13,9 +13,10 @@
 -- vs upstream's ~4,725). scripts/fetch-data.js sums `registered` per chain for
 -- lifetime totals and slices the last 90 days for the chart.
 --
--- BACKFILL: each run advances at most 60 days past the checkpoint to stay under
--- the 2-min cap. Run repeatedly to walk 2025-08-13 -> today (~5 runs); steady
--- state re-scans only the last ~2 days. If a run times out, lower the '60'.
+-- BACKFILL: each run advances at most 30 days past the checkpoint to stay under
+-- the shared small-engine's variable 2-min cap (60d occasionally timed out).
+-- Walks 2025-09-30 -> today in ~18 runs; steady state re-scans only the last ~2
+-- days. If a run times out, lower the '30'.
 
 WITH prev AS (
   SELECT * FROM TABLE(previous.query.result(
@@ -28,11 +29,11 @@ WITH prev AS (
 ),
 
 checkpoint AS (
-  SELECT COALESCE(MAX(block_date), TIMESTAMP '2025-08-12') - INTERVAL '2' DAY AS cutoff FROM prev
+  SELECT COALESCE(MAX(block_date), TIMESTAMP '2025-09-30') - INTERVAL '2' DAY AS cutoff FROM prev
 ),
 
 window_end AS (
-  SELECT LEAST((SELECT cutoff FROM checkpoint) + INTERVAL '60' DAY, CURRENT_TIMESTAMP) AS scan_until
+  SELECT LEAST((SELECT cutoff FROM checkpoint) + INTERVAL '12' DAY, CURRENT_TIMESTAMP) AS scan_until
 ),
 
 new_logs AS (
@@ -43,7 +44,7 @@ new_logs AS (
   FROM (
     SELECT block_date, blockchain, block_hash
     FROM evms.logs
-    WHERE block_time >= TRY_CAST('2025-08-13' AS TIMESTAMP)
+    WHERE block_time >= TRY_CAST('2025-09-29' AS TIMESTAMP)
       AND block_time >= (SELECT cutoff FROM checkpoint)
       AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
       AND topic0 = 0xca52e62c367d81bb2e328eb795f7c7ba24afb478408a26c0e201d155c449bc4a
@@ -51,7 +52,7 @@ new_logs AS (
     UNION ALL
     SELECT block_date, 'sepolia' AS blockchain, block_hash
     FROM sepolia.logs
-    WHERE block_time >= TRY_CAST('2025-08-13' AS TIMESTAMP)
+    WHERE block_time >= TRY_CAST('2025-09-29' AS TIMESTAMP)
       AND block_time >= (SELECT cutoff FROM checkpoint)
       AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
       AND topic0 = 0xca52e62c367d81bb2e328eb795f7c7ba24afb478408a26c0e201d155c449bc4a

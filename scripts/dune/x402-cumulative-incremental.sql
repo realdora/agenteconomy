@@ -17,7 +17,7 @@
 -- BACKFILL: each run advances at most 30 days past the checkpoint, keeping any
 -- single execution inside the 2-min small-engine timeout. Run repeatedly on day
 -- one to walk 2025-10-01 -> today (~9 runs); steady-state runs re-scan only the
--- last ~2 days. If a backfill run times out, lower the '30' below to '14'.
+-- last ~2 days. If a backfill run times out, lower the '20' below to '12'.
 --
 -- Facilitator identity still comes from upstream's maintained registry
 -- sub-queries (query_6057445 = EVM senders, query_6148921 = Solana signers),
@@ -41,7 +41,7 @@ checkpoint AS (
 
 window_end AS (
   -- Bounded advance so one execution never exceeds the small-engine timeout.
-  SELECT LEAST((SELECT cutoff FROM checkpoint) + INTERVAL '30' DAY, CURRENT_DATE) AS scan_until
+  SELECT LEAST((SELECT cutoff FROM checkpoint) + INTERVAL '20' DAY, CURRENT_DATE) AS scan_until
 ),
 
 evm_transfers AS (

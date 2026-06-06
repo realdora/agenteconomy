@@ -86,16 +86,24 @@ console.log('Step 2: install incremental SQL')
 await patch(readFileSync(sqlFile, 'utf8'))
 
 console.log('Step 3: backfill to convergence')
-let last
+let last, prevMd = '__init__'
 for (let n = 1; n <= MAX_RUNS; n++) {
   try { last = await execOnce(`run ${n}`) }
   catch (e) {
     if (e.timeout) { console.log(`  ✗ TIMEOUT on run ${n} — lower the backfill window and rerun.`); process.exit(2) }
     console.log(`  ✗ run ${n} failed: ${e.message}`); process.exit(1)
   }
+  // Stall guard: the checkpoint advances off MAX(date) in the stored result, so
+  // if a window produces no new data the latest date can't move and every
+  // subsequent run repeats the same empty window. Bail loudly instead of spinning.
+  if (last.md === prevMd) {
+    console.log(`  ✗ STALL on run ${n}: latest date stuck at ${last.md || 'none'} — the window starts before any data (move the floor date) or hit an empty span.`)
+    process.exit(4)
+  }
+  prevMd = last.md
   const gap = last.md ? daysBetween(last.md, todayStr) : Infinity
   if (gap <= 2) { console.log(`  caught up (gap ${gap}d) in ${n} run(s)`); break }
-  if (n === MAX_RUNS) { console.log(`  reached max-runs; gap ${gap}d`); }
+  if (n === MAX_RUNS) { console.log(`  reached max-runs; gap ${gap}d`) }
 }
 
 // Correctness assertion: no duplicate key rows (would prove a merge double-count).

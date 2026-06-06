@@ -66,15 +66,24 @@ async function runOnce(n) {
 }
 
 console.log(`Backfill query ${queryId} (date field "${dateField}") → catch up to within ${TARGET_GAP_DAYS}d of ${todayStr}`)
-let last
+let last, prevMd = '__init__'
 for (let n = 1; n <= MAX_RUNS; n++) {
-  try {
-    last = await runOnce(n)
-  } catch (e) {
-    if (e.timeout) { console.log(`\n  ✗ run ${n} TIMED OUT — lower the backfill window in the .sql and re-PATCH, then resume.`); process.exit(2) }
-    console.log(`\n  ✗ run ${n} failed: ${e.message}`); process.exit(1)
+  // The shared small-engine cluster is variable — the same window can time out
+  // once and finish on retry. A timeout stores nothing, so re-executing just
+  // re-attempts the same window. Retry a few times before giving up.
+  let attempt = 0
+  for (;;) {
+    try { last = await runOnce(n); break }
+    catch (e) {
+      if (e.timeout && ++attempt < 3) { console.log(`    timeout, retry ${attempt}/2 (cluster variance)`); continue }
+      if (e.timeout) { console.log(`\n  ✗ run ${n} TIMED OUT 3× — lower the window in the .sql, then restart the rebuild (PATCH resets incremental state).`); process.exit(2) }
+      console.log(`\n  ✗ run ${n} failed: ${e.message}`); process.exit(1)
+    }
   }
+  // Stall guard: checkpoint advances off MAX(stored date); if a window yields no
+  // new data the date can't move and every later run repeats the same empty span.
+  if (last.md === prevMd) { console.log(`\n  ✗ STALL: latest date stuck at ${last.md || 'none'} — floor starts before any data or an empty span was hit.`); process.exit(4) }
+  prevMd = last.md
   if (last.gap <= TARGET_GAP_DAYS) { console.log(`\nCaught up (gap ${last.gap}d ≤ ${TARGET_GAP_DAYS}d) in ${n} run(s).`); process.exit(0) }
-  if (last.gap === Infinity && last.rows.length === 0) { console.log('\n  ✗ no rows produced — check the query.'); process.exit(1) }
 }
 console.log(`\nReached max-runs=${MAX_RUNS}; latest gap ${last?.gap}d. Re-run to continue.`)
