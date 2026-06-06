@@ -18,6 +18,7 @@ const [queryId, dateField] = process.argv.slice(2)
 const opts = Object.fromEntries(process.argv.slice(4).map(a => a.replace(/^--/, '').split('=')))
 const MAX_RUNS = Number(opts['max-runs'] || 12)
 const TARGET_GAP_DAYS = Number(opts['target-gap'] || 2)
+const SPACE_MS = Number(opts['space-ms'] || 0) // delay between executions (free-tier burst-limit hedge)
 if (!queryId || !dateField) { console.error('Usage: backfill.mjs <queryId> <dateField>'); process.exit(1) }
 
 const headers = { 'x-dune-api-key': API_KEY, 'Content-Type': 'application/json' }
@@ -85,5 +86,6 @@ for (let n = 1; n <= MAX_RUNS; n++) {
   if (last.md === prevMd) { console.log(`\n  ✗ STALL: latest date stuck at ${last.md || 'none'} — floor starts before any data or an empty span was hit.`); process.exit(4) }
   prevMd = last.md
   if (last.gap <= TARGET_GAP_DAYS) { console.log(`\nCaught up (gap ${last.gap}d ≤ ${TARGET_GAP_DAYS}d) in ${n} run(s).`); process.exit(0) }
+  if (SPACE_MS && n < MAX_RUNS) await sleep(SPACE_MS)
 }
 console.log(`\nReached max-runs=${MAX_RUNS}; latest gap ${last?.gap}d. Re-run to continue.`)
