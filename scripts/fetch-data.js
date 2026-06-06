@@ -53,7 +53,8 @@ const QUERIES = [
   {
     key: 'x402Cumulative',
     id: Number(process.env.DUNE_QID_X402_CUMULATIVE || 6058135),
-    limit: 1000,
+    limit: 5000, // incremental fork emits per-(day, facilitator); ~250d × N facilitators
+
     maxAgeHours: 20,
     slaHours: 54,
     label: 'x402 cumulative',
@@ -194,20 +195,36 @@ const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
 // ── Per-query parsers: raw rows → fragment ───────────────────
 const PARSERS = {
   x402Cumulative(rows) {
-    assertRowShape(rows, ['cumulative_txn', 'cumulative_volume', 'total_txn', 'total_vol', 'facilitator', 'date_time'], 'Q x402Cumulative')
+    // Two supported grains:
+    //   - incremental fork (query 7666075): per-(day, facilitator); totals are
+    //     summed in JS since daily txn/vol are additive (see the .sql header).
+    //   - legacy upstream (query 6058135): per-(month, facilitator) with
+    //     precomputed cumulative_* columns. Kept so DUNE_QID_* can revert.
+    const isDaily = 'day' in (rows[0] || {})
+    if (isDaily) {
+      assertRowShape(rows, ['day', 'facilitator', 'total_txn', 'total_vol'], 'Q x402Cumulative (daily fork)')
+    } else {
+      assertRowShape(rows, ['cumulative_txn', 'cumulative_volume', 'total_txn', 'total_vol', 'facilitator', 'date_time'], 'Q x402Cumulative')
+    }
     const protocolMap = {}, monthlyMap = {}
-    const totalTxs = safeNum(rows[0].cumulative_txn)
-    const totalVolume = safeNum(rows[0].cumulative_volume)
+    let totalTxs = 0, totalVolume = 0
+    if (!isDaily) {
+      totalTxs = safeNum(rows[0].cumulative_txn)
+      totalVolume = safeNum(rows[0].cumulative_volume)
+    }
     rows.forEach(row => {
       const name = row.facilitator || 'Other'
       if (!protocolMap[name]) protocolMap[name] = { txs: 0, vol: 0 }
-      protocolMap[name].txs += safeNum(row.total_txn)
-      protocolMap[name].vol += safeNum(row.total_vol)
-      const month = (row.date_time || '').slice(0, 7)
+      const txn = safeNum(row.total_txn)
+      const vol = safeNum(row.total_vol)
+      protocolMap[name].txs += txn
+      protocolMap[name].vol += vol
+      if (isDaily) { totalTxs += txn; totalVolume += vol }
+      const month = (isDaily ? row.day : row.date_time || '').slice(0, 7)
       if (month) {
         if (!monthlyMap[month]) monthlyMap[month] = { txs: 0, vol: 0 }
-        monthlyMap[month].txs += safeNum(row.total_txn)
-        monthlyMap[month].vol += safeNum(row.total_vol)
+        monthlyMap[month].txs += txn
+        monthlyMap[month].vol += vol
       }
     })
     const monthly = Object.entries(monthlyMap)

@@ -1,44 +1,68 @@
--- ERC-8004 registry, PRE-AGGREGATED fork of dune.com/queries/6130922
--- (original by @hashed_official).
+-- ERC-8004 registry — INCREMENTAL fork of dune.com/queries/6130922
+-- Fork: dune.com/queries/7666083 (agenteconomy-owned)
 --
--- Why: upstream returns ~4,700 raw rows (chain × day since genesis) and we
--- download them on refresh while the site only renders per-chain totals plus
--- the last 90 days. Aggregating upstream cuts the read to ~120 rows.
+-- WHY (revised 2026-06-06 after a real run): the upstream full scan of
+-- evms.logs by topic0 since 2025-08-13 times out at 2 min on the free `small`
+-- engine — evms.logs is an all-EVM-chains table and even a selective topic0
+-- filter scans too much in one shot. So this is incremental, like the x402
+-- fork: persist per-(day, chain) registration counts and only scan a bounded
+-- window of new logs per run.
 --
--- Output schema matches what scripts/fetch-data.js already parses:
--- (blockchain, block_date, registered). Rows:
---   - per-chain LIFETIME totals exposed with block_date = NULL? No — the parser
---     sums per-chain across all rows, so we emit:
---       1) one row per chain per day for the last 90 days, AND
---       2) one "backlog" row per chain dated 1970-01-01 carrying all
---          registrations BEFORE that 90-day window.
---     Chain totals stay exact; the daily chart only renders the last 90 days.
+-- Output schema unchanged: (block_date, blockchain, registered). We persist the
+-- full non-zero daily series (no date x chain zero-fill, so ~hundreds of rows
+-- vs upstream's ~4,725). scripts/fetch-data.js sums `registered` per chain for
+-- lifetime totals and slices the last 90 days for the chart.
 --
--- ── STATUS: TEMPLATE ─────────────────────────────────────────
--- TODO(fork): replace `upstream_rows` with upstream's SQL body after forking.
+-- BACKFILL: each run advances at most 60 days past the checkpoint to stay under
+-- the 2-min cap. Run repeatedly to walk 2025-08-13 -> today (~5 runs); steady
+-- state re-scans only the last ~2 days. If a run times out, lower the '60'.
 
-WITH upstream_rows AS (
-    SELECT blockchain, block_date, registered
-    FROM (SELECT 1) placeholder -- replaced at fork time with upstream body
+WITH prev AS (
+  SELECT * FROM TABLE(previous.query.result(
+    schema => DESCRIPTOR(
+      block_date TIMESTAMP,
+      blockchain VARCHAR,
+      registered BIGINT
+    )
+  ))
 ),
 
-recent AS (
-    SELECT blockchain, block_date, registered
-    FROM upstream_rows
-    WHERE block_date >= CURRENT_DATE - INTERVAL '90' DAY
+checkpoint AS (
+  SELECT COALESCE(MAX(block_date), TIMESTAMP '2025-08-12') - INTERVAL '2' DAY AS cutoff FROM prev
 ),
 
-backlog AS (
-    SELECT
-        blockchain,
-        DATE '1970-01-01' AS block_date,
-        SUM(registered) AS registered
-    FROM upstream_rows
-    WHERE block_date < CURRENT_DATE - INTERVAL '90' DAY
-    GROUP BY blockchain
+window_end AS (
+  SELECT LEAST((SELECT cutoff FROM checkpoint) + INTERVAL '60' DAY, CURRENT_TIMESTAMP) AS scan_until
+),
+
+new_logs AS (
+  SELECT
+    block_date,
+    blockchain,
+    count(*) AS registered
+  FROM (
+    SELECT block_date, blockchain, block_hash
+    FROM evms.logs
+    WHERE block_time >= TRY_CAST('2025-08-13' AS TIMESTAMP)
+      AND block_time >  (SELECT cutoff FROM checkpoint)
+      AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
+      AND topic0 = 0xca52e62c367d81bb2e328eb795f7c7ba24afb478408a26c0e201d155c449bc4a
+      -- event Registered(uint256 indexed agentId, string tokenURI, address indexed owner)
+    UNION ALL
+    SELECT block_date, 'sepolia' AS blockchain, block_hash
+    FROM sepolia.logs
+    WHERE block_time >= TRY_CAST('2025-08-13' AS TIMESTAMP)
+      AND block_time >  (SELECT cutoff FROM checkpoint)
+      AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
+      AND topic0 = 0xca52e62c367d81bb2e328eb795f7c7ba24afb478408a26c0e201d155c449bc4a
+  )
+  GROUP BY 1, 2
 )
 
-SELECT * FROM backlog
+SELECT CAST(block_date AS TIMESTAMP) AS block_date, blockchain, registered
+FROM prev
+WHERE block_date <= (SELECT cutoff FROM checkpoint)
 UNION ALL
-SELECT * FROM recent
-ORDER BY block_date, blockchain
+SELECT CAST(block_date AS TIMESTAMP) AS block_date, blockchain, registered
+FROM new_logs
+ORDER BY block_date DESC, registered DESC

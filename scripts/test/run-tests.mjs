@@ -221,7 +221,7 @@ s4scenario.queries[6058135].execute.behavior = 'fail'
 const s4 = await runPipeline(s4scenario, { seedDataJson: SEED })
 check('exit 0', s4.status === 0, `status=${s4.status}\n${s4.stdout}`)
 check('fallback warning emitted', s4.stdout.includes('falling back to newest available data'))
-check('fell back to latest download', countLog(s4.log, '/query/6058135/results?limit=1000') === 1)
+check('fell back to latest download', countLog(s4.log, '/query/6058135/results?limit=5000') === 1)
 check('sla_breach=false', s4.ghOutput.includes('sla_breach=false'), s4.ghOutput)
 
 // S5 — failed refresh, stale fallback: cache is 80h old (> 54h SLA) → data still
@@ -245,6 +245,26 @@ const s6 = await runPipeline(s6scenario, { seedDataJson: SEED })
 check('exit 1', s6.status === 1, `status=${s6.status}\n${s6.stdout}`)
 check('violation named', s6.stdout.includes('Monotonicity violation'))
 check('data.json untouched', s6.data === SEED)
+
+// S7 — daily-grain fork: x402 query returns per-(day, facilitator) rows; parser
+// must roll up to monthly + sum totals identically to the legacy monthly grain.
+console.log('\nS7 daily-grain x402 fork (parser rolls up, totals match)')
+const DAYS = 130
+const dailyFork = []
+const facs = ['Coinbase', 'PayAI', 'Dexter']
+for (let d = 0; d < DAYS; d++) {
+  const day = new Date(Date.UTC(2026, 1, 1) + d * 864e5).toISOString().slice(0, 10)
+  for (const facilitator of facs) dailyFork.push({ day, facilitator, total_txn: 1000, total_vol: 250 })
+}
+const s7scenario = defaultScenario()
+s7scenario.queries[6058135].latest = { execution_id: 'exec-6058135-daily', endedHoursAgo: 1, rows: dailyFork }
+const s7 = await runPipeline(s7scenario)
+const s7data = s7.data ? JSON.parse(s7.data) : null
+check('exit 0', s7.status === 0, `status=${s7.status}\n${s7.stdout}`)
+check('totals summed from daily', s7data?.x402.totalTxs === DAYS * 3 * 1000, `got ${s7data?.x402.totalTxs}`)
+check('volume summed from daily', s7data?.x402.totalVolume === DAYS * 3 * 250, `got ${s7data?.x402.totalVolume}`)
+check('rolled up to multiple months', s7data?.x402.monthly.length >= 4, JSON.stringify(s7data?.x402.monthly))
+check('facilitator shares present', s7data?.x402.protocols.length === 3)
 
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)
