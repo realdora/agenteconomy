@@ -103,7 +103,7 @@ evm_transfers AS (
   FROM tokens.transfers
   WHERE tx_from IN (SELECT address FROM query_6057445)
     AND block_time >= DATE('2025-10-01')
-    AND block_time >  (SELECT cutoff FROM checkpoint)
+    AND block_time >= (SELECT cutoff FROM checkpoint)
     AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
 ),
 
@@ -129,7 +129,7 @@ solana_transfers AS (
   FROM tokens_solana.transfers
   WHERE block_time >= DATE('2025-10-01')
     AND tx_signer IN (SELECT address FROM query_6148921)
-    AND block_time >  (SELECT cutoff FROM checkpoint)
+    AND block_time >= (SELECT cutoff FROM checkpoint)
     AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
 ),
 
@@ -147,11 +147,12 @@ new_daily AS (
   GROUP BY 1, 2
 )
 
--- Keep settled history (< checkpoint) from the previous result; replace the
--- recomputed window. Output grain = (day, facilitator).
+-- Keep settled history strictly before the checkpoint; the recomputed window
+-- (block_time >= cutoff) owns the cutoff day onward. Strict `<` here + `>=` in
+-- the scans means the cutoff day is counted exactly once. Output = (day, facilitator).
 SELECT day, facilitator, total_txn, total_vol
 FROM prev
-WHERE day <= (SELECT cutoff FROM checkpoint)
+WHERE day < (SELECT cutoff FROM checkpoint)
 UNION ALL
 SELECT day, facilitator, total_txn, total_vol
 FROM new_daily

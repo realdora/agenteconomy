@@ -54,7 +54,8 @@ const QUERIES = [
     key: 'x402Cumulative',
     // 7666075 = our incremental fork; set DUNE_QID_X402_CUMULATIVE=6058135 to revert to upstream.
     id: Number(process.env.DUNE_QID_X402_CUMULATIVE || 7666075),
-    limit: 5000, // incremental fork emits per-(day, facilitator); ~250d × N facilitators
+    limit: 10000, // incremental fork emits per-(day, facilitator), ~2700 rows growing ~10/day
+
 
     maxAgeHours: 20,
     slaHours: 54,

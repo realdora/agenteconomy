@@ -44,7 +44,7 @@ new_logs AS (
     SELECT block_date, blockchain, block_hash
     FROM evms.logs
     WHERE block_time >= TRY_CAST('2025-08-13' AS TIMESTAMP)
-      AND block_time >  (SELECT cutoff FROM checkpoint)
+      AND block_time >= (SELECT cutoff FROM checkpoint)
       AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
       AND topic0 = 0xca52e62c367d81bb2e328eb795f7c7ba24afb478408a26c0e201d155c449bc4a
       -- event Registered(uint256 indexed agentId, string tokenURI, address indexed owner)
@@ -52,7 +52,7 @@ new_logs AS (
     SELECT block_date, 'sepolia' AS blockchain, block_hash
     FROM sepolia.logs
     WHERE block_time >= TRY_CAST('2025-08-13' AS TIMESTAMP)
-      AND block_time >  (SELECT cutoff FROM checkpoint)
+      AND block_time >= (SELECT cutoff FROM checkpoint)
       AND block_time <  (SELECT scan_until FROM window_end) + INTERVAL '1' DAY
       AND topic0 = 0xca52e62c367d81bb2e328eb795f7c7ba24afb478408a26c0e201d155c449bc4a
   )
@@ -61,7 +61,7 @@ new_logs AS (
 
 SELECT CAST(block_date AS TIMESTAMP) AS block_date, blockchain, registered
 FROM prev
-WHERE block_date <= (SELECT cutoff FROM checkpoint)
+WHERE block_date < (SELECT cutoff FROM checkpoint)
 UNION ALL
 SELECT CAST(block_date AS TIMESTAMP) AS block_date, blockchain, registered
 FROM new_logs
