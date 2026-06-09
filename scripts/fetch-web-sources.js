@@ -34,11 +34,15 @@ const BAZAAR = 'https://api.cdp.coinbase.com/platform/v2/x402/discovery/resource
 
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0 }
 
+// Optional free CoinGecko Demo key improves reliability from shared CI IPs.
+const CG_KEY = process.env.COINGECKO_API_KEY
 async function getJson(url, { timeout = 25000, headers = {} } = {}) {
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), timeout)
   try {
-    const res = await fetch(url, { headers, signal: ctrl.signal })
+    const h = { ...headers }
+    if (CG_KEY && url.includes('coingecko.com')) h['x-cg-demo-api-key'] = CG_KEY
+    const res = await fetch(url, { headers: h, signal: ctrl.signal })
     if (!res.ok) throw new Error(`HTTP ${res.status} on ${url}`)
     return await res.json()
   } finally { clearTimeout(t) }
