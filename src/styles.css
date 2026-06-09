@@ -367,7 +367,7 @@ button {
 
 .hero-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   overflow: hidden;
   margin-bottom: 18px;
   border: 1px solid var(--border);

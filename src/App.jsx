@@ -652,6 +652,19 @@ function DashboardPage({ initialData }) {
   const regAgents = useCountUp(totals.registeredAgents || 0)
   const olasTxs = useCountUp(olas.totalTxs || 0)
 
+  // Off-chain hero stats from web-sources.json (client-fetched). Defensible
+  // curated basket (not the memecoin-contaminated CoinGecko category). '—' until loaded.
+  const wsTokens = webSources?.agentTokens
+  const wsSvc = webSources?.x402Services
+  const usdCompact = v => {
+    v = Number(v) || 0
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`
+    if (v >= 1e6) return `$${(v / 1e6).toFixed(0)}M`
+    return `$${v.toLocaleString()}`
+  }
+  const heroMcap = wsTokens ? usdCompact(wsTokens.basketMcap) : '—'
+  const heroServices = wsSvc ? wsSvc.totalServices.toLocaleString() : '—'
+
   return (
     <div className="app">
       <nav className="nav">
@@ -687,6 +700,10 @@ function DashboardPage({ initialData }) {
               { value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
               { value: totals.protocols, label: 'protocols', color: 'var(--text-strong)' },
               { value: totals.chains, label: 'chains', color: 'var(--text-strong)' },
+              // New off-chain dimensions (web-sources.json) — distinct units, not
+              // folded into the events/USD aggregates above. '—' until client fetch.
+              { value: heroMcap, label: 'agent token mcap', color: '#04795B' },
+              { value: heroServices, label: 'x402 services', color: BLUE },
             ].map((item, i) => (
               <div className="hero-cell" key={i}>
                 <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
