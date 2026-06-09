@@ -75,6 +75,9 @@ function useCountUp(target, dur = 1400) {
 function useDashboardData(initialData) {
   const [data, setData] = useState(() => normalizeData(FB, initialData || FB))
   const [loadState, setLoadState] = useState(initialData ? 'loaded' : 'loading')
+  // Non-Dune web sources (CoinGecko basket + x402 Bazaar). Fetched client-side,
+  // independent of data.json, so it shows even while the Dune pipeline is stale.
+  const [webSources, setWebSources] = useState(null)
 
   useEffect(() => {
     let alive = true
@@ -93,12 +96,16 @@ function useDashboardData(initialData) {
         setData(FB)
         setLoadState('fallback')
       })
+    fetch('/web-sources.json', { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(w => { if (alive && w) setWebSources(w) })
+      .catch(() => {})
     return () => {
       alive = false
     }
   }, [])
 
-  return { data, loadState }
+  return { data, loadState, webSources }
 }
 
 function getInitialDark() {
@@ -470,6 +477,55 @@ function ProtocolComparison({ data, totals }) {
   )
 }
 
+function MarketSupplySection({ web }) {
+  if (!web || (!web.agentTokens && !web.x402Services)) return null
+  const t = web.agentTokens
+  const svc = web.x402Services
+  const cat = t?.categories?.find(c => c.name === 'AI Agents')
+  const usd = n => {
+    const v = Number(n) || 0
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`
+    if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`
+    if (v >= 1e3) return `$${(v / 1e3).toFixed(0)}K`
+    return `$${v.toFixed(0)}`
+  }
+  const asOf = t?.asOf || svc?.asOf
+  return (
+    <Section
+      title="Market & Supply"
+      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+      meta={`Capital + service catalog${asOfLabel(asOf)}`}
+      explanation="Dimensions on-chain payment flow can't show: the market capitalization of agent-economy tokens (capital/sentiment) and the size of the x402 service catalog (supply side — how many things agents can pay for). Token basket is hand-curated to agentic-payment protocols; the CoinGecko category total is broader and includes some memecoins. Sources: CoinGecko, Coinbase x402 Bazaar."
+    >
+      <div className="grid g4" style={{ marginBottom: 14 }}>
+        {t && <Card label="Agent Token Mcap" value={usd(t.basketMcap)} sub={`basket of ${t.basket.length}`} hero />}
+        {cat && <Card label="AI Agents Category" value={usd(cat.mcap)} sub="CoinGecko (broad)" accent="#04795B" />}
+        {svc && <Card label="x402 Services" value={svc.totalServices.toLocaleString()} sub="Bazaar catalog" accent={BLUE} />}
+        {t && <Card label="Basket 24h Vol" value={usd(t.basketVol24h)} sub="trading volume" />}
+      </div>
+      {t && (
+        <div className="panel">
+          <div className="panel-title">Agentic-payment token basket</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <tbody>
+              {t.basket.map(tok => (
+                <tr key={tok.symbol} style={{ borderTop: '1px solid var(--border)' }}>
+                  <td style={{ padding: '8px 6px', fontWeight: 600 }}>{tok.symbol}</td>
+                  <td style={{ padding: '8px 6px', color: 'var(--muted)' }}>{tok.label}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'right' }}>{usd(tok.mcap)}</td>
+                  <td style={{ padding: '8px 6px', textAlign: 'right', color: tok.change24h >= 0 ? '#16A34A' : '#DC2626' }}>
+                    {tok.change24h >= 0 ? '+' : ''}{tok.change24h.toFixed(1)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Section>
+  )
+}
+
 function RegistrySection({ ag, erc8004Reg, agTxs, regAgents }) {
   const agDelta = calcDelta(ag.daily, 'total', 1)
   const colors = ['#F0B90B', '#627EEA', '#0052FF', '#FF6B35', '#836EF9', '#35D07F', '#04795B', '#FF4D6A']
@@ -574,7 +630,7 @@ function OlasChainPanel({ olas }) {
 }
 
 function DashboardPage({ initialData }) {
-  const { data, loadState } = useDashboardData(initialData)
+  const { data, loadState, webSources } = useDashboardData(initialData)
   const { dark, toggleTheme } = useTheme()
 
   const x = data.x402
@@ -651,6 +707,8 @@ function DashboardPage({ initialData }) {
         </div>
 
         <X402Section x={x} xTxs={xTxs} xVol={xVol} />
+
+        <MarketSupplySection web={webSources} />
 
         <RegistrySection ag={ag} erc8004Reg={erc8004Reg} agTxs={agTxs} regAgents={regAgents} />
 
