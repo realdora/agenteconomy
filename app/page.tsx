@@ -6,9 +6,10 @@ import { HighlightSection } from "@/components/landing/HighlightSection";
 import { PlatformSection } from "@/components/landing/PlatformSection";
 import { TrustSection } from "@/components/landing/TrustSection";
 import { getAgentData } from "@/lib/agent-data";
+import { getPlatformData } from "@/lib/platform-data";
 
 export default async function Home() {
-  const data = await getAgentData();
+  const [data, platform] = await Promise.all([getAgentData(), getPlatformData()]);
   return (
     <>
       <HeaderSection />
@@ -16,7 +17,7 @@ export default async function Home() {
       <HeroSection data={data} />
       <TrustSection />
       <HighlightSection data={data} />
-      <PlatformSection />
+      <PlatformSection data={platform} />
       <FooterSection />
     </>
   );

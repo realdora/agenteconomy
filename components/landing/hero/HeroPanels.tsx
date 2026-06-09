@@ -94,7 +94,7 @@ function TrackPanel({ track }: { track: TrackRow[] }) {
         </div>
         <span className="font-mono text-[10px] text-white/40 tabular-nums">block {block.toLocaleString()}</span>
       </div>
-      <div className="tt-track-sub font-mono uppercase text-white/40 mt-0.5">6 protocols · 24 chains · from block tip</div>
+      <div className="tt-track-sub font-mono uppercase text-white/40 mt-0.5">5 protocols · 11+ chains · on-chain</div>
       <div className="flex-1 flex flex-col justify-center gap-2.5">
         {track.map((r, i) => (
           <div key={r.proto} className="flex items-center justify-between gap-3">

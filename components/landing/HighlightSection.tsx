@@ -111,7 +111,7 @@ export function HighlightSection({ data }: { data: AgentData }) {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-12 mb-12">
           <div className="flex-1">
             <h2 className="font-display italic text-white text-[32px] md:text-[44px] lg:text-[52px] leading-[1.1] tracking-tight max-w-4xl text-balance mb-3">
-              Agentic payment volume is pulling away from human-initiated transactions.
+              x402 has emerged as the standard for on-chain agent payments.
             </h2>
             <p className="text-white/55 max-w-3xl text-[15px] leading-relaxed">
               Cumulative x402 transactions by month — the dominant agent-payment standard.
