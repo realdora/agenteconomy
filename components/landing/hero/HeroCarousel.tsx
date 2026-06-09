@@ -34,16 +34,16 @@ export function HeroCarousel({ data }: { data: AgentData }) {
 
   return (
     <section
-      className="tt-hero-shell"
+      className="ae-hero-shell"
       data-slide={activeSlide.id}
       style={
         {
-          "--tt-hero-base": activeSlide.palette.base,
-          "--tt-hero-glow": activeSlide.palette.glow,
+          "--ae-hero-base": activeSlide.palette.base,
+          "--ae-hero-glow": activeSlide.palette.glow,
         } as CSSProperties
       }
     >
-      <div className="tt-hero-control tt-hero-control-top">
+      <div className="ae-hero-control ae-hero-control-top">
         <HeroProgressButton
           isPlaying={isPlaying}
           activeIndex={activeIndex}
@@ -52,45 +52,45 @@ export function HeroCarousel({ data }: { data: AgentData }) {
         />
       </div>
 
-      <div className="tt-hero-grid-structured">
-        <div className="tt-hero-blockchain-row">
-          <span className="tt-hero-heading-word">Agentic</span>
-          <HeroImageTile src={activeSlide.images.strip} className="tt-hero-strip-top" />
+      <div className="ae-hero-grid-structured">
+        <div className="ae-hero-blockchain-row">
+          <span className="ae-hero-heading-word">Agentic</span>
+          <HeroImageTile src={activeSlide.images.strip} className="ae-hero-strip-top" />
         </div>
 
-        <div className="tt-hero-data-row">
-          <span className="tt-hero-heading-word">data</span>
-          <HeroImageTile src={activeSlide.images.secondary} className="tt-hero-small-square" />
+        <div className="ae-hero-data-row">
+          <span className="ae-hero-heading-word">data</span>
+          <HeroImageTile src={activeSlide.images.secondary} className="ae-hero-small-square" />
         </div>
 
-        <HeroImageTile src={activeSlide.images.secondary} className="tt-hero-large-left" />
-        <HeroImageTile src={activeSlide.images.primary} className="tt-hero-large-right" />
+        <HeroImageTile src={activeSlide.images.secondary} className="ae-hero-large-left" />
+        <HeroImageTile src={activeSlide.images.primary} className="ae-hero-large-right" />
 
-        <div className="tt-hero-panel-wrap">
+        <div className="ae-hero-panel-wrap">
           <HeroPanel slide={activeSlide} data={data} />
         </div>
 
-        <div className="tt-hero-you-can">
-          <HeroImageTile src={activeSlide.images.strip} className="tt-hero-you-can-strip" />
-          <span className="tt-hero-heading-word">made to</span>
+        <div className="ae-hero-you-can">
+          <HeroImageTile src={activeSlide.images.strip} className="ae-hero-you-can-strip" />
+          <span className="ae-hero-heading-word">made to</span>
         </div>
 
-        <div className="tt-hero-change-row">
-          <HeroImageTile src={activeSlide.images.strip} className="tt-hero-strip-bottom" />
+        <div className="ae-hero-change-row">
+          <HeroImageTile src={activeSlide.images.strip} className="ae-hero-strip-bottom" />
           <div
-            className="tt-hero-change-mask"
+            className="ae-hero-change-mask"
             style={
               {
-                "--tt-hero-change-offset": `${15 - activeIndex * 160}px`,
+                "--ae-hero-change-offset": `${15 - activeIndex * 160}px`,
               } as CSSProperties
             }
           >
-            <span className="tt-hero-heading-word tt-hero-change-word tt-hero-change-sizer" aria-hidden="true">
+            <span className="ae-hero-heading-word ae-hero-change-word ae-hero-change-sizer" aria-hidden="true">
               {activeSlide.word}
             </span>
-            <div className="tt-hero-change-stack">
+            <div className="ae-hero-change-stack">
               {heroSlides.map((slide) => (
-                <span key={slide.id} className="tt-hero-heading-word tt-hero-change-word">
+                <span key={slide.id} className="ae-hero-heading-word ae-hero-change-word">
                   {slide.word}
                 </span>
               ))}
@@ -101,19 +101,19 @@ export function HeroCarousel({ data }: { data: AgentData }) {
         <HeroGridGuides />
       </div>
 
-      <div className="tt-hero-copy-row">
+      <div className="ae-hero-copy-row">
         <p>
           agent economy is the data authority for on-chain agentic payments. We cover 5 protocols, 11+ chains, and{" "}
           {formatEvents(data.totalEvents)}+ events tracked daily — every number is built from public on-chain activity.
         </p>
-        <Link href={activeSlide.href} className="tt-hero-cta">
+        <Link href={activeSlide.href} className="ae-hero-cta">
           {activeSlide.cta}
           <ArrowRightIcon />
         </Link>
       </div>
 
-      <div className="tt-hero-action-row">
-        <div className="tt-hero-bottom-control">
+      <div className="ae-hero-action-row">
+        <div className="ae-hero-bottom-control">
           <HeroProgressButton
             isPlaying={isPlaying}
             activeIndex={activeIndex}
@@ -121,7 +121,7 @@ export function HeroCarousel({ data }: { data: AgentData }) {
             onToggle={() => setIsPlaying((value) => !value)}
           />
         </div>
-        <Link href={activeSlide.href} className="tt-hero-cta tt-hero-mobile-cta">
+        <Link href={activeSlide.href} className="ae-hero-cta ae-hero-mobile-cta">
           {activeSlide.cta}
           <ArrowRightIcon />
         </Link>

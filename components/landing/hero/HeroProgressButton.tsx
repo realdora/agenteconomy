@@ -16,16 +16,16 @@ export function HeroProgressButton({ isPlaying, activeIndex, durationMs, onToggl
   return (
     <button
       type="button"
-      className="tt-hero-progress"
+      className="ae-hero-progress"
       aria-label={isPlaying ? "Pause carousel" : "Play carousel"}
       aria-pressed={!isPlaying}
       onClick={onToggle}
-      style={{ "--tt-hero-duration": `${durationMs}ms` } as CSSProperties}
+      style={{ "--ae-hero-duration": `${durationMs}ms` } as CSSProperties}
     >
-      <span className="tt-hero-progress-icon">{isPlaying ? <PauseIcon /> : <PlayIcon />}</span>
-      <svg className="tt-hero-progress-ring" viewBox="0 0 44 44" aria-hidden="true">
-        <circle className="tt-hero-progress-track" cx="22" cy="22" r="20" />
-        <circle key={activeIndex} className="tt-hero-progress-value" data-playing={isPlaying} cx="22" cy="22" r="20" />
+      <span className="ae-hero-progress-icon">{isPlaying ? <PauseIcon /> : <PlayIcon />}</span>
+      <svg className="ae-hero-progress-ring" viewBox="0 0 44 44" aria-hidden="true">
+        <circle className="ae-hero-progress-track" cx="22" cy="22" r="20" />
+        <circle key={activeIndex} className="ae-hero-progress-value" data-playing={isPlaying} cx="22" cy="22" r="20" />
       </svg>
     </button>
   );

@@ -10,7 +10,7 @@ const config: Config = {
         mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
         display: ["var(--font-denton)", "var(--font-geist-sans)", "sans-serif"],
       },
-      // Design tokens (was provided by the TT prebuilt CSS; now owned here so the
+      // Design tokens (were provided by the prebuilt template CSS; now owned here so the
       // project's own Tailwind generates text-fg-default / bg-bg-default / etc.)
       colors: {
         "fg-default": "hsl(var(--fg-default))",

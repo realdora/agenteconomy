@@ -31,15 +31,15 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
   return (
     <>
       <HeaderSection />
-      <main className="tt-route-page">
+      <main className="ae-route-page">
         {/* Hero */}
-        <section className="tt-route-hero">
+        <section className="ae-route-hero">
           <div>
-            <div className="tt-route-kicker">/{doc.slug}</div>
+            <div className="ae-route-kicker">/{doc.slug}</div>
             <h1>{doc.name}</h1>
             <p>{doc.tagline}</p>
           </div>
-          <Link href="/" className="tt-route-home-link">
+          <Link href="/" className="ae-route-home-link">
             Back to home
             <ArrowRightIcon />
           </Link>
@@ -72,7 +72,7 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
             We track {doc.name} on-chain. The live numbers live in the dataset — dedicated dashboards are on the way.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link href="/data" className="tt-hero-cta">
+            <Link href="/data" className="ae-hero-cta">
               Browse the data
               <ArrowRightIcon />
             </Link>

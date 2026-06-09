@@ -1,4 +1,3 @@
-// import { AnnouncementSection } from "@/components/landing/AnnouncementSection"; // re-enable when needed
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -13,7 +12,6 @@ export default async function Home() {
   return (
     <>
       <HeaderSection />
-      {/* <AnnouncementSection /> */}
       <HeroSection data={data} />
       <TrustSection />
       <HighlightSection data={data} />

@@ -34,15 +34,15 @@ export default function MethodologyPage() {
   return (
     <>
       <HeaderSection />
-      <main className="tt-route-page">
+      <main className="ae-route-page">
         {/* Hero */}
-        <section className="tt-route-hero">
+        <section className="ae-route-hero">
           <div>
-            <div className="tt-route-kicker">/methodology</div>
+            <div className="ae-route-kicker">/methodology</div>
             <h1>Methodology</h1>
             <p>Every metric on agent economy is built from public on-chain activity — here&apos;s exactly how.</p>
           </div>
-          <Link href="/" className="tt-route-home-link">
+          <Link href="/" className="ae-route-home-link">
             Back to home
             <ArrowRightIcon />
           </Link>
@@ -92,7 +92,7 @@ export default function MethodologyPage() {
             The raw feed behind every figure is public — one request away.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <a href="https://agenteconomy.to" className="tt-hero-cta">
+            <a href="https://agenteconomy.to" className="ae-hero-cta">
               Open agenteconomy.to
               <ArrowRightIcon />
             </a>

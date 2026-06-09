@@ -13,8 +13,8 @@ export function HeroImageTile({ src, className = "", position }: HeroImageTilePr
   } as CSSProperties;
 
   return (
-    <div className={`tt-hero-image-tile ${className}`}>
-      <div className="tt-hero-image" style={style} />
+    <div className={`ae-hero-image-tile ${className}`}>
+      <div className="ae-hero-image" style={style} />
     </div>
   );
 }

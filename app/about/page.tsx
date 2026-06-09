@@ -33,18 +33,18 @@ export default function AboutPage() {
   return (
     <>
       <HeaderSection />
-      <main className="tt-route-page">
+      <main className="ae-route-page">
         {/* Hero */}
-        <section className="tt-route-hero">
+        <section className="ae-route-hero">
           <div>
-            <div className="tt-route-kicker">/about</div>
+            <div className="ae-route-kicker">/about</div>
             <h1>About</h1>
             <p>
               agent economy is the data authority for on-chain agentic payments — a neutral, open reference for how
               autonomous agents move money on-chain.
             </p>
           </div>
-          <Link href="/" className="tt-route-home-link">
+          <Link href="/" className="ae-route-home-link">
             Back to home
             <ArrowRightIcon />
           </Link>
@@ -89,7 +89,7 @@ export default function AboutPage() {
             see exactly how on the methodology page, or pull the raw dataset yourself.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link href="/methodology" className="tt-hero-cta">
+            <Link href="/methodology" className="ae-hero-cta">
               Read the methodology
               <ArrowRightIcon />
             </Link>
@@ -108,7 +108,7 @@ export default function AboutPage() {
             Open, free, and one request away — come build on it.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <a href="https://agenteconomy.to" className="tt-hero-cta">
+            <a href="https://agenteconomy.to" className="ae-hero-cta">
               Open agenteconomy.to
               <ArrowRightIcon />
             </a>

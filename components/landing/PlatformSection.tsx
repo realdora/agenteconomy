@@ -50,14 +50,14 @@ export function PlatformSection({ data }: { data: PlatformData }) {
               {/* live daily-activity ticker */}
               <div className="border-t border-white/10 bg-white/[0.015]">
                 <div className="flex items-center gap-3 px-5 py-3 overflow-hidden">
-                  <span className="tt-term-block font-mono uppercase tracking-[0.14em] text-white/30 shrink-0 flex items-center gap-2">
+                  <span className="ae-term-block font-mono uppercase tracking-[0.14em] text-white/30 shrink-0 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] animate-pulse" />
                     daily
                   </span>
                   <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
                     <div className="flex w-max gap-7" style={{ animation: "pv-marquee 38s linear infinite" }}>
                       {loop.map((r, i) => (
-                        <span key={`${r.day}-${r.protocol}-${i}`} className="tt-term-pre font-mono flex items-center gap-2 whitespace-nowrap">
+                        <span key={`${r.day}-${r.protocol}-${i}`} className="ae-term-pre font-mono flex items-center gap-2 whitespace-nowrap">
                           <span className="w-1.5 h-1.5 rounded-full" style={{ background: protoColor(r.protocol) }} />
                           <span style={{ color: protoColor(r.protocol) }}>{r.protocol}</span>
                           <span className="text-white tabular-nums">{r.value.toLocaleString("en-US")}</span>

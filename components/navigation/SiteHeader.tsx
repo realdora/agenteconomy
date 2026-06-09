@@ -53,7 +53,7 @@ export function SiteHeader() {
             {navMenus.map((menu) => {
               if (menu.href) {
                 return (
-                  <Link key={menu.label} href={menu.href} className="tt-nav-link" onMouseEnter={() => setActivePanel(null)}>
+                  <Link key={menu.label} href={menu.href} className="ae-nav-link" onMouseEnter={() => setActivePanel(null)}>
                     {menu.label}
                   </Link>
                 );
@@ -64,7 +64,7 @@ export function SiteHeader() {
                 <button
                   key={menu.label}
                   type="button"
-                  className="tt-nav-link"
+                  className="ae-nav-link"
                   data-is-open={isOpen}
                   aria-expanded={isOpen}
                   onClick={() => setActivePanel(isOpen ? null : menu.label)}
@@ -77,7 +77,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex flex-1 items-center justify-end">
-            <a href="https://agenteconomy.to" className="tt-explorer-button">
+            <a href="https://agenteconomy.to" className="ae-explorer-button">
               Go to Explorer
             </a>
           </div>
@@ -93,7 +93,7 @@ export function SiteHeader() {
           <div className="flex flex-1 items-center justify-end">
             <button
               type="button"
-              className="tt-icon-control"
+              className="ae-icon-control"
               aria-label={isMobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={isMobileOpen}
               onClick={() => setIsMobileOpen((value) => !value)}

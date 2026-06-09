@@ -1,31 +1,31 @@
 @media (min-width: 1460px) {
-  .tt-hero-control {
+  .ae-hero-control {
     display: flex;
   }
 
-  .tt-hero-action-row {
+  .ae-hero-action-row {
     display: none;
   }
 }
 
 @media (min-width: 1024px) {
-  .tt-hero-guide {
+  .ae-hero-guide {
     display: block;
   }
 }
 
 @media (max-width: 1280px) {
-  .tt-hero-strip-top .tt-hero-image {
+  .ae-hero-strip-top .ae-hero-image {
     background-position: right -31.25vw top;
   }
 
-  .tt-hero-strip-bottom .tt-hero-image {
+  .ae-hero-strip-bottom .ae-hero-image {
     background-position: left -25vw bottom;
   }
 }
 
 @media (max-width: 1199px) {
-  .tt-hero-heading-word {
+  .ae-hero-heading-word {
     font-size: 70px;
     letter-spacing: -4px;
     line-height: 40px;
@@ -33,63 +33,63 @@
 }
 
 @media (max-width: 1180px) {
-  .tt-nav-panel {
+  .ae-nav-panel {
     width: calc(100vw - 40px);
   }
 }
 
 @media (max-width: 820px) {
-  .tt-hero-strip-top .tt-hero-image {
+  .ae-hero-strip-top .ae-hero-image {
     background-position: 100% 0;
   }
 
-  .tt-hero-small-square .tt-hero-image {
+  .ae-hero-small-square .ae-hero-image {
     background-position: right top -60px;
   }
 
-  .tt-hero-strip-bottom .tt-hero-image {
+  .ae-hero-strip-bottom .ae-hero-image {
     background-position: 0 100%;
   }
 
-  .tt-hero-you-can-strip .tt-hero-image {
+  .ae-hero-you-can-strip .ae-hero-image {
     background-position: left bottom -45px;
   }
 }
 
 @media (max-width: 760px) {
-  .tt-nav-panel-grid,
-  .tt-route-grid {
+  .ae-nav-panel-grid,
+  .ae-route-grid {
     grid-template-columns: 1fr;
   }
 
-  .tt-nav-panel-card {
+  .ae-nav-panel-card {
     border-right: 0;
     border-top: 1px solid var(--border-default);
     min-height: 220px;
     padding: 24px;
   }
 
-  .tt-nav-panel-card:first-child {
+  .ae-nav-panel-card:first-child {
     border-top: 0;
   }
 
-  .tt-hero-shell {
+  .ae-hero-shell {
     margin-top: -2px;
     margin-bottom: 48px;
     padding: 0 20px;
     width: 100%;
   }
 
-  .tt-hero-shell::before {
+  .ae-hero-shell::before {
     inset: 0 20px;
   }
 
-  .tt-hero-control {
+  .ae-hero-control {
     right: 22px;
     top: 24px;
   }
 
-  .tt-hero-grid-structured {
+  .ae-hero-grid-structured {
     display: grid;
     gap: 15px;
     grid-template-areas:
@@ -107,101 +107,101 @@
     width: 100%;
   }
 
-  .tt-hero-heading-word {
+  .ae-hero-heading-word {
     font-size: 50px;
     letter-spacing: -2px;
     line-height: 24px;
   }
 
-  .tt-hero-image-tile {
+  .ae-hero-image-tile {
     border-radius: 10px;
   }
 
-  .tt-hero-blockchain-row {
+  .ae-hero-blockchain-row {
     gap: 15px;
   }
 
-  .tt-hero-blockchain-row .tt-hero-heading-word {
+  .ae-hero-blockchain-row .ae-hero-heading-word {
     flex-basis: 233px;
   }
 
-  .tt-hero-data-row {
+  .ae-hero-data-row {
     gap: 15px;
   }
 
-  .tt-hero-data-row .tt-hero-heading-word {
+  .ae-hero-data-row .ae-hero-heading-word {
     flex-basis: 93px;
   }
 
-  .tt-hero-large-left,
-  .tt-hero-large-right {
+  .ae-hero-large-left,
+  .ae-hero-large-right {
     display: none;
   }
 
-  .tt-hero-panel-wrap {
+  .ae-hero-panel-wrap {
     height: 100%;
   }
 
-  .tt-hero-data-card,
-  .tt-hero-pipeline-card {
+  .ae-hero-data-card,
+  .ae-hero-pipeline-card {
     border-radius: 25px;
     padding: 40px;
   }
 
-  .tt-hero-data-card {
+  .ae-hero-data-card {
     overflow: hidden;
   }
 
-  .tt-hero-chart-card .mt-12 {
+  .ae-hero-chart-card .mt-12 {
     margin-top: 32px;
   }
 
-  .tt-hero-you-can {
+  .ae-hero-you-can {
     gap: 15px;
   }
 
-  .tt-hero-change-row {
+  .ae-hero-change-row {
     height: 100%;
   }
 
-  .tt-hero-change-mask {
+  .ae-hero-change-mask {
     height: calc(100% + 40px);
   }
 
-  .tt-hero-copy-row {
+  .ae-hero-copy-row {
     min-height: 184px;
     padding: 32px 0;
   }
 
-  .tt-hero-copy-row p {
+  .ae-hero-copy-row p {
     font-size: 16px;
   }
 
-  .tt-hero-cta {
+  .ae-hero-cta {
     font-size: 14px;
   }
 
-  .tt-hero-copy-row .tt-hero-cta {
+  .ae-hero-copy-row .ae-hero-cta {
     display: none;
   }
 
-  .tt-hero-mobile-cta {
+  .ae-hero-mobile-cta {
     display: inline-flex;
     margin-right: -10px;
     min-height: 38px;
     padding: 8px 14px;
   }
 
-  .tt-route-page {
+  .ae-route-page {
     padding-top: 72px;
   }
 
-  .tt-route-hero {
+  .ae-route-hero {
     align-items: start;
     grid-template-columns: 1fr;
   }
 
-  .tt-route-hero h1 {
+  .ae-route-hero h1 {
     /* smaller floor so long single words (e.g. "Methodology") don't overflow narrow phones */
     font-size: clamp(40px, 12vw, 56px);
   }
@@ -210,7 +210,7 @@
 /* Cite hero chain: once blocks shrink on narrow phones, tighten the block labels
    so "tempo"/"olas" don't clip. Width itself is fluid via --cite-total-w. */
 @media (max-width: 430px) {
-  .tt-cite-card .ix-head {
+  .ae-cite-card .ix-head {
     font-size: 8px;
     letter-spacing: 0.06em;
     padding-left: 6px;
@@ -222,19 +222,19 @@
    This project's Tailwind build does NOT apply arbitrary-value responsive variants
    (e.g. md:text-[13px], md:grid-cols-[180px_1fr]) — the base arbitrary utility wins by
    source order. So these properties are driven via plain CSS instead. Base = desktop. */
-.tt-trust-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 24px; }
-.tt-trust-sep { margin: 0 28px; }
-.tt-term-pre { font-size: 13px; }
-.tt-term-label { font-size: 11px; letter-spacing: 0.18em; }
-.tt-term-block { font-size: 11px; }
-.tt-track-sub { font-size: 10px; letter-spacing: 0.14em; }
+.ae-trust-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 24px; }
+.ae-trust-sep { margin: 0 28px; }
+.ae-term-pre { font-size: 13px; }
+.ae-term-label { font-size: 11px; letter-spacing: 0.18em; }
+.ae-term-block { font-size: 11px; }
+.ae-track-sub { font-size: 10px; letter-spacing: 0.14em; }
 
 @media (max-width: 760px) {
-  .tt-trust-row { grid-template-columns: 1fr; align-items: start; gap: 12px; }
-  .tt-trust-sep { margin: 0 14px; }
-  .tt-term-pre { font-size: 11px; }
-  .tt-term-label { font-size: 9px; letter-spacing: 0.12em; }
-  .tt-term-block { font-size: 9px; }
-  .tt-term-stream { display: none; }
-  .tt-track-sub { font-size: 9px; letter-spacing: 0.08em; }
+  .ae-trust-row { grid-template-columns: 1fr; align-items: start; gap: 12px; }
+  .ae-trust-sep { margin: 0 14px; }
+  .ae-term-pre { font-size: 11px; }
+  .ae-term-label { font-size: 9px; letter-spacing: 0.12em; }
+  .ae-term-block { font-size: 9px; }
+  .ae-term-stream { display: none; }
+  .ae-track-sub { font-size: 9px; letter-spacing: 0.08em; }
 }

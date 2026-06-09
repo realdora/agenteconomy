@@ -42,18 +42,18 @@ export default async function DataPage() {
   return (
     <>
       <HeaderSection />
-      <main className="tt-route-page">
+      <main className="ae-route-page">
         {/* Hero */}
-        <section className="tt-route-hero">
+        <section className="ae-route-hero">
           <div>
-            <div className="tt-route-kicker">/data</div>
+            <div className="ae-route-kicker">/data</div>
             <h1>Data</h1>
             <p>
               One open dataset for on-chain agentic payments — schema-stable, MCP-native, and free. Everything this
               site shows, as JSON.
             </p>
           </div>
-          <Link href="/" className="tt-route-home-link">
+          <Link href="/" className="ae-route-home-link">
             Back to home
             <ArrowRightIcon />
           </Link>
@@ -124,7 +124,7 @@ export default async function DataPage() {
             Sourced from public on-chain data through Dune and direct indexing — see exactly how it&apos;s built.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <a href="https://agenteconomy.to/data.json" className="tt-hero-cta">
+            <a href="https://agenteconomy.to/data.json" className="ae-hero-cta">
               GET data.json
               <ArrowRightIcon />
             </a>

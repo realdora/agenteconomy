@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ── Fonts ──
-   Migrated off the Token Terminal prebuilt CSS so the site owns its font loading.
+   Migrated off the prebuilt template CSS so the site owns its font loading.
    woff2 files live in /public/fonts. */
 @font-face {
   font-family: GeistMono;
@@ -47,7 +47,7 @@
   --font-geist-mono: "GeistMono", ui-monospace, SFMono-Regular, "Roboto Mono", Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
   --font-denton: "Denton", "Denton Fallback", "Times New Roman", Georgia, serif;
 
-  /* design tokens (dark) — migrated from the TT prebuilt CSS */
+  /* design tokens (dark) — migrated from the prebuilt template CSS */
   --bg-default: 240 10% 6%;
   --bg-surface: 252 12% 8%;
   --fg-default: 0 0% 100%;

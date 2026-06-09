@@ -7,7 +7,7 @@ import type { AgentData, TrackRow } from "@/lib/agent-data";
 import type { HeroSlide } from "@/lib/site-data";
 
 // 3 data cards — track / price / cite. Real agenteconomy.to/data.json values.
-// They FILL the original TT panel slot (tt-hero-panel-wrap, height:100%) — TT layout untouched.
+// They FILL the original template panel slot (ae-hero-panel-wrap, height:100%) — layout untouched.
 
 const CARD = "relative h-full w-full rounded-[22px] border border-white/12 bg-[#0d0d11] p-5 flex flex-col overflow-hidden";
 
@@ -94,7 +94,7 @@ function TrackPanel({ track }: { track: TrackRow[] }) {
         </div>
         <span className="font-mono text-[10px] text-white/40 tabular-nums">block {block.toLocaleString()}</span>
       </div>
-      <div className="tt-track-sub font-mono uppercase text-white/40 mt-0.5">5 protocols · 11+ chains · on-chain</div>
+      <div className="ae-track-sub font-mono uppercase text-white/40 mt-0.5">5 protocols · 11+ chains · on-chain</div>
       <div className="flex-1 flex flex-col justify-center gap-2.5">
         {track.map((r, i) => (
           <div key={r.proto} className="flex items-center justify-between gap-3">
@@ -166,7 +166,7 @@ const CITE_DELAYS = CITE_BLOCKS.map((_, i) => +(((i * (CITE_BLOCK_W + CITE_CONN_
 function CitePanel() {
   return (
     <div
-      className={`${CARD} tt-cite-card`}
+      className={`${CARD} ae-cite-card`}
       style={
         {
           // Fluid chain width: full 478px on desktop/tablet, shrinks to fit narrow phones.

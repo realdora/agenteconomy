@@ -74,11 +74,11 @@ export function TerminalFrame({
         <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
         <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
         <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-        <span className="tt-term-label ml-3 font-mono uppercase text-white/40">
+        <span className="ae-term-label ml-3 font-mono uppercase text-white/40">
           {label}
-          {stream ? <span className="tt-term-stream"> {stream}</span> : null}
+          {stream ? <span className="ae-term-stream"> {stream}</span> : null}
         </span>
-        {right ? <span className="tt-term-block ml-auto flex items-center gap-2 font-mono text-white/40 whitespace-nowrap">{right}</span> : null}
+        {right ? <span className="ae-term-block ml-auto flex items-center gap-2 font-mono text-white/40 whitespace-nowrap">{right}</span> : null}
       </div>
       {children}
     </div>
@@ -132,7 +132,7 @@ export function JsonDoc({ snapshot, compact = false }: { snapshot: Snapshot; com
   let i = 0;
   const next = () => i++;
   return (
-    <pre className={`tt-term-pre font-mono leading-[1.75] text-white/85 px-4 ${compact ? "py-4" : "py-5"} md:px-6 ${compact ? "md:py-5" : "md:py-6"} overflow-x-auto`}>
+    <pre className={`ae-term-pre font-mono leading-[1.75] text-white/85 px-4 ${compact ? "py-4" : "py-5"} md:px-6 ${compact ? "md:py-5" : "md:py-6"} overflow-x-auto`}>
       <Row i={next()}>
         <Pun>{"{"}</Pun>
       </Row>
