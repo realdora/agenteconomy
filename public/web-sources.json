@@ -1,0 +1,63 @@
+{
+  "updatedAt": "2026-06-09T09:06:15.559Z",
+  "schema": 1,
+  "agentTokens": {
+    "asOf": "2026-06-09T09:06:16.937Z",
+    "basket": [
+      {
+        "label": "Fetch (ASI)",
+        "symbol": "FET",
+        "note": "agent infrastructure",
+        "mcap": 469086062,
+        "price": 0.207544,
+        "change24h": -0.44422
+      },
+      {
+        "label": "Kite",
+        "symbol": "KITE",
+        "note": "x402 facilitator",
+        "mcap": 438141681,
+        "price": 0.188219,
+        "change24h": -2.12756
+      },
+      {
+        "label": "Virtuals",
+        "symbol": "VIRTUAL",
+        "note": "ACP / agent commerce",
+        "mcap": 381268461,
+        "price": 0.580266,
+        "change24h": 0.60543
+      },
+      {
+        "label": "Olas",
+        "symbol": "OLAS",
+        "note": "autonomous agents",
+        "mcap": 6313155,
+        "price": 0.02663077,
+        "change24h": 2.7025
+      }
+    ],
+    "basketMcap": 1294809359,
+    "basketVol24h": 200902323,
+    "categories": [
+      {
+        "name": "AI Agents",
+        "mcap": 3205992266,
+        "vol24h": 481604585,
+        "updatedAt": "2026-06-09T08:57:49.839Z"
+      },
+      {
+        "name": "AI Agent Launchpad",
+        "mcap": 1233475615,
+        "vol24h": 248358696,
+        "updatedAt": "2026-06-09T08:57:37.393Z"
+      }
+    ],
+    "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
+  },
+  "x402Services": {
+    "asOf": "2026-06-09T09:06:16.836Z",
+    "totalServices": 29638,
+    "note": "Exact catalog size from Coinbase x402 Bazaar discovery. Per-network split deferred (catalog is ordered, so partial samples are biased)."
+  }
+}
