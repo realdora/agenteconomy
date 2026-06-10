@@ -499,9 +499,10 @@ function MarketSupplySection({ web }) {
       meta={`Capital + service catalog${asOfLabel(asOf)}`}
       explanation={`Dimensions on-chain payment flow can't show: the market capitalization of agent-economy tokens (capital/sentiment) and the x402 service catalog (supply side — how many things agents can pay for). Token basket is hand-curated to agentic-payment protocols; the CoinGecko category total is broader and includes some memecoins. The provider count is unique domains in the Coinbase x402 Bazaar — the raw listing count is skewed by a few hosts that bulk-list thousands of endpoints${svc?.top2ListingSharePct ? ` (top 2 domains ≈ ${svc.top2ListingSharePct}% of listings)` : ''} and churns daily. Sources: CoinGecko, Coinbase x402 Bazaar.`}
     >
+      {/* One number per concept: the basket is THE mcap headline; the broad
+          CoinGecko category is demoted to a context footnote under the table. */}
       <div className="grid g4" style={{ marginBottom: 14 }}>
-        {t && <Card label="Agent Token Mcap" value={usd(t.basketMcap)} sub={`basket of ${t.basket.length}`} hero />}
-        {cat && <Card label="AI Agents Category" value={usd(cat.mcap)} sub="CoinGecko (broad)" accent="#04795B" />}
+        {t && <Card label="Agent Token Mcap" value={usd(t.basketMcap)} sub={`basket of ${t.basket.length} · CoinGecko`} hero />}
         {svc && <Card label="x402 Providers" value={svc.uniqueProviders.toLocaleString()} sub={`${svc.totalListings.toLocaleString()} listings`} accent={BLUE} />}
         {t && <Card label="Basket 24h Vol" value={usd(t.basketVol24h)} sub="trading volume" />}
       </div>
@@ -522,6 +523,11 @@ function MarketSupplySection({ web }) {
               ))}
             </tbody>
           </table>
+          {cat && (
+            <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border-light)', fontSize: 11, color: 'var(--text-muted)' }}>
+              For reference: CoinGecko's broad "{cat.name}" category totals {usd(cat.mcap)} — it includes memecoins, so we don't use it as the headline.
+            </div>
+          )}
         </div>
       )}
     </Section>
@@ -664,7 +670,7 @@ function DashboardPage({ initialData }) {
   const usdCompact = v => {
     v = Number(v) || 0
     if (v >= 1e9) return `$${(v / 1e9).toFixed(1)}B`
-    if (v >= 1e6) return `$${(v / 1e6).toFixed(0)}M`
+    if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`
     return `$${v.toLocaleString()}`
   }
   const heroMcap = wsTokens ? usdCompact(wsTokens.basketMcap) : '—'
@@ -699,22 +705,39 @@ function DashboardPage({ initialData }) {
           <div className="eyebrow">On-chain events tracked</div>
           <div className="hero-num">{cEvents.toLocaleString()}</div>
           <FlowLines />
-          <div className="hero-row">
-            {[
-              { value: `$${cVol.toLocaleString()}`, label: 'USD settled', color: GREEN },
-              { value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
-              { value: totals.protocols, label: 'protocols', color: 'var(--text-strong)' },
-              { value: totals.chains, label: 'chains', color: 'var(--text-strong)' },
-              // New off-chain dimensions (web-sources.json) — distinct units, not
-              // folded into the events/USD aggregates above. '—' until client fetch.
-              { value: heroMcap, label: 'agent token mcap', color: '#04795B' },
-              { value: heroProviders, label: 'x402 providers', color: BLUE },
-            ].map((item, i) => (
-              <div className="hero-cell" key={i}>
-                <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
-                <div className="hero-label">{item.label}</div>
+          {/* Two labelled groups so measured on-chain flow is never read side by
+              side with off-chain market references (different unit systems). */}
+          <div className="hero-stats">
+            <div className="hero-group">
+              <div className="hero-group-label">Measured on-chain</div>
+              <div className="hero-row cols4">
+                {[
+                  { value: usdCompact(cVol), label: 'USD settled', color: GREEN },
+                  { value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
+                  { value: totals.protocols, label: 'protocols', color: 'var(--text-strong)' },
+                  { value: totals.chains, label: 'chains', color: 'var(--text-strong)' },
+                ].map((item, i) => (
+                  <div className="hero-cell" key={i}>
+                    <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
+                    <div className="hero-label">{item.label}</div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            <div className="hero-group ctx">
+              <div className="hero-group-label">Market context · off-chain</div>
+              <div className="hero-row cols2">
+                {[
+                  { value: heroMcap, label: 'agent token mcap', color: '#04795B' },
+                  { value: heroProviders, label: 'x402 providers', color: BLUE },
+                ].map((item, i) => (
+                  <div className="hero-cell" key={i}>
+                    <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
+                    <div className="hero-label">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="quick-actions">
             <a className="action-link" href="/data.json">Raw JSON</a>
@@ -1352,7 +1375,7 @@ function ProtocolRoutePage({ initialData, path }) {
           <div className="eyebrow">{config.eyebrow}</div>
           <div className="hero-num">{config.heroMetric(data, totals)}</div>
           <div style={{ marginTop: 0, marginBottom: 12, color: 'var(--text-muted)', fontSize: 12 }}>{config.heroLabel}</div>
-          <div className="hero-row">
+          <div className="hero-row cols4">
             {metrics.slice(0, 4).map((item, i) => (
               <div className="hero-cell" key={i}>
                 <div className="hero-sub" style={{ color: i === 0 ? BLUE : 'var(--text-strong)' }}>{item.value}</div>
