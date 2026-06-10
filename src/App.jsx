@@ -431,13 +431,16 @@ function X402Section({ x, xTxs, xVol }) {
   )
 }
 
-function ProtocolComparison({ data, totals }) {
+function ProtocolComparison({ data, totals, web }) {
   const rows = [
     { protocol: 'x402', href: '/x402', role: 'HTTP-native agent payments', events: data.x402.totalTxs, volume: data.x402.totalVolume, chains: data.x402.chainsTracked, source: SOURCES.x402[0] },
     { protocol: 'ERC-8004', href: '/erc-8004', role: 'Agent identity + reputation', events: data.baseAgentic.totalTxs, agents: data.erc8004Registry.totalAgents, chains: data.erc8004Registry.chainsTracked, source: SOURCES.erc8004[1] },
     { protocol: 'Virtuals ACP', href: '/virtuals-acp', role: 'Agent-to-agent commerce', events: data.virtualsAcp.totalMemos, volume: null, chains: 1, source: SOURCES.acp[0] },
     { protocol: 'Tempo / MPP', href: '/tempo-mpp', role: 'Machine payment channels', events: data.tempoMpp.totalEvents, volume: null, chains: 1, source: SOURCES.tempo[0] },
     { protocol: 'Olas', href: '/olas', role: 'Autonomous agent transactions', events: data.olas.totalTxs, volume: null, chains: data.olas.chains?.length || 0, source: SOURCES.olas[0] },
+    // Masumi comes from the web-sources pipeline (Koios, client-fetched), so it
+    // appears once that JSON loads — no subpage yet, hence no href.
+    ...(web?.masumi?.totalTxs ? [{ protocol: 'Masumi', role: 'Agent escrow payments (Cardano)', events: web.masumi.totalTxs, volume: null, chains: 1, source: { label: 'Koios / Masumi payment contract', href: 'https://dune.com/masumi/masumi' } }] : []),
   ]
 
   return (
@@ -462,7 +465,7 @@ function ProtocolComparison({ data, totals }) {
           <tbody>
             {rows.map(row => (
               <tr key={row.protocol}>
-                <td><strong><Link to={row.href}>{row.protocol}</Link></strong>{row.agents ? <div style={{ color: 'var(--text-faint)' }}>{fmt(row.agents)} agents</div> : null}</td>
+                <td><strong>{row.href ? <Link to={row.href}>{row.protocol}</Link> : row.protocol}</strong>{row.agents ? <div style={{ color: 'var(--text-faint)' }}>{fmt(row.agents)} agents</div> : null}</td>
                 <td>{row.role}</td>
                 <td>{row.events ? fmt(row.events) : 'Pending'}</td>
                 <td>{row.volume ? fmtMoney(row.volume) : 'N/A'}</td>
@@ -478,9 +481,8 @@ function ProtocolComparison({ data, totals }) {
 }
 
 function MarketSupplySection({ web }) {
-  if (!web || (!web.agentTokens && !web.x402Services)) return null
+  if (!web?.agentTokens) return null
   const t = web.agentTokens
-  const svc = web.x402Services
   const cat = t?.categories?.find(c => c.name === 'AI Agents')
   const usd = n => {
     const v = Number(n) || 0
@@ -491,19 +493,18 @@ function MarketSupplySection({ web }) {
     if (v >= 1e3) return `$${(v / 1e3).toFixed(0)}K`
     return `$${v.toFixed(0)}`
   }
-  const asOf = t?.asOf || svc?.asOf
+  const asOf = t?.asOf
   return (
     <Section
-      title="Market & Supply"
+      title="Market"
       badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
-      meta={`Capital + service catalog${asOfLabel(asOf)}`}
-      explanation={`Dimensions on-chain payment flow can't show: the market capitalization of agent-economy tokens (capital/sentiment) and the x402 service catalog (supply side — how many things agents can pay for). Token basket is hand-curated to agentic-payment protocols; the CoinGecko category total is broader and includes some memecoins. The provider count is unique domains in the Coinbase x402 Bazaar — the raw listing count is skewed by a few hosts that bulk-list thousands of endpoints${svc?.top2ListingSharePct ? ` (top 2 domains ≈ ${svc.top2ListingSharePct}% of listings)` : ''} and churns daily. Sources: CoinGecko, Coinbase x402 Bazaar.`}
+      meta={`Capital${asOfLabel(asOf)}`}
+      explanation="The capital/sentiment dimension on-chain payment flow can't show: market capitalization of agent-economy tokens. The basket is hand-curated to agentic-payment protocols; the broad CoinGecko category total includes some memecoins, so it appears only as a footnote. Source: CoinGecko."
     >
       {/* One number per concept: the basket is THE mcap headline; the broad
           CoinGecko category is demoted to a context footnote under the table. */}
       <div className="grid g4" style={{ marginBottom: 14 }}>
         {t && <Card label="Agent Token Mcap" value={usd(t.basketMcap)} sub={`basket of ${t.basket.length} · CoinGecko`} hero />}
-        {svc && <Card label="x402 Providers" value={svc.uniqueProviders.toLocaleString()} sub={`${svc.totalListings.toLocaleString()} listings`} accent={BLUE} />}
         {t && <Card label="Basket 24h Vol" value={usd(t.basketVol24h)} sub="trading volume" />}
       </div>
       {t && (
@@ -530,6 +531,59 @@ function MarketSupplySection({ web }) {
           )}
         </div>
       )}
+    </Section>
+  )
+}
+
+function AgentSupplySection({ web }) {
+  const svc = web?.x402Services
+  const sup = web?.agentSupply
+  const vir = web?.virtuals
+  if (!svc && !sup && !vir) return null
+  const asOf = sup?.asOf || svc?.asOf || vir?.asOf
+  return (
+    <Section
+      title="Agent Supply"
+      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+      meta={`What agents can use & who's selling${asOfLabel(asOf)}`}
+      explanation={`The supply side of the agent economy: services agents can pay for (x402 Bazaar — provider count is unique domains; the raw listing count is skewed by a few hosts that bulk-list thousands of endpoints${svc?.top2ListingSharePct ? `, top 2 domains ≈ ${svc.top2ListingSharePct}% of listings` : ''}), tools agents can call (official MCP Registry, counted by full enumeration${sup ? `; Smithery's directory counts ${sup.smitheryMcpServers.toLocaleString()} under different inclusion criteria` : ''}), and agents themselves (Virtuals Protocol launchpad totals from their public per-agent API). Sources: Coinbase x402 Bazaar, MCP Registry, Smithery, Virtuals.`}
+    >
+      <div className="grid g4" style={{ marginBottom: 0 }}>
+        {svc && <Card label="x402 Providers" value={svc.uniqueProviders.toLocaleString()} sub={`${svc.totalListings.toLocaleString()} listings`} accent={BLUE} hero />}
+        {sup && <Card label="MCP Servers" value={sup.officialMcpServers.toLocaleString()} sub="official registry" accent="#7C3AED" />}
+        {vir && <Card label="Virtuals Agents" value={vir.launchedAgents.toLocaleString()} sub={`${vir.acpRegisteredAgents.toLocaleString()} ACP-registered`} accent="#04795B" />}
+      </div>
+    </Section>
+  )
+}
+
+function DevAdoptionSection({ web }) {
+  const dev = web?.devAdoption
+  if (!dev?.totalWeeklyAvg4w) return null
+  return (
+    <Section
+      title="Developer Adoption"
+      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+      meta={`Agent-payment SDK downloads${asOfLabel(dev.asOf)}`}
+      explanation="Weekly downloads of the core agent-payment SDKs (npm + PyPI), 4-week trailing average over a fixed, published basket. Download counts include CI and mirror traffic — read this as an ecosystem-activity proxy, not a count of human developers. General agent-infra SDKs (MCP, A2A) are excluded: at 100x the volume they would drown the payment signal."
+    >
+      <div className="grid g4" style={{ marginBottom: 14 }}>
+        <Card label="SDK Downloads / Week" value={fmt(dev.totalWeeklyAvg4w)} sub={`4-week avg · ${dev.components.length} packages`} accent={BLUE} hero />
+      </div>
+      <div className="panel">
+        <div className="panel-title">Basket components (weekly avg)</div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <tbody>
+            {dev.components.map(c => (
+              <tr key={`${c.registry}:${c.pkg}`} style={{ borderTop: '1px solid var(--border)' }}>
+                <td style={{ padding: '7px 6px', fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', fontSize: 12 }}>{c.pkg}</td>
+                <td style={{ padding: '7px 6px', color: 'var(--muted)' }}>{c.registry}</td>
+                <td style={{ padding: '7px 6px', textAlign: 'right' }}>{c.weeklyAvg4w.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </Section>
   )
 }
@@ -748,12 +802,14 @@ function DashboardPage({ initialData }) {
         </section>
 
         <div id="comparison">
-          <ProtocolComparison data={data} totals={totals} />
+          <ProtocolComparison data={data} totals={totals} web={webSources} />
         </div>
 
         <X402Section x={x} xTxs={xTxs} xVol={xVol} />
 
         <MarketSupplySection web={webSources} />
+
+        <AgentSupplySection web={webSources} />
 
         <RegistrySection ag={ag} erc8004Reg={erc8004Reg} agTxs={agTxs} regAgents={regAgents} />
 
@@ -767,7 +823,15 @@ function DashboardPage({ initialData }) {
           totalValue={acp.totalMemos || 0}
           totalDisplay={acpMemos.toLocaleString()}
           delta={calcDelta(acp.daily, 'memos', 7)}
-          cards={[{ label: 'Standard', value: 'ERC-8183', sub: 'Agent commerce layer' }]}
+          cards={[
+            // Independently computed: summed across every registered ACP agent
+            // record via Virtuals' public per-agent API (web-sources pipeline).
+            ...(webSources?.virtuals?.aggregates ? [
+              { label: 'Gross Agentic Vol', value: `$${(webSources.virtuals.aggregates.grossAgenticUsd / 1e6).toFixed(1)}M`, sub: 'summed across agents', accent: GREEN },
+              { label: 'Total Jobs', value: fmt(webSources.virtuals.aggregates.totalJobs), sub: 'all ACP agents' },
+            ] : []),
+            { label: 'Standard', value: 'ERC-8183', sub: 'Agent commerce layer' },
+          ]}
           chartTitle="Daily ACP memos"
           chartData={acp.daily}
           chartKey="memos"
@@ -828,6 +892,8 @@ function DashboardPage({ initialData }) {
           unit=" txs"
         />
         <OlasChainPanel olas={olas} />
+
+        <DevAdoptionSection web={webSources} />
 
         <section id="methodology" className="panel fade" style={{ animationDelay: '.25s' }}>
           <div className="section-title" style={{ marginBottom: 16 }}>Methodology</div>
