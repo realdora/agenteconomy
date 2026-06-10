@@ -12,8 +12,14 @@
 --
 -- Output grain: per-(month, facilitator), upstream-compatible columns minus the
 -- cumulative_* fields (the pipeline computes the all-time totals from baseline +
--- window). Advance WINDOW_START and refresh the frozen baseline ~quarterly as
--- months close.
+-- window).
+--
+-- PARAMETER: declare a TEXT parameter `window_start` on the Dune query with
+-- default '2026-05-01'. The pipeline passes baselines.x402.cutoff for it on
+-- every execution, and scripts/dune/freeze-month.mjs advances that cutoff
+-- monthly (folding the closed month into the frozen baseline) so the scanned
+-- window never grows past ~6 weeks. NEVER advance the window by PATCHing this
+-- SQL — use the parameter; PATCHes bump the query version and wipe state.
 --
 -- Facilitator identity comes from upstream's maintained registry sub-queries
 -- (query_6057445 EVM, query_6148921 Solana), so new facilitators flow in.
@@ -71,7 +77,7 @@ WITH evm_transfers AS (
       END AS facilitator
   FROM tokens.transfers
   WHERE tx_from IN (SELECT address FROM query_6057445)
-    AND block_time >= DATE '2026-05-01'
+    AND block_time >= CAST('{{window_start}}' AS TIMESTAMP)
 ),
 
 solana_transfers AS (
@@ -91,7 +97,7 @@ solana_transfers AS (
       END AS facilitator
   FROM tokens_solana.transfers
   WHERE tx_signer IN (SELECT address FROM query_6148921)
-    AND block_time >= DATE '2026-05-01'
+    AND block_time >= CAST('{{window_start}}' AS TIMESTAMP)
 ),
 
 all_transfers AS (

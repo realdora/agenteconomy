@@ -1,3 +1,8 @@
+# [SUPERSEDED 2026-06-10 → see RUNBOOK-2026-06-29.md]
+# This documented the incremental-fork backfill; that design was abandoned
+# (forks dead with the suspended account; recent-window + frozen baseline now).
+# Kept for the gotchas only.
+
 # Dune backfill — resume runbook (after free-tier execution cap resets)
 
 Blocked 2026-06-06: ~40 executions in one session tripped an account-level

@@ -27,6 +27,12 @@ jobs:
         id: fetch-data
         env:
           DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+          # Recent-window query ids, set as repo VARIABLES (gh variable set …)
+          # once the queries are recreated under the working account — see
+          # scripts/dune/RUNBOOK-2026-06-29.md. Empty/unset falls back to the
+          # code defaults (the dead forks, which fail safe into previous-build).
+          DUNE_QID_X402_CUMULATIVE: ${{ vars.DUNE_QID_X402_CUMULATIVE }}
+          DUNE_QID_REGISTRY: ${{ vars.DUNE_QID_REGISTRY }}
         run: node scripts/fetch-data.js
 
       - name: Commit updated data.json

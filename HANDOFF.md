@@ -189,3 +189,35 @@ integrated. (This was a real "verify-before-trusting" save.)
 Memory file `project_agenteconomy_dune_pipeline.md` (in the user's auto-memory)
 has the running history if you need more depth. When in doubt, ask the user
 before any outward/irreversible action.
+
+---
+
+## ADDENDUM 2026-06-10 (Phase 0 executed)
+
+Everything below is LOCAL commits on `feat/dune-pipeline-v3`, still unpushed.
+
+- **Verification (triple cross-check) results:** token prices agree 3-way
+  (CG/Coinpaprika/Binance <0.5%); mcaps diverge per-coin up to ±30% on
+  circulating-supply estimates but the basket TOTAL is robust (~3%) → display
+  precision dropped to $1.2B. Bazaar full enumeration (26,971 listings, zero
+  dup URLs): only ~900 unique provider domains, top-2 hosts = 81% of listings,
+  catalog shrank 9% in one day → headline metric switched to PROVIDERS;
+  listings demoted to context.
+- **web-sources v2:** full-catalog enumeration (~270 pages, abort-on-page-fail
+  → falls back to previous values), `uniqueProviders`/`totalListings`/
+  `top2ListingSharePct`; category matched by slug not display name.
+- **UI:** hero cell 6 = "x402 providers"; mcap at 1-decimal; Market & Supply
+  card shows providers with listings as sub; concentration caveat in the
+  section explanation.
+- **Dune Phase 0 (all offline, zero Dune calls):** frozen-baseline merge is
+  WRITTEN and TESTED (no longer a TODO): `scripts/dune/baselines.json` (x402
+  exact totals/monthly; protocols approx from rounded shares — exact rebuild
+  via `build-baseline.mjs` on 6/29), window-grain support + boundary guards in
+  fetch-data.js for BOTH x402 and registry, `{{window_start}}` as a Dune query
+  parameter (never PATCH SQL), `freeze-month.mjs` monthly cutoff advance
+  (without it the window grows unbounded → 2-min timeout), registry
+  recent-window SQL, workflow pre-wired to repo vars `DUNE_QID_*`. Tests
+  31→60 checks green (S4 assertion was stale at HEAD; fixed).
+- **Runbook:** `scripts/dune/RUNBOOK-2026-06-29.md` (RESUME-RUNBOOK superseded).
+- Decisions taken by Dora 2026-06-10: hero = providers metric ✓, mcap $1.2B ✓,
+  proceed with local build ✓. STILL PENDING: push/merge/go-live approval.

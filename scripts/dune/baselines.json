@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-06-10T05:01:20.166Z",
+  "x402": {
+    "cutoff": "2026-05-01",
+    "source": "public/data.json frozen 2026-06-05 (upstream Q6058135). protocols are DERIVED from rounded display shares — approximate; regenerate exactly with scripts/dune/build-baseline.mjs once a working Dune key exists.",
+    "protocolsApprox": true,
+    "totalTxs": 143886846,
+    "totalVolume": 40458908,
+    "facilitatorsTracked": 18,
+    "monthly": [
+      {
+        "month": "2025-10",
+        "txs": 4092364,
+        "vol": 4223220
+      },
+      {
+        "month": "2025-11",
+        "txs": 52592786,
+        "vol": 20544830
+      },
+      {
+        "month": "2025-12",
+        "txs": 54248231,
+        "vol": 9412930
+      },
+      {
+        "month": "2026-01",
+        "txs": 19193699,
+        "vol": 1200235
+      },
+      {
+        "month": "2026-02",
+        "txs": 4068035,
+        "vol": 1624318
+      },
+      {
+        "month": "2026-03",
+        "txs": 5093759,
+        "vol": 1838531
+      },
+      {
+        "month": "2026-04",
+        "txs": 4597972,
+        "vol": 1614844
+      }
+    ],
+    "protocols": [
+      {
+        "name": "Coinbase",
+        "txs": 42014959,
+        "vol": 0
+      },
+      {
+        "name": "Dexter",
+        "txs": 31655106,
+        "vol": 0
+      },
+      {
+        "name": "PayAI",
+        "txs": 29209030,
+        "vol": 0
+      },
+      {
+        "name": "Other",
+        "txs": 28633482,
+        "vol": 0
+      },
+      {
+        "name": "DayDreams",
+        "txs": 11367061,
+        "vol": 0
+      },
+      {
+        "name": "Pieverse",
+        "txs": 1007208,
+        "vol": 0
+      }
+    ]
+  },
+  "erc8004Registry": null
+}

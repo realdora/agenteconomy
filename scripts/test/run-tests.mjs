@@ -140,11 +140,14 @@ function check(name, cond, detail = '') {
   else { failures += 1; console.error(`  ✗ ${name} ${detail}`) }
 }
 
-async function runPipeline(scenario, { seedDataJson } = {}) {
+async function runPipeline(scenario, { seedDataJson, baselines } = {}) {
   const log = []
   const { server, port } = await startMock(scenario, log)
   const outDir = mkdtempSync(join(tmpdir(), 'dune-test-'))
   if (seedDataJson) writeFileSync(join(outDir, 'data.json'), seedDataJson)
+  // Hermetic baselines: tests never read the repo's real baselines.json.
+  const baselinesPath = join(outDir, 'baselines.json')
+  if (baselines) writeFileSync(baselinesPath, JSON.stringify(baselines))
   const ghOutput = join(outDir, 'gh_output')
   writeFileSync(ghOutput, '')
   const proc = await new Promise(resolve => {
@@ -156,6 +159,7 @@ async function runPipeline(scenario, { seedDataJson } = {}) {
       // Pin query ids to the fixture ids (script defaults now point at the forks).
       DUNE_QID_X402_CUMULATIVE: '6058135',
       DUNE_QID_REGISTRY: '6130922',
+      DUNE_BASELINES_PATH: baselinesPath,
       DATA_OUT_DIR: outDir,
       DUNE_POLL_INTERVAL_MS: '20',
       DUNE_RETRY_DELAY_MS: '50',
@@ -224,7 +228,8 @@ s4scenario.queries[6058135].execute.behavior = 'fail'
 const s4 = await runPipeline(s4scenario, { seedDataJson: SEED })
 check('exit 0', s4.status === 0, `status=${s4.status}\n${s4.stdout}`)
 check('fallback warning emitted', s4.stdout.includes('falling back to newest available data'))
-check('fell back to latest download', countLog(s4.log, '/query/6058135/results?limit=5000') === 1)
+// (limit must track the QUERIES config — it was 5000 before the fork bumped it to 10000)
+check('fell back to latest download', countLog(s4.log, '/query/6058135/results?limit=10000') === 1, JSON.stringify(s4.log.filter(l => l.includes('6058135'))))
 check('sla_breach=false', s4.ghOutput.includes('sla_breach=false'), s4.ghOutput)
 
 // S5 — failed refresh, stale fallback: cache is 80h old (> 54h SLA) → data still
@@ -268,6 +273,103 @@ check('totals summed from daily', s7data?.x402.totalTxs === DAYS * 3 * 1000, `go
 check('volume summed from daily', s7data?.x402.totalVolume === DAYS * 3 * 250, `got ${s7data?.x402.totalVolume}`)
 check('rolled up to multiple months', s7data?.x402.monthly.length >= 4, JSON.stringify(s7data?.x402.monthly))
 check('facilitator shares present', s7data?.x402.protocols.length === 3)
+
+// S8 — recent-window x402 + frozen baseline: window rows (month grain, no
+// cumulative_* columns) combine with baselines.json; pre-cutoff rows dropped.
+console.log('\nS8 x402 recent window + frozen baseline (combine, boundary guard)')
+const X402_BASELINE = {
+  x402: {
+    cutoff: '2026-05-01',
+    totalTxs: 1_000_000, totalVolume: 500_000, facilitatorsTracked: 5,
+    monthly: [
+      { month: '2026-03', txs: 400_000, vol: 200_000 },
+      { month: '2026-04', txs: 600_000, vol: 300_000 },
+    ],
+    protocols: [{ name: 'Coinbase', txs: 700_000, vol: 0 }, { name: 'PayAI', txs: 300_000, vol: 0 }],
+  },
+  erc8004Registry: null,
+}
+const windowRows = [
+  { date_time: '2026-04-01 00:00', facilitator: 'Coinbase', total_txn: 999_999, total_vol: 999_999 }, // pre-cutoff: must be DROPPED
+  { date_time: '2026-05-01 00:00', facilitator: 'Coinbase', total_txn: 1000, total_vol: 250 },
+  { date_time: '2026-05-01 00:00', facilitator: 'Dexter', total_txn: 500, total_vol: 100 },
+  { date_time: '2026-06-01 00:00', facilitator: 'Coinbase', total_txn: 200, total_vol: 50 },
+]
+const s8scenario = defaultScenario()
+s8scenario.queries[6058135].latest = { execution_id: 'exec-x402-window', endedHoursAgo: 1, rows: windowRows }
+const s8 = await runPipeline(s8scenario, { baselines: X402_BASELINE })
+const s8data = s8.data ? JSON.parse(s8.data) : null
+check('exit 0', s8.status === 0, `status=${s8.status}\n${s8.stdout}`)
+check('totals = baseline + window', s8data?.x402.totalTxs === 1_000_000 + 1700, `got ${s8data?.x402.totalTxs}`)
+check('volume = baseline + window', s8data?.x402.totalVolume === 500_000 + 400, `got ${s8data?.x402.totalVolume}`)
+check('pre-cutoff row dropped (no 999999 leak)', s8data?.x402.totalTxs < 1_900_000)
+check('drop warning emitted', s8.stdout.includes('pre-cutoff'))
+check('monthly = frozen + window months', s8data?.x402.monthly.length === 4, JSON.stringify(s8data?.x402.monthly))
+check('frozen month untouched', s8data?.x402.monthly[1].txs === 600_000, JSON.stringify(s8data?.x402.monthly[1]))
+check('May = window only', s8data?.x402.monthly[2].txs === 1500, JSON.stringify(s8data?.x402.monthly[2]))
+check('protocols merged (Dexter appears)', s8data?.x402.protocols.some(p => p.name === 'Dexter'), JSON.stringify(s8data?.x402.protocols))
+check('facilitatorsTracked keeps frozen count', s8data?.x402.facilitatorsTracked === 5, `got ${s8data?.x402.facilitatorsTracked}`)
+const s8shareSum = s8data?.x402.protocols.reduce((s, p) => s + p.share, 0)
+check('shares sum ≈ 100', Math.abs(s8shareSum - 100) < 1, `got ${s8shareSum}`)
+
+// S8b — window rows but NO baseline: refuse to publish window-only totals.
+console.log('\nS8b x402 window rows without baseline (hard refusal)')
+const s8b = await runPipeline(s8scenario)
+check('exit 1', s8b.status === 1, `status=${s8b.status}`)
+check('names the missing baseline', s8b.stdout.includes('baseline'), s8b.stdout.slice(0, 400))
+
+// S9 — registry recent window + frozen baseline.
+console.log('\nS9 registry recent window + frozen baseline')
+const REG_BASELINE = {
+  x402: X402_BASELINE.x402,
+  erc8004Registry: {
+    cutoff: '2026-05-01',
+    totalAgents: 5000,
+    chains: [{ name: 'Base', agents: 3000 }, { name: 'BNB', agents: 2000 }],
+    daily: [{ day: '2026-04-28', agents: 10 }, { day: '2026-04-29', agents: 12 }],
+  },
+}
+const regWindowRows = [
+  { blockchain: 'base', block_date: '2026-04-30', registered: 999 }, // pre-cutoff: DROPPED
+  { blockchain: 'base', block_date: '2026-05-02', registered: 7 },
+  { blockchain: 'bnb', block_date: '2026-05-03', registered: 5 },
+  { blockchain: 'ethereum', block_date: '2026-05-04', registered: 3 },
+  { blockchain: 'sepolia', block_date: '2026-05-04', registered: 50 }, // testnet: filtered
+]
+const s9scenario = defaultScenario()
+s9scenario.queries[6058135].latest = { execution_id: 'exec-x402-window', endedHoursAgo: 1, rows: windowRows }
+s9scenario.queries[6130922].latest = { execution_id: 'exec-reg-window', endedHoursAgo: 1, rows: regWindowRows }
+const s9 = await runPipeline(s9scenario, { baselines: REG_BASELINE })
+const s9data = s9.data ? JSON.parse(s9.data) : null
+check('exit 0', s9.status === 0, `status=${s9.status}\n${s9.stdout}`)
+check('totalAgents = baseline + window', s9data?.erc8004Registry.totalAgents === 5015, `got ${s9data?.erc8004Registry.totalAgents}`)
+check('Base merged', s9data?.erc8004Registry.chains.find(c => c.name === 'Base')?.agents === 3007, JSON.stringify(s9data?.erc8004Registry.chains))
+check('new chain appears', s9data?.erc8004Registry.chains.some(c => c.name === 'Ethereum'))
+check('testnet filtered + boundary dropped', !s9data?.erc8004Registry.chains.some(c => c.name === 'Sepolia') && s9data?.erc8004Registry.totalAgents === 5015)
+check('daily concatenated', s9data?.erc8004Registry.daily.length === 5, JSON.stringify(s9data?.erc8004Registry.daily))
+
+// S10 — baseline-lib unit tests (build + monthly freeze fold).
+console.log('\nS10 baseline-lib: build + freeze-month fold')
+const { buildX402Baseline, foldX402Window, foldRegistryWindow } = await import('../dune/baseline-lib.mjs')
+const legacyRows = []
+for (const m of ['2026-03', '2026-04', '2026-05']) {
+  for (const fac of ['Coinbase', 'PayAI']) legacyRows.push({ date_time: `${m}-01 00:00`, facilitator: fac, total_txn: 100, total_vol: 10, cumulative_txn: 600, cumulative_volume: 60 })
+}
+const built = buildX402Baseline(legacyRows, '2026-05-01')
+check('build keeps only pre-cutoff months', built.monthly.length === 2 && built.totalTxs === 400, JSON.stringify(built.monthly))
+check('build is exact per facilitator', built.protocols.find(p => p.name === 'Coinbase')?.txs === 200)
+check('build flags exact', built.protocolsApprox === false)
+
+const folded = foldX402Window(X402_BASELINE.x402, windowRows.slice(1), '2026-06-01')
+check('fold advances cutoff', folded.cutoff === '2026-06-01')
+check('fold adds May only', folded.totalTxs === 1_000_000 + 1500 && folded.monthly.length === 3, `got ${folded.totalTxs}, ${folded.monthly.length} months`)
+check('fold merges protocols', folded.protocols.find(p => p.name === 'Dexter')?.txs === 500)
+check('June stays in window territory', !folded.monthly.some(m => m.month === '2026-06'))
+let foldErr = null
+try { foldX402Window(X402_BASELINE.x402, [{ date_time: '2026-07-01 00:00', facilitator: 'X', total_txn: 1, total_vol: 1 }], '2026-06-01') } catch (e) { foldErr = e }
+check('fold refuses uncovered month', !!foldErr && foldErr.message.includes('refusing'), foldErr?.message)
+const regFolded = foldRegistryWindow(REG_BASELINE.erc8004Registry, regWindowRows, '2026-06-01')
+check('registry fold: totals + boundary + testnet', regFolded.totalAgents === 5015 && regFolded.cutoff === '2026-06-01', `got ${regFolded.totalAgents}`)
 
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)

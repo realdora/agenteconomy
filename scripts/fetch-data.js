@@ -28,6 +28,11 @@ if (!API_KEY) {
 }
 
 const DUNE_API_BASE = process.env.DUNE_API_BASE || 'https://api.dune.com/api/v1'
+// Frozen-baseline file for the stateless recent-window design (2026-06-09):
+// closed months never change, so they live here as constants and the Dune
+// queries only scan a short recent window. See scripts/dune/baselines.json,
+// build-baseline.mjs (exact rebuild) and freeze-month.mjs (monthly advance).
+const BASELINES_PATH = process.env.DUNE_BASELINES_PATH || join(__dirname, 'dune', 'baselines.json')
 const EXECUTION_TIMEOUT_MS = Number(process.env.DUNE_EXECUTION_TIMEOUT_MS || 15 * 60 * 1000)
 const POLL_INTERVAL_MS = Number(process.env.DUNE_POLL_INTERVAL_MS || 5000)
 const RETRY_DELAY_MS = Number(process.env.DUNE_RETRY_DELAY_MS || 15000)
@@ -52,11 +57,15 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const QUERIES = [
   {
     key: 'x402Cumulative',
-    // 7666075 = our incremental fork; set DUNE_QID_X402_CUMULATIVE=6058135 to revert to upstream.
+    // 7666075 = the DEAD incremental fork (suspended account) — a safe inert
+    // default: probes/executes against it fail and the pipeline falls back to
+    // the previous build. Once the recent-window query is recreated under the
+    // working account (RUNBOOK-2026-06-29.md), set DUNE_QID_X402_CUMULATIVE to
+    // its id. Do NOT point this at upstream 6058135 on a cron: its full-history
+    // rescan is what burned the original account's monthly credits.
     id: Number(process.env.DUNE_QID_X402_CUMULATIVE || 7666075),
-    limit: 10000, // incremental fork emits per-(day, facilitator), ~2700 rows growing ~10/day
-
-
+    limit: 10000,
+    baselineKey: 'x402', // recent-window query takes {{window_start}} = baselines.x402.cutoff
     maxAgeHours: 20,
     slaHours: 54,
     label: 'x402 cumulative',
@@ -87,9 +96,13 @@ const QUERIES = [
   },
   {
     key: 'erc8004Registry',
-    // 7666083 = our incremental fork; set DUNE_QID_REGISTRY=6130922 to revert to upstream.
+    // 7666083 = the DEAD incremental fork (suspended account); same inert-default
+    // rationale as x402Cumulative. Switch to the registry recent-window query id
+    // (erc8004-registry-recent-window.sql) once recreated; upstream 6130922 is a
+    // full evms.logs rescan that can't finish on the free small engine.
     id: Number(process.env.DUNE_QID_REGISTRY || 7666083),
     limit: 5000,
+    baselineKey: 'erc8004Registry',
     maxAgeHours: 40,
     slaHours: 120,
     label: 'ERC-8004 registry',
@@ -181,6 +194,14 @@ function readExistingData() {
   }
 }
 
+function readBaselines() {
+  try {
+    return JSON.parse(readFileSync(BASELINES_PATH, 'utf8'))
+  } catch {
+    return {}
+  }
+}
+
 const PROTOCOL_COLORS = {
   'Coinbase': '#0052FF', 'Dexter': '#6366F1', 'PayAI': '#10B981',
   'DayDreams': '#F59E0B', 'Daydreams': '#F59E0B', 'thirdweb': '#A855F7',
@@ -197,39 +218,66 @@ const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
 
 // ── Per-query parsers: raw rows → fragment ───────────────────
 const PARSERS = {
-  x402Cumulative(rows) {
-    // Two supported grains:
-    //   - incremental fork (query 7666075): per-(day, facilitator); totals are
-    //     summed in JS since daily txn/vol are additive (see the .sql header).
+  x402Cumulative(rows, baselines) {
+    // Three supported grains:
+    //   - recent-window (stateless, current design): per-(month, facilitator)
+    //     WITHOUT cumulative_* columns; the query only scans transfers since
+    //     baselines.x402.cutoff. Totals/monthly/mix = frozen baseline
+    //     (scripts/dune/baselines.json) + this window.
+    //   - incremental fork (query 7666075): per-(day, facilitator) — dead
+    //     (suspended account), kept for the offline tests and DUNE_QID_* revert.
     //   - legacy upstream (query 6058135): per-(month, facilitator) with
-    //     precomputed cumulative_* columns. Kept so DUNE_QID_* can revert.
-    const isDaily = 'day' in (rows[0] || {})
+    //     precomputed cumulative_* columns. NEVER cron this one — its
+    //     full-history rescan is what burned the original account's credits.
+    const first = rows[0] || {}
+    const isDaily = 'day' in first
+    const isLegacy = !isDaily && 'cumulative_txn' in first
+    const isWindow = !isDaily && !isLegacy
+    const base = baselines?.x402
     if (isDaily) {
       assertRowShape(rows, ['day', 'facilitator', 'total_txn', 'total_vol'], 'Q x402Cumulative (daily fork)')
+    } else if (isWindow) {
+      assertRowShape(rows, ['date_time', 'facilitator', 'total_txn', 'total_vol'], 'Q x402Cumulative (recent window)')
+      if (!base?.cutoff) throw new Error('x402 recent-window rows received but scripts/dune/baselines.json has no x402 baseline — refusing to publish window-only totals')
     } else {
       assertRowShape(rows, ['cumulative_txn', 'cumulative_volume', 'total_txn', 'total_vol', 'facilitator', 'date_time'], 'Q x402Cumulative')
     }
     const protocolMap = {}, monthlyMap = {}
     let totalTxs = 0, totalVolume = 0
-    if (!isDaily) {
+    if (isLegacy) {
       totalTxs = safeNum(rows[0].cumulative_txn)
       totalVolume = safeNum(rows[0].cumulative_volume)
     }
+    if (isWindow) {
+      // Seed everything from the frozen baseline, then add the window on top.
+      totalTxs = safeNum(base.totalTxs)
+      totalVolume = safeNum(base.totalVolume)
+      for (const m of base.monthly || []) monthlyMap[m.month] = { txs: safeNum(m.txs), vol: safeNum(m.vol) }
+      for (const p of base.protocols || []) protocolMap[p.name] = { txs: safeNum(p.txs), vol: safeNum(p.vol) }
+    }
+    const cutoffMonth = isWindow ? base.cutoff.slice(0, 7) : null
+    let droppedPreCutoff = 0
     rows.forEach(row => {
+      const month = (isDaily ? row.day : row.date_time || '').slice(0, 7)
+      // Boundary guard: frozen months stay frozen. Anything the window query
+      // returns before the cutoff month would double-count the baseline.
+      if (isWindow && month && month < cutoffMonth) { droppedPreCutoff += 1; return }
       const name = row.facilitator || 'Other'
       if (!protocolMap[name]) protocolMap[name] = { txs: 0, vol: 0 }
       const txn = safeNum(row.total_txn)
       const vol = safeNum(row.total_vol)
       protocolMap[name].txs += txn
       protocolMap[name].vol += vol
-      if (isDaily) { totalTxs += txn; totalVolume += vol }
-      const month = (isDaily ? row.day : row.date_time || '').slice(0, 7)
+      if (isDaily || isWindow) { totalTxs += txn; totalVolume += vol }
       if (month) {
         if (!monthlyMap[month]) monthlyMap[month] = { txs: 0, vol: 0 }
         monthlyMap[month].txs += txn
         monthlyMap[month].vol += vol
       }
     })
+    if (droppedPreCutoff > 0) {
+      console.warn(`x402 recent window: dropped ${droppedPreCutoff} pre-cutoff rows (< ${base.cutoff}) to protect the frozen baseline`)
+    }
     const monthly = Object.entries(monthlyMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, v]) => {
@@ -252,7 +300,11 @@ const PARSERS = {
     return {
       totalTxs: Math.round(totalTxs),
       totalVolume: Math.round(totalVolume),
-      facilitatorsTracked: Object.keys(protocolMap).length,
+      // The baseline only carries the top displayed facilitators by name, so in
+      // window mode the map undercounts the long tail — keep the frozen count.
+      facilitatorsTracked: isWindow
+        ? Math.max(safeNum(base.facilitatorsTracked), Object.keys(protocolMap).length)
+        : Object.keys(protocolMap).length,
       monthly,
       protocols,
     }
@@ -315,13 +367,25 @@ const PARSERS = {
     return { totalMemos: maxTotalMemo, daily }
   },
 
-  erc8004Registry(rows) {
+  erc8004Registry(rows, baselines) {
+    // Same row shape for both modes. When baselines.erc8004Registry exists the
+    // rows are treated as a recent window (>= cutoff) on top of the frozen
+    // per-chain/daily baseline; when it is null (current state) the rows are a
+    // full history and parse exactly as before.
     assertRowShape(rows, ['blockchain', 'block_date', 'registered'], 'Q erc8004Registry')
+    const base = baselines?.erc8004Registry
+    const cutoffDay = base?.cutoff ? base.cutoff.slice(0, 10) : null
     const chains = {}, dailyMap = {}
+    if (base) {
+      for (const c of base.chains || []) chains[c.name] = safeNum(c.agents)
+      for (const d of base.daily || []) dailyMap[d.day] = safeNum(d.agents)
+    }
+    let droppedPreCutoff = 0
     rows.forEach(row => {
       const chain = row.blockchain || ''
       if (TESTNETS.has(chain)) return
       const day = (row.block_date || '').slice(0, 10)
+      if (cutoffDay && day && day < cutoffDay) { droppedPreCutoff += 1; return }
       const reg = safeNum(row.registered)
       const name = chainName(chain)
       if (!chains[name]) chains[name] = 0
@@ -331,6 +395,9 @@ const PARSERS = {
         dailyMap[day] += reg
       }
     })
+    if (droppedPreCutoff > 0) {
+      console.warn(`registry recent window: dropped ${droppedPreCutoff} pre-cutoff rows (< ${base.cutoff}) to protect the frozen baseline`)
+    }
     return {
       totalAgents: Object.values(chains).reduce((s, v) => s + v, 0),
       chainsTracked: Object.keys(chains).length,
@@ -399,11 +466,33 @@ const MONOTONIC = {
 }
 
 // ── Execution (sequential: free plan = 1 concurrent query) ───
-async function executeAndWait(query) {
-  const started = await duneRequest(`/query/${query.id}/execute`, {
-    method: 'POST',
-    body: JSON.stringify({ performance: PERFORMANCE }),
-  })
+async function executeAndWait(query, baselines) {
+  // Recent-window queries declare a {{window_start}} text parameter; we drive
+  // it from the frozen-baseline cutoff. Advancing the window = editing
+  // baselines.json — never PATCH the SQL (a PATCH bumps the query version and
+  // wipes Dune-side state; that bit us hard in the incremental era).
+  const windowStart = query.baselineKey ? baselines?.[query.baselineKey]?.cutoff : null
+  let started
+  try {
+    started = await duneRequest(`/query/${query.id}/execute`, {
+      method: 'POST',
+      body: JSON.stringify({
+        performance: PERFORMANCE,
+        ...(windowStart ? { query_parameters: { window_start: windowStart } } : {}),
+      }),
+    })
+  } catch (error) {
+    // Legacy/fork queries don't declare the parameter — retry once without it.
+    if (windowStart && error.status === 400 && /param/i.test(error.message || '')) {
+      console.warn(`${query.label}: query rejected window_start parameter; retrying without it`)
+      started = await duneRequest(`/query/${query.id}/execute`, {
+        method: 'POST',
+        body: JSON.stringify({ performance: PERFORMANCE }),
+      })
+    } else {
+      throw error
+    }
+  }
   const executionId = started.execution_id
   if (!executionId) throw new Error(`Dune ${query.id}: execute response missing execution_id`)
   const startedAt = Date.now()
@@ -427,6 +516,10 @@ async function main() {
   console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE}\n`)
 
   const existing = readExistingData()
+  const baselines = readBaselines()
+  if (baselines?.x402?.cutoff) {
+    console.log(`frozen baseline: x402 through < ${baselines.x402.cutoff}${baselines.erc8004Registry?.cutoff ? `, registry through < ${baselines.erc8004Registry.cutoff}` : ''}${baselines.x402.protocolsApprox ? ' (protocols approx — run build-baseline.mjs for exact)' : ''}`)
+  }
   const prevMeta = existing?.meta?.queries || {}
   const warnings = []
   const hardFailures = []
@@ -469,7 +562,7 @@ async function main() {
     console.log(`${state.query.label}: latest result ${ageLabel}; executing fresh (engine ${PERFORMANCE})`)
     executionsUsed += 1
     try {
-      state.execResult = await executeAndWait(state.query)
+      state.execResult = await executeAndWait(state.query, baselines)
       state.execId = state.execResult.execution_id || null
       state.execEndedAt = getExecutionEndedAt(state.execResult) || new Date().toISOString()
     } catch (error) {
@@ -523,7 +616,7 @@ async function main() {
           warnings.push(`${query.label}: returned exactly limit=${query.limit} rows — possible truncation, verify upstream ordering`)
           console.warn(warnings[warnings.length - 1])
         }
-        fragments[query.key] = PARSERS[query.key](rows)
+        fragments[query.key] = PARSERS[query.key](rows, baselines)
         metaOut[query.key] = { queryId: query.id, executionId, executedAt }
         fragmentSources[query.key] = source
         console.log(`${query.label}: ${rows.length} rows (${source})`)
