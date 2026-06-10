@@ -484,7 +484,9 @@ function MarketSupplySection({ web }) {
   const cat = t?.categories?.find(c => c.name === 'AI Agents')
   const usd = n => {
     const v = Number(n) || 0
-    if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`
+    // 1 decimal for $B: supply estimates differ ~30% across aggregators,
+    // 2 decimals would be false precision.
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(1)}B`
     if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`
     if (v >= 1e3) return `$${(v / 1e3).toFixed(0)}K`
     return `$${v.toFixed(0)}`
@@ -495,12 +497,12 @@ function MarketSupplySection({ web }) {
       title="Market & Supply"
       badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
       meta={`Capital + service catalog${asOfLabel(asOf)}`}
-      explanation="Dimensions on-chain payment flow can't show: the market capitalization of agent-economy tokens (capital/sentiment) and the size of the x402 service catalog (supply side — how many things agents can pay for). Token basket is hand-curated to agentic-payment protocols; the CoinGecko category total is broader and includes some memecoins. Sources: CoinGecko, Coinbase x402 Bazaar."
+      explanation={`Dimensions on-chain payment flow can't show: the market capitalization of agent-economy tokens (capital/sentiment) and the x402 service catalog (supply side — how many things agents can pay for). Token basket is hand-curated to agentic-payment protocols; the CoinGecko category total is broader and includes some memecoins. The provider count is unique domains in the Coinbase x402 Bazaar — the raw listing count is skewed by a few hosts that bulk-list thousands of endpoints${svc?.top2ListingSharePct ? ` (top 2 domains ≈ ${svc.top2ListingSharePct}% of listings)` : ''} and churns daily. Sources: CoinGecko, Coinbase x402 Bazaar.`}
     >
       <div className="grid g4" style={{ marginBottom: 14 }}>
         {t && <Card label="Agent Token Mcap" value={usd(t.basketMcap)} sub={`basket of ${t.basket.length}`} hero />}
         {cat && <Card label="AI Agents Category" value={usd(cat.mcap)} sub="CoinGecko (broad)" accent="#04795B" />}
-        {svc && <Card label="x402 Services" value={svc.totalServices.toLocaleString()} sub="Bazaar catalog" accent={BLUE} />}
+        {svc && <Card label="x402 Providers" value={svc.uniqueProviders.toLocaleString()} sub={`${svc.totalListings.toLocaleString()} listings`} accent={BLUE} />}
         {t && <Card label="Basket 24h Vol" value={usd(t.basketVol24h)} sub="trading volume" />}
       </div>
       {t && (
@@ -653,17 +655,20 @@ function DashboardPage({ initialData }) {
   const olasTxs = useCountUp(olas.totalTxs || 0)
 
   // Off-chain hero stats from web-sources.json (client-fetched). Defensible
-  // curated basket (not the memecoin-contaminated CoinGecko category). '—' until loaded.
+  // curated basket (not the memecoin-contaminated CoinGecko category), shown at
+  // 1-decimal precision — aggregators disagree on circulating supply by up to
+  // ~30% per coin, so 2 decimals would be false precision. Provider domains
+  // (not raw listings: top-2 hosts bulk-list ~80%). '—' until loaded.
   const wsTokens = webSources?.agentTokens
   const wsSvc = webSources?.x402Services
   const usdCompact = v => {
     v = Number(v) || 0
-    if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`
+    if (v >= 1e9) return `$${(v / 1e9).toFixed(1)}B`
     if (v >= 1e6) return `$${(v / 1e6).toFixed(0)}M`
     return `$${v.toLocaleString()}`
   }
   const heroMcap = wsTokens ? usdCompact(wsTokens.basketMcap) : '—'
-  const heroServices = wsSvc ? wsSvc.totalServices.toLocaleString() : '—'
+  const heroProviders = wsSvc?.uniqueProviders ? wsSvc.uniqueProviders.toLocaleString() : '—'
 
   return (
     <div className="app">
@@ -703,7 +708,7 @@ function DashboardPage({ initialData }) {
               // New off-chain dimensions (web-sources.json) — distinct units, not
               // folded into the events/USD aggregates above. '—' until client fetch.
               { value: heroMcap, label: 'agent token mcap', color: '#04795B' },
-              { value: heroServices, label: 'x402 services', color: BLUE },
+              { value: heroProviders, label: 'x402 providers', color: BLUE },
             ].map((item, i) => (
               <div className="hero-cell" key={i}>
                 <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>

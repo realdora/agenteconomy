@@ -33,6 +33,7 @@ const CG = process.env.COINGECKO_BASE || 'https://api.coingecko.com/api/v3'
 const BAZAAR = 'https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources'
 
 const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0 }
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 // Optional free CoinGecko Demo key improves reliability from shared CI IPs.
 const CG_KEY = process.env.COINGECKO_API_KEY
@@ -65,11 +66,11 @@ async function fetchAgentTokens() {
   const basketMcap = basket.reduce((s, t) => s + t.mcap, 0)
   const basketVol = markets.reduce((s, m) => s + num(m?.total_volume), 0)
 
-  // 1b. category totals (reference, mixes in memecoins — labelled as such)
+  // 1b. category totals (reference, mixes in memecoins — labelled as such).
+  // Match by category id (slug), not display name — names get renamed.
   const cats = await getJson(`${CG}/coins/categories`)
-  const wantNames = { 'ai-agents': 'AI Agents', 'ai-agent-launchpad': 'AI Agent Launchpad' }
   const categories = CATEGORIES.map(slug => {
-    const c = cats.find(x => x.name === wantNames[slug])
+    const c = cats.find(x => x.id === slug)
     return c ? { name: c.name, mcap: Math.round(num(c.market_cap)), vol24h: Math.round(num(c.volume_24h)), updatedAt: c.updated_at } : null
   }).filter(Boolean)
 
@@ -83,18 +84,50 @@ async function fetchAgentTokens() {
 }
 
 async function fetchX402Services() {
-  // Headline total is exact (pagination.total). We intentionally do NOT publish
-  // a per-network split: the catalog is ordered (offset pages are not a random
-  // sample — early pages are diverse, later pages skew Base), so any partial
-  // sample misrepresents the distribution. Total only until we run a full
-  // (~150-page) enumeration on a slow cadence.
-  const data = await getJson(`${BAZAAR}?limit=1`, { timeout: 30000 })
-  const total = num(data?.pagination?.total)
+  // Full catalog enumeration (~270 light pages, ~2 min). The raw listing count
+  // is dominated by a couple of bulk-listing hosts (verified 2026-06-10: top-2
+  // domains ≈ 80% of all listings, and the catalog shrank 9% in a day), so the
+  // defensible headline is UNIQUE PROVIDER DOMAINS; listings are context only.
+  // Any page failing after 3 attempts aborts the whole section (a partial scan
+  // would under-report providers); the caller then reuses the previous values.
+  const PAGE = 100
+  const first = await getJson(`${BAZAAR}?limit=${PAGE}`, { timeout: 30000 })
+  const total = num(first?.pagination?.total)
   if (total <= 0) throw new Error('Bazaar returned no total count')
+  if (total > 200000) throw new Error(`Bazaar total ${total} implausibly large; refusing full enumeration`)
+
+  const hosts = new Map()
+  let listings = 0
+  const tally = items => {
+    for (const it of items || []) {
+      listings += 1
+      let host
+      try { host = new URL(it.resource || it.resourceUrl || it.url || '').host } catch { host = '(unparsed)' }
+      hosts.set(host, (hosts.get(host) || 0) + 1)
+    }
+  }
+  tally(first.items)
+  for (let offset = PAGE; offset < total; offset += PAGE) {
+    let page = null, lastErr = null
+    for (let attempt = 1; attempt <= 3 && !page; attempt++) {
+      try { page = await getJson(`${BAZAAR}?limit=${PAGE}&offset=${offset}`, { timeout: 30000 }) }
+      catch (e) { lastErr = e; await sleep(1500 * attempt) }
+    }
+    if (!page) throw new Error(`Bazaar enumeration failed at offset ${offset}: ${lastErr?.message}`)
+    tally(page.items)
+    await sleep(120)
+  }
+
+  const counts = [...hosts.values()].sort((a, b) => b - a)
+  const top2ListingSharePct = listings > 0
+    ? Math.round(((counts[0] || 0) + (counts[1] || 0)) / listings * 100)
+    : 0
   return {
     asOf: new Date().toISOString(),
-    totalServices: total,
-    note: 'Exact catalog size from Coinbase x402 Bazaar discovery. Per-network split deferred (catalog is ordered, so partial samples are biased).',
+    uniqueProviders: hosts.size,
+    totalListings: listings,
+    top2ListingSharePct,
+    note: 'Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily.',
   }
 }
 
@@ -123,7 +156,7 @@ async function main() {
     out.agentTokens.categories.forEach(c => console.log(`     [cat] ${c.name}: $${c.mcap.toLocaleString()}`))
   }
   if (out.x402Services) {
-    console.log(`  x402 services: ${out.x402Services.totalServices.toLocaleString()} in Bazaar catalog`)
+    console.log(`  x402 providers: ${out.x402Services.uniqueProviders.toLocaleString()} unique domains (${out.x402Services.totalListings.toLocaleString()} listings, top-2 hosts ${out.x402Services.top2ListingSharePct}%)`)
   }
 }
 
