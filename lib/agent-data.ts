@@ -36,6 +36,7 @@ export const FALLBACK: AgentData = {
     { proto: "Olas", value: 16.4, suffix: "M" },
     { proto: "Virtuals ACP", value: 12.3, suffix: "M" },
     { proto: "ERC-8004", value: 216.7, suffix: "K" },
+    { proto: "Tempo MPP", value: 26.5, suffix: "K" },
   ],
   price: {
     volumeM: 40.6,
@@ -117,6 +118,7 @@ export async function getAgentData(): Promise<AgentData> {
         { proto: "Olas", value: round1((d.olas?.totalTxs ?? 0) / 1e6), suffix: "M" },
         { proto: "Virtuals ACP", value: round1((d.virtualsAcp?.totalMemos ?? 0) / 1e6), suffix: "M" },
         { proto: "ERC-8004", value: round1((d.erc8004Registry?.totalAgents ?? 0) / 1e3), suffix: "K" },
+        { proto: "Tempo MPP", value: round1((d.tempoMpp?.totalEvents ?? 0) / 1e3), suffix: "K" },
       ],
       price: {
         volumeM: round1((x.totalVolume ?? 0) / 1e6) || FALLBACK.price.volumeM,
