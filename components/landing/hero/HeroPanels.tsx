@@ -14,15 +14,14 @@ const CARD = "relative h-full w-full rounded-[22px] border border-white/12 bg-[#
 export function HeroPanel({ slide, data }: { slide: HeroSlide; data: AgentData }) {
   if (slide.panel.kind === "price") return <PricePanel price={data.price} />;
   if (slide.panel.kind === "cite") return <CitePanel />;
-  return <TrackPanel total={data.totalEvents} />;
+  return <TrackPanel total={data.totalEvents} growth={data.growth} />;
 }
 
 // ─── TRACK ───
-// One live aggregate: total on-chain events tracked, counting up then ticking.
-// The per-protocol breakdown lives in the ProductsSection index below — this card
-// deliberately shows the AGGREGATE so it doesn't mirror that list. The protocol
-// legend names which standards roll into the total. No chart: data.json has no
-// honest combined recent series, and a made-up line would just read as vague.
+// One live aggregate: total on-chain events tracked (counting up, then ticking),
+// over a real cumulative growth curve — every protocol's activity bucketed by month
+// and accumulated (lib/agent-data buildGrowth). The per-protocol breakdown lives in
+// the ProductsSection index below, so this card stays at the aggregate altitude.
 const TRACK_GREEN = "#00FF88";
 const TRACK_LEGEND = [
   { label: "x402", color: "#00FF88" },
@@ -32,7 +31,42 @@ const TRACK_LEGEND = [
   { label: "Tempo", color: "#ff7ab6" },
 ];
 
-function TrackPanel({ total }: { total: number }) {
+// Full-bleed area chart hugging the card's bottom edge. preserveAspectRatio:none
+// lets it stretch to the card width; the clip-rect reveal (in viewBox units) draws
+// it left-to-right and is immune to the non-uniform scaling, and non-scaling-stroke
+// keeps the 1.5px line crisp.
+function GrowthArea({ data }: { data: number[] }) {
+  const W = 300;
+  const H = 60;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const step = W / (data.length - 1);
+  const pts = data.map((v, i) => [i * step, 4 + (H - 4) * (1 - (v - min) / range)] as [number, number]);
+  const line = pts.map((p, i) => (i === 0 ? `M ${p[0]},${p[1]}` : `L ${p[0]},${p[1]}`)).join(" ");
+  const area = `M ${pts[0][0]},${H} ` + pts.map((p) => `L ${p[0]},${p[1]}`).join(" ") + ` L ${pts[pts.length - 1][0]},${H} Z`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} height={H} preserveAspectRatio="none" className="block w-full">
+      <defs>
+        <linearGradient id="track-area" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={TRACK_GREEN} stopOpacity="0.26" />
+          <stop offset="100%" stopColor={TRACK_GREEN} stopOpacity="0" />
+        </linearGradient>
+        <clipPath id="track-clip">
+          <rect x="0" y="0" width="0" height={H}>
+            <animate attributeName="width" from="0" to={W} dur="1.6s" begin="0.1s" fill="freeze" calcMode="spline" keySplines="0.22 1 0.36 1" />
+          </rect>
+        </clipPath>
+      </defs>
+      <g clipPath="url(#track-clip)">
+        <path d={area} fill="url(#track-area)" />
+        <path d={line} fill="none" stroke={TRACK_GREEN} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      </g>
+    </svg>
+  );
+}
+
+function TrackPanel({ total, growth }: { total: number; growth: number[] }) {
   const [count, setCount] = useState(0);
   const [block, setBlock] = useState(23455201);
   useEffect(() => {
@@ -73,13 +107,21 @@ function TrackPanel({ total }: { total: number }) {
         <div className="ae-track-sub font-mono uppercase text-white/40 mt-2">on-chain events tracked</div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px]">
-        {TRACK_LEGEND.map((p, i) => (
-          <span key={p.label} className="flex items-center">
-            {i > 0 ? <span className="text-white/20 mr-2">·</span> : null}
-            <span style={{ color: p.color }}>{p.label}</span>
-          </span>
-        ))}
+      <div className="flex items-start justify-between gap-3 mb-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px]">
+          {TRACK_LEGEND.map((p, i) => (
+            <span key={p.label} className="flex items-center">
+              {i > 0 ? <span className="text-white/20 mr-2">·</span> : null}
+              <span style={{ color: p.color }}>{p.label}</span>
+            </span>
+          ))}
+        </div>
+        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/30 whitespace-nowrap shrink-0 mt-0.5">cumulative · since 2025</span>
+      </div>
+
+      {/* real combined growth curve, full-bleed to the card's bottom edge */}
+      <div className="-mx-5 -mb-5 mt-2">
+        <GrowthArea data={growth} />
       </div>
     </div>
   );

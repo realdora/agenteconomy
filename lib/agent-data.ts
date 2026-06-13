@@ -16,6 +16,7 @@ export type AgentData = {
     share: SharePart[];
   };
   totalEvents: number; // summed across all tracked protocols
+  growth: number[]; // cumulative total events over time (all protocols, by month, in millions)
   highlight: {
     series: number[]; // cumulative x402 transactions, in millions
     totalM: number; // final cumulative value
@@ -42,6 +43,7 @@ export const FALLBACK: AgentData = {
     ],
   },
   totalEvents: 179_000_000,
+  growth: [0.6, 1.7, 2.3, 3.1, 4.1, 9, 62.5, 117.9, 138, 142.9, 151.9, 157.8, 163.4, 164.2],
   highlight: {
     series: [4.1, 56.7, 110.9, 130.1, 134.2, 139.3, 143.9, 149.2, 149.4],
     totalM: 149.4,
@@ -52,6 +54,45 @@ export const FALLBACK: AgentData = {
 };
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
+
+// Combined cumulative total events over time — every protocol's periodic series
+// bucketed by month and summed, then accumulated. x402 uses its full-history
+// monthly labels ("Oct 25"); the rest use ISO daily/weekly dates. The result is a
+// real growth trajectory for the headline total (axis-less sparkline → the shape,
+// not absolute values, is what's read).
+const MONTH_IDX: Record<string, string> = {
+  Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
+  Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12",
+};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildGrowth(d: any): number[] {
+  const buckets: Record<string, number> = {};
+  const add = (m: string | null, n: unknown) => {
+    if (!m) return;
+    buckets[m] = (buckets[m] ?? 0) + (typeof n === "number" ? n : 0);
+  };
+  const normMonth = (lbl: unknown): string | null => {
+    const m = String(lbl).match(/([A-Za-z]{3})\s*(\d{2})/);
+    return m && MONTH_IDX[m[1]] ? `20${m[2]}-${MONTH_IDX[m[1]]}` : null;
+  };
+  const iso = (x: unknown): string => String(x ?? "").slice(0, 7);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const each = (arr: any, fn: (r: any) => void) => {
+    if (Array.isArray(arr)) arr.forEach(fn);
+  };
+  each(d.x402?.monthly, (r) => add(normMonth(r.month), r.txs));
+  each(d.olas?.weekly, (r) => add(iso(r.week), r.txs));
+  each(d.virtualsAcp?.daily, (r) => add(iso(r.day), r.memos));
+  each(d.erc8004Registry?.daily, (r) => add(iso(r.day), r.agents));
+  each(d.tempoMpp?.daily, (r) => add(iso(r.day), r.events));
+  each(d.baseAgentic?.daily, (r) => add(iso(r.day), r.total));
+  const months = Object.keys(buckets).sort();
+  let cum = 0;
+  return months.map((m) => {
+    cum += buckets[m];
+    return round1(cum / 1e6);
+  });
+}
 
 type RawProtocol = { name: string; share: number; color: string };
 
@@ -102,6 +143,8 @@ export async function getAgentData(): Promise<AgentData> {
         }
       : FALLBACK.highlight;
 
+    const growth = buildGrowth(d);
+
     return {
       updatedAt: typeof d.updatedAt === "string" ? d.updatedAt : null,
       price: {
@@ -111,6 +154,7 @@ export async function getAgentData(): Promise<AgentData> {
         share: Array.isArray(x.protocols) && x.protocols.length ? buildShare(x.protocols) : FALLBACK.price.share,
       },
       totalEvents: totalEvents || FALLBACK.totalEvents,
+      growth: growth.length >= 2 ? growth : FALLBACK.growth,
       highlight,
       isLive: true,
     };
