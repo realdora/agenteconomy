@@ -17,58 +17,13 @@ export function HeroPanel({ slide, data }: { slide: HeroSlide; data: AgentData }
   return <TrackPanel total={data.totalEvents} />;
 }
 
-// ─── sparkline (draw-on) ───
-const SPARK_W = 96;
-const SPARK_H = 22;
-function sparkPoints(data: number[]) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const range = max - min || 1;
-  const step = SPARK_W / (data.length - 1);
-  return data.map((v, i) => [i * step, SPARK_H - ((v - min) / range) * SPARK_H] as [number, number]);
-}
-function Spark({ data, color, idx, drawn, wide }: { data: number[]; color: string; idx: number; drawn: boolean; wide?: boolean }) {
-  const pts = sparkPoints(data);
-  let L = 0;
-  for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-  const last = pts[pts.length - 1];
-  const svgProps = wide
-    ? { viewBox: `0 0 ${SPARK_W} ${SPARK_H}`, height: SPARK_H, preserveAspectRatio: "none" as const, className: "overflow-visible block w-full" }
-    : { width: SPARK_W, height: SPARK_H, className: "overflow-visible" };
-  return (
-    <svg {...svgProps}>
-      <polyline
-        points={pts.map((p) => p.join(",")).join(" ")}
-        fill="none"
-        stroke={color}
-        strokeWidth={1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect={wide ? "non-scaling-stroke" : undefined}
-        style={
-          wide
-            ? // dash-based draw-on breaks under preserveAspectRatio:none (dash length is in
-              // viewBox units, rendered path is ~3x wider) → fade in instead
-              { opacity: drawn ? 1 : 0, transition: "opacity 0.9s ease-out 0.1s" }
-            : { strokeDasharray: L, strokeDashoffset: drawn ? 0 : L, transition: `stroke-dashoffset 1.3s ease-out ${idx * 0.15}s` }
-        }
-      />
-      {/* end dot omitted in wide mode — preserveAspectRatio:none would stretch it into an ellipse */}
-      {wide ? null : (
-        <circle cx={last[0]} cy={last[1]} r={2} fill={color} style={{ opacity: drawn ? 1 : 0, transition: `opacity 0.3s ease-out ${idx * 0.15 + 1.2}s` }} />
-      )}
-    </svg>
-  );
-}
-
 // ─── TRACK ───
 // One live aggregate: total on-chain events tracked, counting up then ticking.
 // The per-protocol breakdown lives in the ProductsSection index below — this card
 // deliberately shows the AGGREGATE so it doesn't mirror that list. The protocol
-// legend names which standards roll into the total; the sparkline is an
-// illustrative growth shape (data.json has no combined recent series).
+// legend names which standards roll into the total. No chart: data.json has no
+// honest combined recent series, and a made-up line would just read as vague.
 const TRACK_GREEN = "#00FF88";
-const TRACK_COMBINED_SPARK = [12, 18, 22, 30, 35, 44, 52, 63, 71, 79, 86, 94, 100];
 const TRACK_LEGEND = [
   { label: "x402", color: "#00FF88" },
   { label: "ERC-8004", color: "#7ad7ff" },
@@ -80,7 +35,6 @@ const TRACK_LEGEND = [
 function TrackPanel({ total }: { total: number }) {
   const [count, setCount] = useState(0);
   const [block, setBlock] = useState(23455201);
-  const [drawn, setDrawn] = useState(false);
   useEffect(() => {
     const dur = 1300;
     const start = performance.now();
@@ -92,7 +46,6 @@ function TrackPanel({ total }: { total: number }) {
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    const drawT = setTimeout(() => setDrawn(true), 60);
     // live tick: a few fresh events + a few new blocks, ~every 1.5s
     const live = setInterval(() => {
       setCount((c) => c + Math.floor(Math.random() * 6) + 1);
@@ -100,7 +53,6 @@ function TrackPanel({ total }: { total: number }) {
     }, 1500);
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(drawT);
       clearInterval(live);
     };
   }, [total]);
@@ -121,16 +73,13 @@ function TrackPanel({ total }: { total: number }) {
         <div className="ae-track-sub font-mono uppercase text-white/40 mt-2">on-chain events tracked</div>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px]">
-          {TRACK_LEGEND.map((p, i) => (
-            <span key={p.label} className="flex items-center">
-              {i > 0 ? <span className="text-white/20 mr-2">·</span> : null}
-              <span style={{ color: p.color }}>{p.label}</span>
-            </span>
-          ))}
-        </div>
-        <Spark data={TRACK_COMBINED_SPARK} color={TRACK_GREEN} idx={0} drawn={drawn} wide />
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px]">
+        {TRACK_LEGEND.map((p, i) => (
+          <span key={p.label} className="flex items-center">
+            {i > 0 ? <span className="text-white/20 mr-2">·</span> : null}
+            <span style={{ color: p.color }}>{p.label}</span>
+          </span>
+        ))}
       </div>
     </div>
   );
