@@ -16,6 +16,14 @@ const SPARK_W = 200;
 const SPARK_H = 40;
 const SPARK_PAD = 3;
 
+// Plot the cumulative trajectory, not the per-period rate. A running sum is
+// monotonic, so every protocol's line rises — honestly: a decelerating protocol
+// (ACP, Tempo) shows as a curve that flattens, never one that crashes downward.
+function cumulative(data: number[]): number[] {
+  let sum = 0;
+  return data.map((v) => (sum += v));
+}
+
 function sparkPoints(data: number[]) {
   const max = Math.max(...data);
   const min = Math.min(...data);
@@ -28,7 +36,7 @@ function sparkPoints(data: number[]) {
 }
 
 function Spark({ data, color, idx, drawn }: { data: number[]; color: string; idx: number; drawn: boolean }) {
-  const pts = sparkPoints(data);
+  const pts = sparkPoints(cumulative(data));
   let len = 0;
   for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   const last = pts[pts.length - 1];
