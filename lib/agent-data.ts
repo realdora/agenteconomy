@@ -6,11 +6,9 @@
 const DATA_URL = "https://agenteconomy.to/data.json";
 
 export type SharePart = { label: string; pct: number; color: string };
-export type TrackRow = { proto: string; value: number; suffix: string };
 
 export type AgentData = {
   updatedAt: string | null;
-  track: TrackRow[];
   price: {
     volumeM: number; // USD volume in millions
     chains: number;
@@ -31,13 +29,6 @@ export type AgentData = {
 // fetch degrades to "looks like before" rather than blank.
 export const FALLBACK: AgentData = {
   updatedAt: null,
-  track: [
-    { proto: "x402", value: 148.6, suffix: "M" },
-    { proto: "Olas", value: 16.4, suffix: "M" },
-    { proto: "Virtuals ACP", value: 12.3, suffix: "M" },
-    { proto: "ERC-8004", value: 216.7, suffix: "K" },
-    { proto: "Tempo MPP", value: 26.5, suffix: "K" },
-  ],
   price: {
     volumeM: 40.6,
     chains: 7,
@@ -113,13 +104,6 @@ export async function getAgentData(): Promise<AgentData> {
 
     return {
       updatedAt: typeof d.updatedAt === "string" ? d.updatedAt : null,
-      track: [
-        { proto: "x402", value: round1((d.x402?.totalTxs ?? 0) / 1e6), suffix: "M" },
-        { proto: "Olas", value: round1((d.olas?.totalTxs ?? 0) / 1e6), suffix: "M" },
-        { proto: "Virtuals ACP", value: round1((d.virtualsAcp?.totalMemos ?? 0) / 1e6), suffix: "M" },
-        { proto: "ERC-8004", value: round1((d.erc8004Registry?.totalAgents ?? 0) / 1e3), suffix: "K" },
-        { proto: "Tempo MPP", value: round1((d.tempoMpp?.totalEvents ?? 0) / 1e3), suffix: "K" },
-      ],
       price: {
         volumeM: round1((x.totalVolume ?? 0) / 1e6) || FALLBACK.price.volumeM,
         chains: x.chainsTracked ?? FALLBACK.price.chains,
