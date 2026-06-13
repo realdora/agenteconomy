@@ -3,17 +3,20 @@ import { HeaderSection } from "@/components/landing/HeaderSection";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { HighlightSection } from "@/components/landing/HighlightSection";
 import { PlatformSection } from "@/components/landing/PlatformSection";
+import { ProductsSection } from "@/components/landing/ProductsSection";
 import { TrustSection } from "@/components/landing/TrustSection";
 import { getAgentData } from "@/lib/agent-data";
 import { getPlatformData } from "@/lib/platform-data";
+import { getProtocolIndex } from "@/lib/protocol-index";
 
 export default async function Home() {
-  const [data, platform] = await Promise.all([getAgentData(), getPlatformData()]);
+  const [data, platform, protocols] = await Promise.all([getAgentData(), getPlatformData(), getProtocolIndex()]);
   return (
     <>
       <HeaderSection />
       <HeroSection data={data} />
       <TrustSection />
+      <ProductsSection data={protocols} />
       <HighlightSection data={data} />
       <PlatformSection data={platform} />
       <FooterSection />

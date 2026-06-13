@@ -223,6 +223,33 @@
    (e.g. md:text-[13px], md:grid-cols-[180px_1fr]) — the base arbitrary utility wins by
    source order. So these properties are driven via plain CSS instead. Base = desktop. */
 .ae-trust-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 24px; }
+
+/* Protocol index ledger (ProductsSection). Base = desktop. */
+.ae-pi-row {
+  display: grid;
+  grid-template-areas: "idx head spark metric arrow";
+  grid-template-columns: 44px minmax(0, 1fr) 200px 250px 28px;
+  align-items: center;
+  column-gap: 28px;
+  padding: 22px 10px;
+  animation: ae-pi-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes ae-pi-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ae-pi-idx { grid-area: idx; }
+.ae-pi-head { grid-area: head; }
+.ae-pi-spark { grid-area: spark; }
+.ae-pi-metric { grid-area: metric; }
+.ae-pi-arrow { grid-area: arrow; }
+
+@media (max-width: 1100px) {
+  .ae-pi-row {
+    grid-template-columns: 32px minmax(0, 1fr) 150px 210px 22px;
+    column-gap: 18px;
+  }
+}
 .ae-trust-sep { margin: 0 28px; }
 .ae-term-pre { font-size: 13px; }
 .ae-term-label { font-size: 11px; letter-spacing: 0.18em; }
@@ -230,6 +257,26 @@
 .ae-track-sub { font-size: 10px; letter-spacing: 0.14em; }
 
 @media (max-width: 760px) {
+  .ae-pi-row {
+    grid-template-areas:
+      "idx head arrow"
+      ". metric metric"
+      ". spark spark";
+    grid-template-columns: 28px minmax(0, 1fr) 22px;
+    align-items: start;
+    column-gap: 14px;
+    row-gap: 18px;
+    padding: 18px 4px;
+  }
+  /* the date lives in the sections below; not worth the width on phones */
+  .ae-pi-updated { display: none; }
+
+  /* optically center the index + arrow against the 44px logo chip */
+  .ae-pi-idx { padding-top: 15px; }
+  .ae-pi-arrow { padding-top: 14px; }
+  .ae-pi-metric { align-items: flex-start; }
+  .ae-pi-metric > span { text-align: left; }
+
   .ae-trust-row { grid-template-columns: 1fr; align-items: start; gap: 12px; }
   .ae-trust-sep { margin: 0 14px; }
   .ae-term-pre { font-size: 11px; }
