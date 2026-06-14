@@ -445,6 +445,38 @@ button {
   font-size: 11px;
 }
 
+/* Four-lens hero: each cell is a named concept (label / value / sub),
+   left-aligned like a stat card rather than centered. */
+.hero-row.hero-lenses {
+  margin-bottom: 0;
+}
+
+.hero-lenses .hero-cell {
+  padding: 18px 20px;
+  text-align: left;
+}
+
+.hero-lens-label {
+  margin-bottom: 8px;
+  color: var(--text-faint);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.hero-caption {
+  margin: 14px 0 18px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.hero-caption b {
+  color: var(--text);
+  font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+}
+
 .quick-actions {
   display: flex;
   flex-wrap: wrap;

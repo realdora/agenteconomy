@@ -756,42 +756,27 @@ function DashboardPage({ initialData }) {
       <main className="shell">
         <section className="hero fade">
           <h1 className="hero-title">AI Agent Payment Data Dashboard</h1>
-          <div className="eyebrow">On-chain events tracked</div>
-          <div className="hero-num">{cEvents.toLocaleString()}</div>
           <FlowLines />
-          {/* Two labelled groups so measured on-chain flow is never read side by
-              side with off-chain market references (different unit systems). */}
-          <div className="hero-stats">
-            <div className="hero-group">
-              <div className="hero-group-label">Measured on-chain</div>
-              <div className="hero-row cols4">
-                {[
-                  { value: usdCompact(cVol), label: 'USD settled', color: GREEN },
-                  { value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
-                  { value: totals.protocols, label: 'protocols', color: 'var(--text-strong)' },
-                  { value: totals.chains, label: 'chains', color: 'var(--text-strong)' },
-                ].map((item, i) => (
-                  <div className="hero-cell" key={i}>
-                    <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
-                    <div className="hero-label">{item.label}</div>
-                  </div>
-                ))}
+          {/* Four named lenses — one number per concept, equal weight. Naming
+              the lone off-chain reference "Market" keeps it legible beside the
+              measured on-chain flow (different unit systems). Supply (providers)
+              + coverage (protocols/chains) demoted to the caption below. */}
+          <div className="hero-row cols4 hero-lenses">
+            {[
+              { lens: 'Activity', value: fmt(cEvents), label: 'on-chain events', color: 'var(--text-strong)' },
+              { lens: 'Money', value: usdCompact(cVol), label: 'USD settled', color: GREEN },
+              { lens: 'Players', value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
+              { lens: 'Market', value: heroMcap, label: 'agent token mcap', color: '#04795B' },
+            ].map((item, i) => (
+              <div className="hero-cell" key={i}>
+                <div className="hero-lens-label">{item.lens}</div>
+                <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
+                <div className="hero-label">{item.label}</div>
               </div>
-            </div>
-            <div className="hero-group ctx">
-              <div className="hero-group-label">Market context · off-chain</div>
-              <div className="hero-row cols2">
-                {[
-                  { value: heroMcap, label: 'agent token mcap', color: '#04795B' },
-                  { value: heroProviders, label: 'x402 providers', color: BLUE },
-                ].map((item, i) => (
-                  <div className="hero-cell" key={i}>
-                    <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
-                    <div className="hero-label">{item.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
+          </div>
+          <div className="hero-caption">
+            supply: <b>{heroProviders}</b> x402 providers · coverage: <b>{totals.protocols}</b> protocols across <b>{totals.chains}</b> chains
           </div>
           <div className="quick-actions">
             <a className="action-link" href="/data.json">Raw JSON</a>
