@@ -766,10 +766,13 @@ function DashboardPage({ initialData }) {
               { lens: 'Activity', value: fmt(cEvents), label: 'on-chain events', color: 'var(--text-strong)' },
               { lens: 'Money', value: usdCompact(cVol), label: 'USD settled', color: GREEN },
               { lens: 'Players', value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
-              { lens: 'Market', value: heroMcap, label: 'agent token mcap', color: '#04795B' },
+              { lens: 'Market', value: heroMcap, label: 'agent token mcap', color: '#04795B', tag: 'off-chain' },
             ].map((item, i) => (
               <div className="hero-cell" key={i}>
-                <div className="hero-lens-label">{item.lens}</div>
+                <div className="hero-lens-label">
+                  {item.lens}
+                  {item.tag && <span className="hero-lens-tag">{item.tag}</span>}
+                </div>
                 <div className="hero-sub" style={{ color: item.color }}>{item.value}</div>
                 <div className="hero-label">{item.label}</div>
               </div>
