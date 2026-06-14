@@ -16,7 +16,7 @@ export type ProtocolRow = {
   unit: string; // what the metric counts
   extra: string | null; // secondary facts, pre-formatted
   spark: number[]; // real activity series (trailing partial bucket trimmed)
-  sparkUnit: string; // caption under the cumulative sparkline
+  sparkUnit: string; // caption under the per-period sparkline
 };
 
 export type ProtocolIndexData = {
@@ -52,7 +52,7 @@ const SEEDS: Record<string, RowSeed> = {
     color: "#00FF88",
     logo: "/logos/protocols/x402.png",
     unit: "transactions",
-    sparkUnit: "cumulative · daily",
+    sparkUnit: "txns / day",
   },
   erc8004: {
     slug: "erc8004",
@@ -62,7 +62,7 @@ const SEEDS: Record<string, RowSeed> = {
     color: "#7ad7ff",
     logo: null,
     unit: "agents registered",
-    sparkUnit: "cumulative · daily",
+    sparkUnit: "agents / day",
   },
   virtualsAcp: {
     slug: "virtualsAcp",
@@ -72,7 +72,7 @@ const SEEDS: Record<string, RowSeed> = {
     color: "#9E7BFF",
     logo: "/logos/protocols/virtuals.png",
     unit: "memos",
-    sparkUnit: "cumulative · daily",
+    sparkUnit: "memos / day",
   },
   olas: {
     slug: "olas",
@@ -82,7 +82,7 @@ const SEEDS: Record<string, RowSeed> = {
     color: "#c0c4cc",
     logo: "/logos/protocols/olas.png",
     unit: "transactions",
-    sparkUnit: "cumulative · weekly",
+    sparkUnit: "txs / week",
   },
   tempoMpp: {
     slug: "tempoMpp",
@@ -92,7 +92,7 @@ const SEEDS: Record<string, RowSeed> = {
     color: "#ff7ab6",
     logo: "/logos/protocols/tempo.svg",
     unit: "events",
-    sparkUnit: "cumulative · daily",
+    sparkUnit: "events / day",
   },
 };
 
