@@ -19,9 +19,9 @@ export function HeroPanel({ slide, data }: { slide: HeroSlide; data: AgentData }
 
 // ─── TRACK ───
 // One live aggregate: total on-chain events tracked (counting up, then ticking),
-// over a real cumulative growth curve — every protocol's activity bucketed by month
-// and accumulated (lib/agent-data buildGrowth). The per-protocol breakdown lives in
-// the ProductsSection index below, so this card stays at the aggregate altitude.
+// over a real recent-activity curve — the last 90 days of per-day events across all
+// protocols, accumulated (lib/agent-data buildGrowth). The per-protocol breakdown
+// lives in the ProductsSection index below, so this card stays at the aggregate level.
 const TRACK_GREEN = "#00FF88";
 const TRACK_LEGEND = [
   { label: "x402", color: "#00FF88" },
@@ -116,7 +116,7 @@ function TrackPanel({ total, growth }: { total: number; growth: number[] }) {
             </span>
           ))}
         </div>
-        <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/30 whitespace-nowrap shrink-0 mt-0.5">cumulative · since 2025</span>
+        <span className="hidden md:inline-block font-mono text-[9px] uppercase tracking-[0.14em] text-white/30 whitespace-nowrap shrink-0 mt-0.5">cumulative · last 90 days</span>
       </div>
 
       {/* real combined growth curve, full-bleed to the card's bottom edge */}

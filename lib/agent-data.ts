@@ -16,7 +16,7 @@ export type AgentData = {
     share: SharePart[];
   };
   totalEvents: number; // summed across all tracked protocols
-  growth: number[]; // cumulative total events over time (all protocols, by month, in millions)
+  growth: number[]; // recent on-chain activity, cumulative over the last 90 days (all protocols, in millions)
   highlight: {
     series: number[]; // cumulative x402 transactions, in millions
     totalM: number; // final cumulative value
@@ -43,7 +43,7 @@ export const FALLBACK: AgentData = {
     ],
   },
   totalEvents: 179_000_000,
-  growth: [0.6, 1.7, 2.3, 3.1, 4.1, 9, 62.5, 117.9, 138, 142.9, 151.9, 157.8, 163.4, 164.2],
+  growth: [0.2, 0.8, 1.4, 1.9, 2.3, 2.5, 2.8, 3.1, 3.7, 4.6, 5.5, 6.3, 7, 7.8, 8.6, 9.3, 10, 10.7, 11.4, 12.1, 12.6, 13.4, 14.2, 14.8],
   highlight: {
     series: [4.1, 56.7, 110.9, 130.1, 134.2, 139.3, 143.9, 149.2, 149.4],
     totalM: 149.4,
@@ -55,43 +55,45 @@ export const FALLBACK: AgentData = {
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
-// Combined cumulative total events over time — every protocol's periodic series
-// bucketed by month and summed, then accumulated. x402 uses its full-history
-// monthly labels ("Oct 25"); the rest use ISO daily/weekly dates. The result is a
-// real growth trajectory for the headline total (axis-less sparkline → the shape,
-// not absolute values, is what's read).
-const MONTH_IDX: Record<string, string> = {
-  Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
-  Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12",
-};
+// Recent activity curve: every protocol's per-day events over the last 90 days,
+// summed and accumulated, then downsampled to ~24 points. Uses the DAILY series
+// (steady, smooth) rather than the all-history monthly cumulative — the latter is
+// dominated by two explosive x402 months, so it renders as a flat line that cliffs
+// up "out of nowhere". This recent window is a clean, honest growth trajectory.
+// Olas only reports weekly, so its week total is spread evenly across its 7 days.
+const DAY = 86_400_000;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildGrowth(d: any): number[] {
-  const buckets: Record<string, number> = {};
-  const add = (m: string | null, n: unknown) => {
-    if (!m) return;
-    buckets[m] = (buckets[m] ?? 0) + (typeof n === "number" ? n : 0);
+  const byDay: Record<string, number> = {};
+  const add = (day: unknown, n: unknown) => {
+    const k = String(day ?? "").slice(0, 10);
+    if (!k) return;
+    byDay[k] = (byDay[k] ?? 0) + (typeof n === "number" ? n : 0);
   };
-  const normMonth = (lbl: unknown): string | null => {
-    const m = String(lbl).match(/([A-Za-z]{3})\s*(\d{2})/);
-    return m && MONTH_IDX[m[1]] ? `20${m[2]}-${MONTH_IDX[m[1]]}` : null;
-  };
-  const iso = (x: unknown): string => String(x ?? "").slice(0, 7);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const each = (arr: any, fn: (r: any) => void) => {
     if (Array.isArray(arr)) arr.forEach(fn);
   };
-  each(d.x402?.monthly, (r) => add(normMonth(r.month), r.txs));
-  each(d.olas?.weekly, (r) => add(iso(r.week), r.txs));
-  each(d.virtualsAcp?.daily, (r) => add(iso(r.day), r.memos));
-  each(d.erc8004Registry?.daily, (r) => add(iso(r.day), r.agents));
-  each(d.tempoMpp?.daily, (r) => add(iso(r.day), r.events));
-  each(d.baseAgentic?.daily, (r) => add(iso(r.day), r.total));
-  const months = Object.keys(buckets).sort();
-  let cum = 0;
-  return months.map((m) => {
-    cum += buckets[m];
-    return round1(cum / 1e6);
+  each(d.x402?.daily, (r) => add(r.day, r.txs));
+  each(d.baseAgentic?.daily, (r) => add(r.day, r.total));
+  each(d.virtualsAcp?.daily, (r) => add(r.day, r.memos));
+  each(d.erc8004Registry?.daily, (r) => add(r.day, r.agents));
+  each(d.tempoMpp?.daily, (r) => add(r.day, r.events));
+  each(d.olas?.weekly, (r) => {
+    const t = Date.parse(`${r.week}T00:00:00Z`);
+    if (Number.isNaN(t)) return;
+    for (let i = 0; i < 7; i++) add(new Date(t + i * DAY).toISOString().slice(0, 10), (r.txs ?? 0) / 7);
   });
+  const days = Object.keys(byDay).sort();
+  if (days.length < 8) return [];
+  const window = days.slice(-90);
+  let cum = 0;
+  const series = window.map((k) => (cum += byDay[k]));
+  // downsample to a clean 24-point sparkline
+  const N = 24;
+  const out: number[] = [];
+  for (let i = 0; i < N; i++) out.push(round1(series[Math.round((i * (series.length - 1)) / (N - 1))] / 1e6));
+  return out;
 }
 
 type RawProtocol = { name: string; share: number; color: string };
