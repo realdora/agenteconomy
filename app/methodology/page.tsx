@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
+import { DASHBOARD_URL } from "@/lib/site-data";
 
 export const metadata: Metadata = {
   title: "Methodology | agent economy",
@@ -92,8 +93,8 @@ export default function MethodologyPage() {
             The raw feed behind every figure is public — one request away.
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-            <a href="https://agenteconomy.to" className="ae-hero-cta">
-              Open agenteconomy.to
+            <a href={DASHBOARD_URL} className="ae-hero-cta">
+              Open the dashboard
               <ArrowRightIcon />
             </a>
             <a

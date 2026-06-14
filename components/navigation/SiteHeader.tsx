@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { MenuIcon } from "@/components/icons/MenuIcon";
 import { TokenLogoMark } from "@/components/icons/TokenLogoMark";
-import { navMenus } from "@/lib/site-data";
+import { DASHBOARD_URL, navMenus } from "@/lib/site-data";
 
 import { MobileMenu } from "./MobileMenu";
 import { NavPanel } from "./NavPanel";
@@ -77,8 +77,8 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex flex-1 items-center justify-end">
-            <a href="https://agenteconomy.to" className="ae-explorer-button">
-              Go to Explorer
+            <a href={DASHBOARD_URL} className="ae-explorer-button">
+              Open dashboard
             </a>
           </div>
         </div>

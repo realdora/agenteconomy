@@ -62,12 +62,17 @@ export const navMenus: NavMenu[] = [
   { label: "About", href: "/about" },
 ];
 
+// Single source of truth for "go to the dashboard" links. The dashboard (the
+// live Vite data app) moves to this subdomain at cutover; until DNS resolves it
+// 404s, which is expected. One flip here repoints every CTA.
+export const DASHBOARD_URL = "https://dashboard.agenteconomy.to";
+
 export const heroSlides: HeroSlide[] = [
   {
     id: "understand",
     word: "track",
-    cta: "Open agenteconomy.to",
-    href: "https://agenteconomy.to",
+    cta: "Open the dashboard",
+    href: DASHBOARD_URL,
     palette: {
       base: "#0a2e22",
       glow: "rgba(0, 255, 136, 0.16)",
@@ -82,8 +87,8 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "explore",
     word: "price",
-    cta: "Open agenteconomy.to",
-    href: "https://agenteconomy.to",
+    cta: "Open the dashboard",
+    href: DASHBOARD_URL,
     palette: {
       base: "#2b2110",
       glow: "rgba(245, 166, 35, 0.15)",
@@ -98,8 +103,8 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "trust",
     word: "cite",
-    cta: "Open agenteconomy.to",
-    href: "https://agenteconomy.to",
+    cta: "Open the dashboard",
+    href: DASHBOARD_URL,
     palette: {
       base: "#221a40",
       glow: "rgba(158, 123, 255, 0.16)",
