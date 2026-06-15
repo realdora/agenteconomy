@@ -6,6 +6,7 @@ import "./styles/navigation.css";
 import "./styles/hero.css";
 import "./styles/routes.css";
 import "./styles/responsive.css";
+import "./styles/agent.css";
 
 const TITLE = "agent economy — on-chain & off-chain agent-payment data";
 // Social-card title mirrors the OG image headline; the two-axis framing keeps the

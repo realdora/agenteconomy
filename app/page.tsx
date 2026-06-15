@@ -1,3 +1,4 @@
+import { AgentNativeSection } from "@/components/landing/AgentNativeSection";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -20,6 +21,25 @@ export default async function Home() {
     getProtocolIndex(),
     getWebSources(),
   ]);
+
+  // Real values for the agent-native section's example MCP responses (auto-updates with data.json).
+  const agentExamples = {
+    x402: {
+      totalTxs: protocols.rows.find((r) => r.slug === "x402")?.metric ?? 150005139,
+      totalVolume: Math.round(data.price.volumeM * 1_000_000),
+      chains: data.price.chains,
+      updatedAt: data.updatedAt ?? protocols.updatedAt ?? "2026-06-05T02:24:11Z",
+    },
+    offChain: {
+      mcap: webSources.agentTokens.basketMcap,
+      providers: webSources.x402Services.uniqueProviders,
+      downloads: webSources.devAdoption.totalWeeklyAvg4w,
+    },
+    freshness: {
+      onchain: (data.updatedAt ?? protocols.updatedAt ?? "2026-06-05").slice(0, 10),
+      offchain: (webSources.updatedAt ?? "2026-06-10").slice(0, 10),
+    },
+  };
 
   const protocolItemList = {
     "@type": "ItemList",
@@ -60,6 +80,7 @@ export default async function Home() {
       <OffChainSection data={webSources} />
       <HighlightSection data={data} />
       <PlatformSection data={platform} />
+      <AgentNativeSection examples={agentExamples} />
       <FooterSection />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageJsonLd) }} />
     </>

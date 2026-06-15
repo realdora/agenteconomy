@@ -1,0 +1,169 @@
+/* AgentNativeSection — "Point your agent at it." Reuses the site's terminal palette
+   (GeistMono numerics, #00FF88 accent) and the data.json token colors. Desktop = base,
+   mobile via media query (the project's arbitrary-responsive Tailwind quirk). */
+
+.ae-an-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.18fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.ae-an-card {
+  background: #0d0d11;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.ae-an-connect {
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ae-an-label {
+  font-family: GeistMono, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ae-an-endpoint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  border-radius: 11px;
+  padding: 14px 16px;
+}
+.ae-an-url {
+  font-family: GeistMono, monospace;
+  font-size: 15.5px;
+  color: #fff;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.ae-an-url::-webkit-scrollbar { display: none; }
+
+.ae-an-copy {
+  flex: none;
+  font-family: GeistMono, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 7px;
+  padding: 6px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+}
+.ae-an-copy:hover { background: rgba(0, 255, 136, 0.2); }
+.ae-an-copy:active { transform: scale(0.97); }
+
+.ae-an-meta {
+  font-family: GeistMono, monospace;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ae-an-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.ae-an-tool {
+  font-family: GeistMono, monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 6px 12px;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+.ae-an-tool.is-active {
+  color: #00ff88;
+  border-color: rgba(0, 255, 136, 0.5);
+  background: rgba(0, 255, 136, 0.08);
+}
+
+.ae-an-rc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: GeistMono, monospace;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.ae-an-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #00ff88;
+  animation: ae-an-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ae-an-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ae-an-json {
+  margin: 0;
+  padding: 16px 18px;
+  font-family: GeistMono, monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+  min-height: 200px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ae-an-json::-webkit-scrollbar { display: none; }
+.ae-an-ln {
+  white-space: pre;
+  opacity: 0;
+  animation: ae-an-ln-in 0.4s ease-out forwards;
+}
+@keyframes ae-an-ln-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* JSON token colors — same as the data.json terminal */
+.ae-an-k { color: #00ff88; }
+.ae-an-s { color: #ffb86c; }
+.ae-an-n { color: #7ad7ff; }
+.ae-an-p { color: rgba(255, 255, 255, 0.35); }
+
+.ae-an-surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 26px;
+  margin-top: 22px;
+}
+.ae-an-also {
+  font-family: GeistMono, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+}
+.ae-an-sf { display: inline-flex; align-items: center; gap: 9px; }
+.ae-an-sf b { font-weight: 600; font-size: 14px; color: #fff; }
+.ae-an-u { font-family: GeistMono, monospace; font-size: 12px; color: rgba(255, 255, 255, 0.4); }
+
+@media (max-width: 860px) {
+  .ae-an-grid { grid-template-columns: 1fr; }
+  .ae-an-json { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ae-an-dot,
+  .ae-an-ln { animation: none; opacity: 1; transform: none; }
+}
