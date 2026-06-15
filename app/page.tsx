@@ -11,6 +11,8 @@ import { getPlatformData } from "@/lib/platform-data";
 import { getProtocolIndex } from "@/lib/protocol-index";
 import { getWebSources } from "@/lib/web-sources";
 
+const SITE_URL = "https://agenteconomy.to";
+
 export default async function Home() {
   const [data, platform, protocols, webSources] = await Promise.all([
     getAgentData(),
@@ -18,6 +20,37 @@ export default async function Home() {
     getProtocolIndex(),
     getWebSources(),
   ]);
+
+  const protocolItemList = {
+    "@type": "ItemList",
+    "@id": `${SITE_URL}/#protocols`,
+    name: "Agent Economy protocol index",
+    numberOfItems: protocols.rows.length,
+    itemListElement: protocols.rows.map((protocol, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${SITE_URL}${protocol.href}`,
+      name: protocol.name,
+      description: protocol.desc,
+    })),
+  };
+
+  const homepageJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${SITE_URL}/#collection-page`,
+        url: SITE_URL,
+        name: "agent economy",
+        description: "The data authority for the agent economy, covering tracked agent-payment and agent-infrastructure protocols.",
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        mainEntity: { "@id": `${SITE_URL}/#protocols` },
+      },
+      protocolItemList,
+    ],
+  };
+
   return (
     <>
       <HeaderSection />
@@ -28,6 +61,7 @@ export default async function Home() {
       <HighlightSection data={data} />
       <PlatformSection data={platform} />
       <FooterSection />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageJsonLd) }} />
     </>
   );
 }

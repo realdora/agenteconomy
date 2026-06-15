@@ -10,6 +10,30 @@ const TITLE = "agent economy — on-chain & off-chain agent-payment data";
 // Social-card title mirrors the OG image headline; the two-axis framing keeps the
 // on-chain "measured" claim honest now that off-chain (sourced) signal is shown too.
 const OG_TITLE = "The data authority for the agent economy";
+const SITE_URL = "https://agenteconomy.to";
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "agent economy",
+      url: SITE_URL,
+      logo: `${SITE_URL}/og.png`,
+      sameAs: ["https://x.com/realdora_eth"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      name: "agent economy",
+      url: SITE_URL,
+      description: "The data authority for the agent economy.",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en",
+    },
+  ],
+};
 
 // Description tracks the live event total so the SEO/social copy stays in sync with the page.
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,7 +67,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="theme-dark">{children}</body>
+      <body className="theme-dark">
+        {children}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
+      </body>
     </html>
   );
 }
