@@ -1601,6 +1601,7 @@ export function getRouteHead(path, initialData) {
   return {
     title: config.title,
     description: config.description,
+    robots: 'noindex,follow',
     canonical: url,
     ogTitle: config.title,
     ogDescription: config.description,

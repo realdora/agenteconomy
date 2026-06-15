@@ -22,4 +22,4 @@ Allow: /
 User-agent: ChatGPT-User
 Allow: /
 
-Sitemap: https://agenteconomy.to/sitemap.xml
+Sitemap: https://dashboard.agenteconomy.to/sitemap.xml

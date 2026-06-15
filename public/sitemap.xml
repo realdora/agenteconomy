@@ -1,51 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://agenteconomy.to/</loc>
+    <loc>https://dashboard.agenteconomy.to/</loc>
     <lastmod>2026-05-20T02:36:31.998Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/x402</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/erc-8004</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/virtuals-acp</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/olas</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/tempo-mpp</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/methodology</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://agenteconomy.to/data</loc>
-    <lastmod>2026-05-20T02:36:31.998Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
   </url>
 </urlset>

@@ -8,7 +8,8 @@ const distDir = join(root, 'dist')
 const serverEntry = join(root, 'dist-ssr', 'entry-server.js')
 const templatePath = join(distDir, 'index.html')
 const dataPath = join(root, 'public', 'data.json')
-const siteUrl = 'https://agenteconomy.to'
+const siteUrl = 'https://dashboard.agenteconomy.to'
+const sitemapRoutes = ['/']
 const writeCleanUrlFiles = process.env.BUILD_CLEAN_URLS === '1'
 
 function safeJsonForHtml(value) {
@@ -128,6 +129,15 @@ function applyRouteHead(html, head) {
     'route JSON-LD blocks'
   )
 
+  if (head.robots) {
+    next = replaceRequired(
+      next,
+      '    <!-- Open Graph -->',
+      `    <meta name="robots" content="${escapeAttr(head.robots)}" />\n\n    <!-- Open Graph -->`,
+      'robots meta'
+    )
+  }
+
   next = replaceRequired(
     next,
     /    <!-- SEO: noscript fallback so search engines can index content without JS -->\n    <noscript>[\s\S]*?    <\/noscript>/,
@@ -169,5 +179,5 @@ for (const route of STAGE_1_ROUTES) {
   console.log(`pre-rendered ${route} -> ${outputPath.replace(`${root}/`, '')}`)
 }
 
-await writeFile(join(distDir, 'sitemap.xml'), buildSitemap(STAGE_1_ROUTES, data.updatedAt))
+await writeFile(join(distDir, 'sitemap.xml'), buildSitemap(sitemapRoutes, data.updatedAt))
 console.log('generated sitemap.xml')
