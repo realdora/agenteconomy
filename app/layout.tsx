@@ -33,6 +33,30 @@ const siteJsonLd = {
       publisher: { "@id": `${SITE_URL}/#organization` },
       inLanguage: "en",
     },
+    {
+      "@type": "Dataset",
+      "@id": `${SITE_URL}/#dataset`,
+      name: "Agent economy data",
+      description:
+        "On-chain agent-payment activity (5 protocols, 11+ chains, measured) plus off-chain agent-economy signal (token market, service & agent supply, developer adoption, sourced).",
+      url: `${SITE_URL}/data`,
+      license: `${SITE_URL}/about`,
+      isAccessibleForFree: true,
+      creator: { "@id": `${SITE_URL}/#organization` },
+      distribution: [
+        { "@type": "DataDownload", name: "On-chain feed", encodingFormat: "application/json", contentUrl: `${SITE_URL}/data.json` },
+        { "@type": "DataDownload", name: "Off-chain feed", encodingFormat: "application/json", contentUrl: `${SITE_URL}/web-sources.json` },
+      ],
+    },
+    {
+      "@type": "WebAPI",
+      "@id": `${SITE_URL}/#api`,
+      name: "agent economy data API",
+      description: "Key-less JSON feeds and an MCP server (/api/mcp) for agents. See /openapi.json for the contract and /llms.txt for the agent index.",
+      documentation: `${SITE_URL}/openapi.json`,
+      termsOfService: `${SITE_URL}/about`,
+      provider: { "@id": `${SITE_URL}/#organization` },
+    },
   ],
 };
 
