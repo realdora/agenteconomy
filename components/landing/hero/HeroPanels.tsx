@@ -68,7 +68,6 @@ function agoLabel(t: number, now: number): string {
 }
 
 function TrackPanel({ total }: { total: number }) {
-  const reduce = prefersReducedMotion();
   const [count, setCount] = useState(0);
   const [block, setBlock] = useState(23455201);
   // Seed empty on the server — the rows are random/time-based, so generating them during
@@ -76,6 +75,7 @@ function TrackPanel({ total }: { total: number }) {
   const [evs, setEvs] = useState<StreamEv[]>([]);
   const [nowTs, setNowTs] = useState(0);
   useEffect(() => {
+    const reduce = prefersReducedMotion();
     setEvs(Array.from({ length: STREAM_ROWS }, makeEv));
     setNowTs(Date.now());
     if (reduce) {
@@ -102,7 +102,7 @@ function TrackPanel({ total }: { total: number }) {
       clearInterval(add);
       clearInterval(age);
     };
-  }, [total, reduce]);
+  }, [total]);
 
   return (
     <div className={CARD}>
@@ -139,10 +139,13 @@ function TrackPanel({ total }: { total: number }) {
 // Each facilitator wears its own brand color (Coinbase #0052FF, etc.) so the split is
 // legible at a glance. Data carries the colors (lib/agent-data SharePart.color).
 function PricePanel({ price }: { price: AgentData["price"] }) {
-  const reduce = prefersReducedMotion();
-  const [v, setV] = useState(reduce ? price.volumeM : 0);
-  const [grown, setGrown] = useState(reduce);
+  // Seed to the motion (server) defaults so SSR and the client's first render match —
+  // reading prefersReducedMotion() into the initializer would mismatch for reduced-motion
+  // users (React #418). The effect below reads the preference and jumps to the final state.
+  const [v, setV] = useState(0);
+  const [grown, setGrown] = useState(false);
   useEffect(() => {
+    const reduce = prefersReducedMotion();
     if (reduce) {
       setV(price.volumeM);
       setGrown(true);
@@ -162,7 +165,7 @@ function PricePanel({ price }: { price: AgentData["price"] }) {
       cancelAnimationFrame(raf);
       clearTimeout(g);
     };
-  }, [price, reduce]);
+  }, [price.volumeM]);
   return (
     <div className={CARD}>
       <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Agent payment volume · x402</div>
