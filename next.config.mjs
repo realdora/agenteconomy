@@ -1,6 +1,41 @@
 /** @type {import('next').NextConfig} */
+const securityHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+  },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  {
+    key: "Content-Security-Policy-Report-Only",
+    value: [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'self'",
+      "form-action 'self'",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://www.google-analytics.com https://*.google-analytics.com",
+      "font-src 'self'",
+      "connect-src 'self' https://dashboard.agenteconomy.to https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com",
+      "upgrade-insecure-requests",
+    ].join("; "),
+  },
+];
+
 const nextConfig = {
   reactStrictMode: true,
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
+  },
   // After the apex cutover (v4 becomes agenteconomy.to), keep the public data API
   // at apex (decision A) by proxying to the dashboard project, where the pipeline
   // keeps these files fresh. The advertised agenteconomy.to/data.json URL is
