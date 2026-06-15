@@ -17,11 +17,18 @@ const PAD_T = 40;
 const PAD_B = 50;
 
 function buildPath(series: number[]) {
+  const innerW = W - PAD_L - PAD_R;
+  const innerH = H - PAD_T - PAD_B;
+  // Guard a degenerate upstream series (<2 points): step = innerW/0 = Infinity → NaN
+  // path coords blanks the chart. Fall back to a flat baseline at the bottom axis.
+  if (series.length < 2) {
+    const y = PAD_T + innerH;
+    const flat = `M ${PAD_L},${y} L ${PAD_L + innerW},${y}`;
+    return { linePath: flat, areaPath: `${flat} Z`, lastX: PAD_L + innerW, lastY: y, max: series[0] ?? 0 };
+  }
   const max = Math.max(...series);
   const min = 0;
   const range = max - min || 1;
-  const innerW = W - PAD_L - PAD_R;
-  const innerH = H - PAD_T - PAD_B;
   const step = innerW / (series.length - 1);
   const points = series.map((v, i) => {
     const x = PAD_L + i * step;

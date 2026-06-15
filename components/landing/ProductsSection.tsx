@@ -18,7 +18,17 @@ const SPARK_PAD = 3;
 
 // Plot the real per-period rate — the genuine ups and downs of each protocol's
 // daily/weekly activity (a flat or declining protocol honestly reads as one).
-function sparkPoints(data: number[]) {
+function sparkPoints(data: number[]): [number, number][] {
+  // Guard a degenerate upstream series (a thin/empty daily snapshot): <2 points would
+  // make step = SPARK_W/0 = Infinity → NaN coords, and an empty array crashes the
+  // trailing-dot lookup. Fall back to a flat baseline.
+  if (data.length < 2) {
+    const y = SPARK_PAD + (SPARK_H - SPARK_PAD * 2) / 2;
+    return [
+      [0, y],
+      [SPARK_W, y],
+    ];
+  }
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;

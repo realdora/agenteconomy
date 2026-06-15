@@ -41,8 +41,7 @@ const FALLBACK: PlatformData = {
     { day: "2026-06-03", protocol: "x402", value: 52310, unit: "txns" },
     { day: "2026-06-03", protocol: "baseAgentic", value: 5870, unit: "txns" },
   ],
-  isLiveSentinel: undefined as never,
-} as PlatformData;
+};
 
 // A chronological feed (newest day first) of real daily aggregates. A clean,
 // credible log-tail. x402 / baseAgentic dominate the recent window because they're
@@ -77,6 +76,7 @@ export async function getPlatformData(): Promise<PlatformData> {
     const authors: string[] = Array.from(
       new Set((Array.isArray(d.sources) ? d.sources : []).map((s: { author?: string }) => s.author).filter(Boolean)),
     );
+    const feed = buildFeed(d);
     return {
       updatedAt: typeof d.updatedAt === "string" ? d.updatedAt : null,
       snapshot: {
@@ -98,7 +98,7 @@ export async function getPlatformData(): Promise<PlatformData> {
         baseAgentic: { totalTxs: d.baseAgentic?.totalTxs ?? 0 },
         sources: authors.length ? authors.map((a) => `Dune · ${a}`) : FALLBACK.snapshot.sources,
       },
-      feed: buildFeed(d).length ? buildFeed(d) : FALLBACK.feed,
+      feed: feed.length ? feed : FALLBACK.feed,
     };
   } catch {
     return FALLBACK;

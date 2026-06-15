@@ -96,21 +96,31 @@ function buildGrowth(d: any): number[] {
   return out;
 }
 
-type RawProtocol = { name: string; share: number; color: string };
+type RawProtocol = { name: string; share: number };
+
+// Color comes from a local palette by rank, NOT from upstream — data.json's protocol
+// rows are not guaranteed to carry a `color`, and a missing one rendered transparent bars.
+const SHARE_COLORS = ["#0052FF", "#6366F1", "#10B981", "#F59E0B"];
 
 // Keep the top 4 named protocols by share; fold everything else (incl. the source's
 // stray "Other"/tiny rows) into a single "Other" so the 5-segment bar stays clean.
 function buildShare(protocols: RawProtocol[]): SharePart[] {
   const named = protocols
-    .filter((p) => p.name && p.name.toLowerCase() !== "other")
+    .filter((p) => p && p.name && p.name.toLowerCase() !== "other" && Number.isFinite(Number(p.share)))
+    .map((p) => ({ name: p.name, share: Number(p.share) }))
     .sort((a, b) => b.share - a.share);
   const top = named.slice(0, 4);
   const topSum = top.reduce((s, p) => s + p.share, 0);
   const otherPct = Math.max(0, round1(100 - topSum));
-  return [
-    ...top.map((p) => ({ label: p.name, pct: round1(p.share), color: p.color })),
+  const built: SharePart[] = [
+    ...top.map((p, i) => ({ label: p.name, pct: round1(p.share), color: SHARE_COLORS[i] ?? "#8a8f98" })),
     { label: "Other", pct: otherPct, color: "#8a8f98" },
   ];
+  // Honesty guard: bad upstream shares (NaN, fractions instead of %, or top>100) must
+  // not render a bar that misrepresents the split. If it doesn't sum to ~100, fall back.
+  const sum = built.reduce((s, p) => s + p.pct, 0);
+  if (top.length === 0 || sum < 95 || sum > 105) return FALLBACK.price.share;
+  return built;
 }
 
 export async function getAgentData(): Promise<AgentData> {

@@ -64,11 +64,11 @@ const siteJsonLd = {
 export async function generateMetadata(): Promise<Metadata> {
   const { totalEvents } = await getAgentData();
   const ev = `${formatEvents(totalEvents)}+`;
-  const social = `On-chain flow measured across 5 protocols & 11+ chains (${ev} events daily); off-chain market, supply & developer signal sourced.`;
+  const social = `On-chain flow measured across 5 protocols & 11+ chains (${ev} events); off-chain market, supply & developer signal sourced.`;
   return {
     metadataBase: new URL("https://agenteconomy.to"),
     title: TITLE,
-    description: `The data authority for the agent economy. On-chain flow across 5 protocols and 11+ chains (${ev} events daily), measured — plus off-chain market, supply and developer signal.`,
+    description: `The data authority for the agent economy. On-chain flow across 5 protocols and 11+ chains (${ev} events), measured — plus off-chain market, supply and developer signal.`,
     applicationName: "agent economy",
     openGraph: {
       type: "website",
