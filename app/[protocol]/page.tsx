@@ -20,7 +20,24 @@ export async function generateMetadata({ params }: ProtocolPageProps): Promise<M
   const { protocol } = await params;
   const doc = getProtocol(protocol);
   if (!doc) return {};
-  return { title: `${doc.name} | agent economy`, description: doc.tagline };
+  const canonical = `https://agenteconomy.to/${doc.slug}`;
+  const title = `${doc.name} | agent economy`;
+
+  return {
+    title,
+    description: doc.seoDescription,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "article",
+      url: canonical,
+      siteName: "agent economy",
+      title,
+      description: doc.seoDescription,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
+    },
+  };
 }
 
 export default async function ProtocolPage({ params }: ProtocolPageProps) {
@@ -84,7 +101,67 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
             </Link>
           </div>
         </section>
+
+        {/* Long-form protocol guide */}
+        <section className="mt-28 border-t border-white/10 pt-14">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-5">Protocol guide</div>
+              <h2 className="font-display italic text-white text-[32px] md:text-[44px] leading-[1.08] tracking-tight max-w-md">
+                The shape of {doc.name} in the agent economy.
+              </h2>
+            </div>
+
+            <div className="space-y-14">
+              {doc.content.map((section, i) => (
+                <article key={section.heading} className="border-t border-white/10 pt-9 first:border-t-0 first:pt-0">
+                  <div className="font-mono text-[12px] uppercase tracking-[0.2em] text-[#00FF88] mb-4">
+                    {String(i + 1).padStart(2, "0")} / {section.eyebrow}
+                  </div>
+                  <h3 className="font-display italic text-white text-[28px] md:text-[34px] leading-[1.12] tracking-tight max-w-2xl mb-6">
+                    {section.heading}
+                  </h3>
+                  <div className="space-y-5">
+                    {section.body.map((paragraph) => (
+                      <p key={paragraph} className="text-white/68 text-[17px] leading-relaxed max-w-3xl">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+
+                  {section.callout ? (
+                    <p className="mt-7 border-l border-[#00FF88] pl-5 font-display italic text-white text-[23px] leading-snug max-w-2xl">
+                      {section.callout}
+                    </p>
+                  ) : null}
+
+                  {section.bullets ? (
+                    <div className="mt-9 grid gap-4 sm:grid-cols-3">
+                      {section.bullets.map((item) => (
+                        <div key={item.label} className="border-t border-white/10 pt-4">
+                          <h4 className="text-white font-medium text-[15px] tracking-tight mb-2">{item.label}</h4>
+                          <p className="text-white/52 text-[14px] leading-relaxed">{item.body}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            ...doc.jsonLd,
+            url: `https://agenteconomy.to/${doc.slug}`,
+            name: doc.name,
+            description: doc.seoDescription,
+          }),
+        }}
+      />
       <FooterSection />
     </>
   );
