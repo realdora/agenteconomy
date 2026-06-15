@@ -103,7 +103,10 @@
     grid-template-rows: 30px 30px max(52vw, 216px) 30px 30px;
     height: auto;
     min-height: 0;
-    padding: 0 5px;
+    /* top clearance so the first heading word (50px glyph in a tight 24px line-box,
+       which overflows ~13px above its row) clears the sticky 65px header instead of
+       being clipped under it */
+    padding: 26px 5px 0;
     width: 100%;
   }
 
