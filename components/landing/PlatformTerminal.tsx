@@ -70,7 +70,7 @@ export function TerminalFrame({
         @keyframes pv-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         @keyframes pv-cursor { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
       `}</style>
-      <div className="flex items-center gap-2 px-5 py-3 border-b border-white/10">
+      <div className="ae-term-head flex items-center gap-2 px-5 py-3 border-b border-white/10 overflow-x-auto">
         <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
         <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
         <span className="w-2.5 h-2.5 rounded-full bg-white/15" />

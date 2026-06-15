@@ -227,6 +227,18 @@
    source order. So these properties are driven via plain CSS instead. Base = desktop. */
 .ae-trust-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 24px; }
 
+/* Terminal header + code scroll horizontally on narrow screens (so the full label/date
+   and JSON lines stay reachable) without a visible scrollbar breaking the terminal look. */
+.ae-term-head,
+.ae-term-pre {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ae-term-head::-webkit-scrollbar,
+.ae-term-pre::-webkit-scrollbar {
+  display: none;
+}
+
 /* Logo wall: mark + name lockup. Neutral white-silhouette mark + muted name at rest;
    on hover (the whole lockup) the mark shows real brand color and the name brightens. */
 .ae-wall-logo {
