@@ -15,7 +15,7 @@ export function PlatformSection({ data }: { data: PlatformData }) {
   const loop = [...ticker, ...ticker]; // doubled for a seamless loop
 
   return (
-    <section className="py-16 md:py-24 lg:py-32">
+    <section className="py-16 md:py-24 lg:py-24">
       <div className="w-[1240px] max-w-full mx-auto px-5">
         <div className="flex flex-col gap-12 md:gap-16">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">

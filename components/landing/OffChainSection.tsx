@@ -31,7 +31,7 @@ export function OffChainSection({ data }: { data: WebSourcesData }) {
   const { agentTokens: at, x402Services: svc, virtuals: vir, devAdoption: dev } = data;
 
   return (
-    <section id="off-chain" className="py-16 md:py-24 lg:py-32 border-t border-white/10">
+    <section id="off-chain" className="py-16 md:py-24 lg:py-24 border-t border-white/10">
       <div className="w-[1240px] max-w-full mx-auto px-5">
         <div className="flex items-end justify-between gap-6 mb-4">
           <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">Off-chain signal</span>
@@ -53,8 +53,7 @@ export function OffChainSection({ data }: { data: WebSourcesData }) {
         </div>
 
         <p className="text-white/45 text-[13px] leading-relaxed max-w-3xl mt-10 font-display italic">
-          Web-sourced — CoinGecko, the x402 Bazaar, npm &amp; PyPI, the Virtuals API. Per-token, per-package and the full
-          supply breakdown live in the data feed.
+          Web-sourced from public market, package-registry and ecosystem APIs, refreshed daily.
         </p>
       </div>
     </section>

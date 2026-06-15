@@ -94,7 +94,7 @@ export default function MethodologyPage() {
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
             <a href={DASHBOARD_URL} className="ae-hero-cta">
-              Open the dashboard
+              Open dashboard
               <ArrowRightIcon />
             </a>
             <a

@@ -224,6 +224,37 @@
    source order. So these properties are driven via plain CSS instead. Base = desktop. */
 .ae-trust-row { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 24px; }
 
+/* Logo wall: mark + name lockup. Neutral white-silhouette mark + muted name at rest;
+   on hover (the whole lockup) the mark shows real brand color and the name brightens. */
+.ae-wall-logo {
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.45;
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+.ae-wall-name {
+  color: rgb(255 255 255 / 0.5);
+  transition: color 0.25s ease;
+}
+.ae-wall-item:hover .ae-wall-logo {
+  filter: none;
+  opacity: 1;
+}
+.ae-wall-item:hover .ae-wall-name {
+  color: rgb(255 255 255 / 0.9);
+}
+/* Dark-native marks (raster logos that would vanish in their own color on the dark
+   page): keep the white silhouette and just brighten on hover. */
+.ae-wall-item:hover .ae-wall-logo--mono {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+@media (hover: none) {
+  /* touch devices have no hover: sit a touch brighter so the wall stays legible */
+  .ae-wall-logo { opacity: 0.6; }
+  .ae-wall-name { color: rgb(255 255 255 / 0.65); }
+}
+
 /* Protocol index ledger (ProductsSection). Base = desktop. */
 .ae-pi-row {
   display: grid;

@@ -71,7 +71,7 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "understand",
     word: "track",
-    cta: "Open the dashboard",
+    cta: "Open dashboard",
     href: DASHBOARD_URL,
     palette: {
       base: "#0a2e22",
@@ -87,7 +87,7 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "explore",
     word: "price",
-    cta: "Open the dashboard",
+    cta: "Open dashboard",
     href: DASHBOARD_URL,
     palette: {
       base: "#2b2110",
@@ -103,7 +103,7 @@ export const heroSlides: HeroSlide[] = [
   {
     id: "trust",
     word: "cite",
-    cta: "Open the dashboard",
+    cta: "Open dashboard",
     href: DASHBOARD_URL,
     palette: {
       base: "#221a40",

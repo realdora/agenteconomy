@@ -97,7 +97,7 @@ export function HighlightSection({ data }: { data: AgentData }) {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 border-t border-b border-white/10">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-24 border-t border-b border-white/10">
       <div className="w-[1240px] max-w-full mx-auto px-5">
         <div className="flex justify-end mb-10">
           <a

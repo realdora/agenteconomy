@@ -74,15 +74,23 @@ function ProtocolMark({ row }: { row: ProtocolRow }) {
 }
 
 function LedgerRow({ row, idx, drawn }: { row: ProtocolRow; idx: number; drawn: boolean }) {
+  // x402 is the leading standard (the page's thesis). Give its row a quiet, persistent
+  // lift — always-on accent rule + accent-colored total — to foreshadow the dedicated
+  // "x402 has emerged as the standard" section below. The rest stay neutral.
+  const isLead = row.slug === "x402";
   return (
     <a
       href={row.href}
-      className="ae-pi-row group relative border-t border-white/10 last:border-b hover:bg-white/[0.02] transition-colors"
+      className={`ae-pi-row group relative border-t border-white/10 last:border-b hover:bg-white/[0.02] transition-colors ${
+        isLead ? "bg-white/[0.018]" : ""
+      }`}
       style={{ animationDelay: `${idx * 0.09}s` }}
     >
-      {/* protocol-colored rule, revealed on hover */}
+      {/* protocol-colored rule: persistent for the leader, hover-revealed otherwise */}
       <span
-        className="absolute left-0 top-0 bottom-0 w-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
+        className={`absolute left-0 top-0 bottom-0 w-[2px] transition-opacity ${
+          isLead ? "opacity-90" : "opacity-0 group-hover:opacity-100"
+        }`}
         style={{ background: row.color }}
       />
 
@@ -104,7 +112,12 @@ function LedgerRow({ row, idx, drawn }: { row: ProtocolRow; idx: number; drawn: 
       </span>
 
       <span className="ae-pi-metric flex flex-col items-end gap-1">
-        <span className="text-white font-medium text-[26px] leading-none tracking-tight tabular-nums">
+        <span
+          className={`text-white text-[26px] leading-none tracking-tight tabular-nums ${
+            isLead ? "font-semibold" : "font-medium"
+          }`}
+          style={isLead ? { color: row.color } : undefined}
+        >
           {formatMetric(row.metric)}
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40 text-right whitespace-nowrap">
@@ -138,7 +151,7 @@ export function ProductsSection({ data }: { data: ProtocolIndexData }) {
   }, [playKey]);
 
   return (
-    <section id="protocols" className="py-16 md:py-24 lg:py-32 border-t border-white/10">
+    <section id="protocols" className="py-16 md:py-24 lg:py-24 border-t border-white/10">
       <div className="w-[1240px] max-w-full mx-auto px-5">
         <div className="flex items-end justify-between gap-6 mb-4">
           <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">Protocol index</span>
