@@ -1780,30 +1780,18 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 26457,
-    "uniquePayers": 653,
-    "uniquePayees": 60,
+    "totalEvents": 41866,
+    "uniquePayers": 1804,
+    "uniquePayees": 88,
     "byType": {
-      "ChannelOpened": 13458,
-      "CloseRequested": 1699,
-      "ChannelExpired": 1580,
-      "ChannelClosed": 9384,
-      "Settled": 158,
-      "TopUp": 178
+      "ChannelOpened": 21523,
+      "CloseRequested": 2732,
+      "ChannelExpired": 2540,
+      "ChannelClosed": 14447,
+      "Settled": 286,
+      "TopUp": 338
     },
     "daily": [
-      {
-        "day": "2026-03-17",
-        "events": 1418,
-        "payers": 9,
-        "payees": 3
-      },
-      {
-        "day": "2026-03-18",
-        "events": 10127,
-        "payers": 46,
-        "payees": 6
-      },
       {
         "day": "2026-03-19",
         "events": 565,
@@ -1974,13 +1962,13 @@
       },
       {
         "day": "2026-04-16",
-        "events": 1680,
+        "events": 1685,
         "payers": 57,
         "payees": 10
       },
       {
         "day": "2026-04-17",
-        "events": 474,
+        "events": 469,
         "payers": 35,
         "payees": 6
       },
@@ -2022,9 +2010,327 @@
       },
       {
         "day": "2026-04-24",
-        "events": 637,
-        "payers": 28,
+        "events": 783,
+        "payers": 34,
+        "payees": 4
+      },
+      {
+        "day": "2026-04-25",
+        "events": 222,
+        "payers": 25,
+        "payees": 2
+      },
+      {
+        "day": "2026-04-26",
+        "events": 246,
+        "payers": 24,
         "payees": 3
+      },
+      {
+        "day": "2026-04-27",
+        "events": 192,
+        "payers": 52,
+        "payees": 4
+      },
+      {
+        "day": "2026-04-28",
+        "events": 418,
+        "payers": 65,
+        "payees": 7
+      },
+      {
+        "day": "2026-04-29",
+        "events": 273,
+        "payers": 52,
+        "payees": 7
+      },
+      {
+        "day": "2026-04-30",
+        "events": 924,
+        "payers": 52,
+        "payees": 4
+      },
+      {
+        "day": "2026-05-01",
+        "events": 235,
+        "payers": 35,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-02",
+        "events": 4001,
+        "payers": 26,
+        "payees": 3
+      },
+      {
+        "day": "2026-05-03",
+        "events": 95,
+        "payers": 19,
+        "payees": 2
+      },
+      {
+        "day": "2026-05-04",
+        "events": 74,
+        "payers": 23,
+        "payees": 2
+      },
+      {
+        "day": "2026-05-05",
+        "events": 254,
+        "payers": 39,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-06",
+        "events": 301,
+        "payers": 58,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-07",
+        "events": 154,
+        "payers": 20,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-08",
+        "events": 274,
+        "payers": 84,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-09",
+        "events": 83,
+        "payers": 16,
+        "payees": 3
+      },
+      {
+        "day": "2026-05-10",
+        "events": 61,
+        "payers": 21,
+        "payees": 3
+      },
+      {
+        "day": "2026-05-11",
+        "events": 120,
+        "payers": 38,
+        "payees": 7
+      },
+      {
+        "day": "2026-05-12",
+        "events": 153,
+        "payers": 115,
+        "payees": 6
+      },
+      {
+        "day": "2026-05-13",
+        "events": 188,
+        "payers": 69,
+        "payees": 3
+      },
+      {
+        "day": "2026-05-14",
+        "events": 119,
+        "payers": 23,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-15",
+        "events": 455,
+        "payers": 131,
+        "payees": 6
+      },
+      {
+        "day": "2026-05-16",
+        "events": 358,
+        "payers": 54,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-17",
+        "events": 319,
+        "payers": 69,
+        "payees": 4
+      },
+      {
+        "day": "2026-05-18",
+        "events": 195,
+        "payers": 41,
+        "payees": 10
+      },
+      {
+        "day": "2026-05-19",
+        "events": 380,
+        "payers": 85,
+        "payees": 6
+      },
+      {
+        "day": "2026-05-20",
+        "events": 65,
+        "payers": 40,
+        "payees": 7
+      },
+      {
+        "day": "2026-05-21",
+        "events": 351,
+        "payers": 76,
+        "payees": 4
+      },
+      {
+        "day": "2026-05-22",
+        "events": 473,
+        "payers": 30,
+        "payees": 2
+      },
+      {
+        "day": "2026-05-23",
+        "events": 169,
+        "payers": 38,
+        "payees": 2
+      },
+      {
+        "day": "2026-05-24",
+        "events": 103,
+        "payers": 17,
+        "payees": 4
+      },
+      {
+        "day": "2026-05-25",
+        "events": 451,
+        "payers": 140,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-26",
+        "events": 57,
+        "payers": 30,
+        "payees": 5
+      },
+      {
+        "day": "2026-05-27",
+        "events": 137,
+        "payers": 41,
+        "payees": 4
+      },
+      {
+        "day": "2026-05-28",
+        "events": 291,
+        "payers": 38,
+        "payees": 6
+      },
+      {
+        "day": "2026-05-29",
+        "events": 230,
+        "payers": 74,
+        "payees": 8
+      },
+      {
+        "day": "2026-05-30",
+        "events": 67,
+        "payers": 27,
+        "payees": 4
+      },
+      {
+        "day": "2026-05-31",
+        "events": 91,
+        "payers": 33,
+        "payees": 4
+      },
+      {
+        "day": "2026-06-01",
+        "events": 246,
+        "payers": 196,
+        "payees": 7
+      },
+      {
+        "day": "2026-06-02",
+        "events": 62,
+        "payers": 33,
+        "payees": 7
+      },
+      {
+        "day": "2026-06-03",
+        "events": 534,
+        "payers": 253,
+        "payees": 7
+      },
+      {
+        "day": "2026-06-04",
+        "events": 141,
+        "payers": 55,
+        "payees": 6
+      },
+      {
+        "day": "2026-06-05",
+        "events": 235,
+        "payers": 90,
+        "payees": 5
+      },
+      {
+        "day": "2026-06-06",
+        "events": 109,
+        "payers": 25,
+        "payees": 4
+      },
+      {
+        "day": "2026-06-07",
+        "events": 81,
+        "payers": 32,
+        "payees": 4
+      },
+      {
+        "day": "2026-06-08",
+        "events": 166,
+        "payers": 63,
+        "payees": 5
+      },
+      {
+        "day": "2026-06-09",
+        "events": 172,
+        "payers": 43,
+        "payees": 9
+      },
+      {
+        "day": "2026-06-10",
+        "events": 170,
+        "payers": 9,
+        "payees": 7
+      },
+      {
+        "day": "2026-06-11",
+        "events": 257,
+        "payers": 12,
+        "payees": 13
+      },
+      {
+        "day": "2026-06-12",
+        "events": 236,
+        "payers": 10,
+        "payees": 7
+      },
+      {
+        "day": "2026-06-13",
+        "events": 42,
+        "payers": 10,
+        "payees": 6
+      },
+      {
+        "day": "2026-06-14",
+        "events": 72,
+        "payers": 15,
+        "payees": 8
+      },
+      {
+        "day": "2026-06-15",
+        "events": 77,
+        "payers": 17,
+        "payees": 9
+      },
+      {
+        "day": "2026-06-16",
+        "events": 84,
+        "payers": 21,
+        "payees": 9
       }
     ]
   },
