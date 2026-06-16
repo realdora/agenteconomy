@@ -1,0 +1,63 @@
+name: Update Tempo Data
+
+# Cloud fallback for the Tempo MPP indexer (replaces the Mac mini, which went
+# stale on 2026-04-24). Re-scans the public Tempo RPC (rpc.tempo.xyz, no key)
+# for TempoStreamChannel events and writes public/tempo-data.json. Stateless
+# full re-scan — no persistent state, no home server. The Dune pipeline
+# (update-data.yml) merges tempo-data.json into data.json Phase 5.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-tempo:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: update-tempo
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install deps (viem)
+        run: npm ci
+
+      - name: Re-scan Tempo RPC → tempo-data.json
+        run: node scripts/index-tempo.mjs public/tempo-data.json
+
+      - name: Commit tempo-data.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/tempo-data.json
+          if git diff --staged --quiet; then
+            echo "No Tempo changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: update tempo data $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
+
+      - name: Trigger Vercel production deployment
+        if: success()
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "::warning::No VERCEL_DEPLOY_HOOK_URL; relying on Vercel Git auto-deploy."
+            exit 0
+          fi
+          case "$VERCEL_DEPLOY_HOOK_URL" in
+            https://api.vercel.com/v1/integrations/deploy/prj_*)
+              curl --connect-timeout 10 --max-time 30 -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL" || true ;;
+            *) echo "::warning::VERCEL_DEPLOY_HOOK_URL not a deploy hook; skipping." ;;
+          esac
