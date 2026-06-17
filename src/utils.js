@@ -1,6 +1,6 @@
-export const GREEN = '#16A34A'
-export const BLUE = '#3B82F6'
-export const BLUE_L = '#93C5FD'
+export const GREEN = '#00FF88'
+export const BLUE = '#6E9BFF'
+export const BLUE_L = '#A9C4FF'
 
 export function safeColor(c) {
   return /^#[0-9a-fA-F]{3,8}$/.test(c || '') ? c : '#9CA3AF'

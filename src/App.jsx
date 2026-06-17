@@ -108,37 +108,23 @@ function useDashboardData(initialData) {
   return { data, loadState, webSources }
 }
 
-function getInitialDark() {
-  try {
-    const saved = localStorage.getItem('ae-theme')
-    if (saved) return saved === 'dark'
-  } catch {}
-  const h = new Date().getHours()
-  return h < 6 || h >= 18
-}
-
-function useTheme() {
-  const [dark, setDark] = useState(getInitialDark)
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
-  }, [dark])
-
-  const toggleTheme = () => setDark(d => {
-    const next = !d
-    try { localStorage.setItem('ae-theme', next ? 'dark' : 'light') } catch {}
-    return next
-  })
-
-  return { dark, toggleTheme }
-}
-
 function LiveDot() {
   return (
     <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 8, height: 8 }}>
       <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: GREEN, animation: 'ping 1.5s ease-out infinite', opacity: 0.4 }} />
       <span style={{ position: 'relative', width: 6, height: 6, borderRadius: '50%', background: GREEN }} />
     </span>
+  )
+}
+
+function AEMark() {
+  return (
+    <svg className="brand-mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#0E0E12" />
+      <g transform="translate(16 16) scale(0.03578 -0.03578) translate(-305.5 -267.5)">
+        <path d="M225 -12Q141.5 -12 89.75 26.5Q38 65 38 134Q38 204 81.75 242.75Q125.5 281.5 213 299L388 333.5Q388 388 363.25 415.5Q338.5 443 291 443Q246.5 443 221.25 422.5Q196 402 187.5 363L47 369.5Q62.5 456 125.75 501.5Q189 547 291 547Q408 547 467.5 489.75Q527 432.5 527 324V135.5Q527 113.5 534.5 105.75Q542 98 557 98H573V0Q566.5 -2 552.0 -3.5Q537.5 -5 523 -5Q490.5 -5 463.75 5.75Q437 16.5 421.5 43.0Q406 69.5 406 117L418 108Q409 72.5 383.0 45.25Q357 18 316.75 3.0Q276.5 -12 225 -12ZM256 86Q296 86 325.5 101.75Q355 117.5 371.5 146.5Q388 175.5 388 215V243L258 216Q218.5 208 200.0 191.0Q181.5 174 181.5 147Q181.5 118 200.75 102.0Q220 86 256 86Z" fill="#FAFAF8" />
+      </g>
+    </svg>
   )
 }
 
@@ -275,23 +261,11 @@ function ChartSurface({ children }) {
   )
 }
 
-function ThemeIcon({ dark }) {
-  return (
-    <ClientRendered>
-      {dark ? (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-      ) : (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /></svg>
-      )}
-    </ClientRendered>
-  )
-}
-
 function BarRows({ rows, total, valueKey = 'txs', colors }) {
   return rows.map((row, i) => {
     const value = row[valueKey] || 0
     const pct = total > 0 ? (value / total) * 100 : 0
-    const color = safeColor(row.color || colors?.[i % colors.length] || '#9CA3AF')
+    const color = safeColor(row.color || colors?.[i % colors.length] || 'rgba(255,255,255,0.35)')
     return (
       <div className="bar-row" key={`${row.name}-${i}`}>
         <div className="dot" style={{ background: color }} />
@@ -365,16 +339,16 @@ function X402Section({ x, xTxs, xVol }) {
               <ResponsiveContainer width="100%" height="100%">
                 {tf === 'day' && chartData.length > 0 ? (
                   <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                    <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 10))} />
-                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <XAxis dataKey="label" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 10))} />
+                    <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
                     <Tooltip content={<ChartTip unit=" txs" />} cursor={{ fill: 'var(--cursor-fill)' }} />
                     <Bar dataKey="txs" fill={BLUE_L} radius={[3, 3, 0, 0]} barSize={8} name="Daily" />
                     <Line type="monotone" dataKey="ma" stroke={BLUE} strokeWidth={2} dot={false} name="7d avg" />
                   </ComposedChart>
                 ) : (
                   <ComposedChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                    <XAxis dataKey="label" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
-                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                    <XAxis dataKey="label" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
+                    <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
                     <Tooltip content={<ChartTip isMoney={met === 'vol'} />} cursor={{ fill: 'var(--cursor-fill)' }} />
                     <Bar dataKey={met} name={met === 'txs' ? 'Txs' : 'USD'} radius={[4, 4, 0, 0]}>
                       {chartData.map((_, i) => <Cell key={i} fill={met === 'vol' ? GREEN : BLUE} fillOpacity={0.35 + (i / Math.max(chartData.length, 1)) * 0.65} />)}
@@ -431,6 +405,15 @@ function X402Section({ x, xTxs, xVol }) {
   )
 }
 
+const PROTOCOL_COLORS = {
+  'x402': '#00FF88',
+  'ERC-8004': '#7AD7FF',
+  'Virtuals ACP': '#9E7BFF',
+  'Tempo / MPP': '#FF7AB6',
+  'Olas': '#C0C4CC',
+  'Masumi': '#FFB86C',
+}
+
 function ProtocolComparison({ data, totals, web }) {
   const rows = [
     { protocol: 'x402', href: '/x402', role: 'HTTP-native agent payments', events: data.x402.totalTxs, volume: data.x402.totalVolume, chains: data.x402.chainsTracked, source: SOURCES.x402[0] },
@@ -465,7 +448,15 @@ function ProtocolComparison({ data, totals, web }) {
           <tbody>
             {rows.map(row => (
               <tr key={row.protocol}>
-                <td><strong>{row.href ? <Link to={row.href}>{row.protocol}</Link> : row.protocol}</strong>{row.agents ? <div style={{ color: 'var(--text-faint)' }}>{fmt(row.agents)} agents</div> : null}</td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 999, flex: '0 0 auto', background: PROTOCOL_COLORS[row.protocol] || 'var(--text-faint)' }} />
+                    <div>
+                      <strong>{row.href ? <Link to={row.href}>{row.protocol}</Link> : row.protocol}</strong>
+                      {row.agents ? <div style={{ color: 'var(--text-faint)', fontSize: 10.5, marginTop: 2 }}>{fmt(row.agents)} agents</div> : null}
+                    </div>
+                  </div>
+                </td>
                 <td>{row.role}</td>
                 <td>{row.events ? fmt(row.events) : 'Pending'}</td>
                 <td>{row.volume ? fmtMoney(row.volume) : 'N/A'}</td>
@@ -497,7 +488,7 @@ function MarketSupplySection({ web }) {
   return (
     <Section
       title="Market"
-      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#00C870' }}
       meta={`Capital${asOfLabel(asOf)}`}
       explanation="The capital/sentiment dimension on-chain payment flow can't show: market capitalization of agent-economy tokens. The basket is hand-curated to agentic-payment protocols; the broad CoinGecko category total includes some memecoins, so it appears only as a footnote. Source: CoinGecko."
     >
@@ -517,7 +508,7 @@ function MarketSupplySection({ web }) {
                   <td style={{ padding: '8px 6px', fontWeight: 600 }}>{tok.symbol}</td>
                   <td style={{ padding: '8px 6px', color: 'var(--muted)' }}>{tok.label}</td>
                   <td style={{ padding: '8px 6px', textAlign: 'right' }}>{usd(tok.mcap)}</td>
-                  <td style={{ padding: '8px 6px', textAlign: 'right', color: tok.change24h >= 0 ? '#16A34A' : '#DC2626' }}>
+                  <td style={{ padding: '8px 6px', textAlign: 'right', color: tok.change24h >= 0 ? '#00FF88' : '#ff6b6b' }}>
                     {tok.change24h >= 0 ? '+' : ''}{tok.change24h.toFixed(1)}%
                   </td>
                 </tr>
@@ -544,14 +535,14 @@ function AgentSupplySection({ web }) {
   return (
     <Section
       title="Agent Supply"
-      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#00C870' }}
       meta={`What agents can use & who's selling${asOfLabel(asOf)}`}
       explanation={`The supply side of the agent economy: services agents can pay for (x402 Bazaar — provider count is unique domains; the raw listing count is skewed by a few hosts that bulk-list thousands of endpoints${svc?.top2ListingSharePct ? `, top 2 domains ≈ ${svc.top2ListingSharePct}% of listings` : ''}), tools agents can call (official MCP Registry, counted by full enumeration${sup ? `; Smithery's directory counts ${sup.smitheryMcpServers.toLocaleString()} under different inclusion criteria` : ''}), and agents themselves (Virtuals Protocol launchpad totals from their public per-agent API). Sources: Coinbase x402 Bazaar, MCP Registry, Smithery, Virtuals.`}
     >
       <div className="grid g4" style={{ marginBottom: 0 }}>
         {svc && <Card label="x402 Providers" value={svc.uniqueProviders.toLocaleString()} sub={`${svc.totalListings.toLocaleString()} listings`} accent={BLUE} hero />}
-        {sup && <Card label="MCP Servers" value={sup.officialMcpServers.toLocaleString()} sub="official registry" accent="#7C3AED" />}
-        {vir && <Card label="Virtuals Agents" value={vir.launchedAgents.toLocaleString()} sub={`${vir.acpRegisteredAgents.toLocaleString()} ACP-registered`} accent="#04795B" />}
+        {sup && <Card label="MCP Servers" value={sup.officialMcpServers.toLocaleString()} sub="official registry" accent="#9E7BFF" />}
+        {vir && <Card label="Virtuals Agents" value={vir.launchedAgents.toLocaleString()} sub={`${vir.acpRegisteredAgents.toLocaleString()} ACP-registered`} accent="#00C870" />}
       </div>
     </Section>
   )
@@ -563,7 +554,7 @@ function DevAdoptionSection({ web }) {
   return (
     <Section
       title="Developer Adoption"
-      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+      badge={{ t: 'OFF-CHAIN', bg: 'var(--badge-green-bg)', c: '#00C870' }}
       meta={`Agent-payment SDK downloads${asOfLabel(dev.asOf)}`}
       explanation="Weekly downloads of the core agent-payment SDKs (npm + PyPI), 4-week trailing average over a fixed, published basket. Download counts include CI and mirror traffic — read this as an ecosystem-activity proxy, not a count of human developers. General agent-infra SDKs (MCP, A2A) are excluded: at 100x the volume they would drown the payment signal."
     >
@@ -576,7 +567,7 @@ function DevAdoptionSection({ web }) {
           <tbody>
             {dev.components.map(c => (
               <tr key={`${c.registry}:${c.pkg}`} style={{ borderTop: '1px solid var(--border)' }}>
-                <td style={{ padding: '7px 6px', fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', fontSize: 12 }}>{c.pkg}</td>
+                <td style={{ padding: '7px 6px', fontWeight: 600, fontFamily: '"Geist Mono", monospace', fontSize: 12 }}>{c.pkg}</td>
                 <td style={{ padding: '7px 6px', color: 'var(--muted)' }}>{c.registry}</td>
                 <td style={{ padding: '7px 6px', textAlign: 'right' }}>{c.weeklyAvg4w.toLocaleString()}</td>
               </tr>
@@ -590,17 +581,17 @@ function DevAdoptionSection({ web }) {
 
 function RegistrySection({ ag, erc8004Reg, agTxs, regAgents }) {
   const agDelta = calcDelta(ag.daily, 'total', 1)
-  const colors = ['#F0B90B', '#627EEA', '#0052FF', '#FF6B35', '#836EF9', '#35D07F', '#04795B', '#FF4D6A']
+  const colors = ['#F0B90B', '#627EEA', '#0052FF', '#FF6B35', '#836EF9', '#35D07F', '#00C870', '#FF4D6A']
   return (
     <Section
       title="ERC-8004"
-      badge={{ t: 'IDENTITY', bg: 'var(--badge-purple-bg)', c: '#7C3AED' }}
+      badge={{ t: 'IDENTITY', bg: 'var(--badge-purple-bg)', c: '#9E7BFF' }}
       meta={`Agent identity · ${erc8004Reg.chainsTracked || 1}+ chains${asOfLabel(erc8004Reg.asOf || ag.asOf)}`}
       explanation="ERC-8004 provides agent identity and reputation primitives. Base activity and multi-chain registry data are shown separately to keep transactions and agent registrations distinct."
     >
       <div className="grid g4" style={{ marginBottom: 14 }}>
         <Card label="Base Events (YTD)" value={agTxs.toLocaleString()} sub="agentic transactions" delta={agDelta} deltaLabel="WoW" hero />
-        <Card label="Registered Agents" value={regAgents.toLocaleString()} sub="all chains" accent="#7C3AED" />
+        <Card label="Registered Agents" value={regAgents.toLocaleString()} sub="all chains" accent="#9E7BFF" />
         <Card label="Registry Chains" value={erc8004Reg.chainsTracked || 0} sub="mainnets" />
         <Card label="Standard" value="ERC-8004" sub="Identity + reputation" />
       </div>
@@ -613,11 +604,11 @@ function RegistrySection({ ag, erc8004Reg, agTxs, regAgents }) {
                 {({ Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis }) => (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={ag.daily} barSize={Math.max(4, Math.min(14, 600 / ag.daily.length))}>
-                      <XAxis dataKey="day" tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(ag.daily.length / 10))} />
-                      <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                      <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(ag.daily.length / 10))} />
+                      <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
                       <Tooltip content={<ChartTip />} cursor={{ fill: 'var(--cursor-fill)' }} />
-                      <Bar dataKey="infrastructure" stackId="a" fill="#6366F1" name="Infrastructure" />
-                      <Bar dataKey="consumer" stackId="a" fill="#10B981" radius={[2, 2, 0, 0]} name="Consumer" />
+                      <Bar dataKey="infrastructure" stackId="a" fill="#7AD7FF" name="Infrastructure" />
+                      <Bar dataKey="consumer" stackId="a" fill="#00FF88" radius={[2, 2, 0, 0]} name="Consumer" />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -659,8 +650,8 @@ function SimpleProtocolSection({ kind, title, badge, meta, explanation, totalLab
                   {({ Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis }) => (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData.slice(-60)} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                        <XAxis dataKey={kind === 'olas' ? 'week' : 'day'} tick={{ fill: '#9CA3AF', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(chartData.length / 12))} />
-                        <YAxis tick={{ fill: '#9CA3AF', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
+                        <XAxis dataKey={kind === 'olas' ? 'week' : 'day'} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => (v || '').slice(5)} interval={Math.max(1, Math.floor(chartData.length / 12))} />
+                        <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 9 }} tickFormatter={v => fmt(v)} axisLine={false} tickLine={false} width={36} />
                         <Tooltip content={<ChartTip unit={unit} />} cursor={{ fill: 'var(--cursor-fill)' }} />
                         <Bar dataKey={chartKey} fill={barColor} radius={[3, 3, 0, 0]} barSize={kind === 'olas' ? 14 : 6} opacity={0.72} name={chartTitle} />
                       </BarChart>
@@ -693,7 +684,6 @@ function OlasChainPanel({ olas }) {
 
 function DashboardPage({ initialData }) {
   const { data, loadState, webSources } = useDashboardData(initialData)
-  const { dark, toggleTheme } = useTheme()
 
   const x = data.x402
   const ag = data.baseAgentic
@@ -735,11 +725,9 @@ function DashboardPage({ initialData }) {
       <nav className="nav">
         <div className="nav-inner">
           <div className="brand-row">
-            <span className="brand">agenteconomy.to</span>
+            <AEMark />
+            <span className="brand">agenteconomy<span className="to">.to</span></span>
             <span className="live-pill"><LiveDot />LIVE</span>
-            <button className="theme-btn" type="button" onClick={toggleTheme} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}>
-              <ThemeIcon dark={dark} />
-            </button>
           </div>
           <div className="nav-meta">
             <span className={`status-pill ${freshness.tone === 'warn' ? 'warn' : ''}`}>{freshness.label}</span>
@@ -755,8 +743,8 @@ function DashboardPage({ initialData }) {
 
       <main className="shell">
         <section className="hero fade">
+          <div className="eyebrow">Live agent-payment data</div>
           <h1 className="hero-title">AI Agent Payment Data Dashboard</h1>
-          <FlowLines />
           {/* Four named lenses — one number per concept, equal weight. Naming
               the lone off-chain reference "Market" keeps it legible beside the
               measured on-chain flow (different unit systems). Supply (providers)
@@ -765,8 +753,8 @@ function DashboardPage({ initialData }) {
             {[
               { lens: 'Activity', value: fmt(cEvents), label: 'on-chain events', color: 'var(--text-strong)' },
               { lens: 'Money', value: usdCompact(cVol), label: 'USD settled', color: GREEN },
-              { lens: 'Players', value: fmt(regAgents), label: 'agents registered', color: '#7C3AED' },
-              { lens: 'Market', value: heroMcap, label: 'agent token mcap', color: '#04795B', tag: 'off-chain' },
+              { lens: 'Players', value: fmt(regAgents), label: 'agents registered', color: '#9E7BFF' },
+              { lens: 'Market', value: heroMcap, label: 'agent token mcap', color: '#00C870', tag: 'off-chain' },
             ].map((item, i) => (
               <div className="hero-cell" key={i}>
                 <div className="hero-lens-label">
@@ -823,7 +811,7 @@ function DashboardPage({ initialData }) {
           chartTitle="Daily ACP memos"
           chartData={acp.daily}
           chartKey="memos"
-          barColor="#22C55E"
+          barColor="#00FF88"
           sourceKey="acp"
           emptyText="The Dune query is linked below; the UI now treats missing rows as an indexed-data gap rather than a loading spinner."
           unit=" memos"
@@ -863,7 +851,7 @@ function DashboardPage({ initialData }) {
         <SimpleProtocolSection
           kind="olas"
           title="Olas / Autonolas"
-          badge={{ t: 'AUTONOMOUS', bg: 'var(--badge-green-bg)', c: '#04795B' }}
+          badge={{ t: 'AUTONOMOUS', bg: 'var(--badge-green-bg)', c: '#00C870' }}
           meta={`${olas.chains?.length || 0} chains · Gnosis-dominant${asOfLabel(olas.asOf)}`}
           explanation="Olas is a decentralized protocol for co-owned autonomous AI agents. It tracks a separate family of autonomous agent transactions from the other standards."
           totalLabel="Total Transactions"
@@ -874,7 +862,7 @@ function DashboardPage({ initialData }) {
           chartTitle="Weekly transactions"
           chartData={olas.weekly}
           chartKey="txs"
-          barColor="#04795B"
+          barColor="#00C870"
           sourceKey="olas"
           emptyText="The Olas Dune query did not return rows for the current JSON. Source is linked for manual inspection."
           unit=" txs"
@@ -1398,18 +1386,15 @@ function ProtocolRoutePage({ initialData, path }) {
   const faqs = getFaq(config, data, totals)
   const sources = uniqueSources([...metrics.map(row => row.source), ...sourceList(config.sourceKeys)])
   const freshness = getFreshness(data.updatedAt, 'loaded')
-  const { dark, toggleTheme } = useTheme()
 
   return (
     <div className="app">
       <nav className="nav">
         <div className="nav-inner">
           <div className="brand-row">
-            <span className="brand">agenteconomy.to</span>
+            <AEMark />
+            <span className="brand">agenteconomy<span className="to">.to</span></span>
             <span className="live-pill"><LiveDot />LIVE</span>
-            <button className="theme-btn" type="button" onClick={toggleTheme} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}>
-              <ThemeIcon dark={dark} />
-            </button>
           </div>
           <div className="nav-meta">
             <span className={`status-pill ${freshness.tone === 'warn' ? 'warn' : ''}`}>{freshness.label}</span>
@@ -1501,7 +1486,7 @@ function ProtocolRoutePage({ initialData, path }) {
         <section className="section" data-section="methodology">
           <div className="section-head">
             <h2 className="section-title">How this data is tracked</h2>
-            <span className="badge" style={{ color: '#7C3AED', background: 'var(--badge-purple-bg)' }}>METHODOLOGY</span>
+            <span className="badge" style={{ color: '#9E7BFF', background: 'var(--badge-purple-bg)' }}>METHODOLOGY</span>
           </div>
           {config.methodRows && (
             <div className="comparison" style={{ marginBottom: 14 }}>
@@ -1746,7 +1731,7 @@ function getRouteNoscript(path, data, totals) {
           <li><a href="${escapeHtml(route.path)}">${escapeHtml(route.title)}</a>: ${escapeHtml(route.description)}</li>`).join('')
 
   return `    <noscript>
-      <div style="max-width:900px;margin:0 auto;padding:40px 24px;font-family:Inter,system-ui,sans-serif;color:#111827">
+      <div style="max-width:900px;margin:0 auto;padding:40px 24px;font-family:Geist,system-ui,sans-serif;color:#111827">
         <h1>${escapeHtml(config.h1)}</h1>
         <p>${escapeHtml(config.description)}</p>
 
