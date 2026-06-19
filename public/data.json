@@ -1780,16 +1780,16 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 42149,
+    "totalEvents": 42191,
     "uniquePayers": 1808,
     "uniquePayees": 88,
     "byType": {
-      "ChannelOpened": 21587,
-      "CloseRequested": 2792,
-      "ChannelExpired": 2602,
-      "ChannelClosed": 14535,
-      "Settled": 288,
-      "TopUp": 345
+      "ChannelOpened": 21593,
+      "CloseRequested": 2802,
+      "ChannelExpired": 2612,
+      "ChannelClosed": 14547,
+      "Settled": 291,
+      "TopUp": 346
     },
     "daily": [
       {
@@ -1944,13 +1944,13 @@
       },
       {
         "day": "2026-04-16",
-        "events": 1682,
+        "events": 1684,
         "payers": 57,
         "payees": 10
       },
       {
         "day": "2026-04-17",
-        "events": 472,
+        "events": 470,
         "payers": 35,
         "payees": 6
       },
@@ -2328,9 +2328,9 @@
       },
       {
         "day": "2026-06-19",
-        "events": 42,
-        "payers": 8,
-        "payees": 6
+        "events": 84,
+        "payers": 19,
+        "payees": 7
       }
     ]
   },
