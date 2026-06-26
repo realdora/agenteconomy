@@ -1,56 +1,56 @@
 {
-  "updatedAt": "2026-06-26T03:57:29.756Z",
+  "updatedAt": "2026-06-26T09:31:54.339Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-06-26T03:57:30.187Z",
+    "asOf": "2026-06-26T09:31:54.781Z",
     "basket": [
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 377192345,
-        "price": 0.167002,
-        "change24h": -4.25955
+        "mcap": 378242656,
+        "price": 0.167463,
+        "change24h": -4.35331
       },
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 339860800,
-        "price": 0.517237,
-        "change24h": -5.31241
+        "mcap": 343917937,
+        "price": 0.523417,
+        "change24h": -4.12309
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 337065871,
-        "price": 0.144623,
-        "change24h": -2.55199
+        "mcap": 338932798,
+        "price": 0.145317,
+        "change24h": 0.15037
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 6697838,
-        "price": 0.03000682,
-        "change24h": -8.10585
+        "mcap": 6727724,
+        "price": 0.03012353,
+        "change24h": -8.36952
       }
     ],
-    "basketMcap": 1060816854,
-    "basketVol24h": 150563468,
+    "basketMcap": 1067821115,
+    "basketVol24h": 156946655,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 2877873883,
-        "vol24h": 346320525,
-        "updatedAt": "2026-06-26T03:52:49.529Z"
+        "mcap": 2909261750,
+        "vol24h": 360603354,
+        "updatedAt": "2026-06-26T09:23:28.914Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1120911856,
-        "vol24h": 153442951,
-        "updatedAt": "2026-06-26T03:52:34.972Z"
+        "mcap": 1137458015,
+        "vol24h": 166030008,
+        "updatedAt": "2026-06-26T09:23:10.630Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
@@ -63,20 +63,20 @@
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
   "agentSupply": {
-    "asOf": "2026-06-25T09:26:40.236Z",
-    "officialMcpServers": 13544,
-    "smitheryMcpServers": 6529,
+    "asOf": "2026-06-26T09:32:15.677Z",
+    "officialMcpServers": 13892,
+    "smitheryMcpServers": 6559,
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-06-26T03:57:31.210Z",
-    "launchedAgents": 51548,
+    "asOf": "2026-06-26T09:35:49.013Z",
+    "launchedAgents": 51568,
     "acpRegisteredAgents": 42171,
     "aggregates": {
-      "asOf": "2026-06-25T09:29:45.821Z",
+      "asOf": "2026-06-26T09:35:49.013Z",
       "grossAgenticUsd": 429980102,
-      "totalJobs": 2574553,
-      "successfulJobs": 2383831,
+      "totalJobs": 2574554,
+      "successfulJobs": 2383832,
       "agentsScanned": 42171,
       "note": "Summed across every registered ACP agent record (public per-agent API) — independently computed, not scraped from the Virtuals stats page."
     }
@@ -135,8 +135,8 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-06-26T03:57:30.951Z",
-    "totalTxs": 31732,
+    "asOf": "2026-06-26T09:31:57.886Z",
+    "totalTxs": 31743,
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Cross-verified against the Masumi explorer on 2026-06-10."
   }
 }
