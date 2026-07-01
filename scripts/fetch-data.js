@@ -42,7 +42,17 @@ const RETRY_DELAY_MS = Number(process.env.DUNE_RETRY_DELAY_MS || 15000)
 // also why the incremental fork is mandatory: a full-history rescan cannot
 // finish inside small's 2-min cap regardless of credits.
 const PERFORMANCE = process.env.DUNE_PERFORMANCE || 'small'
-const MAX_EXECUTIONS = Number(process.env.DUNE_MAX_EXECUTIONS_PER_RUN || 3)
+const MAX_EXECUTIONS = Number(process.env.DUNE_MAX_EXECUTIONS_PER_RUN || 1)
+const MONTHLY_CREDIT_CAP = Number(process.env.DUNE_MONTHLY_CREDIT_CAP || 2000)
+const RUN_CREDIT_CAP = Number(process.env.DUNE_RUN_CREDIT_CAP || 50)
+const QUERY_CREDIT_CAP = Number(process.env.DUNE_QUERY_CREDIT_CAP || 35)
+const ALLOW_UNSAFE_QUERY_IDS = process.env.DUNE_ALLOW_UNSAFE_QUERY_IDS === '1'
+const BLOCKED_FRESH_QUERY_IDS = new Set([
+  6058135, // x402 full-history rescan; original quota burner.
+  6130922, // ERC-8004 registry full evms.logs rescan.
+  7666075, // dead suspended-account x402 fork.
+  7666083, // dead suspended-account registry fork.
+])
 
 const headers = { 'x-dune-api-key': API_KEY }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -154,6 +164,31 @@ function isQuotaError(error) {
 }
 
 // ── Helpers ──────────────────────────────────────────────────
+function creditNumber(value) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : 0
+}
+
+function optionalCreditNumber(value) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
+
+async function readUsage() {
+  const payload = await duneRequest('/usage', { method: 'POST', body: JSON.stringify({}) })
+  const periods = payload.billingPeriods || payload.billing_periods || []
+  const current = periods[periods.length - 1] || payload
+  const creditsUsed = optionalCreditNumber(current.credits_used ?? current.creditsUsed ?? payload.credits_used ?? payload.creditsUsed)
+  if (creditsUsed === null) {
+    throw new Error('usage response missing credits_used')
+  }
+  return {
+    creditsUsed,
+    creditsIncluded: creditNumber(current.credits_included ?? current.creditsIncluded ?? payload.credits_included ?? payload.creditsIncluded),
+    raw: payload,
+  }
+}
+
 function getExecutionEndedAt(payload) {
   return payload?.execution_ended_at || payload?.submitted_at || null
 }
@@ -458,6 +493,65 @@ const REUSERS = {
   olas: d => d?.olas || null,
 }
 
+function existingAsOf(existing, key) {
+  switch (key) {
+    case 'x402Cumulative':
+    case 'x402Daily':
+      return existing?.x402?.asOf || existing?.updatedAt || null
+    case 'baseAgentic':
+      return existing?.baseAgentic?.asOf || existing?.updatedAt || null
+    case 'virtualsAcp':
+      return existing?.virtualsAcp?.asOf || existing?.updatedAt || null
+    case 'erc8004Registry':
+      return existing?.erc8004Registry?.asOf || existing?.updatedAt || null
+    case 'olas':
+      return existing?.olas?.asOf || existing?.updatedAt || null
+    default:
+      return existing?.updatedAt || null
+  }
+}
+
+function syntheticPreviousMeta(existing) {
+  if (!existing) return {}
+  if (existing?.meta?.queries) return existing.meta.queries
+  const meta = {}
+  for (const query of QUERIES) {
+    if (!REUSERS[query.key](existing)) continue
+    meta[query.key] = {
+      queryId: query.id,
+      executionId: null,
+      executedAt: existingAsOf(existing, query.key),
+      bootstrap: true,
+    }
+  }
+  return meta
+}
+
+function legacyBootstrapData(existing) {
+  if (!existing || existing?.meta?.queries) return null
+  const queries = syntheticPreviousMeta(existing)
+  if (Object.keys(queries).length !== QUERIES.length) return null
+  return {
+    ...existing,
+    meta: {
+      ...(existing.meta || {}),
+      schema: 3,
+      queries,
+    },
+  }
+}
+
+function freshnessBreaches(meta) {
+  const breaches = []
+  for (const query of QUERIES) {
+    const effectiveAge = ageHours(meta?.[query.key]?.executedAt)
+    if (effectiveAge > query.slaHours) {
+      breaches.push(`${query.label}: data is ${effectiveAge.toFixed(1)}h old (SLA ${query.slaHours}h)`)
+    }
+  }
+  return breaches
+}
+
 // Cumulative metrics that must never shrink: fragment field → label.
 const MONOTONIC = {
   x402Cumulative: [['totalTxs', 'x402 total txs'], ['totalVolume', 'x402 total volume']],
@@ -499,51 +593,132 @@ async function executeAndWait(query, baselines) {
   while (Date.now() - startedAt < EXECUTION_TIMEOUT_MS) {
     const status = await duneRequest(`/execution/${executionId}/status`)
     if (status.state === 'QUERY_STATE_COMPLETED' || status.state === 'QUERY_STATE_COMPLETED_PARTIAL') {
-      return duneRequest(`/execution/${executionId}/results?limit=${query.limit}&allow_partial_results=true`)
+      const result = await duneRequest(`/execution/${executionId}/results?limit=${query.limit}&allow_partial_results=true`)
+      result._executionCostCredits = creditNumber(status.execution_cost_credits)
+      result._executionStatus = status
+      return result
     }
     if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_EXPIRED') {
       const detail = status?.error?.message || status.state
-      throw new Error(`Dune ${query.id}: execution ${executionId} ${detail}`)
+      const error = new Error(`Dune ${query.id}: execution ${executionId} ${detail}`)
+      error.executionCostCredits = creditNumber(status.execution_cost_credits)
+      throw error
     }
     await sleep(POLL_INTERVAL_MS)
   }
   throw new Error(`Dune ${query.id}: execution timed out after ${Math.round(EXECUTION_TIMEOUT_MS / 1000)}s`)
 }
 
+function unsafeQueryReason(query) {
+  if (ALLOW_UNSAFE_QUERY_IDS) return null
+  if (BLOCKED_FRESH_QUERY_IDS.has(query.id)) {
+    return `query id ${query.id} is blocked for fresh execution`
+  }
+  return null
+}
+
+function freshExecutionBlockReason(state, budget, prev) {
+  const unsafe = unsafeQueryReason(state.query)
+  if (unsafe) return unsafe
+  if (budget.holdReason) return budget.holdReason
+  if (budget.runCredits >= RUN_CREDIT_CAP) {
+    return `run credit cap reached (${budget.runCredits.toFixed(2)}/${RUN_CREDIT_CAP})`
+  }
+  if (budget.usageBefore && budget.usageBefore.creditsUsed + budget.runCredits + QUERY_CREDIT_CAP > MONTHLY_CREDIT_CAP) {
+    return `monthly cap guard would be exceeded (${budget.usageBefore.creditsUsed.toFixed(2)} used, cap ${MONTHLY_CREDIT_CAP})`
+  }
+  const previousCost = creditNumber(prev?.lastCostCredits)
+  if (previousCost > QUERY_CREDIT_CAP) {
+    return `previous execution cost ${previousCost.toFixed(2)} exceeded query cap ${QUERY_CREDIT_CAP}`
+  }
+  return null
+}
+
 // ── Main ─────────────────────────────────────────────────────
 async function main() {
   console.log('Dune pipeline v3')
-  console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE}\n`)
+  console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE}; caps ${MONTHLY_CREDIT_CAP}/month, ${RUN_CREDIT_CAP}/run, ${QUERY_CREDIT_CAP}/query\n`)
 
   const existing = readExistingData()
   const baselines = readBaselines()
   if (baselines?.x402?.cutoff) {
     console.log(`frozen baseline: x402 through < ${baselines.x402.cutoff}${baselines.erc8004Registry?.cutoff ? `, registry through < ${baselines.erc8004Registry.cutoff}` : ''}${baselines.x402.protocolsApprox ? ' (protocols approx — run build-baseline.mjs for exact)' : ''}`)
   }
-  const prevMeta = existing?.meta?.queries || {}
+  const bootstrapData = legacyBootstrapData(existing)
+  if (bootstrapData) {
+    const serialized = JSON.stringify(bootstrapData, null, 2)
+    const previousSerialized = JSON.stringify(existing, null, 2)
+    const changed = serialized !== previousSerialized
+    if (changed) {
+      writeFileSync(join(OUT_DIR, 'data.json'), serialized)
+      console.log('bootstrap: migrated legacy data.json to schema 3 without calling Dune')
+    } else {
+      console.log('bootstrap: legacy metadata already matches; no Dune calls')
+    }
+    const bootstrapBreaches = freshnessBreaches(bootstrapData.meta.queries)
+    if (process.env.GITHUB_OUTPUT) {
+      appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${bootstrapBreaches.length > 0}\nbudget_hold=false\n`)
+    }
+    if (bootstrapBreaches.length > 0) {
+      console.error(`::error::Freshness SLA breached after bootstrap (data published, but needs attention):\n- ${bootstrapBreaches.join('\n- ')}`)
+    }
+    return
+  }
+
+  const prevMeta = syntheticPreviousMeta(existing)
   const warnings = []
   const hardFailures = []
+  const budget = {
+    usageBefore: null,
+    usageAfter: null,
+    holdReason: null,
+    runCredits: 0,
+    executionCosts: [],
+  }
+
+  try {
+    budget.usageBefore = await readUsage()
+    const remaining = MONTHLY_CREDIT_CAP - budget.usageBefore.creditsUsed
+    console.log(`Dune usage before: ${budget.usageBefore.creditsUsed.toFixed(2)} credits used${budget.usageBefore.creditsIncluded ? ` of ${budget.usageBefore.creditsIncluded}` : ''}; ${remaining.toFixed(2)} until cap ${MONTHLY_CREDIT_CAP}`)
+    if (remaining <= 0) {
+      budget.holdReason = `monthly credit cap reached (${budget.usageBefore.creditsUsed.toFixed(2)}/${MONTHLY_CREDIT_CAP})`
+    } else if (remaining < QUERY_CREDIT_CAP) {
+      budget.holdReason = `monthly remaining credits (${remaining.toFixed(2)}) are below query cap ${QUERY_CREDIT_CAP}`
+    }
+  } catch (error) {
+    budget.holdReason = `usage preflight failed (${error.message})`
+  }
+  if (budget.holdReason) {
+    warnings.push(`Dune budget hold: ${budget.holdReason}; reusing previous-build data and skipping Dune result reads`)
+    console.warn(warnings[warnings.length - 1])
+  }
 
   // Phase 1 — probe every query (limit=1, KB-scale read).
   const states = []
   for (const query of QUERIES) {
     const state = { query, probe: null, probeError: null }
-    try {
-      state.probe = await duneRequest(`/query/${query.id}/results?limit=1&allow_partial_results=true`)
-      if (state.probe?.error) {
-        state.probeError = new Error(`latest execution failed: ${state.probe.error.message || JSON.stringify(state.probe.error)}`)
-        state.probe = null
-      }
-    } catch (error) {
-      state.probeError = error
-    }
-    if (state.probe) {
-      state.latestId = state.probe.execution_id || null
-      state.latestEndedAt = getExecutionEndedAt(state.probe)
-      state.latestAge = ageHours(state.latestEndedAt)
+    const prev = prevMeta[query.key]
+    if (budget.holdReason) {
+      state.probeError = new Error(`budget hold: ${budget.holdReason}`)
+      state.latestAge = ageHours(prev?.executedAt)
     } else {
-      state.latestAge = Infinity
-      console.warn(`probe ${query.label}: ${state.probeError.message}`)
+      try {
+        state.probe = await duneRequest(`/query/${query.id}/results?limit=1&allow_partial_results=true`)
+        if (state.probe?.error) {
+          state.probeError = new Error(`latest execution failed: ${state.probe.error.message || JSON.stringify(state.probe.error)}`)
+          state.probe = null
+        }
+      } catch (error) {
+        state.probeError = error
+      }
+      if (state.probe) {
+        state.latestId = state.probe.execution_id || null
+        state.latestEndedAt = getExecutionEndedAt(state.probe)
+        state.latestAge = prev?.bootstrap ? ageHours(prev.executedAt) : ageHours(state.latestEndedAt)
+      } else {
+        state.latestAge = ageHours(prev?.executedAt)
+        console.warn(`probe ${query.label}: ${state.probeError.message}`)
+      }
     }
     states.push(state)
   }
@@ -554,8 +729,17 @@ async function main() {
     .sort((a, b) => (b.latestAge / b.query.maxAgeHours) - (a.latestAge / a.query.maxAgeHours))
   let executionsUsed = 0
   for (const state of dueStates) {
+    const prev = prevMeta[state.query.key]
     if (executionsUsed >= MAX_EXECUTIONS) {
-      console.warn(`${state.query.label}: due for refresh but execution budget (${MAX_EXECUTIONS}) is spent; using newest available data`)
+      state.preferPreviousReason = `execution budget (${MAX_EXECUTIONS}) is spent`
+      console.warn(`${state.query.label}: due for refresh but ${state.preferPreviousReason}; using previous-build data when available`)
+      continue
+    }
+    const blocked = freshExecutionBlockReason(state, budget, prev)
+    if (blocked) {
+      state.preferPreviousReason = blocked
+      warnings.push(`${state.query.label}: fresh execution blocked (${blocked}); using previous-build data when available`)
+      console.warn(warnings[warnings.length - 1])
       continue
     }
     const ageLabel = Number.isFinite(state.latestAge) ? `${state.latestAge.toFixed(1)}h old` : 'unavailable'
@@ -565,8 +749,21 @@ async function main() {
       state.execResult = await executeAndWait(state.query, baselines)
       state.execId = state.execResult.execution_id || null
       state.execEndedAt = getExecutionEndedAt(state.execResult) || new Date().toISOString()
+      state.executionCostCredits = creditNumber(state.execResult._executionCostCredits)
+      budget.runCredits += state.executionCostCredits
+      budget.executionCosts.push({ key: state.query.key, queryId: state.query.id, executionId: state.execId, credits: state.executionCostCredits })
+      console.log(`${state.query.label}: execution cost ${state.executionCostCredits.toFixed(2)} credits`)
+      if (state.executionCostCredits > QUERY_CREDIT_CAP) {
+        warnings.push(`${state.query.label}: execution cost ${state.executionCostCredits.toFixed(2)} exceeds query cap ${QUERY_CREDIT_CAP}; future automatic executions will be blocked until reviewed`)
+        console.warn(warnings[warnings.length - 1])
+      }
     } catch (error) {
       state.execError = error
+      state.executionCostCredits = creditNumber(error.executionCostCredits)
+      if (state.executionCostCredits > 0) {
+        budget.runCredits += state.executionCostCredits
+        budget.executionCosts.push({ key: state.query.key, queryId: state.query.id, executionId: state.execId || null, credits: state.executionCostCredits, failed: true })
+      }
       const kind = isQuotaError(error) ? 'quota' : 'execution'
       warnings.push(`${state.query.label}: fresh ${kind} failure (${error.message}); falling back to newest available data`)
       console.warn(warnings[warnings.length - 1])
@@ -595,12 +792,33 @@ async function main() {
         const fragment = REUSERS[query.key](existing)
         if (fragment) {
           fragments[query.key] = fragment
-          metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt }
+          metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt, lastCostCredits: prev.lastCostCredits }
           fragmentSources[query.key] = 'unchanged'
           console.log(`${query.label}: unchanged (execution ${state.latestId}); skipping download`)
           continue
         }
         // data.json lacked the section (e.g. schema evolution) — fall through to a full fetch.
+      }
+
+      if (!rows && (state.preferPreviousReason || prev?.bootstrap)) {
+        const fragment = REUSERS[query.key](existing)
+        if (fragment && prev) {
+          fragments[query.key] = fragment
+          metaOut[query.key] = {
+            queryId: query.id,
+            executionId: prev.executionId || null,
+            executedAt: prev.executedAt,
+            bootstrap: prev.bootstrap || undefined,
+            lastCostCredits: prev.lastCostCredits,
+          }
+          fragmentSources[query.key] = state.preferPreviousReason ? 'previous-build' : 'bootstrap'
+          const reason = state.preferPreviousReason || 'bootstrap metadata has no trusted execution id yet'
+          console.log(`${query.label}: ${reason}; reusing previous build`)
+          continue
+        }
+        if (state.preferPreviousReason && unsafeQueryReason(query)) {
+          throw new Error(`${query.label}: ${state.preferPreviousReason}; no previous build available`)
+        }
       }
 
       if (!rows && state.probe) {
@@ -617,7 +835,7 @@ async function main() {
           console.warn(warnings[warnings.length - 1])
         }
         fragments[query.key] = PARSERS[query.key](rows, baselines)
-        metaOut[query.key] = { queryId: query.id, executionId, executedAt }
+        metaOut[query.key] = { queryId: query.id, executionId, executedAt, lastCostCredits: state.executionCostCredits ?? prev?.lastCostCredits }
         fragmentSources[query.key] = source
         console.log(`${query.label}: ${rows.length} rows (${source})`)
         continue
@@ -627,7 +845,7 @@ async function main() {
       const fragment = REUSERS[query.key](existing)
       if (fragment && prev) {
         fragments[query.key] = fragment
-        metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt }
+        metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt, bootstrap: prev.bootstrap || undefined, lastCostCredits: prev.lastCostCredits }
         fragmentSources[query.key] = 'previous-build'
         warnings.push(`${query.label}: Dune unreachable (${state.probeError?.message || 'no data'}); reusing previous build`)
         console.warn(warnings[warnings.length - 1])
@@ -674,6 +892,21 @@ async function main() {
       daily: (td.daily || []).slice(-90),
     }
   } catch { console.log('Tempo data: public/tempo-data.json not found, keeping previous values') }
+
+  if (budget.usageBefore && !budget.holdReason) {
+    try {
+      budget.usageAfter = await readUsage()
+      const delta = budget.usageAfter.creditsUsed - budget.usageBefore.creditsUsed
+      console.log(`Dune usage after: ${budget.usageAfter.creditsUsed.toFixed(2)} credits used (${delta >= 0 ? '+' : ''}${delta.toFixed(2)} this run by billing meter)`)
+      if (delta > RUN_CREDIT_CAP) {
+        warnings.push(`Dune billing delta ${delta.toFixed(2)} exceeded run cap ${RUN_CREDIT_CAP}; disable cron and review exports/executions`)
+        console.warn(warnings[warnings.length - 1])
+      }
+    } catch (error) {
+      warnings.push(`Dune usage postflight failed (${error.message}); execution costs were still logged from status endpoints`)
+      console.warn(warnings[warnings.length - 1])
+    }
+  }
 
   // Phase 6 — assemble. Per-section asOf = the execution time of the data it
   // shows (x402 combines two queries: surface the older stamp, honesty first).
@@ -747,13 +980,7 @@ async function main() {
 
   // Phase 8 — freshness SLA. Breaches don't block publishing (stale-but-visible
   // beats hidden), but they flag the workflow SLA gate so the run goes red.
-  const slaBreaches = []
-  for (const query of QUERIES) {
-    const effectiveAge = ageHours(metaOut[query.key].executedAt)
-    if (effectiveAge > query.slaHours) {
-      slaBreaches.push(`${query.label}: data is ${effectiveAge.toFixed(1)}h old (SLA ${query.slaHours}h)`)
-    }
-  }
+  const slaBreaches = freshnessBreaches(metaOut)
 
   // Phase 9 — write only when something actually changed (keeps git history
   // and Vercel deploys meaningful).
@@ -773,11 +1000,11 @@ async function main() {
   console.log(`  Tempo/MPP:    ${data.tempoMpp.totalEvents.toLocaleString()} events, ${data.tempoMpp.uniquePayers} payers`)
   console.log(`  ERC-8004 Reg: ${data.erc8004Registry.totalAgents.toLocaleString()} agents across ${data.erc8004Registry.chainsTracked} chains`)
   console.log(`  Olas:         ${data.olas.totalTxs.toLocaleString()} txs, ${data.olas.chains.length} chains`)
-  console.log(`  executions:   ${executionsUsed}; downloads skipped: ${Object.values(fragmentSources).filter(v => v === 'unchanged').length}/${QUERIES.length}`)
+  console.log(`  executions:   ${executionsUsed}; execution credits: ${budget.runCredits.toFixed(2)}; downloads skipped/reused: ${Object.values(fragmentSources).filter(v => v === 'unchanged' || v === 'previous-build' || v === 'bootstrap').length}/${QUERIES.length}`)
   warnings.forEach(w => console.log(`::warning::${w}`))
 
   if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\n`)
+    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\n`)
   }
   if (slaBreaches.length > 0) {
     console.error(`::error::Freshness SLA breached (data published, but needs attention):\n- ${slaBreaches.join('\n- ')}`)
