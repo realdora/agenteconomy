@@ -2996,5 +2996,46 @@
         "txs": 59302
       }
     ]
+  },
+  "meta": {
+    "schema": 3,
+    "queries": {
+      "x402Cumulative": {
+        "queryId": 7666075,
+        "executionId": null,
+        "executedAt": "2026-06-05T02:24:11.586Z",
+        "bootstrap": true
+      },
+      "x402Daily": {
+        "queryId": 6084845,
+        "executionId": null,
+        "executedAt": "2026-06-05T02:24:11.586Z",
+        "bootstrap": true
+      },
+      "baseAgentic": {
+        "queryId": 6731879,
+        "executionId": null,
+        "executedAt": "2026-06-05T02:24:11.586Z",
+        "bootstrap": true
+      },
+      "virtualsAcp": {
+        "queryId": 6200422,
+        "executionId": null,
+        "executedAt": "2026-06-05T02:24:11.586Z",
+        "bootstrap": true
+      },
+      "erc8004Registry": {
+        "queryId": 7666083,
+        "executionId": null,
+        "executedAt": "2026-06-05T02:24:11.586Z",
+        "bootstrap": true
+      },
+      "olas": {
+        "queryId": 3344834,
+        "executionId": null,
+        "executedAt": "2026-06-05T02:24:11.586Z",
+        "bootstrap": true
+      }
+    }
   }
 }
