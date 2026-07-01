@@ -77,21 +77,36 @@ function defaultScenario() {
   for (const id of ALL_IDS) {
     queries[id] = {
       latest: { execution_id: `exec-${id}-v1`, endedHoursAgo: 1, rows: fixtureRows(id) },
-      execute: { behavior: 'succeed', execution_id: `exec-${id}-v2`, rows: fixtureRows(id) },
+      execute: { behavior: 'succeed', execution_id: `exec-${id}-v2`, rows: fixtureRows(id), costCredits: 10 },
     }
   }
-  return { queries }
+  return { queries, usage: { creditsUsed: 0, creditsIncluded: 2500 } }
 }
 
 // ── Mock Dune API ────────────────────────────────────────────
 function startMock(scenario, log) {
   const executions = {} // execution_id → query id
+  let usageCalls = 0
   const server = createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost')
     log.push(`${req.method} ${url.pathname}${url.search}`)
     const send = (code, body) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)) }
 
     let m
+    if (req.method === 'POST' && url.pathname === '/usage') {
+      const usageConfig = Array.isArray(scenario.usage)
+        ? scenario.usage[Math.min(usageCalls, scenario.usage.length - 1)]
+        : scenario.usage
+      usageCalls += 1
+      if (usageConfig?.httpError) return send(usageConfig.httpError.code, { error: { message: usageConfig.httpError.message } })
+      if (usageConfig?.malformed) return send(200, { billingPeriods: [{}] })
+      return send(200, {
+        billingPeriods: [{
+          credits_used: usageConfig?.creditsUsed ?? 0,
+          credits_included: usageConfig?.creditsIncluded ?? 2500,
+        }],
+      })
+    }
     if ((m = url.pathname.match(/^\/query\/(\d+)\/results$/))) {
       const q = scenario.queries[m[1]]
       if (!q) return send(404, { error: { message: 'not found' } })
@@ -114,8 +129,14 @@ function startMock(scenario, log) {
     if ((m = url.pathname.match(/^\/execution\/([^/]+)\/status$/))) {
       const q = scenario.queries[executions[m[1]]]
       if (!q) return send(404, { error: { message: 'unknown execution' } })
-      if (q.execute.behavior === 'fail') return send(200, { state: 'QUERY_STATE_FAILED', error: { message: q.execute.errorMessage || 'Query execution has exceeded the user defined maximum amount of resources' } })
-      return send(200, { state: 'QUERY_STATE_COMPLETED' })
+      if (q.execute.behavior === 'fail') {
+        return send(200, {
+          state: 'QUERY_STATE_FAILED',
+          execution_cost_credits: q.execute.costCredits ?? 0,
+          error: { message: q.execute.errorMessage || 'Query execution has exceeded the user defined maximum amount of resources' },
+        })
+      }
+      return send(200, { state: 'QUERY_STATE_COMPLETED', execution_cost_credits: q.execute.costCredits ?? 10 })
     }
     if ((m = url.pathname.match(/^\/execution\/([^/]+)\/results$/))) {
       const qid = executions[m[1]]
@@ -140,7 +161,7 @@ function check(name, cond, detail = '') {
   else { failures += 1; console.error(`  ✗ ${name} ${detail}`) }
 }
 
-async function runPipeline(scenario, { seedDataJson, baselines } = {}) {
+async function runPipeline(scenario, { seedDataJson, baselines, allowUnsafeQueryIds = true, extraEnv = {} } = {}) {
   const log = []
   const { server, port } = await startMock(scenario, log)
   const outDir = mkdtempSync(join(tmpdir(), 'dune-test-'))
@@ -160,11 +181,13 @@ async function runPipeline(scenario, { seedDataJson, baselines } = {}) {
       DUNE_QID_X402_CUMULATIVE: '6058135',
       DUNE_QID_REGISTRY: '6130922',
       DUNE_BASELINES_PATH: baselinesPath,
+      DUNE_ALLOW_UNSAFE_QUERY_IDS: allowUnsafeQueryIds ? '1' : '0',
       DATA_OUT_DIR: outDir,
       DUNE_POLL_INTERVAL_MS: '20',
       DUNE_RETRY_DELAY_MS: '50',
       DUNE_EXECUTION_TIMEOUT_MS: '3000',
-        GITHUB_OUTPUT: ghOutput,
+      GITHUB_OUTPUT: ghOutput,
+      ...extraEnv,
       },
     })
     let stdout = '', stderr = ''
@@ -205,6 +228,53 @@ check('6 probes', countLog(s2.log, 'limit=1&') === 6)
 check('zero full downloads', s2.log.filter(l => /limit=(1000|5000)/.test(l)).length === 0, JSON.stringify(s2.log))
 check('no write reported', s2.stdout.includes('no data changes'))
 check('file byte-identical', s2.data === SEED)
+
+// S2b — legacy public/data.json has no meta. The first recovery run should
+// write schema-3 metadata and exit without touching any Dune endpoint.
+console.log('\nS2b legacy schema bootstrap (zero Dune calls)')
+const oldSchema = JSON.parse(SEED)
+delete oldSchema.meta
+const s2b = await runPipeline(defaultScenario(), { seedDataJson: JSON.stringify(oldSchema, null, 2) })
+const s2bdata = s2b.data ? JSON.parse(s2b.data) : null
+check('exit 0', s2b.status === 0, `status=${s2b.status}\n${s2b.stdout}`)
+check('zero Dune API calls', s2b.log.length === 0, JSON.stringify(s2b.log))
+check('schema 3 meta written', s2bdata?.meta?.schema === 3 && s2bdata?.meta?.queries?.x402Cumulative?.bootstrap === true)
+check('bootstrap execution id is null', s2bdata?.meta?.queries?.x402Cumulative?.executionId === null)
+check('changed=true in GITHUB_OUTPUT', s2b.ghOutput.includes('changed=true'), s2b.ghOutput)
+
+// S2c — monthly cap reached. The run should only read /usage, skip result
+// exports/executions, and reuse the previous build.
+console.log('\nS2c budget hold (usage cap, no Dune result reads)')
+const s2cscenario = defaultScenario()
+s2cscenario.usage = { creditsUsed: 2000, creditsIncluded: 2500 }
+s2cscenario.queries[6058135].latest.endedHoursAgo = 30
+const s2c = await runPipeline(s2cscenario, { seedDataJson: SEED })
+check('exit 0', s2c.status === 0, `status=${s2c.status}\n${s2c.stdout}`)
+check('usage preflight only', countLog(s2c.log, '/usage') === 1 && countLog(s2c.log, '/query/') === 0, JSON.stringify(s2c.log))
+check('no executions', countLog(s2c.log, '/execute') === 0)
+check('budget_hold=true', s2c.ghOutput.includes('budget_hold=true'), s2c.ghOutput)
+check('file byte-identical', s2c.data === SEED)
+
+// S2d — malformed usage response fails closed.
+console.log('\nS2d malformed usage response (fail closed)')
+const s2dscenario = defaultScenario()
+s2dscenario.usage = { malformed: true }
+const s2d = await runPipeline(s2dscenario, { seedDataJson: SEED })
+check('exit 0', s2d.status === 0, `status=${s2d.status}\n${s2d.stdout}`)
+check('usage preflight only', countLog(s2d.log, '/usage') === 1 && countLog(s2d.log, '/query/') === 0, JSON.stringify(s2d.log))
+check('budget_hold=true', s2d.ghOutput.includes('budget_hold=true'), s2d.ghOutput)
+check('file byte-identical', s2d.data === SEED)
+
+// S2e — production default blocks full-history query ids from fresh execution.
+console.log('\nS2e blocked full-history query id (no fresh execution)')
+const s2escenario = defaultScenario()
+s2escenario.queries[6058135].latest.endedHoursAgo = 30
+const s2e = await runPipeline(s2escenario, { seedDataJson: SEED, allowUnsafeQueryIds: false })
+check('exit 0', s2e.status === 0, `status=${s2e.status}\n${s2e.stdout}`)
+check('no blocked fresh execution', countLog(s2e.log, '/query/6058135/execute') === 0, JSON.stringify(s2e.log.filter(l => l.includes('6058135'))))
+check('no full download for blocked id', countLog(s2e.log, '/query/6058135/results?limit=10000') === 0, JSON.stringify(s2e.log.filter(l => l.includes('6058135'))))
+check('blocked warning emitted', s2e.stdout.includes('blocked for fresh execution'), s2e.stdout)
+check('file byte-identical', s2e.data === SEED)
 
 // S3 — stale headline: 30h-old cache + successful refresh with higher totals.
 console.log('\nS3 stale headline refresh (one execution, monotonic increase)')
