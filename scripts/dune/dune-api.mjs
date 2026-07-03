@@ -4,6 +4,7 @@
 
 const BASE = process.env.DUNE_API_BASE || 'https://api.dune.com/api/v1'
 const sleep = ms => new Promise(r => setTimeout(r, ms))
+const performanceTier = () => process.env.DUNE_PERFORMANCE || ''
 
 function key() {
   const k = process.env.DUNE_API_KEY
@@ -44,7 +45,7 @@ export async function executeOnce(queryId, { windowStart, limit = 20000, timeout
   const started = await request(`/query/${queryId}/execute`, {
     method: 'POST',
     body: JSON.stringify({
-      performance: process.env.DUNE_PERFORMANCE || 'small',
+      ...(performanceTier() ? { performance: performanceTier() } : {}),
       ...(windowStart ? { query_parameters: { window_start: windowStart } } : {}),
     }),
   })
@@ -60,7 +61,7 @@ export async function executeOnce(queryId, { windowStart, limit = 20000, timeout
         executedAt: payload.execution_ended_at || new Date().toISOString(),
       }
     }
-    if (['QUERY_STATE_FAILED', 'QUERY_STATE_CANCELED', 'QUERY_STATE_EXPIRED'].includes(status.state)) {
+    if (['QUERY_STATE_FAILED', 'QUERY_STATE_CANCELED', 'QUERY_STATE_CANCELLED', 'QUERY_STATE_EXPIRED'].includes(status.state)) {
       throw new Error(`query ${queryId}: execution ${started.execution_id} ${status?.error?.message || status.state}`)
     }
     await sleep(5000)
