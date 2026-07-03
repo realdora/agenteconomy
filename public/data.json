@@ -1780,30 +1780,18 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 43190,
-    "uniquePayers": 1813,
+    "totalEvents": 43321,
+    "uniquePayers": 1817,
     "uniquePayees": 89,
     "byType": {
-      "ChannelOpened": 21870,
-      "CloseRequested": 2955,
+      "ChannelOpened": 21956,
+      "CloseRequested": 2956,
       "ChannelExpired": 2759,
-      "ChannelClosed": 14871,
-      "Settled": 374,
-      "TopUp": 361
+      "ChannelClosed": 14896,
+      "Settled": 384,
+      "TopUp": 370
     },
     "daily": [
-      {
-        "day": "2026-04-03",
-        "events": 274,
-        "payers": 26,
-        "payees": 3
-      },
-      {
-        "day": "2026-04-04",
-        "events": 312,
-        "payers": 17,
-        "payees": 2
-      },
       {
         "day": "2026-04-05",
         "events": 172,
@@ -1872,13 +1860,13 @@
       },
       {
         "day": "2026-04-16",
-        "events": 1680,
+        "events": 1683,
         "payers": 57,
         "payees": 10
       },
       {
         "day": "2026-04-17",
-        "events": 474,
+        "events": 471,
         "payers": 35,
         "payees": 6
       },
@@ -1938,13 +1926,13 @@
       },
       {
         "day": "2026-04-27",
-        "events": 191,
+        "events": 192,
         "payers": 52,
         "payees": 4
       },
       {
         "day": "2026-04-28",
-        "events": 419,
+        "events": 418,
         "payers": 65,
         "payees": 7
       },
@@ -2328,7 +2316,19 @@
       },
       {
         "day": "2026-07-01",
-        "events": 2,
+        "events": 46,
+        "payers": 6,
+        "payees": 4
+      },
+      {
+        "day": "2026-07-02",
+        "events": 81,
+        "payers": 5,
+        "payees": 4
+      },
+      {
+        "day": "2026-07-03",
+        "events": 6,
         "payers": 1,
         "payees": 1
       }
@@ -3009,31 +3009,31 @@
       "x402Daily": {
         "queryId": 6084845,
         "executionId": null,
-        "executedAt": "2026-07-03T07:12:50.413Z",
+        "executedAt": "2026-06-05T02:24:11.586Z",
         "bootstrap": true
       },
       "baseAgentic": {
         "queryId": 6731879,
         "executionId": null,
-        "executedAt": "2026-07-03T07:12:50.413Z",
+        "executedAt": "2026-06-05T02:24:11.586Z",
         "bootstrap": true
       },
       "virtualsAcp": {
         "queryId": 6200422,
         "executionId": null,
-        "executedAt": "2026-07-03T07:12:50.413Z",
+        "executedAt": "2026-06-05T02:24:11.586Z",
         "bootstrap": true
       },
       "erc8004Registry": {
         "queryId": 7666083,
         "executionId": null,
-        "executedAt": "2026-07-03T07:12:50.413Z",
+        "executedAt": "2026-06-05T02:24:11.586Z",
         "bootstrap": true
       },
       "olas": {
         "queryId": 3344834,
         "executionId": null,
-        "executedAt": "2026-07-03T07:12:50.413Z",
+        "executedAt": "2026-06-05T02:24:11.586Z",
         "bootstrap": true
       }
     }
