@@ -36,12 +36,10 @@ const BASELINES_PATH = process.env.DUNE_BASELINES_PATH || join(__dirname, 'dune'
 const EXECUTION_TIMEOUT_MS = Number(process.env.DUNE_EXECUTION_TIMEOUT_MS || 15 * 60 * 1000)
 const POLL_INTERVAL_MS = Number(process.env.DUNE_POLL_INTERVAL_MS || 5000)
 const RETRY_DELAY_MS = Number(process.env.DUNE_RETRY_DELAY_MS || 15000)
-// Free/community accounts can only execute on the `small` engine (community
-// cluster, 2-min timeout) — `medium`/`large` are rejected with "Invalid
-// performance tier". Verified 2026-06-06 on the project's free API key. This is
-// also why the incremental fork is mandatory: a full-history rescan cannot
-// finish inside small's 2-min cap regardless of credits.
-const PERFORMANCE = process.env.DUNE_PERFORMANCE || 'small'
+// Let Dune choose the account's default execution tier unless explicitly
+// overridden. Some free accounts reject `small` while accepting the default
+// tier, so sending a hard-coded tier can block otherwise valid executions.
+const PERFORMANCE = process.env.DUNE_PERFORMANCE || ''
 const MAX_EXECUTIONS = Number(process.env.DUNE_MAX_EXECUTIONS_PER_RUN || 1)
 const MONTHLY_CREDIT_CAP = Number(process.env.DUNE_MONTHLY_CREDIT_CAP || 2000)
 const RUN_CREDIT_CAP = Number(process.env.DUNE_RUN_CREDIT_CAP || 50)
@@ -56,6 +54,13 @@ const BLOCKED_FRESH_QUERY_IDS = new Set([
 
 const headers = { 'x-dune-api-key': API_KEY }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+function executionRequestBody(extra = {}) {
+  return JSON.stringify({
+    ...(PERFORMANCE ? { performance: PERFORMANCE } : {}),
+    ...extra,
+  })
+}
 
 // ── Query registry ───────────────────────────────────────────
 // maxAgeHours: refresh when older than this (cadence follows the data's own
@@ -570,10 +575,7 @@ async function executeAndWait(query, baselines) {
   try {
     started = await duneRequest(`/query/${query.id}/execute`, {
       method: 'POST',
-      body: JSON.stringify({
-        performance: PERFORMANCE,
-        ...(windowStart ? { query_parameters: { window_start: windowStart } } : {}),
-      }),
+      body: executionRequestBody(windowStart ? { query_parameters: { window_start: windowStart } } : {}),
     })
   } catch (error) {
     // Legacy/fork queries don't declare the parameter — retry once without it.
@@ -581,7 +583,7 @@ async function executeAndWait(query, baselines) {
       console.warn(`${query.label}: query rejected window_start parameter; retrying without it`)
       started = await duneRequest(`/query/${query.id}/execute`, {
         method: 'POST',
-        body: JSON.stringify({ performance: PERFORMANCE }),
+        body: executionRequestBody(),
       })
     } else {
       throw error
@@ -592,16 +594,25 @@ async function executeAndWait(query, baselines) {
   const startedAt = Date.now()
   while (Date.now() - startedAt < EXECUTION_TIMEOUT_MS) {
     const status = await duneRequest(`/execution/${executionId}/status`)
+    const statusCost = creditNumber(status.execution_cost_credits)
     if (status.state === 'QUERY_STATE_COMPLETED' || status.state === 'QUERY_STATE_COMPLETED_PARTIAL') {
       const result = await duneRequest(`/execution/${executionId}/results?limit=${query.limit}&allow_partial_results=true`)
-      result._executionCostCredits = creditNumber(status.execution_cost_credits)
+      result._executionCostCredits = statusCost
       result._executionStatus = status
       return result
     }
-    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_EXPIRED') {
+    if (statusCost >= QUERY_CREDIT_CAP) {
+      await duneRequest(`/execution/${executionId}/cancel`, { method: 'POST' }).catch(error => {
+        console.warn(`${query.label}: failed to cancel execution ${executionId} at ${statusCost.toFixed(2)} credits (${error.message})`)
+      })
+      const error = new Error(`Dune ${query.id}: execution ${executionId} cancelled by query cap ${QUERY_CREDIT_CAP} after ${statusCost.toFixed(2)} credits`)
+      error.executionCostCredits = statusCost
+      throw error
+    }
+    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_CANCELLED' || status.state === 'QUERY_STATE_EXPIRED') {
       const detail = status?.error?.message || status.state
       const error = new Error(`Dune ${query.id}: execution ${executionId} ${detail}`)
-      error.executionCostCredits = creditNumber(status.execution_cost_credits)
+      error.executionCostCredits = statusCost
       throw error
     }
     await sleep(POLL_INTERVAL_MS)
@@ -637,7 +648,7 @@ function freshExecutionBlockReason(state, budget, prev) {
 // ── Main ─────────────────────────────────────────────────────
 async function main() {
   console.log('Dune pipeline v3')
-  console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE}; caps ${MONTHLY_CREDIT_CAP}/month, ${RUN_CREDIT_CAP}/run, ${QUERY_CREDIT_CAP}/query\n`)
+  console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE || 'account default'}; caps ${MONTHLY_CREDIT_CAP}/month, ${RUN_CREDIT_CAP}/run, ${QUERY_CREDIT_CAP}/query\n`)
 
   const existing = readExistingData()
   const baselines = readBaselines()

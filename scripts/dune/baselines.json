@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-06-10T05:01:20.166Z",
+  "generatedAt": "2026-07-03T07:12:50.413Z",
   "x402": {
-    "cutoff": "2026-05-01",
-    "source": "public/data.json frozen 2026-06-05 (upstream Q6058135). protocols are DERIVED from rounded display shares — approximate; regenerate exactly with scripts/dune/build-baseline.mjs once a working Dune key exists.",
+    "cutoff": "2026-07-01",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows.",
     "protocolsApprox": true,
-    "totalTxs": 143886846,
-    "totalVolume": 40458908,
+    "totalTxs": 154005087,
+    "totalVolume": 40910994,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -43,38 +43,93 @@
         "month": "2026-04",
         "txs": 4597972,
         "vol": 1614844
+      },
+      {
+        "month": "2026-05",
+        "txs": 5339396,
+        "vol": 179793
+      },
+      {
+        "month": "2026-06",
+        "txs": 4778845,
+        "vol": 272293
       }
     ],
     "protocols": [
       {
         "name": "Coinbase",
-        "txs": 42014959,
-        "vol": 0
-      },
-      {
-        "name": "Dexter",
-        "txs": 31655106,
-        "vol": 0
-      },
-      {
-        "name": "PayAI",
-        "txs": 29209030,
+        "txs": 43574063,
         "vol": 0
       },
       {
         "name": "Other",
-        "txs": 28633482,
+        "txs": 33817570,
+        "vol": 122193
+      },
+      {
+        "name": "Dexter",
+        "txs": 32829773,
         "vol": 0
+      },
+      {
+        "name": "PayAI",
+        "txs": 30879881,
+        "vol": 124575
       },
       {
         "name": "DayDreams",
-        "txs": 11367061,
-        "vol": 0
+        "txs": 11788874,
+        "vol": 5
       },
       {
         "name": "Pieverse",
-        "txs": 1007208,
-        "vol": 0
+        "txs": 1103256,
+        "vol": 21392
+      },
+      {
+        "name": "Corbits",
+        "txs": 7465,
+        "vol": 249
+      },
+      {
+        "name": "xEcho",
+        "txs": 2803,
+        "vol": 300
+      },
+      {
+        "name": "ThirdWeb",
+        "txs": 753,
+        "vol": 1025
+      },
+      {
+        "name": "Ultravioleta",
+        "txs": 211,
+        "vol": 12
+      },
+      {
+        "name": "x402RS",
+        "txs": 165,
+        "vol": 246
+      },
+      {
+        "name": "Mogami",
+        "txs": 121,
+        "vol": 14
+      },
+      {
+        "name": "OpenX402",
+        "txs": 90,
+        "vol": 555
+      },
+      {
+        "name": "B402",
+        "txs": 32,
+        "vol": 1579
+      },
+      {
+        "name": "Questflow",
+        "txs": 30,
+        "vol": 148
       }
     ]
   },
