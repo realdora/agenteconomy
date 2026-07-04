@@ -436,6 +436,67 @@ check('new chain appears', s9data?.erc8004Registry.chains.some(c => c.name === '
 check('testnet filtered + boundary dropped', !s9data?.erc8004Registry.chains.some(c => c.name === 'Sepolia') && s9data?.erc8004Registry.totalAgents === 5015)
 check('daily concatenated', s9data?.erc8004Registry.daily.length === 5, JSON.stringify(s9data?.erc8004Registry.daily))
 
+// S9b — recent-window baselines for non-maintenance sources that were too
+// expensive as full-history queries: x402Daily, Virtuals ACP, and Olas.
+console.log('\nS9b non-maintenance recent windows (x402Daily + Virtuals + Olas)')
+const EXTRA_BASELINE = {
+  ...REG_BASELINE,
+  x402Daily: {
+    cutoff: '2026-06-05',
+    daily: [{ day: '2026-06-03', txs: 100 }, { day: '2026-06-04', txs: 200 }],
+  },
+  virtualsAcp: {
+    cutoff: '2026-05-31',
+    totalMemos: 1000,
+    daily: [{ day: '2026-05-29', memos: 50, senders: 5 }, { day: '2026-05-30', memos: 25, senders: 4 }],
+  },
+  olas: {
+    cutoff: '2026-05-04',
+    totalTxs: 10_000,
+    chains: [{ name: 'Gnosis', txs: 9000 }, { name: 'Base', txs: 1000 }],
+    weekly: [{ week: '2026-04-20', txs: 300 }, { week: '2026-04-27', txs: 400 }],
+  },
+}
+const s9bscenario = defaultScenario()
+s9bscenario.queries[6058135].latest = { execution_id: 'exec-x402-window', endedHoursAgo: 1, rows: windowRows }
+s9bscenario.queries[6084845].latest = {
+  execution_id: 'exec-x402-daily-window',
+  endedHoursAgo: 1,
+  rows: [
+    { period: '2026-06-04 00:00', project: 'Coinbase', txs: 999 }, // pre-cutoff: dropped
+    { period: '2026-06-05 00:00', project: 'Coinbase', txs: 5 },
+    { period: '2026-06-06 00:00', project: 'PayAI', txs: 7 },
+  ],
+}
+s9bscenario.queries[6200422].latest = {
+  execution_id: 'exec-virtuals-window',
+  endedHoursAgo: 1,
+  rows: [
+    { period: '2026-05-30 00:00', version: 'v2', num_of_memo: 999, unique_sender: 9 }, // pre-cutoff: dropped
+    { period: '2026-05-31 00:00', version: 'v2', num_of_memo: 10, unique_sender: 3 },
+    { period: '2026-06-01 00:00', version: 'v1', num_of_memo: 4, unique_sender: 2 },
+  ],
+}
+s9bscenario.queries[3344834].latest = {
+  execution_id: 'exec-olas-window',
+  endedHoursAgo: 1,
+  rows: [
+    { time: '2026-04-27 00:00', chain: 'gnosis', total_weekly_transactions_number: 999 }, // pre-cutoff: dropped
+    { time: '2026-05-04 00:00', chain: 'gnosis', total_weekly_transactions_number: 30 },
+    { time: '2026-05-04 00:00', chain: 'base', total_weekly_transactions_number: 5 },
+  ],
+}
+const s9b = await runPipeline(s9bscenario, { baselines: EXTRA_BASELINE })
+const s9bdata = s9b.data ? JSON.parse(s9b.data) : null
+check('exit 0', s9b.status === 0, `status=${s9b.status}\n${s9b.stdout}`)
+check('x402 daily = baseline + window', s9bdata?.x402.daily.at(-1)?.txs === 7 && s9bdata?.x402.daily.some(d => d.day === '2026-06-05' && d.txs === 5), JSON.stringify(s9bdata?.x402.daily))
+check('x402 daily pre-cutoff dropped', !s9bdata?.x402.daily.some(d => d.day === '2026-06-04' && d.txs === 1199), JSON.stringify(s9bdata?.x402.daily))
+check('Virtuals total = baseline + window', s9bdata?.virtualsAcp.totalMemos === 1014, `got ${s9bdata?.virtualsAcp.totalMemos}`)
+check('Virtuals daily merged', s9bdata?.virtualsAcp.daily.some(d => d.day === '2026-06-01' && d.memos === 4), JSON.stringify(s9bdata?.virtualsAcp.daily))
+check('Olas total = baseline + window', s9bdata?.olas.totalTxs === 10035, `got ${s9bdata?.olas.totalTxs}`)
+check('Olas chain + weekly merged', s9bdata?.olas.chains.find(c => c.name === 'Gnosis')?.txs === 9030 && s9bdata?.olas.weekly.some(w => w.week === '2026-05-04' && w.txs === 35), JSON.stringify({ chains: s9bdata?.olas.chains, weekly: s9bdata?.olas.weekly }))
+check('pre-cutoff warnings emitted', s9b.stdout.includes('x402 daily recent window') && s9b.stdout.includes('Virtuals ACP recent window') && s9b.stdout.includes('Olas recent window'), s9b.stdout)
+
 // S10 — baseline-lib unit tests (build + monthly freeze fold).
 console.log('\nS10 baseline-lib: build + freeze-month fold')
 const { buildX402Baseline, foldX402Window, foldRegistryWindow } = await import('../dune/baseline-lib.mjs')
