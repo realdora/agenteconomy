@@ -45,6 +45,7 @@ const MONTHLY_CREDIT_CAP = Number(process.env.DUNE_MONTHLY_CREDIT_CAP || 2000)
 const RUN_CREDIT_CAP = Number(process.env.DUNE_RUN_CREDIT_CAP || 50)
 const QUERY_CREDIT_CAP = Number(process.env.DUNE_QUERY_CREDIT_CAP || 35)
 const ALLOW_UNSAFE_QUERY_IDS = process.env.DUNE_ALLOW_UNSAFE_QUERY_IDS === '1'
+const REFRESH_KEYS = parseKeySet(process.env.DUNE_REFRESH_KEYS)
 const BLOCKED_FRESH_QUERY_IDS = new Set([
   6058135, // x402 full-history rescan; original quota burner.
   6130922, // ERC-8004 registry full evms.logs rescan.
@@ -54,6 +55,14 @@ const BLOCKED_FRESH_QUERY_IDS = new Set([
 
 const headers = { 'x-dune-api-key': API_KEY }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+function parseKeySet(value) {
+  const keys = String(value || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+  return keys.length ? new Set(keys) : null
+}
 
 function executionRequestBody(extra = {}) {
   return JSON.stringify({
@@ -243,7 +252,7 @@ function readBaselines() {
 }
 
 const PROTOCOL_COLORS = {
-  'Coinbase': '#0052FF', 'Dexter': '#6366F1', 'PayAI': '#10B981',
+  'Coinbase': '#0052FF', 'Dexter': '#6366F1', 'PayAI': '#10B981', 'Other': '#6B7280',
   'DayDreams': '#F59E0B', 'Daydreams': '#F59E0B', 'thirdweb': '#A855F7',
   'ThirdWeb': '#A855F7', 'OpenX402': '#14B8A6', 'Open X402': '#14B8A6',
   'Pieverse': '#EC4899', 'pieverse': '#EC4899', 'Mogami': '#F97316',
@@ -327,16 +336,24 @@ const PARSERS = {
       })
     const protocolEntries = Object.entries(protocolMap).sort(([, a], [, b]) => b.txs - a.txs)
     const totalProtoTxs = protocolEntries.reduce((s, [, v]) => s + v.txs, 0) || totalTxs
-    const top6 = protocolEntries.slice(0, 6)
-    const otherTxs = protocolEntries.slice(6).reduce((s, [, v]) => s + v.txs, 0)
-    const protocols = [
-      ...top6.map(([name, v], i) => ({
-        name,
-        share: parseFloat(((v.txs / totalProtoTxs) * 100).toFixed(1)),
-        color: getColor(name, i),
-      })),
-      ...(otherTxs > 0 ? [{ name: 'Other', share: parseFloat(((otherTxs / totalProtoTxs) * 100).toFixed(1)), color: '#6B7280' }] : []),
-    ]
+    const displayEntries = protocolEntries.slice(0, 6).map(([name, v]) => [name, { ...v }])
+    const tailEntries = protocolEntries.slice(6)
+    const otherTxs = tailEntries.reduce((s, [, v]) => s + v.txs, 0)
+    const otherVol = tailEntries.reduce((s, [, v]) => s + v.vol, 0)
+    if (otherTxs > 0) {
+      const existingOther = displayEntries.find(([name]) => name === 'Other')
+      if (existingOther) {
+        existingOther[1].txs += otherTxs
+        existingOther[1].vol += otherVol
+      } else {
+        displayEntries.push(['Other', { txs: otherTxs, vol: otherVol }])
+      }
+    }
+    const protocols = displayEntries.map(([name, v], i) => ({
+      name,
+      share: parseFloat(((v.txs / totalProtoTxs) * 100).toFixed(1)),
+      color: getColor(name, i),
+    }))
     return {
       totalTxs: Math.round(totalTxs),
       totalVolume: Math.round(totalVolume),
@@ -629,6 +646,9 @@ function unsafeQueryReason(query) {
 }
 
 function freshExecutionBlockReason(state, budget, prev) {
+  if (REFRESH_KEYS && !REFRESH_KEYS.has(state.query.key)) {
+    return `query key ${state.query.key} is not selected by DUNE_REFRESH_KEYS`
+  }
   const unsafe = unsafeQueryReason(state.query)
   if (unsafe) return unsafe
   if (budget.holdReason) return budget.holdReason
@@ -647,8 +667,19 @@ function freshExecutionBlockReason(state, budget, prev) {
 
 // ── Main ─────────────────────────────────────────────────────
 async function main() {
+  if (REFRESH_KEYS) {
+    const known = new Set(QUERIES.map(q => q.key))
+    const unknown = [...REFRESH_KEYS].filter(k => !known.has(k))
+    if (unknown.length > 0) {
+      throw new Error(`DUNE_REFRESH_KEYS contains unknown query key(s): ${unknown.join(', ')}`)
+    }
+  }
+
   console.log('Dune pipeline v3')
   console.log(`execution budget ${MAX_EXECUTIONS}/run; engine ${PERFORMANCE || 'account default'}; caps ${MONTHLY_CREDIT_CAP}/month, ${RUN_CREDIT_CAP}/run, ${QUERY_CREDIT_CAP}/query\n`)
+  if (REFRESH_KEYS) {
+    console.log(`fresh execution scope: ${[...REFRESH_KEYS].join(', ')}\n`)
+  }
 
   const existing = readExistingData()
   const baselines = readBaselines()
