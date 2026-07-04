@@ -413,6 +413,7 @@ const REG_BASELINE = {
   erc8004Registry: {
     cutoff: '2026-05-01',
     totalAgents: 5000,
+    chainsTracked: 24,
     chains: [{ name: 'Base', agents: 3000 }, { name: 'BNB', agents: 2000 }],
     daily: [{ day: '2026-04-28', agents: 10 }, { day: '2026-04-29', agents: 12 }],
   },
@@ -433,6 +434,7 @@ check('exit 0', s9.status === 0, `status=${s9.status}\n${s9.stdout}`)
 check('totalAgents = baseline + window', s9data?.erc8004Registry.totalAgents === 5015, `got ${s9data?.erc8004Registry.totalAgents}`)
 check('Base merged', s9data?.erc8004Registry.chains.find(c => c.name === 'Base')?.agents === 3007, JSON.stringify(s9data?.erc8004Registry.chains))
 check('new chain appears', s9data?.erc8004Registry.chains.some(c => c.name === 'Ethereum'))
+check('baseline chainsTracked preserved', s9data?.erc8004Registry.chainsTracked === 24, `got ${s9data?.erc8004Registry.chainsTracked}`)
 check('testnet filtered + boundary dropped', !s9data?.erc8004Registry.chains.some(c => c.name === 'Sepolia') && s9data?.erc8004Registry.totalAgents === 5015)
 check('daily concatenated', s9data?.erc8004Registry.daily.length === 5, JSON.stringify(s9data?.erc8004Registry.daily))
 

@@ -17,9 +17,8 @@ query ids are created and individually cost-tested.
 `baseAgentic` is separate: query 6731879 completed at about 2.18 credits and is
 a maintenance candidate with a 5-credit cap.
 
-`erc8004Registry` is separate: the live id 7666083 is an inert/dead fork. It
-needs the existing registry recent-window query recreated before it can be
-tested.
+`erc8004Registry` is separate: the old live id 7666083 is an inert/dead fork.
+It has now been replaced by recent-window query 7881124.
 
 ## Replacement approach
 
@@ -30,6 +29,7 @@ All three should use frozen-baseline + recent-window, not full-history refresh:
 | `x402Daily` | `x402-daily-recent-window.sql` | `baselines.x402Daily` | `2026-06-05` |
 | `virtualsAcp` | `virtuals-acp-recent-window.sql` | `baselines.virtualsAcp` | `2026-05-31` |
 | `olas` | `olas-recent-window.sql` | `baselines.olas` | `2026-05-04` |
+| `erc8004Registry` | `erc8004-registry-recent-window.sql` | `baselines.erc8004Registry` | `2026-05-06`, then `2026-07-05` after catch-up |
 
 The pipeline now passes `{{window_start}}` to these queries and merges returned
 rows onto the frozen baseline. Pre-cutoff rows are dropped by the parser as a
@@ -44,11 +44,12 @@ Created on 2026-07-04 under the working Dune account:
 | `x402Daily` | 7881006 | Completed; 338 rows; 11.727 credits for the initial 2026-06-05 → 2026-07-04 catch-up |
 | `virtualsAcp` | 7881007 | Completed; 36 rows; 0.941 credits |
 | `olas` | 7881008 | Completed; 36 rows; 1.217 credits |
+| `erc8004Registry` | 7881124 | Completed; 582 rows; 3.984 credits for the initial 2026-05-06 → 2026-07-04 catch-up |
 
-`x402Daily` is acceptable as a one-time catch-up, but do not add it to daily
-maintenance until its baseline is folded forward; otherwise the scan starts on
-2026-06-05 every day. `virtualsAcp` and `olas` are maintenance candidates once
-their query ids are wired as repo variables and the workflow scope is expanded.
+`x402Daily` was acceptable as a one-time catch-up only after its baseline was
+folded forward; otherwise the scan would have started on 2026-06-05 every day.
+`virtualsAcp`, `olas`, and `erc8004Registry` are maintenance candidates with
+their query ids wired as repo variables.
 
 ## Catch-up publish
 
@@ -59,10 +60,27 @@ Completed after the first validation:
 | `x402Daily` | 2026-07-04 | `baselines.x402Daily.cutoff` advanced to 2026-07-05 |
 | `virtualsAcp` | 2026-07-04 | `baselines.virtualsAcp.cutoff` advanced to 2026-07-05 |
 | `olas` | week of 2026-06-29 | baseline kept at 2026-05-04 because the 2026-06-29 week is still open on 2026-07-04 |
+| `erc8004Registry` | 2026-07-04 | `baselines.erc8004Registry.cutoff` advanced to 2026-07-05 |
 
-After this catch-up, `x402Daily`, `virtualsAcp`, and `olas` no longer need to
-scan from their old stale public-data dates. `Olas` can be frozen forward after
-the 2026-06-29 week closes.
+After this catch-up, `x402Daily`, `virtualsAcp`, and `erc8004Registry` no
+longer need to scan from their old stale public-data dates. `Olas` can be
+frozen forward after the 2026-06-29 week closes.
+
+## Maintenance workflow
+
+The workflow is now opened only for validated keys:
+
+```text
+DUNE_REFRESH_KEYS=x402Cumulative,x402Daily,baseAgentic,virtualsAcp,erc8004Registry,olas
+DUNE_MAX_EXECUTIONS_PER_RUN=6
+DUNE_MONTHLY_CREDIT_CAP=2000
+DUNE_RUN_CREDIT_CAP=25
+DUNE_QUERY_CREDIT_CAP=10
+```
+
+The monthly cap preserves a 500-credit reserve from the 2,500-credit free plan.
+The explicit refresh key list means any new Dune source remains inert until it
+gets its own budget test.
 
 ## Validation sequence
 
