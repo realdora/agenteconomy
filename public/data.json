@@ -1,15 +1,15 @@
 {
-  "updatedAt": "2026-07-04T06:53:43.565729877Z",
+  "updatedAt": "2026-07-04T07:34:45.858957Z",
   "sources": [
     {
       "name": "x402 Payment Analytics",
       "author": "@thechriscen",
-      "queryId": 6058135
+      "queryId": 7873181
     },
     {
       "name": "x402 Analytics",
       "author": "@hashed_official",
-      "queryId": 6084845
+      "queryId": 7881006
     },
     {
       "name": "BASE Agentic Ecosystem",
@@ -19,17 +19,17 @@
     {
       "name": "Virtuals ACP",
       "author": "@hashed_official",
-      "queryId": 6200422
+      "queryId": 7881007
     },
     {
       "name": "ERC-8004 Trustless Agents",
       "author": "@hashed_official",
-      "queryId": 6130922
+      "queryId": 7666083
     },
     {
       "name": "Olas Ecosystem Activity",
       "author": "@adrian0x",
-      "queryId": 3344834
+      "queryId": 7881008
     }
   ],
   "x402": {
@@ -90,126 +90,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-04-06",
-        "txs": 171365
-      },
-      {
-        "day": "2026-04-07",
-        "txs": 164849
-      },
-      {
-        "day": "2026-04-08",
-        "txs": 165442
-      },
-      {
-        "day": "2026-04-09",
-        "txs": 163380
-      },
-      {
-        "day": "2026-04-10",
-        "txs": 165076
-      },
-      {
-        "day": "2026-04-11",
-        "txs": 165275
-      },
-      {
-        "day": "2026-04-12",
-        "txs": 157945
-      },
-      {
-        "day": "2026-04-13",
-        "txs": 163457
-      },
-      {
-        "day": "2026-04-14",
-        "txs": 159395
-      },
-      {
-        "day": "2026-04-15",
-        "txs": 162183
-      },
-      {
-        "day": "2026-04-16",
-        "txs": 166606
-      },
-      {
-        "day": "2026-04-17",
-        "txs": 170264
-      },
-      {
-        "day": "2026-04-18",
-        "txs": 166936
-      },
-      {
-        "day": "2026-04-19",
-        "txs": 164109
-      },
-      {
-        "day": "2026-04-20",
-        "txs": 167682
-      },
-      {
-        "day": "2026-04-21",
-        "txs": 165186
-      },
-      {
-        "day": "2026-04-22",
-        "txs": 167914
-      },
-      {
-        "day": "2026-04-23",
-        "txs": 166531
-      },
-      {
-        "day": "2026-04-24",
-        "txs": 173756
-      },
-      {
-        "day": "2026-04-25",
-        "txs": 168600
-      },
-      {
-        "day": "2026-04-26",
-        "txs": 161187
-      },
-      {
-        "day": "2026-04-27",
-        "txs": 167101
-      },
-      {
-        "day": "2026-04-28",
-        "txs": 169794
-      },
-      {
-        "day": "2026-04-29",
-        "txs": 165888
-      },
-      {
-        "day": "2026-04-30",
-        "txs": 165355
-      },
-      {
-        "day": "2026-05-01",
-        "txs": 159054
-      },
-      {
-        "day": "2026-05-02",
-        "txs": 166031
-      },
-      {
-        "day": "2026-05-03",
-        "txs": 167010
-      },
-      {
-        "day": "2026-05-04",
-        "txs": 165350
-      },
-      {
-        "day": "2026-05-05",
-        "txs": 167805
-      },
       {
         "day": "2026-05-06",
         "txs": 160439
@@ -329,6 +209,126 @@
       {
         "day": "2026-06-04",
         "txs": 56104
+      },
+      {
+        "day": "2026-06-05",
+        "txs": 168658
+      },
+      {
+        "day": "2026-06-06",
+        "txs": 192295
+      },
+      {
+        "day": "2026-06-07",
+        "txs": 196691
+      },
+      {
+        "day": "2026-06-08",
+        "txs": 194709
+      },
+      {
+        "day": "2026-06-09",
+        "txs": 188203
+      },
+      {
+        "day": "2026-06-10",
+        "txs": 196131
+      },
+      {
+        "day": "2026-06-11",
+        "txs": 193164
+      },
+      {
+        "day": "2026-06-12",
+        "txs": 193692
+      },
+      {
+        "day": "2026-06-13",
+        "txs": 193727
+      },
+      {
+        "day": "2026-06-14",
+        "txs": 203421
+      },
+      {
+        "day": "2026-06-15",
+        "txs": 191074
+      },
+      {
+        "day": "2026-06-16",
+        "txs": 227061
+      },
+      {
+        "day": "2026-06-17",
+        "txs": 219619
+      },
+      {
+        "day": "2026-06-18",
+        "txs": 202908
+      },
+      {
+        "day": "2026-06-19",
+        "txs": 203695
+      },
+      {
+        "day": "2026-06-20",
+        "txs": 205203
+      },
+      {
+        "day": "2026-06-21",
+        "txs": 182492
+      },
+      {
+        "day": "2026-06-22",
+        "txs": 198068
+      },
+      {
+        "day": "2026-06-23",
+        "txs": 136577
+      },
+      {
+        "day": "2026-06-24",
+        "txs": 24341
+      },
+      {
+        "day": "2026-06-25",
+        "txs": 32087
+      },
+      {
+        "day": "2026-06-26",
+        "txs": 73446
+      },
+      {
+        "day": "2026-06-27",
+        "txs": 39625
+      },
+      {
+        "day": "2026-06-28",
+        "txs": 23879
+      },
+      {
+        "day": "2026-06-29",
+        "txs": 18067
+      },
+      {
+        "day": "2026-06-30",
+        "txs": 18842
+      },
+      {
+        "day": "2026-07-01",
+        "txs": 81172
+      },
+      {
+        "day": "2026-07-02",
+        "txs": 199880
+      },
+      {
+        "day": "2026-07-03",
+        "txs": 196193
+      },
+      {
+        "day": "2026-07-04",
+        "txs": 54980
       }
     ],
     "protocols": [
@@ -399,10 +399,12 @@
         "txs": 142,
         "color": "#9D4EDD"
       }
-    ]
+    ],
+    "asOf": "2026-07-04T06:53:43.565729877Z"
   },
   "baseAgentic": {
-    "totalTxs": 1124261,
+    "asOf": "2026-07-04T07:08:15.456839Z",
+    "totalTxs": 1330258,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1318,190 +1320,202 @@
       },
       {
         "day": "2026-06-02",
-        "consumer": 1403,
+        "consumer": 1404,
         "infrastructure": 5751,
-        "total": 7154
+        "total": 7155
+      },
+      {
+        "day": "2026-06-03",
+        "consumer": 1075,
+        "infrastructure": 6489,
+        "total": 7564
+      },
+      {
+        "day": "2026-06-04",
+        "consumer": 1270,
+        "infrastructure": 6717,
+        "total": 7987
+      },
+      {
+        "day": "2026-06-05",
+        "consumer": 1349,
+        "infrastructure": 6873,
+        "total": 8222
+      },
+      {
+        "day": "2026-06-06",
+        "consumer": 902,
+        "infrastructure": 4368,
+        "total": 5270
+      },
+      {
+        "day": "2026-06-07",
+        "consumer": 907,
+        "infrastructure": 4480,
+        "total": 5387
+      },
+      {
+        "day": "2026-06-08",
+        "consumer": 734,
+        "infrastructure": 4550,
+        "total": 5284
+      },
+      {
+        "day": "2026-06-09",
+        "consumer": 1437,
+        "infrastructure": 6261,
+        "total": 7698
+      },
+      {
+        "day": "2026-06-10",
+        "consumer": 1431,
+        "infrastructure": 4308,
+        "total": 5739
+      },
+      {
+        "day": "2026-06-11",
+        "consumer": 1171,
+        "infrastructure": 4574,
+        "total": 5745
+      },
+      {
+        "day": "2026-06-12",
+        "consumer": 873,
+        "infrastructure": 3788,
+        "total": 4661
+      },
+      {
+        "day": "2026-06-13",
+        "consumer": 655,
+        "infrastructure": 5120,
+        "total": 5775
+      },
+      {
+        "day": "2026-06-14",
+        "consumer": 483,
+        "infrastructure": 3854,
+        "total": 4337
+      },
+      {
+        "day": "2026-06-15",
+        "consumer": 885,
+        "infrastructure": 5427,
+        "total": 6312
+      },
+      {
+        "day": "2026-06-16",
+        "consumer": 1132,
+        "infrastructure": 5966,
+        "total": 7098
+      },
+      {
+        "day": "2026-06-17",
+        "consumer": 785,
+        "infrastructure": 5586,
+        "total": 6371
+      },
+      {
+        "day": "2026-06-18",
+        "consumer": 670,
+        "infrastructure": 4778,
+        "total": 5448
+      },
+      {
+        "day": "2026-06-19",
+        "consumer": 628,
+        "infrastructure": 4879,
+        "total": 5507
+      },
+      {
+        "day": "2026-06-20",
+        "consumer": 672,
+        "infrastructure": 4934,
+        "total": 5606
+      },
+      {
+        "day": "2026-06-21",
+        "consumer": 739,
+        "infrastructure": 6073,
+        "total": 6812
+      },
+      {
+        "day": "2026-06-22",
+        "consumer": 878,
+        "infrastructure": 5551,
+        "total": 6429
+      },
+      {
+        "day": "2026-06-23",
+        "consumer": 1116,
+        "infrastructure": 6742,
+        "total": 7858
+      },
+      {
+        "day": "2026-06-24",
+        "consumer": 1546,
+        "infrastructure": 7021,
+        "total": 8567
+      },
+      {
+        "day": "2026-06-25",
+        "consumer": 863,
+        "infrastructure": 6623,
+        "total": 7486
+      },
+      {
+        "day": "2026-06-26",
+        "consumer": 994,
+        "infrastructure": 6087,
+        "total": 7081
+      },
+      {
+        "day": "2026-06-27",
+        "consumer": 642,
+        "infrastructure": 6666,
+        "total": 7308
+      },
+      {
+        "day": "2026-06-28",
+        "consumer": 637,
+        "infrastructure": 5978,
+        "total": 6615
+      },
+      {
+        "day": "2026-06-29",
+        "consumer": 881,
+        "infrastructure": 5426,
+        "total": 6307
+      },
+      {
+        "day": "2026-06-30",
+        "consumer": 645,
+        "infrastructure": 5684,
+        "total": 6329
+      },
+      {
+        "day": "2026-07-01",
+        "consumer": 618,
+        "infrastructure": 7383,
+        "total": 8001
+      },
+      {
+        "day": "2026-07-02",
+        "consumer": 700,
+        "infrastructure": 7906,
+        "total": 8606
+      },
+      {
+        "day": "2026-07-03",
+        "consumer": 545,
+        "infrastructure": 8041,
+        "total": 8586
       }
     ]
   },
   "virtualsAcp": {
-    "totalMemos": 12314057,
+    "asOf": "2026-07-04T07:33:21.910386Z",
+    "totalMemos": 12325320,
     "daily": [
-      {
-        "day": "2026-03-02",
-        "memos": 107750,
-        "senders": 20
-      },
-      {
-        "day": "2026-03-03",
-        "memos": 58919,
-        "senders": 17
-      },
-      {
-        "day": "2026-03-04",
-        "memos": 65916,
-        "senders": 16
-      },
-      {
-        "day": "2026-03-05",
-        "memos": 148377,
-        "senders": 17
-      },
-      {
-        "day": "2026-03-06",
-        "memos": 176625,
-        "senders": 17
-      },
-      {
-        "day": "2026-03-07",
-        "memos": 192341,
-        "senders": 16
-      },
-      {
-        "day": "2026-03-08",
-        "memos": 147788,
-        "senders": 16
-      },
-      {
-        "day": "2026-03-09",
-        "memos": 81173,
-        "senders": 16
-      },
-      {
-        "day": "2026-03-10",
-        "memos": 118729,
-        "senders": 64
-      },
-      {
-        "day": "2026-03-11",
-        "memos": 108371,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-12",
-        "memos": 110442,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-13",
-        "memos": 78992,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-14",
-        "memos": 111070,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-15",
-        "memos": 130169,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-16",
-        "memos": 106781,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-17",
-        "memos": 48622,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-18",
-        "memos": 100898,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-19",
-        "memos": 111060,
-        "senders": 33
-      },
-      {
-        "day": "2026-03-20",
-        "memos": 113684,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-21",
-        "memos": 90253,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-22",
-        "memos": 39075,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-23",
-        "memos": 19282,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-24",
-        "memos": 14907,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-25",
-        "memos": 20366,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-26",
-        "memos": 30335,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-27",
-        "memos": 34959,
-        "senders": 64
-      },
-      {
-        "day": "2026-03-28",
-        "memos": 30989,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-29",
-        "memos": 31605,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-30",
-        "memos": 38759,
-        "senders": 32
-      },
-      {
-        "day": "2026-03-31",
-        "memos": 26770,
-        "senders": 64
-      },
-      {
-        "day": "2026-04-01",
-        "memos": 30392,
-        "senders": 64
-      },
-      {
-        "day": "2026-04-02",
-        "memos": 18788,
-        "senders": 32
-      },
-      {
-        "day": "2026-04-03",
-        "memos": 20625,
-        "senders": 32
-      },
-      {
-        "day": "2026-04-04",
-        "memos": 17369,
-        "senders": 32
-      },
-      {
-        "day": "2026-04-05",
-        "memos": 24281,
-        "senders": 32
-      },
       {
         "day": "2026-04-06",
         "memos": 26349,
@@ -1776,6 +1790,181 @@
         "day": "2026-05-30",
         "memos": 43,
         "senders": 8
+      },
+      {
+        "day": "2026-05-31",
+        "memos": 566,
+        "senders": 13
+      },
+      {
+        "day": "2026-06-01",
+        "memos": 456,
+        "senders": 16
+      },
+      {
+        "day": "2026-06-02",
+        "memos": 431,
+        "senders": 14
+      },
+      {
+        "day": "2026-06-03",
+        "memos": 502,
+        "senders": 13
+      },
+      {
+        "day": "2026-06-04",
+        "memos": 385,
+        "senders": 13
+      },
+      {
+        "day": "2026-06-05",
+        "memos": 246,
+        "senders": 13
+      },
+      {
+        "day": "2026-06-06",
+        "memos": 273,
+        "senders": 10
+      },
+      {
+        "day": "2026-06-07",
+        "memos": 319,
+        "senders": 14
+      },
+      {
+        "day": "2026-06-08",
+        "memos": 352,
+        "senders": 14
+      },
+      {
+        "day": "2026-06-09",
+        "memos": 289,
+        "senders": 16
+      },
+      {
+        "day": "2026-06-10",
+        "memos": 309,
+        "senders": 13
+      },
+      {
+        "day": "2026-06-11",
+        "memos": 452,
+        "senders": 12
+      },
+      {
+        "day": "2026-06-12",
+        "memos": 352,
+        "senders": 13
+      },
+      {
+        "day": "2026-06-13",
+        "memos": 361,
+        "senders": 10
+      },
+      {
+        "day": "2026-06-14",
+        "memos": 289,
+        "senders": 11
+      },
+      {
+        "day": "2026-06-15",
+        "memos": 320,
+        "senders": 12
+      },
+      {
+        "day": "2026-06-16",
+        "memos": 221,
+        "senders": 9
+      },
+      {
+        "day": "2026-06-17",
+        "memos": 237,
+        "senders": 15
+      },
+      {
+        "day": "2026-06-18",
+        "memos": 450,
+        "senders": 8
+      },
+      {
+        "day": "2026-06-19",
+        "memos": 285,
+        "senders": 8
+      },
+      {
+        "day": "2026-06-20",
+        "memos": 382,
+        "senders": 7
+      },
+      {
+        "day": "2026-06-21",
+        "memos": 322,
+        "senders": 7
+      },
+      {
+        "day": "2026-06-22",
+        "memos": 333,
+        "senders": 12
+      },
+      {
+        "day": "2026-06-23",
+        "memos": 224,
+        "senders": 6
+      },
+      {
+        "day": "2026-06-24",
+        "memos": 278,
+        "senders": 9
+      },
+      {
+        "day": "2026-06-25",
+        "memos": 282,
+        "senders": 14
+      },
+      {
+        "day": "2026-06-26",
+        "memos": 335,
+        "senders": 12
+      },
+      {
+        "day": "2026-06-27",
+        "memos": 284,
+        "senders": 7
+      },
+      {
+        "day": "2026-06-28",
+        "memos": 234,
+        "senders": 7
+      },
+      {
+        "day": "2026-06-29",
+        "memos": 261,
+        "senders": 8
+      },
+      {
+        "day": "2026-06-30",
+        "memos": 247,
+        "senders": 6
+      },
+      {
+        "day": "2026-07-01",
+        "memos": 270,
+        "senders": 8
+      },
+      {
+        "day": "2026-07-02",
+        "memos": 427,
+        "senders": 9
+      },
+      {
+        "day": "2026-07-03",
+        "memos": 223,
+        "senders": 9
+      },
+      {
+        "day": "2026-07-04",
+        "memos": 66,
+        "senders": 5
       }
     ]
   },
@@ -2751,23 +2940,24 @@
     ]
   },
   "olas": {
-    "totalTxs": 16449330,
+    "asOf": "2026-07-04T07:34:45.858957Z",
+    "totalTxs": 17784192,
     "chains": [
       {
         "name": "Gnosis",
-        "txs": 15972029
+        "txs": 17219484
       },
       {
         "name": "Optimism",
-        "txs": 205475
+        "txs": 247849
       },
       {
         "name": "Polygon",
-        "txs": 149946
+        "txs": 186270
       },
       {
         "name": "Base",
-        "txs": 120274
+        "txs": 128983
       },
       {
         "name": "Ethereum",
@@ -2787,42 +2977,6 @@
       }
     ],
     "weekly": [
-      {
-        "week": "2025-05-05",
-        "txs": 160392
-      },
-      {
-        "week": "2025-05-12",
-        "txs": 135265
-      },
-      {
-        "week": "2025-05-19",
-        "txs": 171800
-      },
-      {
-        "week": "2025-05-26",
-        "txs": 163870
-      },
-      {
-        "week": "2025-06-02",
-        "txs": 142262
-      },
-      {
-        "week": "2025-06-09",
-        "txs": 229170
-      },
-      {
-        "week": "2025-06-16",
-        "txs": 202915
-      },
-      {
-        "week": "2025-06-23",
-        "txs": 243990
-      },
-      {
-        "week": "2025-06-30",
-        "txs": 232670
-      },
       {
         "week": "2025-07-07",
         "txs": 194248
@@ -2994,6 +3148,42 @@
       {
         "week": "2026-04-27",
         "txs": 59302
+      },
+      {
+        "week": "2026-05-04",
+        "txs": 173818
+      },
+      {
+        "week": "2026-05-11",
+        "txs": 145781
+      },
+      {
+        "week": "2026-05-18",
+        "txs": 148359
+      },
+      {
+        "week": "2026-05-25",
+        "txs": 136662
+      },
+      {
+        "week": "2026-06-01",
+        "txs": 128453
+      },
+      {
+        "week": "2026-06-08",
+        "txs": 113844
+      },
+      {
+        "week": "2026-06-15",
+        "txs": 156264
+      },
+      {
+        "week": "2026-06-22",
+        "txs": 211746
+      },
+      {
+        "week": "2026-06-29",
+        "txs": 119935
       }
     ]
   },
@@ -3007,22 +3197,22 @@
         "lastCostCredits": 3.475441177
       },
       "x402Daily": {
-        "queryId": 6084845,
-        "executionId": null,
-        "executedAt": "2026-06-05T02:24:11.586Z",
-        "bootstrap": true
+        "queryId": 7881006,
+        "executionId": "01KWP0C7SGDSX38JB6M9VPF5J4",
+        "executedAt": "2026-07-04T07:27:35.592772Z",
+        "lastCostCredits": 11.727205883
       },
       "baseAgentic": {
         "queryId": 6731879,
-        "executionId": null,
-        "executedAt": "2026-06-05T02:24:11.586Z",
-        "bootstrap": true
+        "executionId": "01KWNZ9JQR8ZWS24PZT2R290JT",
+        "executedAt": "2026-07-04T07:08:15.456839Z",
+        "lastCostCredits": 2.183676471
       },
       "virtualsAcp": {
-        "queryId": 6200422,
-        "executionId": null,
-        "executedAt": "2026-06-05T02:24:11.586Z",
-        "bootstrap": true
+        "queryId": 7881007,
+        "executionId": "01KWP0QFW4DXVD8KJBEQ8V7V8K",
+        "executedAt": "2026-07-04T07:33:21.910386Z",
+        "lastCostCredits": 0.94132353
       },
       "erc8004Registry": {
         "queryId": 7666083,
@@ -3031,10 +3221,10 @@
         "bootstrap": true
       },
       "olas": {
-        "queryId": 3344834,
-        "executionId": null,
-        "executedAt": "2026-06-05T02:24:11.586Z",
-        "bootstrap": true
+        "queryId": 7881008,
+        "executionId": "01KWP0RZGFT7KV015NCFEV8AAJ",
+        "executedAt": "2026-07-04T07:34:45.858957Z",
+        "lastCostCredits": 1.216617648
       }
     }
   }

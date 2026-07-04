@@ -50,6 +50,20 @@ maintenance until its baseline is folded forward; otherwise the scan starts on
 2026-06-05 every day. `virtualsAcp` and `olas` are maintenance candidates once
 their query ids are wired as repo variables and the workflow scope is expanded.
 
+## Catch-up publish
+
+Completed after the first validation:
+
+| Key | Published through | Baseline action |
+| --- | --- | --- |
+| `x402Daily` | 2026-07-04 | `baselines.x402Daily.cutoff` advanced to 2026-07-05 |
+| `virtualsAcp` | 2026-07-04 | `baselines.virtualsAcp.cutoff` advanced to 2026-07-05 |
+| `olas` | week of 2026-06-29 | baseline kept at 2026-05-04 because the 2026-06-29 week is still open on 2026-07-04 |
+
+After this catch-up, `x402Daily`, `virtualsAcp`, and `olas` no longer need to
+scan from their old stale public-data dates. `Olas` can be frozen forward after
+the 2026-06-29 week closes.
+
 ## Validation sequence
 
 Create the three saved queries under the working Dune account, each with a TEXT
