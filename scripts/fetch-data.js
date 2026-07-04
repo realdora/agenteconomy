@@ -467,6 +467,7 @@ const PARSERS = {
       for (const c of base.chains || []) chains[c.name] = safeNum(c.agents)
       for (const d of base.daily || []) dailyMap[d.day] = safeNum(d.agents)
     }
+    let totalAgents = safeNum(base?.totalAgents)
     let droppedPreCutoff = 0
     rows.forEach(row => {
       const chain = row.blockchain || ''
@@ -474,6 +475,7 @@ const PARSERS = {
       const day = (row.block_date || '').slice(0, 10)
       if (cutoffDay && day && day < cutoffDay) { droppedPreCutoff += 1; return }
       const reg = safeNum(row.registered)
+      totalAgents += reg
       const name = chainName(chain)
       if (!chains[name]) chains[name] = 0
       chains[name] += reg
@@ -486,8 +488,8 @@ const PARSERS = {
       console.warn(`registry recent window: dropped ${droppedPreCutoff} pre-cutoff rows (< ${base.cutoff}) to protect the frozen baseline`)
     }
     return {
-      totalAgents: Object.values(chains).reduce((s, v) => s + v, 0),
-      chainsTracked: Object.keys(chains).length,
+      totalAgents: base ? totalAgents : Object.values(chains).reduce((s, v) => s + v, 0),
+      chainsTracked: Math.max(Object.keys(chains).length, safeNum(base?.chainsTracked)),
       chains: Object.entries(chains)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 12)

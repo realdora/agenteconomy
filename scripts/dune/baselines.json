@@ -133,7 +133,424 @@
       }
     ]
   },
-  "erc8004Registry": null,
+  "erc8004Registry": {
+    "cutoff": "2026-07-05",
+    "source": "Frozen from public/data.json erc8004Registry through 2026-07-04 after execution 01KWP1RHHK6BDBSTMVQH0M0F50; contains exact totalAgents/chainsTracked, displayed top-chain distribution, and displayed 90-day daily series; recent-window query fills rows >= cutoff.",
+    "totalAgents": 331199,
+    "chainsTracked": 24,
+    "chains": [
+      {
+        "name": "BNB",
+        "agents": 168794
+      },
+      {
+        "name": "Base",
+        "agents": 59414
+      },
+      {
+        "name": "Ethereum",
+        "agents": 53839
+      },
+      {
+        "name": "MegaETH",
+        "agents": 12735
+      },
+      {
+        "name": "Monad",
+        "agents": 10089
+      },
+      {
+        "name": "Celo",
+        "agents": 9962
+      },
+      {
+        "name": "Gnosis",
+        "agents": 3857
+      },
+      {
+        "name": "Peaq",
+        "agents": 3467
+      },
+      {
+        "name": "Shape",
+        "agents": 2089
+      },
+      {
+        "name": "Avalanche",
+        "agents": 1774
+      },
+      {
+        "name": "Arbitrum",
+        "agents": 1170
+      },
+      {
+        "name": "Ink",
+        "agents": 1145
+      }
+    ],
+    "daily": [
+      {
+        "day": "2026-04-06",
+        "agents": 996
+      },
+      {
+        "day": "2026-04-07",
+        "agents": 5928
+      },
+      {
+        "day": "2026-04-08",
+        "agents": 794
+      },
+      {
+        "day": "2026-04-09",
+        "agents": 823
+      },
+      {
+        "day": "2026-04-10",
+        "agents": 767
+      },
+      {
+        "day": "2026-04-11",
+        "agents": 852
+      },
+      {
+        "day": "2026-04-12",
+        "agents": 827
+      },
+      {
+        "day": "2026-04-13",
+        "agents": 1144
+      },
+      {
+        "day": "2026-04-14",
+        "agents": 1221
+      },
+      {
+        "day": "2026-04-15",
+        "agents": 1501
+      },
+      {
+        "day": "2026-04-16",
+        "agents": 1364
+      },
+      {
+        "day": "2026-04-17",
+        "agents": 1114
+      },
+      {
+        "day": "2026-04-18",
+        "agents": 1272
+      },
+      {
+        "day": "2026-04-19",
+        "agents": 1590
+      },
+      {
+        "day": "2026-04-20",
+        "agents": 1098
+      },
+      {
+        "day": "2026-04-21",
+        "agents": 1672
+      },
+      {
+        "day": "2026-04-22",
+        "agents": 1360
+      },
+      {
+        "day": "2026-04-23",
+        "agents": 1084
+      },
+      {
+        "day": "2026-04-24",
+        "agents": 1109
+      },
+      {
+        "day": "2026-04-25",
+        "agents": 791
+      },
+      {
+        "day": "2026-04-26",
+        "agents": 960
+      },
+      {
+        "day": "2026-04-27",
+        "agents": 1090
+      },
+      {
+        "day": "2026-04-28",
+        "agents": 1043
+      },
+      {
+        "day": "2026-04-29",
+        "agents": 963
+      },
+      {
+        "day": "2026-04-30",
+        "agents": 808
+      },
+      {
+        "day": "2026-05-01",
+        "agents": 854
+      },
+      {
+        "day": "2026-05-02",
+        "agents": 1069
+      },
+      {
+        "day": "2026-05-03",
+        "agents": 1043
+      },
+      {
+        "day": "2026-05-04",
+        "agents": 915
+      },
+      {
+        "day": "2026-05-05",
+        "agents": 303
+      },
+      {
+        "day": "2026-05-06",
+        "agents": 1085
+      },
+      {
+        "day": "2026-05-07",
+        "agents": 1000
+      },
+      {
+        "day": "2026-05-08",
+        "agents": 962
+      },
+      {
+        "day": "2026-05-09",
+        "agents": 1137
+      },
+      {
+        "day": "2026-05-10",
+        "agents": 1019
+      },
+      {
+        "day": "2026-05-11",
+        "agents": 3228
+      },
+      {
+        "day": "2026-05-12",
+        "agents": 2314
+      },
+      {
+        "day": "2026-05-13",
+        "agents": 960
+      },
+      {
+        "day": "2026-05-14",
+        "agents": 1244
+      },
+      {
+        "day": "2026-05-15",
+        "agents": 1391
+      },
+      {
+        "day": "2026-05-16",
+        "agents": 1357
+      },
+      {
+        "day": "2026-05-17",
+        "agents": 1002
+      },
+      {
+        "day": "2026-05-18",
+        "agents": 1202
+      },
+      {
+        "day": "2026-05-19",
+        "agents": 1231
+      },
+      {
+        "day": "2026-05-20",
+        "agents": 10989
+      },
+      {
+        "day": "2026-05-21",
+        "agents": 2440
+      },
+      {
+        "day": "2026-05-22",
+        "agents": 2416
+      },
+      {
+        "day": "2026-05-23",
+        "agents": 7417
+      },
+      {
+        "day": "2026-05-24",
+        "agents": 3294
+      },
+      {
+        "day": "2026-05-25",
+        "agents": 3251
+      },
+      {
+        "day": "2026-05-26",
+        "agents": 1950
+      },
+      {
+        "day": "2026-05-27",
+        "agents": 1943
+      },
+      {
+        "day": "2026-05-28",
+        "agents": 2409
+      },
+      {
+        "day": "2026-05-29",
+        "agents": 1991
+      },
+      {
+        "day": "2026-05-30",
+        "agents": 2201
+      },
+      {
+        "day": "2026-05-31",
+        "agents": 1480
+      },
+      {
+        "day": "2026-06-01",
+        "agents": 1173
+      },
+      {
+        "day": "2026-06-02",
+        "agents": 1066
+      },
+      {
+        "day": "2026-06-03",
+        "agents": 1070
+      },
+      {
+        "day": "2026-06-04",
+        "agents": 910
+      },
+      {
+        "day": "2026-06-05",
+        "agents": 1203
+      },
+      {
+        "day": "2026-06-06",
+        "agents": 920
+      },
+      {
+        "day": "2026-06-07",
+        "agents": 725
+      },
+      {
+        "day": "2026-06-08",
+        "agents": 838
+      },
+      {
+        "day": "2026-06-09",
+        "agents": 1065
+      },
+      {
+        "day": "2026-06-10",
+        "agents": 941
+      },
+      {
+        "day": "2026-06-11",
+        "agents": 1238
+      },
+      {
+        "day": "2026-06-12",
+        "agents": 1077
+      },
+      {
+        "day": "2026-06-13",
+        "agents": 980
+      },
+      {
+        "day": "2026-06-14",
+        "agents": 1055
+      },
+      {
+        "day": "2026-06-15",
+        "agents": 952
+      },
+      {
+        "day": "2026-06-16",
+        "agents": 763
+      },
+      {
+        "day": "2026-06-17",
+        "agents": 1032
+      },
+      {
+        "day": "2026-06-18",
+        "agents": 1085
+      },
+      {
+        "day": "2026-06-19",
+        "agents": 1069
+      },
+      {
+        "day": "2026-06-20",
+        "agents": 1007
+      },
+      {
+        "day": "2026-06-21",
+        "agents": 753
+      },
+      {
+        "day": "2026-06-22",
+        "agents": 1270
+      },
+      {
+        "day": "2026-06-23",
+        "agents": 1680
+      },
+      {
+        "day": "2026-06-24",
+        "agents": 1339
+      },
+      {
+        "day": "2026-06-25",
+        "agents": 2130
+      },
+      {
+        "day": "2026-06-26",
+        "agents": 2405
+      },
+      {
+        "day": "2026-06-27",
+        "agents": 2692
+      },
+      {
+        "day": "2026-06-28",
+        "agents": 2696
+      },
+      {
+        "day": "2026-06-29",
+        "agents": 2595
+      },
+      {
+        "day": "2026-06-30",
+        "agents": 1651
+      },
+      {
+        "day": "2026-07-01",
+        "agents": 3436
+      },
+      {
+        "day": "2026-07-02",
+        "agents": 5820
+      },
+      {
+        "day": "2026-07-03",
+        "agents": 3701
+      },
+      {
+        "day": "2026-07-04",
+        "agents": 1203
+      }
+    ]
+  },
   "x402Daily": {
     "cutoff": "2026-07-05",
     "source": "Frozen from public/data.json x402.daily through 2026-07-04 after execution 01KWP0C7SGDSX38JB6M9VPF5J4; recent-window query fills rows >= cutoff.",

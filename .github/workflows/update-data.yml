@@ -37,15 +37,15 @@ jobs:
           DUNE_QID_VIRTUALS_ACP: ${{ vars.DUNE_QID_VIRTUALS_ACP }}
           DUNE_QID_REGISTRY: ${{ vars.DUNE_QID_REGISTRY }}
           DUNE_QID_OLAS: ${{ vars.DUNE_QID_OLAS }}
-          # Keep the daily cron narrow until every source is validated and the
-          # registry path is fixed. Other stale sections reuse the last
-          # published data and cannot spend Dune credits unless added here.
-          DUNE_REFRESH_KEYS: 'x402Cumulative'
+          # Only these individually validated recent-window/low-cost sources
+          # can spend credits. Keep this explicit so new sources cannot execute
+          # until they get their own budget test.
+          DUNE_REFRESH_KEYS: 'x402Cumulative,x402Daily,baseAgentic,virtualsAcp,erc8004Registry,olas'
           # Credit governor: free Dune plan has 2,500 credits/month. Keep a
           # 500-credit reserve for manual recovery and unexpected export costs.
-          DUNE_MAX_EXECUTIONS_PER_RUN: '1'
+          DUNE_MAX_EXECUTIONS_PER_RUN: '6'
           DUNE_MONTHLY_CREDIT_CAP: '2000'
-          DUNE_RUN_CREDIT_CAP: '10'
+          DUNE_RUN_CREDIT_CAP: '25'
           DUNE_QUERY_CREDIT_CAP: '10'
         run: node scripts/fetch-data.js
 
