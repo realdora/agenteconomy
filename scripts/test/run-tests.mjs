@@ -289,6 +289,24 @@ check('totals updated', JSON.parse(s3.data).x402.totalTxs === 151_000_000)
 check('other sections reused', countLog(s3.log, '/query/3344834/results?limit=5000') === 0)
 check('changed=true in GITHUB_OUTPUT', s3.ghOutput.includes('changed=true'))
 
+// S3b — refresh allowlist: very stale non-x402 sources must not spend the one
+// daily execution slot when the cron is scoped to x402 only.
+console.log('\nS3b refresh allowlist (x402 only)')
+const s3bscenario = defaultScenario()
+s3bscenario.queries[6058135].latest.endedHoursAgo = 30
+s3bscenario.queries[6058135].execute.rows = fixtureRows(6058135, { totalTxs: 152_000_000, totalVol: 40_750_000 })
+s3bscenario.queries[6084845].latest.endedHoursAgo = 90
+s3bscenario.queries[6731879].latest.endedHoursAgo = 80
+s3bscenario.queries[6200422].latest.endedHoursAgo = 100
+s3bscenario.queries[6130922].latest.endedHoursAgo = 200
+s3bscenario.queries[3344834].latest.endedHoursAgo = 400
+const s3b = await runPipeline(s3bscenario, { seedDataJson: SEED, extraEnv: { DUNE_REFRESH_KEYS: 'x402Cumulative' } })
+check('exit 0', s3b.status === 0, `status=${s3b.status}\n${s3b.stdout}`)
+check('exactly 1 execution', countLog(s3b.log, '/execute') === 1, JSON.stringify(s3b.log.filter(l => l.includes('execute'))))
+check('only x402 executed', countLog(s3b.log, '/query/6058135/execute') === 1)
+check('stale non-x402 skipped by allowlist', s3b.stdout.includes('not selected by DUNE_REFRESH_KEYS'), s3b.stdout)
+check('allowlisted totals updated', JSON.parse(s3b.data).x402.totalTxs === 152_000_000)
+
 // S4 — failed refresh, healthy fallback: execution fails, latest cache (30h) is
 // within SLA → warning + fallback, run stays green.
 console.log('\nS4 failed refresh with in-SLA fallback (green run, warning)')
