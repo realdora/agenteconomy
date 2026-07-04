@@ -98,6 +98,7 @@ const QUERIES = [
     key: 'x402Daily',
     id: Number(process.env.DUNE_QID_X402_DAILY || 6084845),
     limit: 5000,
+    baselineKey: 'x402Daily',
     maxAgeHours: 20,
     slaHours: 54,
     label: 'x402 daily',
@@ -114,6 +115,7 @@ const QUERIES = [
     key: 'virtualsAcp',
     id: Number(process.env.DUNE_QID_VIRTUALS_ACP || 6200422),
     limit: 1000,
+    baselineKey: 'virtualsAcp',
     maxAgeHours: 20,
     slaHours: 54,
     label: 'Virtuals ACP',
@@ -135,6 +137,7 @@ const QUERIES = [
     key: 'olas',
     id: Number(process.env.DUNE_QID_OLAS || 3344834),
     limit: 5000,
+    baselineKey: 'olas',
     maxAgeHours: 156,
     slaHours: 360,
     label: 'Olas (weekly data)',
@@ -367,15 +370,25 @@ const PARSERS = {
     }
   },
 
-  x402Daily(rows) {
+  x402Daily(rows, baselines) {
     assertRowShape(rows, ['period', 'txs'], 'Q x402Daily')
+    const base = baselines?.x402Daily
+    const cutoffDay = base?.cutoff ? base.cutoff.slice(0, 10) : null
     const dailyMap = {}
+    if (base) {
+      for (const d of base.daily || []) dailyMap[d.day] = { txs: safeNum(d.txs) }
+    }
+    let droppedPreCutoff = 0
     rows.forEach(row => {
       const day = (row.period || '').slice(0, 10)
       if (!day) return
+      if (cutoffDay && day < cutoffDay) { droppedPreCutoff += 1; return }
       if (!dailyMap[day]) dailyMap[day] = { txs: 0 }
       dailyMap[day].txs += safeNum(row.txs)
     })
+    if (droppedPreCutoff > 0) {
+      console.warn(`x402 daily recent window: dropped ${droppedPreCutoff} pre-cutoff rows (< ${base.cutoff}) to protect the frozen baseline`)
+    }
     const daily = Object.entries(dailyMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-60)
@@ -403,20 +416,37 @@ const PARSERS = {
     return { totalTxs: daily.reduce((sum, d) => sum + d.total, 0), daily }
   },
 
-  virtualsAcp(rows) {
-    assertRowShape(rows, ['period', 'num_of_memo', 'unique_sender', 'total_memo'], 'Q virtualsAcp')
-    // Rows are per-day per-version (v1, v2). Merge by day; total_memo is cumulative.
+  virtualsAcp(rows, baselines) {
+    const base = baselines?.virtualsAcp
+    assertRowShape(rows, base ? ['period', 'num_of_memo', 'unique_sender'] : ['period', 'num_of_memo', 'unique_sender', 'total_memo'], 'Q virtualsAcp')
+    // Rows are per-day per-version (v1, v2). Merge by day. Legacy rows carry
+    // total_memo; recent-window rows are added to the frozen baseline total.
     const acpMap = {}
-    let maxTotalMemo = 0
+    const cutoffDay = base?.cutoff ? base.cutoff.slice(0, 10) : null
+    let maxTotalMemo = safeNum(base?.totalMemos)
+    let windowMemos = 0
+    if (base) {
+      for (const d of base.daily || []) acpMap[d.day] = { memos: safeNum(d.memos), senders: safeNum(d.senders) }
+    }
+    let droppedPreCutoff = 0
     rows.forEach(row => {
       const day = (row.period || '').slice(0, 10)
       if (!day) return
+      if (cutoffDay && day < cutoffDay) { droppedPreCutoff += 1; return }
       if (!acpMap[day]) acpMap[day] = { memos: 0, senders: 0 }
-      acpMap[day].memos += safeNum(row.num_of_memo)
+      const memos = safeNum(row.num_of_memo)
+      acpMap[day].memos += memos
       acpMap[day].senders = Math.max(acpMap[day].senders, safeNum(row.unique_sender))
+      windowMemos += memos
       const tm = safeNum(row.total_memo)
       if (tm > maxTotalMemo) maxTotalMemo = tm
     })
+    if (base && maxTotalMemo === safeNum(base.totalMemos)) {
+      maxTotalMemo = safeNum(base.totalMemos) + windowMemos
+    }
+    if (droppedPreCutoff > 0) {
+      console.warn(`Virtuals ACP recent window: dropped ${droppedPreCutoff} pre-cutoff rows (< ${base.cutoff}) to protect the frozen baseline`)
+    }
     const daily = Object.entries(acpMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-90)
@@ -469,24 +499,37 @@ const PARSERS = {
     }
   },
 
-  olas(rows) {
-    assertRowShape(rows, ['time', 'chain', 'total_weekly_transactions_number', 'global_cumulative_transactions_number'], 'Q olas')
+  olas(rows, baselines) {
+    const base = baselines?.olas
+    assertRowShape(rows, base ? ['time', 'chain', 'total_weekly_transactions_number'] : ['time', 'chain', 'total_weekly_transactions_number', 'global_cumulative_transactions_number'], 'Q olas')
     const latest = rows.reduce((best, r) => (r.time || '') > (best.time || '') ? r : best, {})
     const chains = {}, weekMap = {}
+    const cutoffWeek = base?.cutoff ? base.cutoff.slice(0, 10) : null
+    let totalTxs = safeNum(base?.totalTxs)
+    if (base) {
+      for (const c of base.chains || []) chains[c.name] = safeNum(c.txs)
+      for (const w of base.weekly || []) weekMap[w.week] = { txs: safeNum(w.txs) }
+    }
+    let droppedPreCutoff = 0
     rows.forEach(row => {
       const week = (row.time || '').slice(0, 10)
       const chain = row.chain || ''
+      if (cutoffWeek && week && week < cutoffWeek) { droppedPreCutoff += 1; return }
       const txs = safeNum(row.total_weekly_transactions_number)
       const name = chainName(chain)
       if (!chains[name]) chains[name] = 0
       chains[name] += txs
+      if (base) totalTxs += txs
       if (week) {
         if (!weekMap[week]) weekMap[week] = { txs: 0 }
         weekMap[week].txs += txs
       }
     })
+    if (droppedPreCutoff > 0) {
+      console.warn(`Olas recent window: dropped ${droppedPreCutoff} pre-cutoff rows (< ${base.cutoff}) to protect the frozen baseline`)
+    }
     return {
-      totalTxs: safeNum(latest.global_cumulative_transactions_number),
+      totalTxs: base ? totalTxs : safeNum(latest.global_cumulative_transactions_number),
       chains: Object.entries(chains)
         .sort(([, a], [, b]) => b - a)
         .map(([name, txs]) => ({ name, txs })),

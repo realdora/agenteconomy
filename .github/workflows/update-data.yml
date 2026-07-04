@@ -32,7 +32,11 @@ jobs:
           # scripts/dune/RUNBOOK-2026-06-29.md. Empty/unset falls back to the
           # code defaults (the dead forks, which fail safe into previous-build).
           DUNE_QID_X402_CUMULATIVE: ${{ vars.DUNE_QID_X402_CUMULATIVE }}
+          DUNE_QID_X402_DAILY: ${{ vars.DUNE_QID_X402_DAILY }}
+          DUNE_QID_BASE_AGENTIC: ${{ vars.DUNE_QID_BASE_AGENTIC }}
+          DUNE_QID_VIRTUALS_ACP: ${{ vars.DUNE_QID_VIRTUALS_ACP }}
           DUNE_QID_REGISTRY: ${{ vars.DUNE_QID_REGISTRY }}
+          DUNE_QID_OLAS: ${{ vars.DUNE_QID_OLAS }}
           # Until each source has its own recent-window query, the daily cron is
           # only allowed to execute x402. Other stale sections reuse the last
           # published data and cannot spend Dune credits.
