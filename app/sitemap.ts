@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { PROTOCOL_SLUGS } from "@/lib/protocol-data";
+import { STAT_SLUGS } from "@/lib/stats-registry";
 
 const BASE = "https://agenteconomy.to";
 const DATA_URL = `${BASE}/data.json`;
@@ -33,7 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Home + /data + protocol pages surface live dataset figures (hourly ISR), so
   // the data stamp is their true lastmod. /about + /methodology only change when
   // their copy is edited.
-  const liveRoutes: MetadataRoute.Sitemap = ["", "/data", ...PROTOCOL_SLUGS.map((s) => `/${s}`)].map((path) => ({
+  const liveRoutes: MetadataRoute.Sitemap = [
+    "",
+    "/data",
+    "/stats",
+    ...PROTOCOL_SLUGS.map((s) => `/${s}`),
+    ...STAT_SLUGS.map((s) => `/stats/${s}`),
+  ].map((path) => ({
     url: `${BASE}${path}`,
     lastModified: dataUpdated,
     changeFrequency: "daily",

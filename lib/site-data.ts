@@ -57,6 +57,7 @@ export const navMenus: NavMenu[] = [
       ],
     },
   },
+  { label: "Stats", href: "/stats" },
   { label: "Methodology", href: "/methodology" },
   { label: "Data", href: "/data" },
   { label: "About", href: "/about" },

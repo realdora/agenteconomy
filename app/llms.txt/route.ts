@@ -1,4 +1,5 @@
 import { getProtocol, PROTOCOL_SLUGS } from "@/lib/protocol-data";
+import { STAT_DOCS } from "@/lib/stats-registry";
 
 const BASE = "https://agenteconomy.to";
 
@@ -8,6 +9,8 @@ export function GET() {
     return protocol ? `- [${protocol.name}](${BASE}/${protocol.slug}): ${protocol.tagline}` : null;
   }).filter(Boolean);
 
+  const stats = STAT_DOCS.map((doc) => `- [${doc.question}](${BASE}/stats/${doc.slug}): ${doc.seoDescription}`);
+
   const body = [
     "# agent economy",
     "",
@@ -16,6 +19,10 @@ export function GET() {
     "## Protocols",
     "",
     ...protocols,
+    "",
+    "## Stats (live, dated answers)",
+    "",
+    ...stats,
     "",
     "## Data API (agent-ready)",
     "",
