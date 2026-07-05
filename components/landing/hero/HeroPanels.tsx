@@ -10,7 +10,7 @@ import type { HeroSlide } from "@/lib/site-data";
 // They FILL the original template panel slot (ae-hero-panel-wrap, height:100%) — layout untouched.
 
 const CARD =
-  "ae-hero-card-enter relative h-full w-full rounded-[22px] border border-white/12 bg-[#0d0d11] p-5 flex flex-col overflow-hidden";
+  "ae-hero-card-enter relative h-full w-full rounded-[22px] border border-white/10 bg-[#0d0d11] p-5 flex flex-col overflow-hidden";
 
 // Respect the user's motion preference. Read once at module scope is unsafe (SSR),
 // so each panel checks on mount. Returns true when reduced motion is requested.
@@ -90,7 +90,7 @@ function TrackPanel({ total, stream, updatedAt }: { total: number; stream: Agent
         ))}
       </div>
 
-      <div className="flex items-center justify-between border-t border-white/8 pt-2.5 mt-1 font-mono text-[10.5px] text-white/40 tabular-nums">
+      <div className="flex items-center justify-between border-t border-white/10 pt-2.5 mt-1 font-mono text-[10.5px] text-white/40 tabular-nums">
         <span><span className="text-white/70">{count.toLocaleString("en-US")}</span> events tracked</span>
         <span className="text-white/30">5 protocols · 11 chains</span>
       </div>

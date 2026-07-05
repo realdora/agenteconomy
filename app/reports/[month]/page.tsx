@@ -171,14 +171,14 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
               How this report is built
             </h2>
             <div className="space-y-5">
-              <p className="text-white/68 text-[16.5px] leading-relaxed">
+              <p className="text-white/70 text-[16.5px] leading-relaxed">
                 Every figure is computed from agent economy&apos;s open dataset at render time — nothing is hand-entered,
                 estimated, or sourced from press releases. Monthly totals are sums of the measured daily (or weekly) series
                 for each protocol family; month-over-month changes compare against the same measurement of the prior month.
                 Units are deliberately not blended: a payment settlement, a registry registration, a commerce memo, and a
                 channel event are different acts, reported side by side.
               </p>
-              <p className="text-white/68 text-[16.5px] leading-relaxed">
+              <p className="text-white/70 text-[16.5px] leading-relaxed">
                 Anything the pipeline could not fully measure for the month is omitted and flagged rather than estimated. The
                 raw feed behind every number is public, free, and CORS-open — recompute anything on this page from{" "}
                 <a href="/data.json" className="underline decoration-white/25 underline-offset-4 hover:text-white transition">
@@ -197,7 +197,7 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
             <h2 className="font-display italic text-white text-[26px] md:text-[30px] leading-[1.15] tracking-tight mb-6">
               Citing this report
             </h2>
-            <p className="text-white/68 text-[16.5px] leading-relaxed mb-5">
+            <p className="text-white/70 text-[16.5px] leading-relaxed mb-5">
               Journalists and researchers are welcome to quote any figure with attribution. Suggested form:
             </p>
             <p className="border-l border-[#00FF88] pl-5 font-display italic text-white text-[19px] leading-relaxed">

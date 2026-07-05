@@ -199,7 +199,7 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
                   </h3>
                   <div className="space-y-5">
                     {section.body.map((paragraph) => (
-                      <p key={paragraph} className="text-white/68 text-[17px] leading-relaxed max-w-3xl">
+                      <p key={paragraph} className="text-white/70 text-[17px] leading-relaxed max-w-3xl">
                         {paragraph}
                       </p>
                     ))}
@@ -216,7 +216,7 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
                       {section.bullets.map((item) => (
                         <div key={item.label} className="border-t border-white/10 pt-4">
                           <h4 className="text-white font-medium text-[15px] tracking-tight mb-2">{item.label}</h4>
-                          <p className="text-white/52 text-[14px] leading-relaxed">{item.body}</p>
+                          <p className="text-white/50 text-[14px] leading-relaxed">{item.body}</p>
                         </div>
                       ))}
                     </div>

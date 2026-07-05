@@ -168,7 +168,7 @@ export default async function StatPage({ params }: StatPageProps) {
               </h2>
               <div className="space-y-5">
                 {section.body.map((paragraph) => (
-                  <p key={paragraph} className="text-white/68 text-[16.5px] leading-relaxed">
+                  <p key={paragraph} className="text-white/70 text-[16.5px] leading-relaxed">
                     {paragraph}
                   </p>
                 ))}
