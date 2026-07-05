@@ -46,6 +46,12 @@ export function FooterSection() {
                 Tempo MPP
               </a>
               <span className="text-white/15">·</span>
+              <a href="/stats" className="text-white/55 hover:text-white transition">
+                Stats
+              </a>
+              <a href="/reports" className="text-white/55 hover:text-white transition">
+                Reports
+              </a>
               <a href="/methodology" className="text-white/55 hover:text-white transition">
                 Methodology
               </a>

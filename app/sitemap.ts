@@ -34,12 +34,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Home + /data + protocol pages surface live dataset figures (hourly ISR), so
   // the data stamp is their true lastmod. /about + /methodology only change when
   // their copy is edited.
+  // Monthly reports exist for every closed month since the first edition.
+  const reportMonths: string[] = [];
+  {
+    const now = new Date();
+    const currentYm = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+    const cursor = new Date(Date.UTC(2026, 5, 1)); // 2026-06 = first report
+    for (;;) {
+      const ym = `${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth() + 1).padStart(2, "0")}`;
+      if (ym >= currentYm) break;
+      reportMonths.push(ym);
+      cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+    }
+  }
+
   const liveRoutes: MetadataRoute.Sitemap = [
     "",
     "/data",
     "/stats",
+    "/reports",
     ...PROTOCOL_SLUGS.map((s) => `/${s}`),
     ...STAT_SLUGS.map((s) => `/stats/${s}`),
+    ...reportMonths.map((ym) => `/reports/${ym}`),
   ].map((path) => ({
     url: `${BASE}${path}`,
     lastModified: dataUpdated,

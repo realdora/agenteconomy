@@ -267,6 +267,409 @@ const erc8004Agents: StatDoc = {
   },
 };
 
-export const STAT_DOCS: StatDoc[] = [x402Transactions, avgX402Size, agentCensus, erc8004Agents];
+// ─── on-chain agent economy size ─────────────────────────────────────────────
+const agentEconomySize: StatDoc = {
+  slug: "how-big-is-the-agent-economy",
+  question: "How big is the on-chain agent economy?",
+  shortTitle: "On-chain agent economy size",
+  seoDescription:
+    "The measured size of the on-chain agent economy today — total events across six protocol families and settled stablecoin volume — as distinct from market-size forecasts.",
+  related: ["x402-transactions", "how-many-ai-agents-are-onchain", "virtuals-acp-activity"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    {
+      label: "McKinsey — the agentic commerce opportunity (forecast, for contrast)",
+      url: "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-agentic-commerce-opportunity-how-ai-agents-are-ushering-in-a-new-era-for-consumers-and-merchants",
+    },
+    {
+      label: "CoinDesk — Keyrock: crypto rails becoming default AI-agent payment layer (May 2026)",
+      url: "https://www.coindesk.com/business/2026/05/21/crypto-rails-are-becoming-the-default-payment-layer-for-ai-agents-report-says",
+    },
+  ],
+  sections: [
+    {
+      heading: "Measured size vs forecast size",
+      body: [
+        "Most published answers to “how big is the agent economy” are forecasts of future commerce — McKinsey's trillions by 2030, Juniper's multi-billion agentic-commerce curves — or enterprise-software market sizing that has nothing to do with on-chain activity. This page answers a narrower, checkable question: how much agent-protocol activity is observable on public blockchains right now. That means transaction and event counts across six protocol families (x402, ERC-8004, Virtuals ACP, Olas, Tempo MPP, and Base's agentic ecosystem), plus the stablecoin volume x402 settlement actually moved.",
+        "The two kinds of numbers answer different questions and should not be blended. A forecast prices the opportunity; a measurement prices the present. When a report says agents will transact trillions, and the measured settled volume is in the tens of millions, both can be true — the gap is the distance between thesis and adoption, and tracking that gap over time is precisely what this dataset is for.",
+      ],
+    },
+    {
+      heading: "What counts as 'the agent economy' here",
+      body: [
+        "Inclusion is protocol-level, not vibe-level: an event counts if it is emitted by one of the tracked agent-protocol families on a public chain. Events are not dollars — a registry registration, a commerce memo, and a payment settlement are different units, which is why the table below keeps them as separate rows and only x402 carries a USD volume figure. Double counting is possible where protocols overlap (an ACP job can settle via a payment rail), so the total is best read as an activity index, not a census of unique economic acts.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    if (!data) return null;
+    const num2 = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+    const parts = [
+      { label: "x402 settlements", value: num2(data.x402?.totalTxs) },
+      { label: "Olas agent transactions", value: num2(data.olas?.totalTxs) },
+      { label: "Virtuals ACP memos", value: num2(data.virtualsAcp?.totalMemos) },
+      { label: "ERC-8004 registrations", value: num2(data.erc8004Registry?.totalAgents) },
+      { label: "Base agentic transactions", value: num2(data.baseAgentic?.totalTxs) },
+      { label: "Tempo MPP events", value: num2(data.tempoMpp?.totalEvents) },
+    ];
+    const total = parts.reduce((s, p) => s + p.value, 0);
+    if (!total) return null;
+    const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `As of ${stamp}, the measured on-chain agent economy spans ${fmt(total)} cumulative events across six protocol families, including ${fmt(data.x402?.totalTxs)} x402 payment settlements that moved ${usd(data.x402?.totalVolume)} in stablecoins. This is observed on-chain activity — not a market forecast — and it refreshes hourly from the open dataset.`,
+      asOf: data.updatedAt ?? null,
+      rows: [
+        { label: "Total tracked events (all protocols)", value: fmt(total), note: "activity index" },
+        { label: "x402 settled volume", value: usd(data.x402?.totalVolume) },
+        ...parts.map((p) => ({ label: `— ${p.label}`, value: fmt(p.value) })),
+      ],
+      chart: {
+        kind: "bars",
+        title: "Cumulative events by protocol family",
+        unit: "events",
+        points: parts.map((p) => ({ label: p.label.split(" ")[0], value: p.value })),
+      },
+      extraFaq: [
+        {
+          q: "Is the agent economy really worth trillions?",
+          a: "Trillion-dollar figures are forecasts of future agentic commerce (McKinsey projects $3–5T by 2030), not measurements. The measured on-chain footprint today — the number on this page — is many orders of magnitude smaller. Both numbers are useful; confusing them is not.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── x402 daily transactions ─────────────────────────────────────────────────
+const x402Daily: StatDoc = {
+  slug: "x402-daily-transactions",
+  question: "How many x402 transactions happen per day?",
+  shortTitle: "x402 daily transactions",
+  seoDescription:
+    "The current daily x402 transaction rate with a 60-day trend, measured from public on-chain settlement activity and refreshed hourly.",
+  protocolSlug: "x402",
+  related: ["x402-transactions", "average-x402-transaction-size"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    {
+      label: "CoinDesk — micropayment demand skepticism (Mar 2026)",
+      url: "https://www.coindesk.com/markets/2026/03/11/coinbase-backed-ai-payments-protocol-wants-to-fix-micropayment-but-demand-is-just-not-there-yet",
+    },
+  ],
+  sections: [
+    {
+      heading: "The daily rate is the honest growth signal",
+      body: [
+        "Cumulative totals only ever go up, which makes them flattering and mostly useless for judging momentum. The daily series is where the real story lives: whether agent payments are accelerating, plateauing, or decaying after each hype cycle. This page publishes the last 60 days of daily x402 settlements exactly as measured, without smoothing.",
+        "Daily figures are volatile by nature — a single high-frequency service coming online or going quiet can move the day count materially. Read the trend across weeks, not single days, and read it alongside the average-transaction-size series to tell whether volume is broadening or concentrating.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const x = data?.x402;
+    const daily = arr(x?.daily);
+    if (!daily.length) return null;
+    const latest = daily.at(-1) ?? {};
+    const points = daily.slice(-60).map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.txs) }));
+    const last7 = daily.slice(-7).reduce((s, d) => s + num(d.txs), 0);
+    const stamp = asOfLabel(x?.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `As of ${stamp}, x402 processed ${fmt(latest.txs)} transactions on ${String(latest.day ?? "the latest measured day")}, and ${fmt(last7)} over the trailing seven days. The daily series below is measured from public on-chain settlement activity, unsmoothed.`,
+      asOf: x?.asOf ?? data?.updatedAt ?? null,
+      rows: [
+        { label: "Latest daily transactions", value: fmt(latest.txs), note: String(latest.day ?? "") },
+        { label: "Trailing 7-day transactions", value: fmt(last7) },
+        { label: "Cumulative transactions", value: fmt(x?.totalTxs) },
+      ],
+      chart: { kind: "line", title: "Daily x402 transactions (last 60 days)", unit: "txs/day", points },
+    };
+  },
+};
+
+// ─── x402 facilitators ───────────────────────────────────────────────────────
+const x402Facilitators: StatDoc = {
+  slug: "x402-facilitators",
+  question: "How many x402 facilitators are there — and who is the largest?",
+  shortTitle: "x402 facilitator landscape",
+  seoDescription:
+    "How many x402 facilitators operate today, which one settles the most volume, and how concentrated the facilitator layer is — measured on-chain.",
+  protocolSlug: "x402",
+  related: ["x402-transactions", "x402-daily-transactions"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "Dune · x402 facilitator registry (community-maintained)", url: "https://dune.com/queries/6054244" },
+  ],
+  sections: [
+    {
+      heading: "Why facilitator concentration matters",
+      body: [
+        "A facilitator verifies x402 payment payloads and settles them on-chain, so resource servers don't have to run blockchain infrastructure. That convenience creates a structural question: if most settlements route through one or two facilitators, the 'open' payment standard has a de-facto gatekeeper layer. The share table on this page is the live answer, measured from which facilitator addresses actually initiate settlements.",
+        "Facilitator identity comes from a community-maintained on-chain registry, so new entrants appear in the measurement as they start settling. Share is computed over transaction counts; a facilitator specializing in fewer, larger payments will rank lower here than by volume.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const x = data?.x402;
+    const protos = arr(x?.protocols);
+    if (!protos.length) return null;
+    const stamp = asOfLabel(x?.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    const top = protos[0] ?? {};
+    const top2 = num(top.share) + num((protos[1] ?? {}).share);
+    return {
+      answer: `As of ${stamp}, agent economy tracks ${fmt(x?.facilitatorsTracked)} x402 facilitators. ${String(top.name ?? "The leader")} is the largest at ${num(top.share)}% of settled transactions, and the top two facilitators together hold ${Math.round(top2 * 10) / 10}% — a concentration figure worth watching for an open standard.`,
+      asOf: x?.asOf ?? data?.updatedAt ?? null,
+      rows: [
+        { label: "Facilitators tracked", value: fmt(x?.facilitatorsTracked) },
+        ...protos.slice(0, 6).map((p) => ({ label: `— ${String(p.name)}`, value: `${num(p.share)}%`, note: "share of txs" })),
+      ],
+      chart: {
+        kind: "bars",
+        title: "Facilitator share of x402 transactions",
+        unit: "% share",
+        points: protos.slice(0, 6).map((p) => ({ label: String(p.name ?? ""), value: num(p.share) })),
+      },
+    };
+  },
+};
+
+// ─── Virtuals ACP activity ───────────────────────────────────────────────────
+const virtualsActivity: StatDoc = {
+  slug: "virtuals-acp-activity",
+  question: "How much agent-to-agent commerce happens on Virtuals ACP?",
+  shortTitle: "Virtuals ACP activity",
+  seoDescription:
+    "Live Virtuals ACP activity: cumulative on-chain commerce memos, daily trend, and how to read agent-to-agent commerce honestly — independently measured.",
+  protocolSlug: "virtuals-acp",
+  related: ["how-many-ai-agents-are-onchain", "how-big-is-the-agent-economy"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "Virtuals Protocol — ACP whitepaper", url: "https://whitepaper.virtuals.io/about-virtuals/agent-commerce-protocol-acp" },
+  ],
+  sections: [
+    {
+      heading: "The only independent ACP tracker",
+      body: [
+        "Virtuals publishes its own ACP figures, but self-reported platform metrics deserve an outside check. This page decodes ACP's NewMemo events directly from Base logs — every memo is an on-chain record in an agent-to-agent commerce lifecycle (request, negotiation, transaction, evaluation). The count here is what the chain shows, independent of what any platform dashboard claims.",
+        "A memo is a lifecycle step, not a completed sale: one job produces multiple memos as it moves through phases. Memo counts therefore overstate completed commerce and are best read as workflow activity. For jobs and gross-value figures, Virtuals' own aGDP reporting is the (self-reported) source; the honest comparison is trend against trend.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const v = data?.virtualsAcp;
+    const daily = arr(v?.daily);
+    if (!v || !daily.length) return null;
+    const latest = daily.at(-1) ?? {};
+    const points = daily.slice(-60).map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.memos) }));
+    const stamp = asOfLabel(v.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `As of ${stamp}, ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos have been recorded on Base — each one an on-chain step in an agent-to-agent job lifecycle, decoded independently from public logs rather than taken from platform reporting.`,
+      asOf: v.asOf ?? data?.updatedAt ?? null,
+      rows: [
+        { label: "Cumulative commerce memos", value: fmt(v.totalMemos) },
+        { label: "Latest daily memos", value: fmt(latest.memos), note: String(latest.day ?? "") },
+        { label: "Latest daily unique senders", value: fmt(latest.senders), note: String(latest.day ?? "") },
+      ],
+      chart: { kind: "line", title: "Daily ACP memos (last 60 days)", unit: "memos/day", points },
+    };
+  },
+};
+
+// ─── Olas transactions ───────────────────────────────────────────────────────
+const olasTransactions: StatDoc = {
+  slug: "olas-transactions",
+  question: "How many transactions have Olas agents made?",
+  shortTitle: "Olas transaction count",
+  seoDescription:
+    "The live cumulative Olas autonomous-agent transaction count, weekly trend, and chain distribution — with the Gnosis-concentration caveat made explicit.",
+  protocolSlug: "olas",
+  related: ["how-big-is-the-agent-economy", "how-many-ai-agents-are-onchain"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "Dune · Olas ecosystem activity (@adrian0x)", url: "https://dune.com/adrian0x/autonolas-activity" },
+  ],
+  sections: [
+    {
+      heading: "Autonomous services leave a different trail",
+      body: [
+        "Olas agents are continuously-running autonomous services — prediction-market traders, DeFi automations, governance agents — so their transaction trail reflects ongoing operation rather than one-off payments. The weekly series is the right grain for this: service activity is lumpy across days but legible across weeks.",
+        "One caveat dominates interpretation: the large majority of measured Olas activity settles on Gnosis, so the aggregate curve mostly tracks Gnosis-based services. The per-chain rows below keep that visible rather than flattening it into one number.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const o = data?.olas;
+    const weekly = arr(o?.weekly);
+    if (!o || !weekly.length) return null;
+    const latest = weekly.at(-1) ?? {};
+    const points = weekly.slice(-26).map((w) => ({ label: String(w.week ?? "").slice(5), value: num(w.txs) }));
+    const chains = arr(o.chains);
+    const top = chains[0] ?? {};
+    const share = num(o.totalTxs) > 0 ? Math.round((num(top.txs) / num(o.totalTxs)) * 1000) / 10 : 0;
+    const stamp = asOfLabel(o.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `As of ${stamp}, Olas autonomous agents have made ${fmt(o.totalTxs)} cumulative on-chain transactions across ${fmt(chains.length)} chains. ${String(top.name ?? "Gnosis")} dominates with ${fmt(top.txs)} transactions — ${share}% of the tracked total — so the aggregate trend largely reflects Gnosis-based services.`,
+      asOf: o.asOf ?? data?.updatedAt ?? null,
+      rows: [
+        { label: "Cumulative transactions", value: fmt(o.totalTxs) },
+        { label: "Latest weekly transactions", value: fmt(latest.txs), note: `week of ${String(latest.week ?? "")}` },
+        { label: "Largest chain", value: String(top.name ?? "—"), note: `${share}% of total` },
+        { label: "Chains tracked", value: fmt(chains.length) },
+      ],
+      chart: { kind: "line", title: "Weekly Olas transactions (last 26 weeks)", unit: "txs/week", points },
+    };
+  },
+};
+
+// ─── Tempo MPP stats ─────────────────────────────────────────────────────────
+const tempoStats: StatDoc = {
+  slug: "tempo-mpp-stats",
+  question: "How much activity does Tempo's Machine Payments Protocol have?",
+  shortTitle: "Tempo MPP activity",
+  seoDescription:
+    "Live Tempo MPP statistics — indexed channel events, unique payers and payees, and the daily trend — from a direct Tempo RPC indexer, honestly scoped.",
+  protocolSlug: "tempo-mpp",
+  related: ["x402-transactions", "how-big-is-the-agent-economy"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "Fortune — Stripe, Tempo, Paradigm launch MPP (Mar 2026)", url: "https://fortune.com/2026/03/18/stripe-tempo-paradigm-mpp-ai-payments-protocol/" },
+  ],
+  sections: [
+    {
+      heading: "Early infrastructure, measured directly",
+      body: [
+        "Tempo MPP is the youngest protocol family in the dataset — a Stripe-and-Tempo-designed machine-payments standard whose mainnet history began in 2026. agent economy indexes it directly from Tempo RPC rather than through a third-party dashboard, which means narrow but first-hand coverage: channel lifecycle events (opens, closes, settlements, top-ups), unique payer and payee addresses, and a daily series.",
+        "These are early-adoption numbers and should be read that way. Address counts are not customer counts, channel events are not payments one-to-one, and a young protocol's growth curve says more about integration announcements than steady-state demand. What makes the series valuable is that it starts at the beginning — the full history of a payment standard, measured from block one of its adoption.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const t = data?.tempoMpp;
+    const daily = arr(t?.daily);
+    if (!t || !num(t.totalEvents)) return null;
+    const latest = daily.at(-1) ?? {};
+    const points = daily.slice(-60).map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.events) }));
+    const stamp = asOfLabel(data?.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `As of ${stamp}, agent economy has indexed ${fmt(t.totalEvents)} Tempo MPP channel events from ${fmt(t.uniquePayers)} unique payer addresses and ${fmt(t.uniquePayees)} unique payees, measured directly from Tempo RPC since the protocol's mainnet debut.`,
+      asOf: data?.updatedAt ?? null,
+      rows: [
+        { label: "Total MPP events", value: fmt(t.totalEvents) },
+        { label: "Unique payers", value: fmt(t.uniquePayers) },
+        { label: "Unique payees", value: fmt(t.uniquePayees) },
+        { label: "Latest daily events", value: fmt(latest.events), note: String(latest.day ?? "") },
+      ],
+      chart: points.length >= 2 ? { kind: "line", title: "Daily Tempo MPP events (last 60 days)", unit: "events/day", points } : undefined,
+    };
+  },
+};
+
+// ─── Base agentic ecosystem ──────────────────────────────────────────────────
+const baseAgentic: StatDoc = {
+  slug: "base-agentic-activity",
+  question: "How active is Base's agentic ecosystem?",
+  shortTitle: "Base agentic activity",
+  seoDescription:
+    "Live Base agentic-ecosystem activity: daily consumer and infrastructure transactions from agent-related contracts, measured on-chain.",
+  related: ["x402-transactions", "virtuals-acp-activity", "how-big-is-the-agent-economy"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "Dune · BASE agentic ecosystem (@ax1research)", url: "https://dune.com/ax1research" },
+  ],
+  sections: [
+    {
+      heading: "The chain where agent activity clusters",
+      body: [
+        "Base is where the agent economy's protocol families overlap most: it is the largest x402 settlement chain, the home of Virtuals ACP, and the deployment target for a long tail of agent-related contracts. This series tracks that broader ecosystem — transactions touching agent-related contracts on Base, split into consumer and infrastructure categories — as context around the protocol-specific counts.",
+        "Ecosystem counts are the loosest unit in the dataset: contract categorization is curated upstream and evolves, and 'agent-related' is a judgment call at the margins. That is why this series is presented as ecosystem context rather than folded into any protocol's headline number.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const b = data?.baseAgentic;
+    const daily = arr(b?.daily);
+    if (!b || !daily.length) return null;
+    const latest = daily.at(-1) ?? {};
+    const points = daily.slice(-60).map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.total) }));
+    const stamp = asOfLabel(b.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `As of ${stamp}, Base's agentic ecosystem has produced ${fmt(b.totalTxs)} transactions across the tracked window, with ${fmt(latest.total)} on ${String(latest.day ?? "the latest measured day")} (${fmt(latest.consumer)} consumer, ${fmt(latest.infrastructure)} infrastructure).`,
+      asOf: b.asOf ?? data?.updatedAt ?? null,
+      rows: [
+        { label: "Tracked-window transactions", value: fmt(b.totalTxs) },
+        { label: "Latest daily total", value: fmt(latest.total), note: String(latest.day ?? "") },
+        { label: "— consumer", value: fmt(latest.consumer) },
+        { label: "— infrastructure", value: fmt(latest.infrastructure) },
+      ],
+      chart: { kind: "line", title: "Daily Base agentic transactions (last 60 days)", unit: "txs/day", points },
+    };
+  },
+};
+
+// ─── MCP server count ────────────────────────────────────────────────────────
+const mcpServers: StatDoc = {
+  slug: "how-many-mcp-servers-are-there",
+  question: "How many MCP servers are there?",
+  shortTitle: "MCP server count",
+  seoDescription:
+    "The current count of MCP (Model Context Protocol) servers in the official registry and on Smithery, tracked as the supply side of the agent economy.",
+  related: ["how-many-ai-agents-are-onchain", "how-big-is-the-agent-economy"],
+  sources: [
+    { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
+    { label: "Official MCP registry", url: "https://registry.modelcontextprotocol.io/" },
+    { label: "Smithery", url: "https://smithery.ai/" },
+  ],
+  sections: [
+    {
+      heading: "Why a server count belongs in an agent-economy dataset",
+      body: [
+        "MCP servers are the supply side of the agent economy: each one is a capability an agent can call — and increasingly, pay for. Counting them tracks how much machine-callable surface area exists, the same way counting storefronts tracks a retail economy. agent economy counts the official MCP registry by walking its full API (no sampling), with Smithery's directory as a second, partially-overlapping measure.",
+        "Registry counts are supply, not demand: a listed server may be popular, abandoned, or duplicated across directories, and the two directories overlap in unknown proportion — which is why they are reported side by side rather than summed. Directionally, the growth of these registries is one of the cleanest adoption signals the agent ecosystem has.",
+      ],
+    },
+  ],
+  build: ({ web }) => {
+    const official = Number(web?.agentSupply?.officialMcpServers) || 0;
+    const smithery = Number(web?.agentSupply?.smitheryMcpServers) || 0;
+    if (!official) return null;
+    const stamp = asOfLabel(web?.updatedAt) ?? "the latest crawl";
+    return {
+      answer: `As of ${stamp}, the official MCP registry lists ${fmt(official)} servers, and Smithery's directory lists ${fmt(smithery)} — two partially-overlapping measures of how many machine-callable services agents can reach. Counts come from full registry walks, not samples, and refresh with the web-sources pipeline.`,
+      asOf: web?.updatedAt ?? null,
+      rows: [
+        { label: "Official MCP registry servers", value: fmt(official) },
+        { label: "Smithery directory servers", value: fmt(smithery), note: "overlaps official registry" },
+      ],
+      chart: {
+        kind: "bars",
+        title: "MCP servers by directory",
+        unit: "servers",
+        points: [
+          { label: "Official registry", value: official },
+          { label: "Smithery", value: smithery },
+        ],
+      },
+      extraFaq: [
+        {
+          q: "Can these two counts be added together?",
+          a: "No — the directories overlap in unknown proportion, so summing them double-counts. Report them side by side, or pick the official registry as the conservative single figure.",
+        },
+      ],
+    };
+  },
+};
+
+export const STAT_DOCS: StatDoc[] = [
+  x402Transactions,
+  x402Daily,
+  avgX402Size,
+  x402Facilitators,
+  agentCensus,
+  erc8004Agents,
+  agentEconomySize,
+  virtualsActivity,
+  olasTransactions,
+  tempoStats,
+  baseAgentic,
+  mcpServers,
+];
 export const STAT_SLUGS = STAT_DOCS.map((d) => d.slug);
 export const getStatDoc = (slug: string): StatDoc | null => STAT_DOCS.find((d) => d.slug === slug) ?? null;
