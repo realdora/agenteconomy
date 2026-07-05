@@ -393,8 +393,8 @@
 .ae-track-pn { width: 72px; flex: none; white-space: nowrap; font-weight: 600; font-size: 12px; }
 .ae-track-ty { flex: 1; color: rgba(255, 255, 255, 0.5); }
 .ae-track-hx { flex: none; font-family: GeistMono, monospace; font-size: 11px; color: rgba(255, 255, 255, 0.32); }
-.ae-track-am { flex: none; width: 48px; text-align: right; font-family: GeistMono, monospace; font-size: 11.5px; color: rgba(255, 255, 255, 0.7); }
-.ae-track-ag { flex: none; width: 30px; text-align: right; font-family: GeistMono, monospace; font-size: 10.5px; color: rgba(255, 255, 255, 0.3); }
+.ae-track-am { flex: none; width: 64px; text-align: right; font-family: GeistMono, monospace; font-size: 11.5px; color: rgba(255, 255, 255, 0.7); }
+.ae-track-ag { flex: none; width: 46px; text-align: right; font-family: GeistMono, monospace; font-size: 10.5px; color: rgba(255, 255, 255, 0.3); }
 
 @media (prefers-reduced-motion: reduce) {
   .ae-hero-card-enter { animation: none; }

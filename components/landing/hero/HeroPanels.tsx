@@ -26,59 +26,29 @@ function easeOutExpo(t: number): number {
 export function HeroPanel({ slide, data }: { slide: HeroSlide; data: AgentData }) {
   if (slide.panel.kind === "price") return <PricePanel price={data.price} />;
   if (slide.panel.kind === "cite") return <CitePanel />;
-  return <TrackPanel total={data.totalEvents} />;
+  return <TrackPanel total={data.totalEvents} stream={data.stream} updatedAt={data.updatedAt} />;
 }
 
 // ─── TRACK ───
-// A live event stream: individual on-chain events scroll in, newest on top, filling
-// the card like a feed off the wire. Shows the ACT of tracking instead of one summary
-// number. Per-event rows are illustrative (data.json is aggregate-only — same decorative
-// register as the block number); the footer carries the real honest total. The mix is
-// weighted to the real protocol share (x402 dominant).
+// The latest REAL per-protocol activity rows from data.json (latest daily/weekly
+// figure each). These render server-side, so crawlers read true measured values —
+// the old version fabricated random event rows client-side, which both hid the
+// data from crawlers and violated the project's data-honesty rule.
 const TRACK_GREEN = "#00FF88";
-const TRACK_PROTOS = [
-  { k: "x402", c: "#00FF88", w: 60 },
-  { k: "ERC-8004", c: "#7ad7ff", w: 12 },
-  { k: "ACP", c: "#9E7BFF", w: 14 },
-  { k: "Olas", c: "#c0c4cc", w: 10 },
-  { k: "Tempo", c: "#ff7ab6", w: 4 },
-];
-const TRACK_TYPES = ["transfer", "settle", "register", "memo", "call"];
-const STREAM_ROWS = 8;
-const rint = (n: number) => Math.floor(Math.random() * n);
-const hex = (n: number) => Array.from({ length: n }, () => "0123456789abcdef"[rint(16)]).join("");
 
-type StreamEv = { id: number; k: string; c: string; ty: string; hash: string; amt: string; t: number };
-let evSeq = 0;
-function makeEv(): StreamEv {
-  let r = rint(100);
-  let acc = 0;
-  let p = TRACK_PROTOS[0];
-  for (const x of TRACK_PROTOS) {
-    acc += x.w;
-    if (r < acc) { p = x; break; }
-  }
-  const hasAmt = Math.random() < 0.6;
-  const amt = hasAmt ? "$" + (Math.random() < 0.5 ? (Math.random() * 4).toFixed(2) : (Math.random() * 240).toFixed(0)) : "—";
-  return { id: evSeq++, k: p.k, c: p.c, ty: TRACK_TYPES[rint(TRACK_TYPES.length)], hash: `0x${hex(4)}…${hex(2)}`, amt, t: Date.now() };
-}
-function agoLabel(t: number, now: number): string {
-  const s = Math.round((now - t) / 1000);
-  return s <= 0 ? "now" : `${s}s`;
+function shortDay(day: string): string {
+  // "2026-07-04" → "Jul 4"
+  const d = new Date(`${day}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return day;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-function TrackPanel({ total }: { total: number }) {
-  const [count, setCount] = useState(0);
-  const [block, setBlock] = useState(23455201);
-  // Seed empty on the server — the rows are random/time-based, so generating them during
-  // SSR + hydration mismatches (React #418). They're populated client-side in the effect.
-  const [evs, setEvs] = useState<StreamEv[]>([]);
-  const [nowTs, setNowTs] = useState(0);
+function TrackPanel({ total, stream, updatedAt }: { total: number; stream: AgentData["stream"]; updatedAt: string | null }) {
+  // Seeded with the real total so SSR HTML carries the true figure; the count-up
+  // is a client-only flourish for humans.
+  const [count, setCount] = useState(total);
   useEffect(() => {
-    const reduce = prefersReducedMotion();
-    setEvs(Array.from({ length: STREAM_ROWS }, makeEv));
-    setNowTs(Date.now());
-    if (reduce) {
+    if (prefersReducedMotion()) {
       setCount(total);
       return;
     }
@@ -91,18 +61,10 @@ function TrackPanel({ total }: { total: number }) {
       if (e < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    const add = setInterval(() => {
-      setEvs((cur) => [makeEv(), ...cur].slice(0, STREAM_ROWS));
-      setCount((c) => c + rint(6) + 1);
-      setBlock((b) => b + rint(3) + 1);
-    }, 900);
-    const age = setInterval(() => setNowTs(Date.now()), 1000);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearInterval(add);
-      clearInterval(age);
-    };
+    return () => cancelAnimationFrame(raf);
   }, [total]);
+
+  const updatedLabel = updatedAt ? shortDay(updatedAt.slice(0, 10)) : null;
 
   return (
     <div className={CARD}>
@@ -111,18 +73,19 @@ function TrackPanel({ total }: { total: number }) {
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: TRACK_GREEN }} />
           <span className="text-white font-medium text-[14px]">Tracking live</span>
         </div>
-        <span className="font-mono text-[10px] text-white/40 tabular-nums">block {block.toLocaleString()}</span>
+        {updatedLabel ? (
+          <span className="font-mono text-[10px] text-white/40 tabular-nums">updated {updatedLabel}</span>
+        ) : null}
       </div>
 
       <div className="ae-track-stream flex-1 mt-4">
-        {evs.map((e) => (
-          <div key={e.id} className="ae-track-ev">
-            <span className="ae-track-pd" style={{ background: e.c }} />
-            <span className="ae-track-pn" style={{ color: e.c }}>{e.k}</span>
-            <span className="ae-track-ty">{e.ty}</span>
-            <span className="ae-track-hx">{e.hash}</span>
-            <span className="ae-track-am">{e.amt}</span>
-            <span className="ae-track-ag">{agoLabel(e.t, nowTs)}</span>
+        {stream.map((r) => (
+          <div key={r.k} className="ae-track-ev">
+            <span className="ae-track-pd" style={{ background: r.c }} />
+            <span className="ae-track-pn" style={{ color: r.c }}>{r.k}</span>
+            <span className="ae-track-ty">{r.metric}</span>
+            <span className="ae-track-am">{r.value.toLocaleString("en-US")}</span>
+            <span className="ae-track-ag">{shortDay(r.day)}</span>
           </div>
         ))}
       </div>
@@ -139,10 +102,10 @@ function TrackPanel({ total }: { total: number }) {
 // Each facilitator wears its own brand color (Coinbase #0052FF, etc.) so the split is
 // legible at a glance. Data carries the colors (lib/agent-data SharePart.color).
 function PricePanel({ price }: { price: AgentData["price"] }) {
-  // Seed to the motion (server) defaults so SSR and the client's first render match —
-  // reading prefersReducedMotion() into the initializer would mismatch for reduced-motion
-  // users (React #418). The effect below reads the preference and jumps to the final state.
-  const [v, setV] = useState(0);
+  // Seeded with the REAL volume so SSR HTML carries the true figure (crawlers must
+  // not read "$0.0M"). Server and client first render match; the effect below
+  // animates or (reduced motion) re-affirms the final value.
+  const [v, setV] = useState(price.volumeM);
   const [grown, setGrown] = useState(false);
   useEffect(() => {
     const reduce = prefersReducedMotion();

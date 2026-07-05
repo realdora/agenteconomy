@@ -62,9 +62,13 @@ export function HighlightSection({ data }: { data: AgentData }) {
   const [playKey, setPlayKey] = useState(0);
   const wasInViewRef = useRef(false);
 
-  // count-up animation toward the cumulative total
-  const [count, setCount] = useState(0);
+  // count-up animation toward the cumulative total. Seeded with the REAL total so
+  // the server-rendered HTML carries the true figure (crawlers and AI engines never
+  // run the animation — they must not read "0M"). The count-up only plays once the
+  // IntersectionObserver bumps playKey.
+  const [count, setCount] = useState(total);
   useEffect(() => {
+    if (playKey === 0) return;
     setCount(0);
     const start = Date.now();
     const dur = 1500;
@@ -191,6 +195,25 @@ export function HighlightSection({ data }: { data: AgentData }) {
             <circle className="hc-dot-end" cx={lastX} cy={lastY} r="5" fill="#00FF88" />
           </svg>
         </div>
+
+        {/* The chart is SVG-only; this table carries the same series as crawlable text. */}
+        <table className="sr-only">
+          <caption>Cumulative x402 transactions by month, in millions{updated ? `, updated ${updated}` : ""}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Month</th>
+              <th scope="col">Cumulative x402 transactions (millions)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {series.map((v, i) => (
+              <tr key={`${data.highlight.months[i] ?? i}-${v}`}>
+                <td>{data.highlight.months[i] ?? `point ${i + 1}`}</td>
+                <td>{v}M</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         <p className="text-white/55 text-[14px] leading-relaxed max-w-3xl mt-6 font-display italic">
           Source: agenteconomy.to/data.json{updated ? ` · updated ${updated}` : ""}

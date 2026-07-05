@@ -10,6 +10,14 @@ export const metadata: Metadata = {
   title: "Data | agent economy",
   description:
     "One open dataset for on-chain agentic payments — schema-stable, MCP-native, and free. Everything the site shows, as JSON.",
+  alternates: { canonical: "https://agenteconomy.to/data" },
+  twitter: {
+    card: "summary_large_image",
+    title: "Data | agent economy",
+    description:
+      "One open dataset for on-chain agentic payments — schema-stable, MCP-native, and free. Everything the site shows, as JSON.",
+    creator: "@realdora_eth",
+  },
 };
 
 // Top-level shape of agenteconomy.to/data.json. Descriptions are the data fields

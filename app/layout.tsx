@@ -93,6 +93,24 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Self-hosted fonts are declared in CSS, so without preload the browser only
+            discovers them after the stylesheet parses — this puts them first in line. */}
+        <link
+          rel="preload"
+          href="/fonts/Geist_Variable-s.p.0-te~ja_gpvcf.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/Denton_Regular-s.p.07x_slr5ebkwx.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="theme-dark">
         {children}
         <GoogleAnalytics />

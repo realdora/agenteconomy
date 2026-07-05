@@ -10,6 +10,14 @@ export const metadata: Metadata = {
   title: "Methodology | agent economy",
   description:
     "How agent economy builds every metric from public on-chain activity — sourced via Dune and direct indexing, traceable and citable.",
+  alternates: { canonical: "https://agenteconomy.to/methodology" },
+  twitter: {
+    card: "summary_large_image",
+    title: "Methodology | agent economy",
+    description:
+      "How agent economy builds every metric from public on-chain activity — sourced via Dune and direct indexing, traceable and citable.",
+    creator: "@realdora_eth",
+  },
 };
 
 const PIPELINE = [

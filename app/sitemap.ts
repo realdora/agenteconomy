@@ -22,13 +22,30 @@ async function getLastModified() {
   }
 }
 
+// When the hand-written copy on the static pages last changed. Bump on edit —
+// stamping them with data.json's updatedAt told crawlers "changed today" every day,
+// which erodes trust in the freshness signal.
+const STATIC_CONTENT_UPDATED = new Date("2026-07-05T00:00:00Z");
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = await getLastModified();
-  const paths = ["", "/methodology", "/data", "/about", ...PROTOCOL_SLUGS.map((s) => `/${s}`)];
-  return paths.map((path) => ({
+  const dataUpdated = await getLastModified();
+
+  // Home + /data + protocol pages surface live dataset figures (hourly ISR), so
+  // the data stamp is their true lastmod. /about + /methodology only change when
+  // their copy is edited.
+  const liveRoutes: MetadataRoute.Sitemap = ["", "/data", ...PROTOCOL_SLUGS.map((s) => `/${s}`)].map((path) => ({
     url: `${BASE}${path}`,
-    lastModified,
+    lastModified: dataUpdated,
     changeFrequency: "daily",
-    priority: path === "" ? 1 : PROTOCOL_SLUGS.some((slug) => path === `/${slug}`) ? 0.8 : 0.6,
+    priority: path === "" ? 1 : path === "/data" ? 0.6 : 0.8,
   }));
+
+  const staticRoutes: MetadataRoute.Sitemap = ["/methodology", "/about"].map((path) => ({
+    url: `${BASE}${path}`,
+    lastModified: STATIC_CONTENT_UPDATED,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  return [...liveRoutes, ...staticRoutes];
 }

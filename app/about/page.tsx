@@ -10,6 +10,14 @@ export const metadata: Metadata = {
   title: "About | agent economy",
   description:
     "agent economy is the data authority for on-chain agentic payments — a neutral, open, on-chain reference for how autonomous agents move money.",
+  alternates: { canonical: "https://agenteconomy.to/about" },
+  twitter: {
+    card: "summary_large_image",
+    title: "About | agent economy",
+    description:
+      "agent economy is the data authority for on-chain agentic payments — a neutral, open, on-chain reference for how autonomous agents move money.",
+    creator: "@realdora_eth",
+  },
 };
 
 const PRINCIPLES = [

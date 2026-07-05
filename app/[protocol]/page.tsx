@@ -6,6 +6,7 @@ import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { getProtocol, PROTOCOL_SLUGS } from "@/lib/protocol-data";
+import { formatAsOf, getProtocolStats } from "@/lib/protocol-stats";
 
 type ProtocolPageProps = { params: Promise<{ protocol: string }> };
 
@@ -37,6 +38,13 @@ export async function generateMetadata({ params }: ProtocolPageProps): Promise<M
       description: doc.seoDescription,
       images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: doc.seoDescription,
+      images: ["/og.png"],
+      creator: "@realdora_eth",
+    },
   };
 }
 
@@ -44,6 +52,32 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
   const { protocol } = await params;
   const doc = getProtocol(protocol);
   if (!doc) notFound();
+
+  const stats = await getProtocolStats(doc.slug);
+  const asOfLabel = stats ? formatAsOf(stats.asOf) : null;
+  const siblings = PROTOCOL_SLUGS.filter((slug) => slug !== doc.slug)
+    .map((slug) => getProtocol(slug))
+    .filter((d): d is NonNullable<typeof d> => Boolean(d));
+
+  const faq = [
+    { q: `What is ${doc.name}?`, a: doc.overview },
+    ...(stats?.faq ?? []),
+    {
+      q: "Where do these numbers come from?",
+      a: "Every figure is built from public on-chain activity — decoded events and transactions aggregated by the agent economy pipeline and published in data.json, with per-source provenance and freshness stamps. See the methodology page for how each metric is measured.",
+    },
+  ];
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `https://agenteconomy.to/${doc.slug}#faq`,
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
 
   return (
     <>
@@ -82,13 +116,55 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
           </div>
         </section>
 
-        {/* In agent economy */}
+        {/* Live numbers — server-rendered so the current figures are in the HTML */}
         <section className="mt-24 border-t border-white/10 pt-12">
-          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">In agent economy</div>
-          <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-6">
-            We track {doc.name} on-chain. The live numbers live in the dataset — dedicated dashboards are on the way.
-          </p>
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">
+            {doc.name} by the numbers
+          </div>
+          {stats ? (
+            <>
+              <p className="text-white/55 text-[15px] leading-relaxed max-w-3xl mb-8">
+                Live figures from the agent economy dataset
+                {asOfLabel ? (
+                  <>
+                    , updated as of <time dateTime={stats.asOf ?? undefined}>{asOfLabel}</time> (UTC)
+                  </>
+                ) : null}
+                . Measured from public on-chain activity — see{" "}
+                <Link href="/methodology" className="underline decoration-white/30 underline-offset-4 hover:text-white transition">
+                  methodology
+                </Link>
+                .
+              </p>
+              <table className="w-full max-w-3xl border-collapse text-left">
+                <caption className="sr-only">
+                  Current {doc.name} on-chain metrics from agenteconomy.to/data.json
+                </caption>
+                <tbody>
+                  {stats.rows.map((row) => (
+                    <tr key={row.label} className="border-t border-white/10">
+                      <th scope="row" className="py-3.5 pr-6 font-normal text-white/55 text-[15px] align-top">
+                        {row.label}
+                      </th>
+                      <td className="py-3.5 text-white font-medium text-[17px] tabular-nums">
+                        {row.value}
+                        {row.note ? <span className="ml-3 font-mono text-[11px] text-white/40 font-normal">{row.note}</span> : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          ) : (
+            <p className="text-white/55 text-[15px] leading-relaxed max-w-3xl">
+              The live figures were unavailable at render time — the always-current numbers live in{" "}
+              <Link href="/data" className="underline decoration-white/30 underline-offset-4 hover:text-white transition">
+                the dataset
+              </Link>
+              .
+            </p>
+          )}
+          <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link href="/data" className="ae-hero-cta">
               Browse the data
               <ArrowRightIcon />
@@ -150,6 +226,38 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
             </div>
           </div>
         </section>
+
+        {/* FAQ — visible Q&A, mirrored in FAQPage JSON-LD */}
+        <section className="mt-28 border-t border-white/10 pt-14">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-10">
+            Frequently asked questions
+          </div>
+          <div className="space-y-10 max-w-3xl">
+            {faq.map((item) => (
+              <div key={item.q}>
+                <h3 className="text-white font-medium text-[18px] tracking-tight mb-3">{item.q}</h3>
+                <p className="text-white/60 text-[15.5px] leading-relaxed">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Related protocols — lateral links so authority flows between the guides */}
+        <section className="mt-28 border-t border-white/10 pt-14 pb-4">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-10">
+            Related protocols
+          </div>
+          <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {siblings.map((sib) => (
+              <Link key={sib.slug} href={`/${sib.slug}`} className="group block border-t border-white/10 pt-4">
+                <div className="text-white font-medium text-[16px] tracking-tight mb-2 group-hover:text-[#00FF88] transition">
+                  {sib.name}
+                </div>
+                <p className="text-white/50 text-[13.5px] leading-relaxed">{sib.tagline}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
       </main>
       <script
         type="application/ld+json"
@@ -162,6 +270,7 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
           }),
         }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <FooterSection />
     </>
   );

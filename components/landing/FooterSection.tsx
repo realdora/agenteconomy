@@ -30,6 +30,22 @@ export function FooterSection() {
                 X
               </a>
               <span className="text-white/15">·</span>
+              <a href="/x402" className="text-white/55 hover:text-white transition">
+                x402
+              </a>
+              <a href="/erc-8004" className="text-white/55 hover:text-white transition">
+                ERC-8004
+              </a>
+              <a href="/virtuals-acp" className="text-white/55 hover:text-white transition">
+                Virtuals ACP
+              </a>
+              <a href="/olas" className="text-white/55 hover:text-white transition">
+                Olas
+              </a>
+              <a href="/tempo-mpp" className="text-white/55 hover:text-white transition">
+                Tempo MPP
+              </a>
+              <span className="text-white/15">·</span>
               <a href="/methodology" className="text-white/55 hover:text-white transition">
                 Methodology
               </a>

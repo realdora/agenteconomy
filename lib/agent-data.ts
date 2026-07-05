@@ -7,6 +7,11 @@ const DATA_URL = "https://agenteconomy.to/data.json";
 
 export type SharePart = { label: string; pct: number; color: string };
 
+// One REAL row per protocol for the hero "tracking" card: the latest daily (or
+// weekly) figure from data.json. Replaces the old fabricated event stream — every
+// value shown is measured, with its own date.
+export type StreamRow = { k: string; c: string; metric: string; value: number; day: string };
+
 export type AgentData = {
   updatedAt: string | null;
   price: {
@@ -16,9 +21,11 @@ export type AgentData = {
     share: SharePart[];
   };
   totalEvents: number; // summed across all tracked protocols
+  stream: StreamRow[]; // latest real per-protocol activity rows
   growth: number[]; // recent on-chain activity, cumulative over the last 90 days (all protocols, in millions)
   highlight: {
     series: number[]; // cumulative x402 transactions, in millions
+    months: string[]; // month label per point, e.g. "Oct 25" — feeds the sr-only data table
     totalM: number; // final cumulative value
     startLabel: string; // first month, e.g. "Oct 25"
     endLabel: string; // last month, e.g. "Jun 26"
@@ -43,9 +50,17 @@ export const FALLBACK: AgentData = {
     ],
   },
   totalEvents: 179_000_000,
+  stream: [
+    { k: "x402", c: "#00FF88", metric: "daily txs", value: 54980, day: "2026-07-04" },
+    { k: "Olas", c: "#c0c4cc", metric: "weekly txs", value: 119935, day: "2026-06-29" },
+    { k: "ERC-8004", c: "#7ad7ff", metric: "daily registrations", value: 1203, day: "2026-07-04" },
+    { k: "ACP", c: "#9E7BFF", metric: "daily memos", value: 66, day: "2026-07-04" },
+    { k: "Tempo", c: "#ff7ab6", metric: "daily events", value: 10, day: "2026-07-04" },
+  ],
   growth: [0.2, 0.8, 1.4, 1.9, 2.3, 2.5, 2.8, 3.1, 3.7, 4.6, 5.5, 6.3, 7, 7.8, 8.6, 9.3, 10, 10.7, 11.4, 12.1, 12.6, 13.4, 14.2, 14.8],
   highlight: {
     series: [4.1, 56.7, 110.9, 130.1, 134.2, 139.3, 143.9, 149.2, 149.4],
+    months: ["Oct 25", "Nov 25", "Dec 25", "Jan 26", "Feb 26", "Mar 26", "Apr 26", "May 26", "Jun 26"],
     totalM: 149.4,
     startLabel: "Oct 25",
     endLabel: "Jun 26",
@@ -149,6 +164,7 @@ export async function getAgentData(): Promise<AgentData> {
     const highlight = series.length
       ? {
           series,
+          months: monthly.map((m) => m.month ?? ""),
           totalM: series[series.length - 1],
           startLabel: monthly[0]?.month ?? "",
           endLabel: monthly[monthly.length - 1]?.month ?? "",
@@ -156,6 +172,21 @@ export async function getAgentData(): Promise<AgentData> {
       : FALLBACK.highlight;
 
     const growth = buildGrowth(d);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lastRow = (a: any): any => (Array.isArray(a) && a.length ? a[a.length - 1] : {});
+    const xLast = lastRow(d.x402?.daily);
+    const oLast = lastRow(d.olas?.weekly);
+    const rLast = lastRow(d.erc8004Registry?.daily);
+    const vLast = lastRow(d.virtualsAcp?.daily);
+    const tLast = lastRow(d.tempoMpp?.daily);
+    const stream: StreamRow[] = [
+      { k: "x402", c: "#00FF88", metric: "daily txs", value: xLast.txs ?? 0, day: String(xLast.day ?? "") },
+      { k: "Olas", c: "#c0c4cc", metric: "weekly txs", value: oLast.txs ?? 0, day: String(oLast.week ?? "") },
+      { k: "ERC-8004", c: "#7ad7ff", metric: "daily registrations", value: rLast.agents ?? 0, day: String(rLast.day ?? "") },
+      { k: "ACP", c: "#9E7BFF", metric: "daily memos", value: vLast.memos ?? 0, day: String(vLast.day ?? "") },
+      { k: "Tempo", c: "#ff7ab6", metric: "daily events", value: tLast.events ?? 0, day: String(tLast.day ?? "") },
+    ].filter((r) => r.value > 0 && r.day);
 
     return {
       updatedAt: typeof d.updatedAt === "string" ? d.updatedAt : null,
@@ -166,6 +197,7 @@ export async function getAgentData(): Promise<AgentData> {
         share: Array.isArray(x.protocols) && x.protocols.length ? buildShare(x.protocols) : FALLBACK.price.share,
       },
       totalEvents: totalEvents || FALLBACK.totalEvents,
+      stream: stream.length >= 3 ? stream : FALLBACK.stream,
       growth: growth.length >= 2 ? growth : FALLBACK.growth,
       highlight,
       isLive: true,

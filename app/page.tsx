@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { AgentNativeSection } from "@/components/landing/AgentNativeSection";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
@@ -13,6 +15,10 @@ import { getProtocolIndex } from "@/lib/protocol-index";
 import { getWebSources } from "@/lib/web-sources";
 
 const SITE_URL = "https://agenteconomy.to";
+
+export const metadata: Metadata = {
+  alternates: { canonical: SITE_URL },
+};
 
 export default async function Home() {
   const [data, platform, protocols, webSources] = await Promise.all([
@@ -74,6 +80,11 @@ export default async function Home() {
   return (
     <>
       <HeaderSection />
+      {/* The visual hero renders its headline as design fragments; the page's actual
+          h1 lives here so crawlers get one unambiguous primary heading. */}
+      <h1 className="sr-only">
+        Agent economy — live on-chain data for AI agent payments: x402, ERC-8004, Virtuals ACP, Olas, and Tempo MPP
+      </h1>
       <HeroSection data={data} />
       <TrustSection />
       <ProductsSection data={protocols} />
