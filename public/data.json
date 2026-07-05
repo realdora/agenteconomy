@@ -1,5 +1,46 @@
 {
   "updatedAt": "2026-07-04T07:52:43.20555Z",
+  "meta": {
+    "schema": 3,
+    "queries": {
+      "x402Cumulative": {
+        "queryId": 7873181,
+        "executionId": "01KWNYEAAQMKXB1M4JBFN5T7ZN",
+        "executedAt": "2026-07-04T06:53:43.565729877Z",
+        "lastCostCredits": 3.475441177
+      },
+      "x402Daily": {
+        "queryId": 7881006,
+        "executionId": "01KWP0C7SGDSX38JB6M9VPF5J4",
+        "executedAt": "2026-07-04T07:27:35.592772Z",
+        "lastCostCredits": 11.727205883
+      },
+      "baseAgentic": {
+        "queryId": 6731879,
+        "executionId": "01KWNZ9JQR8ZWS24PZT2R290JT",
+        "executedAt": "2026-07-04T07:08:15.456839Z",
+        "lastCostCredits": 2.183676471
+      },
+      "virtualsAcp": {
+        "queryId": 7881007,
+        "executionId": "01KWP0QFW4DXVD8KJBEQ8V7V8K",
+        "executedAt": "2026-07-04T07:33:21.910386Z",
+        "lastCostCredits": 0.94132353
+      },
+      "erc8004Registry": {
+        "queryId": 7881124,
+        "executionId": "01KWP1RHHK6BDBSTMVQH0M0F50",
+        "executedAt": "2026-07-04T07:52:43.20555Z",
+        "lastCostCredits": 3.983676471
+      },
+      "olas": {
+        "queryId": 7881008,
+        "executionId": "01KWP0RZGFT7KV015NCFEV8AAJ",
+        "executedAt": "2026-07-04T07:34:45.858957Z",
+        "lastCostCredits": 1.216617648
+      }
+    }
+  },
   "sources": [
     {
       "name": "x402 Payment Analytics",
@@ -33,6 +74,7 @@
     }
   ],
   "x402": {
+    "asOf": "2026-07-04T06:53:43.565729877Z",
     "totalTxs": 154531962,
     "totalVolume": 40937189,
     "facilitatorsTracked": 18,
@@ -399,8 +441,7 @@
         "txs": 142,
         "color": "#9D4EDD"
       }
-    ],
-    "asOf": "2026-07-04T06:53:43.565729877Z"
+    ]
   },
   "baseAgentic": {
     "asOf": "2026-07-04T07:08:15.456839Z",
@@ -3187,46 +3228,5 @@
         "txs": 119935
       }
     ]
-  },
-  "meta": {
-    "schema": 3,
-    "queries": {
-      "x402Cumulative": {
-        "queryId": 7873181,
-        "executionId": "01KWNYEAAQMKXB1M4JBFN5T7ZN",
-        "executedAt": "2026-07-04T06:53:43.565729877Z",
-        "lastCostCredits": 3.475441177
-      },
-      "x402Daily": {
-        "queryId": 7881006,
-        "executionId": "01KWP0C7SGDSX38JB6M9VPF5J4",
-        "executedAt": "2026-07-04T07:27:35.592772Z",
-        "lastCostCredits": 11.727205883
-      },
-      "baseAgentic": {
-        "queryId": 6731879,
-        "executionId": "01KWNZ9JQR8ZWS24PZT2R290JT",
-        "executedAt": "2026-07-04T07:08:15.456839Z",
-        "lastCostCredits": 2.183676471
-      },
-      "virtualsAcp": {
-        "queryId": 7881007,
-        "executionId": "01KWP0QFW4DXVD8KJBEQ8V7V8K",
-        "executedAt": "2026-07-04T07:33:21.910386Z",
-        "lastCostCredits": 0.94132353
-      },
-      "erc8004Registry": {
-        "queryId": 7881124,
-        "executionId": "01KWP1RHHK6BDBSTMVQH0M0F50",
-        "executedAt": "2026-07-04T07:52:43.20555Z",
-        "lastCostCredits": 3.983676471
-      },
-      "olas": {
-        "queryId": 7881008,
-        "executionId": "01KWP0RZGFT7KV015NCFEV8AAJ",
-        "executedAt": "2026-07-04T07:34:45.858957Z",
-        "lastCostCredits": 1.216617648
-      }
-    }
   }
 }
