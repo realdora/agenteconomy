@@ -522,5 +522,136 @@ check('fold refuses uncovered month', !!foldErr && foldErr.message.includes('ref
 const regFolded = foldRegistryWindow(REG_BASELINE.erc8004Registry, regWindowRows, '2026-06-01')
 check('registry fold: totals + boundary + testnet', regFolded.totalAgents === 5015 && regFolded.cutoff === '2026-06-01', `got ${regFolded.totalAgents}`)
 
+// S8c — DAY-GRAIN x402 window + frozen baseline: per-(day, facilitator) rows
+// with a baseline present must behave as a window (day-grain boundary guard),
+// not as the legacy full-history daily fork.
+console.log('\nS8c x402 day-grain window + frozen baseline')
+const dayWindowRows = [
+  { day: '2026-04-30 00:00', facilitator: 'Coinbase', total_txn: 999_999, total_vol: 999_999 }, // pre-cutoff: DROPPED
+  { day: '2026-05-01 00:00', facilitator: 'Coinbase', total_txn: 1000, total_vol: 250 },
+  { day: '2026-05-02 00:00', facilitator: 'Dexter', total_txn: 500, total_vol: 100 },
+  { day: '2026-06-01 00:00', facilitator: 'Coinbase', total_txn: 200, total_vol: 50 },
+]
+const s8cscenario = defaultScenario()
+s8cscenario.queries[6058135].latest = { execution_id: 'exec-x402-day-window', endedHoursAgo: 1, rows: dayWindowRows }
+const s8c = await runPipeline(s8cscenario, { baselines: X402_BASELINE })
+const s8cdata = s8c.data ? JSON.parse(s8c.data) : null
+check('exit 0', s8c.status === 0, `status=${s8c.status}\n${s8c.stdout}`)
+check('totals = baseline + window days', s8cdata?.x402.totalTxs === 1_000_000 + 1700, `got ${s8cdata?.x402.totalTxs}`)
+check('volume = baseline + window days', s8cdata?.x402.totalVolume === 500_000 + 400, `got ${s8cdata?.x402.totalVolume}`)
+check('pre-cutoff day dropped', s8cdata?.x402.totalTxs < 1_900_000)
+check('drop warning emitted', s8c.stdout.includes('pre-cutoff'))
+check('days rolled into months', s8cdata?.x402.monthly.length === 4 && s8cdata?.x402.monthly[2].txs === 1500, JSON.stringify(s8cdata?.x402.monthly))
+check('protocols merged (Dexter appears)', s8cdata?.x402.protocols.some(p => p.name === 'Dexter'))
+
+// S11 — baseline-lib: the self-folding fold functions.
+console.log('\nS11 baseline-lib: self-folding folds (day grain, daily series, virtuals, olas)')
+const { foldX402DayGrainWindow, foldX402DailySeries, foldVirtualsWindow, foldOlasWindow } = await import('../dune/baseline-lib.mjs')
+
+const dayRows = []
+for (let d = 1; d <= 9; d++) {
+  dayRows.push({ day: `2026-05-0${d} 00:00`, facilitator: 'Coinbase', total_txn: 100, total_vol: 10 })
+}
+const dgFold = foldX402DayGrainWindow(X402_BASELINE.x402, dayRows, '2026-05-08')
+check('day-grain fold advances cutoff', dgFold.cutoff === '2026-05-08')
+check('day-grain fold adds folded days only', dgFold.totalTxs === 1_000_000 + 700, `got ${dgFold.totalTxs}`)
+check('day-grain fold rolls into month bucket', dgFold.monthly.find(m => m.month === '2026-05')?.txs === 700, JSON.stringify(dgFold.monthly))
+let dgErr = null
+try { foldX402DayGrainWindow(X402_BASELINE.x402, dayRows.filter(r => !r.day.startsWith('2026-05-03')), '2026-05-08') } catch (e) { dgErr = e }
+check('day-grain fold refuses uncovered day', !!dgErr && dgErr.message.includes('2026-05-03'), dgErr?.message)
+
+const DAILY_BASE = { cutoff: '2026-06-05', daily: [{ day: '2026-06-04', txs: 200 }] }
+const dailyRows = [
+  { period: '2026-06-05 00:00', project: 'A', txs: 5 },
+  { period: '2026-06-05 00:00', project: 'B', txs: 5 },
+  { period: '2026-06-06 00:00', project: 'A', txs: 7 },
+  { period: '2026-06-07 00:00', project: 'A', txs: 9 },
+]
+const dsFold = foldX402DailySeries(DAILY_BASE, dailyRows, '2026-06-07')
+check('daily-series fold merges per day', dsFold.daily.find(d => d.day === '2026-06-05')?.txs === 10, JSON.stringify(dsFold.daily))
+check('daily-series fold keeps post-cutoff in window', !dsFold.daily.some(d => d.day === '2026-06-07'))
+check('daily-series fold advances cutoff', dsFold.cutoff === '2026-06-07')
+
+const VIRT_BASE = { cutoff: '2026-05-31', totalMemos: 1000, daily: [{ day: '2026-05-30', memos: 25, senders: 4 }] }
+const virtRows = [
+  { period: '2026-05-31 00:00', version: 'v1', num_of_memo: 4, unique_sender: 2 },
+  { period: '2026-05-31 00:00', version: 'v2', num_of_memo: 10, unique_sender: 3 },
+]
+const vFold = foldVirtualsWindow(VIRT_BASE, virtRows, '2026-06-01')
+check('virtuals fold: memos add, senders max', vFold.daily.find(d => d.day === '2026-05-31')?.memos === 14 && vFold.daily.find(d => d.day === '2026-05-31')?.senders === 3, JSON.stringify(vFold.daily))
+check('virtuals fold: total advances', vFold.totalMemos === 1014, `got ${vFold.totalMemos}`)
+
+const OLAS_BASE = { cutoff: '2026-05-04', totalTxs: 10_000, chains: [{ name: 'Gnosis', txs: 9000 }], weekly: [{ week: '2026-04-27', txs: 400 }] }
+const olasRows = [
+  { time: '2026-05-04 00:00', chain: 'gnosis', total_weekly_transactions_number: 30 },
+  { time: '2026-05-11 00:00', chain: 'gnosis', total_weekly_transactions_number: 40 },
+  { time: '2026-05-18 00:00', chain: 'gnosis', total_weekly_transactions_number: 50 }, // open at target: stays in window
+]
+const oFold = foldOlasWindow(OLAS_BASE, olasRows, '2026-05-20')
+check('olas fold: only closed weeks fold', oFold.totalTxs === 10_070, `got ${oFold.totalTxs}`)
+check('olas fold: cutoff snaps to closed week end', oFold.cutoff === '2026-05-18', `got ${oFold.cutoff}`)
+let oErr = null
+try { foldOlasWindow(OLAS_BASE, olasRows, '2026-05-05') } catch (e) { oErr = e }
+check('olas fold refuses when no closed weeks', !!oErr && oErr.message.includes('nothing to fold'), oErr?.message)
+
+// S12 — end-to-end self-folding: a stale cutoff plus a fresh complete
+// execution must advance baselines.json to (today − 7d) and flag the output.
+console.log('\nS12 self-folding end-to-end (cutoff advances, baselines.json written)')
+const isoDaysAgo = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10)
+const S12_BASE = {
+  x402Daily: {
+    cutoff: isoDaysAgo(20),
+    daily: [{ day: isoDaysAgo(21), txs: 100 }],
+  },
+}
+const s12scenario = defaultScenario()
+s12scenario.queries[6084845].latest.endedHoursAgo = 30
+s12scenario.queries[6084845].execute = { behavior: 'succeed', execution_id: 'exec-daily-fresh', rows: fixtureRows(6084845), costCredits: 1 }
+const s12 = await runPipeline(s12scenario, { baselines: S12_BASE, extraEnv: { DUNE_REFRESH_KEYS: 'x402Daily' } })
+const s12baselines = JSON.parse(readFileSync(join(s12.outDir, 'baselines.json'), 'utf8'))
+check('exit 0', s12.status === 0, `status=${s12.status}\n${s12.stdout}`)
+check('x402Daily executed', countLog(s12.log, '/query/6084845/execute') === 1)
+check('self-fold logged', s12.stdout.includes('self-folded baseline cutoff'), s12.stdout)
+check('cutoff advanced to today-7d', s12baselines.x402Daily.cutoff === isoDaysAgo(7), `got ${s12baselines.x402Daily.cutoff}`)
+check('folded days materialized in baseline', s12baselines.x402Daily.daily.length > 5, `got ${s12baselines.x402Daily.daily.length}`)
+check('baselines_changed=true in GITHUB_OUTPUT', s12.ghOutput.includes('baselines_changed=true'), s12.ghOutput)
+
+// S12b — no fold from a reused (non-execution) fragment even when stale.
+console.log('\nS12b no self-fold without a fresh execution')
+const s12bscenario = defaultScenario()
+const s12b = await runPipeline(s12bscenario, { baselines: S12_BASE, extraEnv: { DUNE_REFRESH_KEYS: 'x402Daily' } })
+const s12bbaselines = JSON.parse(readFileSync(join(s12b.outDir, 'baselines.json'), 'utf8'))
+check('exit 0', s12b.status === 0, `status=${s12b.status}`)
+check('no execution (cache fresh)', countLog(s12b.log, '/execute') === 0)
+check('cutoff unchanged', s12bbaselines.x402Daily.cutoff === isoDaysAgo(20), `got ${s12bbaselines.x402Daily.cutoff}`)
+check('baselines_changed=false', s12b.ghOutput.includes('baselines_changed=false'), s12b.ghOutput)
+
+// S13 — stale over-cap cost record: once the cutoff has advanced past the
+// recorded execution's date, the block lifts; while it hasn't, it holds.
+console.log('\nS13 over-cap cost record staleness (unblock after fold, hold before)')
+const s13seed = JSON.parse(SEED)
+s13seed.meta.queries.x402Daily.lastCostCredits = 11.73
+s13seed.meta.queries.x402Daily.executedAt = `${isoDaysAgo(3)}T02:00:00Z`
+const s13scenarioA = defaultScenario()
+s13scenarioA.queries[6084845].latest.endedHoursAgo = 30
+s13scenarioA.queries[6084845].execute = { behavior: 'succeed', execution_id: 'exec-daily-retry', rows: fixtureRows(6084845), costCredits: 1 }
+const s13a = await runPipeline(s13scenarioA, {
+  seedDataJson: JSON.stringify(s13seed),
+  baselines: { x402Daily: { cutoff: isoDaysAgo(1), daily: [{ day: isoDaysAgo(2), txs: 100 }] } },
+  extraEnv: { DUNE_REFRESH_KEYS: 'x402Daily', DUNE_QUERY_CREDIT_CAP: '10' },
+})
+check('exit 0', s13a.status === 0, `status=${s13a.status}\n${s13a.stdout}`)
+check('stale record lifted → executed', countLog(s13a.log, '/query/6084845/execute') === 1, JSON.stringify(s13a.log.filter(l => l.includes('6084845'))))
+check('unblock reason logged', s13a.stdout.includes('window has shrunk'), s13a.stdout)
+
+const s13b = await runPipeline(s13scenarioA, {
+  seedDataJson: JSON.stringify(s13seed),
+  baselines: { x402Daily: { cutoff: isoDaysAgo(5), daily: [{ day: isoDaysAgo(6), txs: 100 }] } },
+  extraEnv: { DUNE_REFRESH_KEYS: 'x402Daily', DUNE_QUERY_CREDIT_CAP: '10' },
+})
+check('exit 0', s13b.status === 0, `status=${s13b.status}`)
+check('same-window record still blocks', countLog(s13b.log, '/query/6084845/execute') === 0, JSON.stringify(s13b.log.filter(l => l.includes('execute'))))
+check('block reason emitted', s13b.stdout.includes('exceeded query cap'), s13b.stdout)
+
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)
