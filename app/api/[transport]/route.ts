@@ -30,7 +30,17 @@ const PROTOCOLS: Record<string, { key: string; name: string; headline: string; u
 };
 const SLUGS = Object.keys(PROTOCOLS) as [string, ...string[]];
 
-const OFF_CHAIN_LENSES = ["agentTokens", "x402Services", "agentSupply", "virtuals", "devAdoption", "masumi"] as const;
+const OFF_CHAIN_LENSES = [
+  "agentTokens",
+  "x402Services",
+  "agentSupply",
+  "virtuals",
+  "devAdoption",
+  "masumi",
+  "solanaAgents",
+  "standardsAdoption",
+  "inferenceDemand",
+] as const;
 
 const handler = createMcpHandler(
   (server) => {

@@ -1,15 +1,19 @@
 import { getProtocol, PROTOCOL_SLUGS } from "@/lib/protocol-data";
-import { STAT_DOCS } from "@/lib/stats-registry";
+import { getStatsContext } from "@/lib/stats-data";
+import { availableStatDocs } from "@/lib/stats-registry";
 
 const BASE = "https://agenteconomy.to";
 
-export function GET() {
+export async function GET() {
+  const ctx = await getStatsContext();
+
   const protocols = PROTOCOL_SLUGS.map((slug) => {
     const protocol = getProtocol(slug);
     return protocol ? `- [${protocol.name}](${BASE}/${protocol.slug}): ${protocol.tagline}` : null;
   }).filter(Boolean);
 
-  const stats = STAT_DOCS.map((doc) => `- [${doc.question}](${BASE}/stats/${doc.slug}): ${doc.seoDescription}`);
+  // Gated stat pages are omitted until their feed lands.
+  const stats = availableStatDocs(ctx).map((doc) => `- [${doc.question}](${BASE}/stats/${doc.slug}): ${doc.seoDescription}`);
 
   const body = [
     "# agent economy",
@@ -31,7 +35,7 @@ export function GET() {
     "## Data API (agent-ready)",
     "",
     "- [data.json](https://agenteconomy.to/data.json): on-chain feed (measured). Keys: x402, olas, virtualsAcp, erc8004Registry, baseAgentic, tempoMpp, sources, updatedAt.",
-    "- [web-sources.json](https://agenteconomy.to/web-sources.json): off-chain feed (sourced). Keys: agentTokens, x402Services, agentSupply, virtuals, devAdoption, masumi.",
+    "- [web-sources.json](https://agenteconomy.to/web-sources.json): off-chain feed (sourced). Keys: agentTokens, x402Services, agentSupply, virtuals, devAdoption, masumi, solanaAgents, standardsAdoption, inferenceDemand.",
     "- [openapi.json](https://agenteconomy.to/openapi.json): OpenAPI 3.1 contract — every field, unit, and example. Validate and codegen against this.",
     "- No API key or signup. CORS-open (Access-Control-Allow-Origin: *). Both feeds carry updatedAt; off-chain sections carry asOf + a methodology note.",
     "",

@@ -34,12 +34,42 @@ export type StatDoc = {
   related: string[]; // sibling stat slugs
   sources: { label: string; url: string }[];
   sections: { heading: string; body: string[] }[];
+  // A gated entry: the page (and its sitemap / llms.txt / hub listing) only
+  // exists when the underlying feed has arrived. Omit for always-on pages.
+  available?: (ctx: StatsContext) => boolean;
   build: (ctx: StatsContext) => StatComputed | null;
 };
 
 type Row = Record<string, unknown>;
 const arr = (v: unknown): Row[] => (Array.isArray(v) ? (v as Row[]) : []);
 const num = (v: unknown): number => (Number.isFinite(Number(v)) ? Number(v) : 0);
+
+// Compact token count for the inference page: "194.85 trillion tokens".
+const tokensT = (v: unknown): string => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "—";
+  if (n >= 1e12) return `${(n / 1e12).toFixed(2)} trillion tokens`;
+  if (n >= 1e9) return `${(n / 1e9).toFixed(2)} billion tokens`;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)} million tokens`;
+  return `${n.toLocaleString("en-US")} tokens`;
+};
+
+// Truncate a Solana program id for display: "1DREGFgysW…w2B2p".
+const shortId = (s: string): string => (s.length > 14 ? `${s.slice(0, 10)}…${s.slice(-5)}` : s);
+
+// The agent-relevant subset of the Cloudflare agent-readiness checks, in the
+// order the adoption page lists them (broadest → narrowest, payments last).
+const AGENT_STANDARDS: { key: string; label: string }[] = [
+  { key: "ucp", label: "UCP" },
+  { key: "mcpServerCard", label: "MCP server card" },
+  { key: "webBotAuth", label: "web-bot-auth" },
+  { key: "a2aAgentCard", label: "A2A agent card" },
+  { key: "acp", label: "ACP" },
+  { key: "mpp", label: "MPP" },
+  { key: "x402", label: "x402" },
+  { key: "ap2", label: "AP2" },
+  { key: "webMcp", label: "WebMCP" },
+];
 
 // ─── x402 transaction count ─────────────────────────────────────────────────
 const x402Transactions: StatDoc = {
@@ -171,6 +201,7 @@ const agentCensus: StatDoc = {
     { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
     { label: "ERC-8004 · Trustless Agents standard", url: "https://eips.ethereum.org/EIPS/eip-8004" },
     { label: "Virtuals Protocol API (launched agents)", url: "https://api.virtuals.io/" },
+    { label: "Solana getProgramAccounts (agent registries · public RPC)", url: "https://solana.com/docs/rpc/http/getprogramaccounts" },
   ],
   sections: [
     {
@@ -186,6 +217,13 @@ const agentCensus: StatDoc = {
         "Not counted: agents with wallets but no registered identity (most trading bots), off-chain agents that never touch a chain (the overwhelming majority of deployed AI agents), MCP servers and other agent-facing services (supply-side infrastructure, not agents), and active-buyer address counts published by trackers like x402scan (a usage metric, not an identity count — useful, but a different unit). Any headline that claims a total count of AI agents without these distinctions is blending units.",
       ],
     },
+    {
+      heading: "Counting the Solana agent registries",
+      body: [
+        "Solana runs its own agent-identity registries — Metaplex's MPL Agent Identity program and SATI, an ERC-8004-style port — and agent economy counts them directly via getProgramAccounts on public RPC. Those account counts are upper bounds: getProgramAccounts returns every account each program owns, including any initialized-but-unused or duplicated entries, so the number of distinct live agents is at or below the figure shown. Read as registered agents by chain, this is roughly the ERC-8004 total on EVM against ~2.9K combined on Solana.",
+        "One figure this census deliberately does not use is the Solana Foundation's marketed “9,000+ agents” headline: the on-chain account counts contradict it, with the two registries together holding roughly 2.9K accounts. This page cites what the programs actually own, not the marketing number.",
+      ],
+    },
   ],
   build: ({ data, web }) => {
     const r = data?.erc8004Registry;
@@ -193,31 +231,56 @@ const agentCensus: StatDoc = {
     const erc = num(r.totalAgents);
     const launched = num(web?.virtuals?.launchedAgents);
     const acp = num(web?.virtuals?.acpRegisteredAgents);
-    const total = erc + launched;
+    const solRegs = arr(web?.solanaAgents?.registries);
+    const solTotal = num(web?.solanaAgents?.totalAccounts) || solRegs.reduce((s, x) => s + num(x.accounts), 0);
+    // Floor = only lower-bound-on-distinct-identity counts: ERC-8004 registrations
+    // + Virtuals launches. Solana getProgramAccounts counts are UPPER bounds (they
+    // include initialized-but-unused / duplicated entries), so they are reported
+    // separately and never folded into the "at least" floor claim.
+    const floor = erc + launched;
     const stamp = asOfLabel(r.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    const solK = Math.round(solTotal / 100) / 10;
+    const solSentence = solTotal
+      ? ` Separately, up to ~${solK}K more are registered on two Solana agent registries (Metaplex MPL Agent Identity and SATI) — an upper bound from getProgramAccounts, held outside the floor.`
+      : "";
     return {
-      answer: `As of ${stamp}, at least ${fmt(total)} AI agent identities are registered on-chain across the registries agent economy measures directly: ${fmt(erc)} agents in ERC-8004 identity registries across ${fmt(r.chainsTracked)} chains, plus ${fmt(launched)} agents launched on Virtuals Protocol (${fmt(acp)} of them registered for ACP commerce). This is a floor, not a total — agents without on-chain identity are not countable by any methodology.`,
+      answer: `As of ${stamp}, at least ${fmt(floor)} AI agent identities are registered on-chain across the registries agent economy measures directly: ${fmt(erc)} agents in ERC-8004 identity registries across ${fmt(r.chainsTracked)} chains, plus ${fmt(launched)} agents launched on Virtuals Protocol (${fmt(acp)} of them registered for ACP commerce). This is a floor, not a total — agents without on-chain identity are not countable by any methodology.${solSentence}`,
       asOf: r.asOf ?? data?.updatedAt ?? null,
       rows: [
-        { label: "Countable on-chain agent identities", value: fmt(total), note: "floor, not total" },
+        { label: "Countable on-chain agent identities", value: fmt(floor), note: "floor, not total" },
         { label: "ERC-8004 registered agents", value: fmt(erc), note: `${fmt(r.chainsTracked)} chains` },
         { label: "Virtuals launched agents", value: fmt(launched), note: "Base" },
         { label: "Virtuals ACP commerce agents", value: fmt(acp), note: "subset of launched" },
+        ...(solTotal
+          ? [
+              { label: "Solana registry agents", value: fmt(solTotal), note: "upper bound · outside floor" },
+              ...solRegs.map((x) => ({
+                label: `— ${String(x.label ?? x.key ?? "")}`,
+                value: fmt(x.accounts),
+                note: shortId(String(x.program ?? "")),
+              })),
+            ]
+          : []),
       ],
       chart: {
         kind: "bars",
-        title: "Countable on-chain agent identities by registry family",
+        title: "Registered agent identities by registry family (Solana = upper bound, not in floor)",
         unit: "agents",
         points: [
           { label: "ERC-8004", value: erc },
           { label: "Virtuals launched", value: launched },
           { label: "Virtuals ACP", value: acp },
+          ...(solTotal ? [{ label: "Solana (upper bound)", value: solTotal }] : []),
         ],
       },
       extraFaq: [
         {
           q: "Is this the total number of AI agents in the world?",
           a: "No — it is the number of agent identities registered on-chain, which is the only precisely countable subset. Most deployed AI agents never touch a blockchain and cannot be counted by any public methodology.",
+        },
+        {
+          q: "Are there 9,000+ agents on Solana?",
+          a: "No. That is a Solana Foundation marketing figure the on-chain counts do not support — the two Solana agent registries this census reads via getProgramAccounts hold roughly 2.9K accounts combined, and even those are upper bounds.",
         },
       ],
     };
@@ -657,6 +720,251 @@ const mcpServers: StatDoc = {
   },
 };
 
+// ─── which agent standards are actually adopted ──────────────────────────────
+const standardsAdoption: StatDoc = {
+  slug: "which-agent-standards-are-actually-adopted",
+  question: "Which AI agent standards are actually adopted on the web?",
+  shortTitle: "Agent-standard web adoption",
+  seoDescription:
+    "How many top web domains actually serve each AI-agent standard — x402, AP2, UCP, MCP server cards, A2A, ACP — measured by a weekly Cloudflare Radar agent-readiness scan, with raw counts, per-check shares, month-over-month change, and the caveats that make the shares non-comparable.",
+  related: ["how-many-mcp-servers-are-there", "how-many-ai-agents-are-onchain", "x402-transactions"],
+  sources: [
+    { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
+    { label: "Cloudflare Radar — AI Insights (agent readiness)", url: "https://radar.cloudflare.com/ai-insights" },
+    { label: "Is It Agent Ready?", url: "https://isitagentready.com" },
+  ],
+  sections: [
+    {
+      heading: "Adoption here is a weekly scan, not a live counter",
+      body: [
+        "These figures come from a weekly agent-readiness scan of the top web domains, so the as-of stamp on this page is a data week, not a single day. A value that ticks up between Monday and Thursday is the same weekly measurement re-read; treating it as a daily series over-reads noise that is not there. Month-over-month change compares this week's scan against the scan from roughly a month earlier — the honest grain for a signal that moves slowly.",
+      ],
+    },
+    {
+      heading: "Why these shares cannot be compared to each other",
+      body: [
+        "Each check has a different meaningful denominator, so ranking standards by their bare share across all domains is a category error. x402 is a payment header for paid content and APIs — it only belongs on the small slice of sites that actually sell access — so its share against every crawled domain understates its penetration of the sites where it would ever appear. AP2, MPP and ACP are similarly niche. A crawl-control file that belongs on every website and a payment endpoint meant for a few thousand commerce sites are not on the same axis. The counts below are raw domain matches; the shares are shown for scale, never for cross-standard ranking.",
+      ],
+    },
+    {
+      heading: "The UCP number to distrust",
+      body: [
+        "UCP's count sits an order of magnitude above every other agent standard, and that gap is most likely a detection artifact rather than real adoption. The scan's UCP check reads as a loose heuristic that over-matches domains which do not actually implement the Universal Commerce Protocol. Treat the UCP row as a suspected over-count, and weight the smaller, stricter checks — MCP server cards, A2A agent cards, x402 — more heavily when reading genuine adoption.",
+      ],
+    },
+  ],
+  build: ({ web }) => {
+    const s = web?.standardsAdoption;
+    if (!s || !Array.isArray(s.rows)) return null;
+    const denom = num(s.meta?.successfulDomains);
+    if (!denom) return null;
+    const cur = new Map(s.rows.map((r): [string, number] => [String(r.check), num(r.value)]));
+    const prev = s.prevMonth && Array.isArray(s.prevMonth.rows)
+      ? new Map(s.prevMonth.rows.map((r): [string, number] => [String(r.check), num(r.value)]))
+      : null;
+
+    const pct = (share: number): string => {
+      const p = share * 100;
+      if (p === 0) return "0%";
+      if (p >= 1) return `${p.toFixed(2)}%`;
+      if (p >= 0.01) return `${p.toFixed(3)}%`;
+      return `${p.toFixed(4)}%`;
+    };
+    const momStr = (key: string): string => {
+      // A key missing from the prior-month scan is not zero — coercing it to 0
+      // fabricates growth. Render "—" (not measurable) instead.
+      if (!prev || !prev.has(key)) return "—";
+      const d = num(cur.get(key)) - num(prev.get(key));
+      if (d === 0) return "±0";
+      return `${d > 0 ? "+" : "-"}${fmt(Math.abs(d))}`;
+    };
+
+    const stdRows = AGENT_STANDARDS.map(({ key, label }) => {
+      const count = num(cur.get(key));
+      return { label, value: fmt(count), note: `${pct(count / denom)} of domains · MoM ${momStr(key)}` };
+    });
+
+    const x402c = num(cur.get("x402"));
+    const ap2c = num(cur.get("ap2"));
+    const ucpc = num(cur.get("ucp"));
+    const mcpc = num(cur.get("mcpServerCard"));
+    const a2ac = num(cur.get("a2aAgentCard"));
+    const week = asOfLabel(s.meta?.date) ?? asOfLabel(s.asOf) ?? "the latest scan";
+
+    return {
+      answer: `In the week of ${week}, of the ${fmt(denom)} top web domains a Cloudflare Radar agent-readiness scan successfully crawled, only ${fmt(x402c)} serve x402 payments and exactly ${fmt(ap2c)} advertises an AP2 agent-payment endpoint — the two most-hyped agent-commerce standards are, in raw web adoption, effectively at zero. The broadest signal, UCP, matches ${fmt(ucpc)} domains (a suspected over-detection), while ${fmt(mcpc)} publish an MCP server card and ${fmt(a2ac)} an A2A agent card.`,
+      asOf: s.asOf ?? null,
+      rows: [
+        { label: "Top domains scanned", value: fmt(denom), note: `of ${fmt(num(s.meta?.totalDomains))} crawled · data week ${String(s.meta?.date ?? "")}` },
+        ...stdRows,
+      ],
+      chart: {
+        kind: "bars",
+        // Zero-count checks (e.g. WebMCP) stay in the table above as honest data,
+        // but a zero-height bar just adds noise — drop them from the chart.
+        title: "Domains serving each agent standard (raw counts — shares not comparable)",
+        unit: "domains",
+        points: AGENT_STANDARDS.map(({ key, label }) => ({ label, value: num(cur.get(key)) })).filter((p) => p.value > 0),
+      },
+      extraFaq: [
+        {
+          q: "Does a low x402 domain count mean x402 is failing?",
+          a: "No — x402 is a payment standard for paid content and APIs, so it only belongs on the small subset of sites that sell access. Its share across all crawled domains understates its penetration of the sites where it would ever appear, and on-chain x402 settlement counts (millions of transactions) tell a very different story from web-domain presence.",
+        },
+        {
+          q: "Why is the UCP number so much higher than the others?",
+          a: "It is almost certainly a detection artifact. The scan's UCP check reads as a loose heuristic that over-matches domains, so the UCP row should be treated as a suspected over-count rather than real adoption of the Universal Commerce Protocol.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── AI inference demand (off-chain context) ─────────────────────────────────
+const inferenceDemand: StatDoc = {
+  slug: "how-much-ai-inference-demand-is-there",
+  question: "How much AI inference demand is there?",
+  shortTitle: "AI inference demand",
+  seoDescription:
+    "A demand-side context metric for the agent economy: total LLM inference tokens processed across the public models ranked on OpenRouter over a trailing window, charted daily, with the tokenizer caveat that keeps the totals from being comparable across models.",
+  related: ["how-many-mcp-servers-are-there", "how-big-is-the-agent-economy", "which-agent-standards-are-actually-adopted"],
+  sources: [
+    { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
+    { label: "OpenRouter — model rankings", url: "https://openrouter.ai/rankings" },
+  ],
+  sections: [
+    {
+      heading: "Demand-side context, not on-chain data",
+      body: [
+        "Every other number on this site is measured on-chain. This one is not: it is a demand-side context metric — how much large-language-model inference the public models ranked on OpenRouter are serving — included because agent activity is downstream of inference. When token throughput grows, the population of running agents that could eventually transact on-chain grows with it. It is context for the on-chain series, not a substitute for them.",
+        "The figure sums daily token usage across the top-50 public models on OpenRouter plus an aggregated “other” row, over a trailing default window. It captures only traffic routed through OpenRouter — a large, public, but partial slice of all inference — so read it as a directional demand indicator, not a census of every AI token served.",
+      ],
+    },
+    {
+      heading: "Why the token totals are not comparable across models",
+      body: [
+        "Different model families use different tokenizers, so one provider's token is not the same unit of text as another's. Summing tokens across models therefore mixes units — the total is a useful trend line for aggregate demand, but it is not a precise, apples-to-apples count, and per-model comparisons drawn from it would mislead. The daily series below is most valuable read as a shape over time, not as an exact quantity.",
+      ],
+    },
+  ],
+  build: ({ web }) => {
+    const i = web?.inferenceDemand;
+    const days = arr(i?.days);
+    if (!i || !num(i.totalTokens) || days.length < 2) return null;
+    const totalTokens = num(i.totalTokens);
+    const win = num(i.windowDays) || days.length;
+    const avg = totalTokens / win;
+    const last = days.at(-1) ?? {};
+    const attribution = String(i.attribution ?? "Source: OpenRouter (openrouter.ai/rankings)");
+    const points = days.map((d) => ({
+      label: String(d.date ?? "").slice(5),
+      value: Math.round(num(d.tokens) / 1e10) / 100, // trillions, 2 dp
+    }));
+    const stamp = asOfLabel(i.asOf ?? web?.updatedAt) ?? "the latest crawl";
+    return {
+      answer: `Over the ${fmt(win)} days ending ${stamp}, the public models ranked on OpenRouter processed about ${tokensT(totalTokens)} of inference — roughly ${tokensT(avg)} per day. This is a demand-side context metric for the agent economy (off-chain), not on-chain activity: agent transactions are downstream of the inference that powers them. ${attribution}.`,
+      asOf: i.asOf ?? web?.updatedAt ?? null,
+      rows: [
+        { label: `Total inference (${fmt(win)}-day window)`, value: tokensT(totalTokens), note: "demand-side context" },
+        { label: "Daily average", value: tokensT(avg), note: "per day" },
+        { label: "Latest measured day", value: tokensT(num(last.tokens)), note: String(last.date ?? "") },
+        { label: "Attribution", value: attribution },
+      ],
+      chart: { kind: "line", title: "Daily AI inference demand (trailing window)", unit: "T tokens/day", points },
+      extraFaq: [
+        {
+          q: "Is this the total amount of AI inference in the world?",
+          a: "No. It counts only inference routed through OpenRouter across the public models it ranks — a large but partial slice. It also mixes model-specific tokenizers, so the total is a directional demand indicator, not an exact, universal token count.",
+        },
+      ],
+    };
+  },
+};
+
+// Labeled external benchmark — Keyrock's May 2026 report, co-published with
+// Coinbase, Tempo and Virtuals (the issuer + rails with the most to gain), so it
+// is NOT an independent source and is cited only with that caveat. Per the
+// never-cite / caveat rules in scripts/research/DATA-RADAR-2026-07.md in the
+// dashboard repo. This is the single sanctioned hardcoded stat on the page.
+const KEYROCK_BENCHMARK_2026_05 = { sharePct: 98.6, payments: "176M" } as const;
+
+// ─── USDC share of agent payments (gated on x402 token-split data) ────────────
+const usdcShare: StatDoc = {
+  slug: "usdc-share-of-agent-payments",
+  question: "What share of agent payments are settled in USDC?",
+  shortTitle: "USDC share of agent payments",
+  seoDescription:
+    "The live share of on-chain agent payments settled in USDC versus other tokens, measured from x402 settlement data and benchmarked against the Keyrock report — with the independence caveat that benchmark requires.",
+  protocolSlug: "x402",
+  related: ["x402-transactions", "average-x402-transaction-size", "how-big-is-the-agent-economy"],
+  // Gated: this page only exists once the x402 token-split feed has landed with a
+  // finite USDC-share percent.
+  available: ({ web }) => Number.isFinite(web?.x402TokenSplit?.usdcSharePct),
+  sources: [
+    { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
+    {
+      label: "CoinDesk — Keyrock: crypto rails becoming default AI-agent payment layer (May 2026)",
+      url: "https://www.coindesk.com/business/2026/05/21/crypto-rails-are-becoming-the-default-payment-layer-for-ai-agents-report-says",
+    },
+  ],
+  sections: [
+    {
+      heading: "Why token concentration is the number to watch",
+      body: [
+        "If agent payments settle overwhelmingly in one stablecoin, that token becomes critical infrastructure for the whole agent economy — an outage, a de-peg, or a compliance freeze would propagate straight into agent commerce. Concentration is a systemic fact worth measuring directly rather than assuming. This page reports the live token split of the x402 settlements agent economy observes on-chain, recomputed from the settlement data rather than taken from any issuer's reporting.",
+      ],
+    },
+    {
+      heading: "Reading the benchmark honestly",
+      body: [
+        "The most-cited external figure comes from Keyrock's May 2026 report, which found USDC settling the large majority of the agent payments it studied. That report was co-published with Coinbase, Tempo and Virtuals — the issuer and rails with the most to gain from a “crypto is the default” narrative — so it is not an independent source, and its 98.6% headline should be read with that conflict in mind. The on-chain figure on this page is measured independently; where it agrees or disagrees with the benchmark is exactly the useful comparison.",
+      ],
+    },
+  ],
+  build: ({ web }) => {
+    const x = web?.x402TokenSplit;
+    if (!x || !Number.isFinite(x.usdcSharePct)) return null;
+    // usdcSharePct arrives as a percent (0–100); use it directly, one decimal.
+    const pct = Math.round(x.usdcSharePct * 10) / 10;
+    const stamp = asOfLabel(x.asOf ?? web?.updatedAt) ?? "the latest crawl";
+
+    const rows: { label: string; value: string; note?: string }[] = [
+      { label: "USDC share of agent payments", value: `${pct}%`, note: "measured on-chain" },
+    ];
+    if (num(x.totalPayments)) {
+      rows.push({ label: "Payments measured", value: fmt(x.totalPayments), note: x.windowDays ? `${fmt(x.windowDays)}-day window` : undefined });
+    }
+    rows.push({
+      label: "Keyrock benchmark (May 2026)",
+      value: `${KEYROCK_BENCHMARK_2026_05.sharePct}%`,
+      note: `${KEYROCK_BENCHMARK_2026_05.payments} payments · not independent`,
+    });
+
+    const chart: ChartSpec = {
+      kind: "bars",
+      title: "USDC share of agent payments — measured vs Keyrock benchmark",
+      unit: "% share",
+      points: [
+        { label: "Measured (on-chain)", value: pct },
+        { label: "Keyrock (not independent)", value: KEYROCK_BENCHMARK_2026_05.sharePct },
+      ],
+    };
+
+    return {
+      answer: `As of ${stamp}, ${pct}% of the on-chain agent payments agent economy measures are settled in USDC, computed directly from x402 settlement data. For comparison, Keyrock's May 2026 report — co-published with Coinbase, Tempo and Virtuals, and therefore not an independent source — put USDC at ${KEYROCK_BENCHMARK_2026_05.sharePct}% of ${KEYROCK_BENCHMARK_2026_05.payments} payments.`,
+      asOf: x.asOf ?? web?.updatedAt ?? null,
+      rows,
+      chart,
+      extraFaq: [
+        {
+          q: `Is USDC really ${KEYROCK_BENCHMARK_2026_05.sharePct}% of agent payments?`,
+          a: "That figure is from Keyrock's May 2026 report, which was co-published with Coinbase, Tempo and Virtuals and is not independent. The independently-measured on-chain share on this page is the check on that headline.",
+        },
+      ],
+    };
+  },
+};
+
 export const STAT_DOCS: StatDoc[] = [
   x402Transactions,
   x402Daily,
@@ -670,6 +978,14 @@ export const STAT_DOCS: StatDoc[] = [
   tempoStats,
   baseAgentic,
   mcpServers,
+  standardsAdoption,
+  inferenceDemand,
+  usdcShare,
 ];
 export const STAT_SLUGS = STAT_DOCS.map((d) => d.slug);
 export const getStatDoc = (slug: string): StatDoc | null => STAT_DOCS.find((d) => d.slug === slug) ?? null;
+
+// A doc's page (and its sitemap / llms.txt / hub listing) exists only if it is
+// not gated, or its gate passes for the current feed state.
+export const isStatDocAvailable = (doc: StatDoc, ctx: StatsContext): boolean => !doc.available || doc.available(ctx);
+export const availableStatDocs = (ctx: StatsContext): StatDoc[] => STAT_DOCS.filter((d) => isStatDocAvailable(d, ctx));

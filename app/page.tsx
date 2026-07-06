@@ -12,6 +12,7 @@ import { TrustSection } from "@/components/landing/TrustSection";
 import { getAgentData } from "@/lib/agent-data";
 import { getPlatformData } from "@/lib/platform-data";
 import { getProtocolIndex } from "@/lib/protocol-index";
+import { safeJsonLd } from "@/lib/seo";
 import { getWebSources } from "@/lib/web-sources";
 
 const SITE_URL = "https://agenteconomy.to";
@@ -93,7 +94,7 @@ export default async function Home() {
       <PlatformSection data={platform} />
       <AgentNativeSection examples={agentExamples} />
       <FooterSection />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(homepageJsonLd) }} />
     </>
   );
 }

@@ -154,6 +154,15 @@ export function buildMonthlyReport(ym: string, ctx: StatsContext): MonthlyReport
   // publishing under this banner.
   if (metrics.length < 3) return null;
 
+  // NOTE: off-chain context sections (agent-standard web adoption, AI inference
+  // demand) are deliberately NOT added here. Month-labeled reports must be
+  // immutable — a "June 2026" report cannot change after June. But the off-chain
+  // snapshot feeds (weekly Cloudflare scan, trailing OpenRouter token window) are
+  // not month-bounded: they carry a single latest snapshot, so folding them into
+  // a month report would silently mutate it every crawl. Reports gain these
+  // sections only once the pipeline archives month-end snapshots. Until then the
+  // /stats pages (which are explicitly live, not month-bounded) carry these datasets.
+
   return {
     ym,
     monthName: name,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { formatEvents, getAgentData } from "@/lib/agent-data";
+import { safeJsonLd } from "@/lib/seo";
 import "./globals.css";
 import "./styles/navigation.css";
 import "./styles/hero.css";
@@ -114,7 +115,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="theme-dark">
         {children}
         <GoogleAnalytics />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(siteJsonLd) }} />
       </body>
     </html>
   );

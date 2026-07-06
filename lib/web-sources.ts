@@ -18,6 +18,54 @@ export type TokenCategory = { name: string; mcap: number; vol24h: number };
 
 export type DevComponent = { registry: string; pkg: string; weeklyAvg4w: number };
 
+// Agent-standard web-adoption scan (Cloudflare Radar, weekly). Values are RAW
+// domain counts; share = value / meta.successfulDomains. prevMonth may be null.
+export type StandardsCheck = { check: string; value: number };
+export type StandardsAdoption = {
+  asOf: string | null;
+  rows: StandardsCheck[];
+  meta: {
+    date: string;
+    totalDomains: number;
+    successfulDomains: number;
+    normalization?: string;
+    lastUpdated?: string;
+  };
+  prevMonth: { date: string; rows: StandardsCheck[] } | null;
+  note?: string;
+};
+
+// Demand-side inference context (OpenRouter, off-chain). Tokenizer-specific —
+// totals are not comparable across models.
+export type InferenceDay = { date: string; tokens: number };
+export type InferenceDemand = {
+  asOf: string | null;
+  windowDays: number;
+  days: InferenceDay[];
+  totalTokens: number;
+  attribution: string;
+  note?: string;
+};
+
+// Solana agent registries via getProgramAccounts (public RPC). Upper bounds.
+export type SolanaRegistry = { key: string; label: string; program: string; accounts: number };
+export type SolanaAgents = {
+  asOf: string | null;
+  registries: SolanaRegistry[];
+  totalAccounts: number;
+  note?: string;
+};
+
+// x402 settlement token split (Bitquery). One concrete shape: the feed publishes
+// the USDC share as a percent (0–100) directly — no client-side derivation.
+export type X402TokenSplit = {
+  asOf: string;
+  windowDays: number;
+  usdcSharePct: number;
+  totalPayments?: number;
+  note?: string;
+};
+
 export type WebSourcesData = {
   updatedAt: string | null;
   agentTokens: {
@@ -37,6 +85,13 @@ export type WebSourcesData = {
   };
   devAdoption: { totalWeeklyAvg4w: number; components: DevComponent[] };
   masumi: { totalTxs: number };
+  // Later feeds, added to web-sources.json after the original six lenses. The
+  // stats context passes web-sources.json through raw, so these are present at
+  // render even though getWebSources() (landing page) does not parse them.
+  standardsAdoption?: StandardsAdoption;
+  inferenceDemand?: InferenceDemand;
+  solanaAgents?: SolanaAgents;
+  x402TokenSplit?: X402TokenSplit;
 };
 
 const round1 = (n: number) => Math.round(n * 10) / 10;

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 
 import { PROTOCOL_SLUGS } from "@/lib/protocol-data";
-import { STAT_SLUGS } from "@/lib/stats-registry";
+import { getStatsContext } from "@/lib/stats-data";
+import { availableStatDocs } from "@/lib/stats-registry";
 
 const BASE = "https://agenteconomy.to";
 const DATA_URL = `${BASE}/data.json`;
@@ -31,6 +32,11 @@ const STATIC_CONTENT_UPDATED = new Date("2026-07-05T00:00:00Z");
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dataUpdated = await getLastModified();
 
+  // Gated stat pages are omitted until their feed is present (same guard the
+  // route and hub use), so the sitemap never lists a URL that 404s.
+  const ctx = await getStatsContext();
+  const statSlugs = availableStatDocs(ctx).map((d) => d.slug);
+
   // Home + /data + protocol pages surface live dataset figures (hourly ISR), so
   // the data stamp is their true lastmod. /about + /methodology only change when
   // their copy is edited.
@@ -54,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/stats",
     "/reports",
     ...PROTOCOL_SLUGS.map((s) => `/${s}`),
-    ...STAT_SLUGS.map((s) => `/stats/${s}`),
+    ...statSlugs.map((s) => `/stats/${s}`),
     ...reportMonths.map((ym) => `/reports/${ym}`),
   ].map((path) => ({
     url: `${BASE}${path}`,

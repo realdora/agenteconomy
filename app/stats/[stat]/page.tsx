@@ -7,17 +7,26 @@ import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { StatChart } from "@/components/stats/StatChart";
 import { getProtocol } from "@/lib/protocol-data";
+import { safeJsonLd } from "@/lib/seo";
 import { getStatsContext, asOfLabel } from "@/lib/stats-data";
-import { getStatDoc, STAT_SLUGS } from "@/lib/stats-registry";
+import { availableStatDocs, getStatDoc, isStatDocAvailable } from "@/lib/stats-registry";
 
 const SITE = "https://agenteconomy.to";
 
 type StatPageProps = { params: Promise<{ stat: string }> };
 
-export const dynamicParams = false;
+// Dynamic on purpose (same pattern as /reports/[month]): a gated page
+// materializes the moment its feed lands, no deploy required. generateStaticParams
+// prebuilds only the currently-available pages; the runtime isStatDocAvailable →
+// notFound() guard in the page is the authoritative gate for everything else.
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return STAT_SLUGS.map((stat) => ({ stat }));
+export async function generateStaticParams() {
+  // Prebuild the pages whose feed is already present. Gated docs (awaiting a
+  // not-yet-present feed) are omitted here and materialize on first request once
+  // their feed lands — the runtime availability guard 404s them until then.
+  const ctx = await getStatsContext();
+  return availableStatDocs(ctx).map((doc) => ({ stat: doc.slug }));
 }
 
 export async function generateMetadata({ params }: StatPageProps): Promise<Metadata> {
@@ -54,10 +63,15 @@ export default async function StatPage({ params }: StatPageProps) {
   if (!doc) notFound();
 
   const ctx = await getStatsContext();
+  if (!isStatDocAvailable(doc, ctx)) notFound();
   const computed = doc.build(ctx);
   const stamp = computed ? asOfLabel(computed.asOf) : null;
   const protocol = doc.protocolSlug ? getProtocol(doc.protocolSlug) : null;
-  const related = doc.related.map((slug) => getStatDoc(slug)).filter((d): d is NonNullable<typeof d> => Boolean(d));
+  const related = doc.related
+    .map((slug) => getStatDoc(slug))
+    .filter((d): d is NonNullable<typeof d> => Boolean(d))
+    // Never link to a gated slug whose feed has not landed — its page 404s.
+    .filter((d) => isStatDocAvailable(d, ctx));
 
   const faq = [
     { q: doc.question, a: computed?.answer ?? doc.seoDescription },
@@ -234,7 +248,7 @@ export default async function StatPage({ params }: StatPageProps) {
           </div>
         </section>
       </main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
       <FooterSection />
     </>
   );

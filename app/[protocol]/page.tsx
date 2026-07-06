@@ -7,6 +7,7 @@ import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { getProtocol, PROTOCOL_SLUGS } from "@/lib/protocol-data";
 import { formatAsOf, getProtocolStats } from "@/lib/protocol-stats";
+import { safeJsonLd } from "@/lib/seo";
 
 type ProtocolPageProps = { params: Promise<{ protocol: string }> };
 
@@ -262,7 +263,7 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             ...doc.jsonLd,
             url: `https://agenteconomy.to/${doc.slug}`,
             name: doc.name,
@@ -270,7 +271,7 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
           }),
         }}
       />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqJsonLd) }} />
       <FooterSection />
     </>
   );

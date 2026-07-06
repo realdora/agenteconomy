@@ -6,6 +6,7 @@ import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { asOfLabel, buildMonthlyReport, isClosedMonth, isValidYm, monthName } from "@/lib/report-data";
+import { safeJsonLd } from "@/lib/seo";
 import { getStatsContext } from "@/lib/stats-data";
 
 const SITE = "https://agenteconomy.to";
@@ -232,7 +233,7 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
           </div>
         </section>
       </main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
       <FooterSection />
     </>
   );

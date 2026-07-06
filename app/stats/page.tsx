@@ -4,8 +4,9 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
+import { safeJsonLd } from "@/lib/seo";
 import { getStatsContext, asOfLabel } from "@/lib/stats-data";
-import { STAT_DOCS } from "@/lib/stats-registry";
+import { availableStatDocs } from "@/lib/stats-registry";
 
 const SITE = "https://agenteconomy.to";
 
@@ -25,7 +26,8 @@ export const metadata: Metadata = {
 
 export default async function StatsHub() {
   const ctx = await getStatsContext();
-  const entries = STAT_DOCS.map((doc) => ({ doc, computed: doc.build(ctx) }));
+  const docs = availableStatDocs(ctx);
+  const entries = docs.map((doc) => ({ doc, computed: doc.build(ctx) }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -42,8 +44,8 @@ export default async function StatsHub() {
       {
         "@type": "ItemList",
         "@id": `${SITE}/stats#list`,
-        numberOfItems: STAT_DOCS.length,
-        itemListElement: STAT_DOCS.map((doc, i) => ({
+        numberOfItems: docs.length,
+        itemListElement: docs.map((doc, i) => ({
           "@type": "ListItem",
           position: i + 1,
           url: `${SITE}/stats/${doc.slug}`,
@@ -118,7 +120,7 @@ export default async function StatsHub() {
           </p>
         </section>
       </main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
       <FooterSection />
     </>
   );
