@@ -300,6 +300,113 @@ async function fetchMasumi(prev) {
   } finally { clearTimeout(t) }
 }
 
+// ── 2026-07-06 additions — deep-research 3-round verified sources.
+// Full provenance, endpoints and the never-cite list: scripts/research/DATA-RADAR-2026-07.md
+const RADAR_CHECK = 'https://api.cloudflare.com/client/v4/radar/agent_readiness/summary/CHECK'
+const CF_RADAR_TOKEN = process.env.CLOUDFLARE_RADAR_TOKEN
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY
+const OPENROUTER_DATASETS = 'https://openrouter.ai/api/v1/datasets'
+const SOLANA_RPC = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com'
+// Solana agent registries — program IDs verified on-chain 2026-07-06
+// (getProgramAccounts counts that day: Metaplex 1,421 · SATI 1,488).
+const SOLANA_AGENT_REGISTRIES = [
+  { key: 'metaplex', label: 'Metaplex MPL Agent Identity', program: '1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p' },
+  { key: 'sati', label: 'SATI / 8004-solana (QuantuLabs)', program: '8oo4dC4JvBLwy5tGgiH3WwK4B9PWxL9Z4XjA2jzkQMbQ' },
+]
+
+// 7. Cloudflare Radar agent-standards adoption — upstream is a WEEKLY bulk
+// scan (~110k of top-200k domains), so refresh at most every 6 days and pin a
+// ~28-days-back snapshot via the `date` param for the MoM column. Values are
+// stored as returned (raw counts or shares — normalize at page layer once the
+// first real response is inspected). Cross-standard comparisons need the
+// denominator footnote; UCP's high share is a suspected loose heuristic.
+const RADAR_TTL_HOURS = 6 * 24
+async function fetchStandardsAdoption(prev) {
+  if (prev?.asOf && (Date.now() - Date.parse(prev.asOf)) < RADAR_TTL_HOURS * 36e5) {
+    console.log('  standardsAdoption: fresh (<6d), reusing'); return prev
+  }
+  if (!CF_RADAR_TOKEN) throw new Error('CLOUDFLARE_RADAR_TOKEN not set (run ~/setup-agenteconomy-keys.sh)')
+  const headers = { Authorization: `Bearer ${CF_RADAR_TOKEN}` }
+  const parse = data => {
+    const s = data?.result?.summary_0
+    if (!s || typeof s !== 'object') throw new Error('Radar response missing result.summary_0')
+    const rows = Object.entries(s).map(([check, v]) => ({ check, value: num(String(v).replace('%', '')) }))
+    if (rows.length < 5) throw new Error(`Radar returned only ${rows.length} checks (<5)`)
+    return { rows, meta: data?.result?.meta ?? null }
+  }
+  const now = parse(await getJson(RADAR_CHECK, { headers }))
+  const back = new Date(Date.now() - 28 * 864e5).toISOString().slice(0, 10)
+  let prevMonth = null
+  try { prevMonth = { date: back, rows: parse(await getJson(`${RADAR_CHECK}?date=${back}`, { headers })).rows } }
+  catch (e) { console.warn('  standardsAdoption: MoM baseline fetch failed:', e.message) }
+  return {
+    asOf: new Date().toISOString(),
+    rows: now.rows, meta: now.meta, prevMonth,
+    note: 'Cloudflare Radar agent-readiness WEEKLY scan; as-of must be labelled by data week, not day. Denominators differ per check (x402 only meaningful for paid-content sites) — never compare shares across standards without the footnote. UCP share suspected over-detection.',
+  }
+}
+
+// 8. Demand-side inference telemetry — OpenRouter datasets API (free key).
+// Daily token usage of the top-50 public models (+aggregated `other` row).
+// Attribution required by OpenRouter's dataset terms; tokenizer counts are
+// provider-specific and NOT comparable across models (page must footnote).
+async function fetchInferenceDemand(prev) {
+  if (isFresh(prev)) { console.log('  inferenceDemand: fresh (<20h), reusing'); return prev }
+  if (!OPENROUTER_KEY) throw new Error('OPENROUTER_API_KEY not set (run ~/setup-agenteconomy-keys.sh)')
+  const data = await getJson(`${OPENROUTER_DATASETS}/rankings-daily`, { headers: { Authorization: `Bearer ${OPENROUTER_KEY}` } })
+  const rows = Array.isArray(data?.data) ? data.data : Array.isArray(data?.rows) ? data.rows : null
+  if (!rows || rows.length === 0) throw new Error('OpenRouter rankings-daily returned no rows')
+  const perDay = new Map()
+  for (const r of rows) {
+    const day = String(r.date ?? r.day ?? '').slice(0, 10)
+    const tok = num(r.total_tokens ?? r.tokens ?? r.token_count)
+    if (day) perDay.set(day, (perDay.get(day) || 0) + tok)
+  }
+  const days = [...perDay.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([date, tokens]) => ({ date, tokens }))
+  const totalTokens = days.reduce((s, d) => s + d.tokens, 0)
+  if (totalTokens <= 0) throw new Error('OpenRouter token totals parsed to 0 — response shape changed?')
+  return {
+    asOf: new Date().toISOString(), windowDays: days.length, days, totalTokens,
+    attribution: 'Source: OpenRouter (openrouter.ai/rankings)',
+    note: 'Daily token usage of top-50 public models on OpenRouter + aggregated other row (trailing default window). Provider-specific tokenizers — totals not comparable across models. Demand-side CONTEXT metric, not on-chain data.',
+  }
+}
+
+// 9. Solana agent-registry counts — free public RPC, no key. Account count is
+// an UPPER BOUND of registrations (may include non-identity accounts). Feeds
+// the census page by-registry breakdown, NOT a standalone page (2.9K vs
+// ERC-8004's 331K as of 2026-07-06). Solana Foundation markets "9,000+
+// agents" — unreconciled with these on-chain counts; never cite that figure.
+async function fetchSolanaAgents(prev) {
+  if (isFresh(prev)) { console.log('  solanaAgents: fresh (<20h), reusing'); return prev }
+  const registries = []
+  for (const reg of SOLANA_AGENT_REGISTRIES) {
+    let count = null, lastErr = null
+    for (let attempt = 1; attempt <= 3 && count === null; attempt++) {
+      try {
+        const res = await fetch(SOLANA_RPC, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getProgramAccounts', params: [reg.program, { encoding: 'base64', dataSlice: { offset: 0, length: 0 } }] }),
+        })
+        if (!res.ok) throw new Error(`RPC HTTP ${res.status}`)
+        const data = await res.json()
+        if (!Array.isArray(data.result)) throw new Error(data.error?.message || 'no result array')
+        count = data.result.length
+      } catch (e) { lastErr = e; await sleep(1500 * attempt) }
+    }
+    if (count === null) throw new Error(`solanaAgents: ${reg.key} count failed after 3 attempts: ${lastErr?.message}`)
+    if (count > 5_000_000) throw new Error(`solanaAgents: ${reg.key} count ${count} implausibly large`)
+    registries.push({ key: reg.key, label: reg.label, program: reg.program, accounts: count })
+    await sleep(400)
+  }
+  return {
+    asOf: new Date().toISOString(),
+    registries,
+    totalAccounts: registries.reduce((s, r) => s + r.accounts, 0),
+    note: 'getProgramAccounts counts on Solana agent-registry programs (public RPC). Upper bound of registrations. By-registry breakdown for the census page; do not cite the Foundation "9,000+" marketing figure.',
+  }
+}
+
 async function main() {
   console.log('Fetching non-Dune web sources...\n')
   const out = { updatedAt: new Date().toISOString(), schema: 2 }
@@ -315,6 +422,9 @@ async function main() {
     ['virtuals', () => fetchVirtualsEcosystem(prev.virtuals)],
     ['devAdoption', () => fetchDevAdoption(prev.devAdoption)],
     ['masumi', () => fetchMasumi(prev.masumi)],
+    ['solanaAgents', () => fetchSolanaAgents(prev.solanaAgents)],
+    ['standardsAdoption', () => fetchStandardsAdoption(prev.standardsAdoption)],
+    ['inferenceDemand', () => fetchInferenceDemand(prev.inferenceDemand)],
   ]
   const results = await Promise.allSettled(sections.map(([, fn]) => fn()))
   let fulfilled = 0
@@ -350,6 +460,15 @@ async function main() {
   }
   if (out.masumi) {
     console.log(`  Masumi: ${out.masumi.totalTxs.toLocaleString()} escrow txs (Cardano)`)
+  }
+  if (out.solanaAgents) {
+    console.log(`  Solana agents: ${out.solanaAgents.totalAccounts.toLocaleString()} accounts (${out.solanaAgents.registries.map(r => `${r.key} ${r.accounts.toLocaleString()}`).join(', ')})`)
+  }
+  if (out.standardsAdoption) {
+    console.log(`  standards adoption: ${out.standardsAdoption.rows.length} checks, asOf ${out.standardsAdoption.asOf.slice(0, 10)}${out.standardsAdoption.prevMonth ? ` (MoM baseline ${out.standardsAdoption.prevMonth.date})` : ''}`)
+  }
+  if (out.inferenceDemand) {
+    console.log(`  inference demand: ${(out.inferenceDemand.totalTokens / 1e12).toFixed(2)}T tokens / ${out.inferenceDemand.windowDays}d (OpenRouter)`)
   }
 }
 
