@@ -100,3 +100,18 @@ Pipeline changes shipped with this doc: `fetch-web-sources.js` sections
 `solanaAgents` (live), `standardsAdoption` + `inferenceDemand` (await keys via
 `~/setup-agenteconomy-keys.sh`); workflow env updated. Bitquery lands after
 quota test. Prior radar: DATA-RADAR-2026-06.md.
+
+## F. Bitquery quota test — RESOLVED 2026-07-06: FAIL → Dune fallback
+
+Free tier is a ONE-TIME trial (pricing page says 1K points/10 rows-per-request;
+docs say 10K first month — official pages conflict), NO monthly renewal ⇒
+automated daily fetch structurally impossible without sales-gated paid plan.
+Combined dataset (needed for 30d windows) has unpublished dynamic pricing and
+NO programmatic point readout (IDE dashboard only). Auth quirk: the key is an
+X-API-KEY UUID, not a Bearer token. No dedicated x402 dataset — plain
+EVM.Transfers scoped by facilitator addresses; probing with the 49 stale
+hardcoded SQL addresses returned 0% USDC (methodology artifact — the live
+~96-addr registry query_6057445 is the only valid scope). DECISION: USDC-share
+page data comes from a Dune-built split (credit-governed); remaining Bitquery
+trial points reserved for a ONE-TIME cross-validation once the Dune split
+ships. Working 1-row conditional query preserved in the quota-test transcript.
