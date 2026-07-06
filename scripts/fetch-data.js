@@ -18,6 +18,14 @@ import { readFileSync, writeFileSync, appendFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
+import {
+  foldX402DayGrainWindow,
+  foldX402DailySeries,
+  foldVirtualsWindow,
+  foldOlasWindow,
+  foldRegistryWindow,
+} from './dune/baseline-lib.mjs'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = process.env.DATA_OUT_DIR || join(__dirname, '..', 'public')
 const API_KEY = process.env.DUNE_API_KEY
@@ -46,6 +54,21 @@ const RUN_CREDIT_CAP = Number(process.env.DUNE_RUN_CREDIT_CAP || 50)
 const QUERY_CREDIT_CAP = Number(process.env.DUNE_QUERY_CREDIT_CAP || 35)
 const ALLOW_UNSAFE_QUERY_IDS = process.env.DUNE_ALLOW_UNSAFE_QUERY_IDS === '1'
 const REFRESH_KEYS = parseKeySet(process.env.DUNE_REFRESH_KEYS)
+// Self-folding (自动封账): keep every recent-window scan bounded by folding
+// closed data into the frozen baseline automatically. Trigger once a cutoff is
+// older than FOLD_TRIGGER_DAYS; fold everything before (today − FOLD_LAG_DAYS)
+// so late-arriving on-chain data has a week to settle. DUNE_SELF_FOLD=0 turns
+// the whole mechanism off.
+//
+// Trigger MUST stay below the window length at which the priciest query hits
+// DUNE_QUERY_CREDIT_CAP, or the pipeline deadlocks: an over-cap execution gets
+// cancelled, folding needs a successful execution, and the window only keeps
+// growing. x402 costs ~0.9 credits per window-day (measured 2026-07-06), so a
+// 7-day trigger caps its window at ~8 days ≈ 7.2 credits — safely under the
+// 10-credit query cap. In steady state the cutoff advances daily by one day.
+const SELF_FOLD = process.env.DUNE_SELF_FOLD !== '0'
+const FOLD_TRIGGER_DAYS = Number(process.env.DUNE_FOLD_TRIGGER_DAYS || 7)
+const FOLD_LAG_DAYS = Number(process.env.DUNE_FOLD_LAG_DAYS || 7)
 const BLOCKED_FRESH_QUERY_IDS = new Set([
   6058135, // x402 full-history rescan; original quota burner.
   6130922, // ERC-8004 registry full evms.logs rescan.
@@ -271,23 +294,29 @@ const TESTNETS = new Set(['sepolia', 'goerli', 'mumbai', 'amoy', 'holesky'])
 // ── Per-query parsers: raw rows → fragment ───────────────────
 const PARSERS = {
   x402Cumulative(rows, baselines) {
-    // Three supported grains:
-    //   - recent-window (stateless, current design): per-(month, facilitator)
-    //     WITHOUT cumulative_* columns; the query only scans transfers since
-    //     baselines.x402.cutoff. Totals/monthly/mix = frozen baseline
-    //     (scripts/dune/baselines.json) + this window.
-    //   - incremental fork (query 7666075): per-(day, facilitator) — dead
-    //     (suspended account), kept for the offline tests and DUNE_QID_* revert.
+    // Supported grains:
+    //   - DAY-GRAIN recent window (query 7895747, current design): per-(day,
+    //     facilitator) WITHOUT cumulative_* columns. With a frozen baseline
+    //     present it is a window on top of baselines.x402 (day-grain boundary
+    //     guard, foldable weekly by self-folding); without a baseline it is
+    //     treated as a full history (the dead incremental fork 7666075's
+    //     shape — kept for the offline tests and DUNE_QID_* revert).
+    //   - month-grain recent window (query 7873181): per-(month, facilitator)
+    //     WITHOUT cumulative_* columns; requires the frozen baseline. Cannot
+    //     be folded mid-month — superseded by the day-grain query.
     //   - legacy upstream (query 6058135): per-(month, facilitator) with
     //     precomputed cumulative_* columns. NEVER cron this one — its
     //     full-history rescan is what burned the original account's credits.
     const first = rows[0] || {}
-    const isDaily = 'day' in first
-    const isLegacy = !isDaily && 'cumulative_txn' in first
-    const isWindow = !isDaily && !isLegacy
+    const isDayGrain = 'day' in first
+    const isLegacy = !isDayGrain && 'cumulative_txn' in first
     const base = baselines?.x402
-    if (isDaily) {
-      assertRowShape(rows, ['day', 'facilitator', 'total_txn', 'total_vol'], 'Q x402Cumulative (daily fork)')
+    // Window semantics whenever a baseline exists (day grain) or the rows are
+    // month-grain without cumulative columns (month-grain windows are useless
+    // without a baseline, hence the refusal below).
+    const isWindow = !isLegacy && (!isDayGrain || Boolean(base?.cutoff))
+    if (isDayGrain) {
+      assertRowShape(rows, ['day', 'facilitator', 'total_txn', 'total_vol'], 'Q x402Cumulative (day grain)')
     } else if (isWindow) {
       assertRowShape(rows, ['date_time', 'facilitator', 'total_txn', 'total_vol'], 'Q x402Cumulative (recent window)')
       if (!base?.cutoff) throw new Error('x402 recent-window rows received but scripts/dune/baselines.json has no x402 baseline — refusing to publish window-only totals')
@@ -307,20 +336,25 @@ const PARSERS = {
       for (const m of base.monthly || []) monthlyMap[m.month] = { txs: safeNum(m.txs), vol: safeNum(m.vol) }
       for (const p of base.protocols || []) protocolMap[p.name] = { txs: safeNum(p.txs), vol: safeNum(p.vol) }
     }
-    const cutoffMonth = isWindow ? base.cutoff.slice(0, 7) : null
+    // Boundary guard grain follows the row grain: day-grain windows compare
+    // whole days (mid-month cutoffs work), month-grain windows compare months.
+    const cutoffMonth = isWindow && !isDayGrain ? base.cutoff.slice(0, 7) : null
+    const cutoffDay = isWindow && isDayGrain ? base.cutoff.slice(0, 10) : null
     let droppedPreCutoff = 0
     rows.forEach(row => {
-      const month = (isDaily ? row.day : row.date_time || '').slice(0, 7)
-      // Boundary guard: frozen months stay frozen. Anything the window query
-      // returns before the cutoff month would double-count the baseline.
-      if (isWindow && month && month < cutoffMonth) { droppedPreCutoff += 1; return }
+      const day = isDayGrain ? (row.day || '').slice(0, 10) : null
+      const month = (isDayGrain ? row.day : row.date_time || '').slice(0, 7)
+      // Frozen spans stay frozen: anything the window query returns before the
+      // cutoff would double-count the baseline.
+      if (cutoffMonth && month && month < cutoffMonth) { droppedPreCutoff += 1; return }
+      if (cutoffDay && day && day < cutoffDay) { droppedPreCutoff += 1; return }
       const name = row.facilitator || 'Other'
       if (!protocolMap[name]) protocolMap[name] = { txs: 0, vol: 0 }
       const txn = safeNum(row.total_txn)
       const vol = safeNum(row.total_vol)
       protocolMap[name].txs += txn
       protocolMap[name].vol += vol
-      if (isDaily || isWindow) { totalTxs += txn; totalVolume += vol }
+      if (isDayGrain || isWindow) { totalTxs += txn; totalVolume += vol }
       if (month) {
         if (!monthlyMap[month]) monthlyMap[month] = { txs: 0, vol: 0 }
         monthlyMap[month].txs += txn
@@ -690,7 +724,7 @@ function unsafeQueryReason(query) {
   return null
 }
 
-function freshExecutionBlockReason(state, budget, prev) {
+function freshExecutionBlockReason(state, budget, prev, baselines) {
   if (REFRESH_KEYS && !REFRESH_KEYS.has(state.query.key)) {
     return `query key ${state.query.key} is not selected by DUNE_REFRESH_KEYS`
   }
@@ -705,7 +739,17 @@ function freshExecutionBlockReason(state, budget, prev) {
   }
   const previousCost = creditNumber(prev?.lastCostCredits)
   if (previousCost > QUERY_CREDIT_CAP) {
-    return `previous execution cost ${previousCost.toFixed(2)} exceeded query cap ${QUERY_CREDIT_CAP}`
+    // An over-cap record only describes the window it was executed against.
+    // Once the baseline cutoff has advanced PAST that execution's date, the
+    // scanned window has shrunk and the old cost no longer predicts the next
+    // one — allow a fresh (still cap-protected) attempt.
+    const cutoff = state.query.baselineKey ? baselines?.[state.query.baselineKey]?.cutoff : null
+    const prevDay = String(prev?.executedAt || '').slice(0, 10)
+    const windowShrankSince = Boolean(cutoff && prevDay && prevDay < cutoff.slice(0, 10))
+    if (!windowShrankSince) {
+      return `previous execution cost ${previousCost.toFixed(2)} exceeded query cap ${QUERY_CREDIT_CAP}`
+    }
+    console.log(`${state.query.label}: previous over-cap cost ${previousCost.toFixed(2)} predates cutoff ${cutoff} — window has shrunk, allowing a fresh attempt`)
   }
   return null
 }
@@ -822,7 +866,7 @@ async function main() {
       console.warn(`${state.query.label}: due for refresh but ${state.preferPreviousReason}; using previous-build data when available`)
       continue
     }
-    const blocked = freshExecutionBlockReason(state, budget, prev)
+    const blocked = freshExecutionBlockReason(state, budget, prev, baselines)
     if (blocked) {
       state.preferPreviousReason = blocked
       warnings.push(`${state.query.label}: fresh execution blocked (${blocked}); using previous-build data when available`)
@@ -875,6 +919,11 @@ async function main() {
         source = 'execution'
         executionId = state.execId
         executedAt = state.execEndedAt
+        // Retained for the self-folding phase: folding may only freeze data
+        // from a FULLY completed, untruncated fresh execution.
+        state.freshRows = rows
+        state.freshComplete =
+          state.execResult._executionStatus?.state === 'QUERY_STATE_COMPLETED' && rows.length < query.limit
       } else if (state.probe && prev && state.latestId && prev.executionId === state.latestId) {
         const fragment = REUSERS[query.key](existing)
         if (fragment) {
@@ -964,6 +1013,63 @@ async function main() {
         warnings.push(`${msg} — within 2% tolerance, accepting (likely upstream restatement)`)
         console.warn(warnings[warnings.length - 1])
       }
+    }
+  }
+
+  // Phase 4.5 — self-folding (自动封账). Folding only happens from a fragment
+  // that (a) came from a fresh, fully-completed, untruncated execution this
+  // run AND (b) already passed the monotonicity gate above. A fold failure is
+  // a warning, never a publish blocker — the window just stays open until a
+  // later run can fold it. Git history keeps every baselines.json revision.
+  const FOLDERS = {
+    x402Cumulative: {
+      baselineKey: 'x402',
+      fold: (base, rows, cut) => {
+        // Only the day-grain query can fold mid-month; the month-grain window
+        // (query 7873181) stays as-is until DUNE_QID_X402_CUMULATIVE points at
+        // the day-grain fork (7895747).
+        if (!('day' in (rows[0] || {}))) return null
+        return foldX402DayGrainWindow(base, rows, cut)
+      },
+    },
+    x402Daily: { baselineKey: 'x402Daily', fold: foldX402DailySeries },
+    virtualsAcp: { baselineKey: 'virtualsAcp', fold: foldVirtualsWindow },
+    erc8004Registry: { baselineKey: 'erc8004Registry', fold: foldRegistryWindow },
+    olas: { baselineKey: 'olas', fold: foldOlasWindow },
+  }
+  let foldedCount = 0
+  if (SELF_FOLD) {
+    const todayUtc = new Date().toISOString().slice(0, 10)
+    const isoDaysAgo = n => new Date(Date.parse(`${todayUtc}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10)
+    const newCutoffTarget = isoDaysAgo(FOLD_LAG_DAYS)
+    for (const state of states) {
+      const key = state.query.key
+      const folder = FOLDERS[key]
+      if (!folder) continue
+      if (fragmentSources[key] !== 'execution' || !state.freshComplete || !state.freshRows) continue
+      const base = baselines?.[folder.baselineKey]
+      if (!base?.cutoff) continue
+      const cutoffAgeDays = (Date.parse(`${todayUtc}T00:00:00Z`) - Date.parse(`${base.cutoff.slice(0, 10)}T00:00:00Z`)) / 864e5
+      if (!(cutoffAgeDays > FOLD_TRIGGER_DAYS)) continue
+      if (!(newCutoffTarget > base.cutoff.slice(0, 10))) continue
+      try {
+        const folded = folder.fold(base, state.freshRows, newCutoffTarget)
+        if (!folded) {
+          console.log(`${state.query.label}: self-fold skipped (month-grain rows cannot fold mid-month)`)
+          continue
+        }
+        baselines[folder.baselineKey] = folded
+        foldedCount += 1
+        console.log(`${state.query.label}: self-folded baseline cutoff ${base.cutoff} → ${folded.cutoff}`)
+      } catch (error) {
+        warnings.push(`${state.query.label}: self-fold failed (${error.message}); window stays open until a later run can fold it`)
+        console.warn(warnings[warnings.length - 1])
+      }
+    }
+    if (foldedCount > 0) {
+      baselines.generatedAt = new Date().toISOString()
+      writeFileSync(BASELINES_PATH, JSON.stringify(baselines, null, 2) + '\n')
+      console.log(`✓ baselines.json updated (${foldedCount} source${foldedCount > 1 ? 's' : ''} folded) — commit it so the next run scans the shorter window`)
     }
   }
 
@@ -1091,7 +1197,7 @@ async function main() {
   warnings.forEach(w => console.log(`::warning::${w}`))
 
   if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\n`)
+    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\nbaselines_changed=${foldedCount > 0}\n`)
   }
   if (slaBreaches.length > 0) {
     console.error(`::error::Freshness SLA breached (data published, but needs attention):\n- ${slaBreaches.join('\n- ')}`)
