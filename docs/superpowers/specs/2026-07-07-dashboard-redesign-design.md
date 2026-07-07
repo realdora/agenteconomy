@@ -70,7 +70,8 @@ Implementation: framer-motion for reveals/route transitions; hand-rolled rAF for
 
 - Overview
 - *Protocols* — one entry per family, **generated from the protocol registry** (x402, Olas, Virtuals ACP, ERC-8004, Tempo MPP, Base agentic today; future sources appear automatically)
-- *Context* — Market, Agent supply, Developers
+- *Context* — Market, Agent supply, Standards adoption, Demand & developers
+  - Absorbs the 2026-07-06 sources (commit 01f07fa): `solanaAgents` → Agent supply row; `standardsAdoption` (Cloudflare Radar weekly scan) → its own page (per-standard adoption bars + MoM deltas) and a STANDARDS brief-card category; `inferenceDemand` (OpenRouter tokens) → Demand & developers.
 - *Reference* — Methodology, Data API
 
 **Overview page rhythm** (story → trend → totals):
@@ -92,7 +93,7 @@ Implementation: framer-motion for reveals/route transitions; hand-rolled rAF for
 1. **Brief cards and "latest daily" KPIs use the latest FULLY CLOSED UTC day** — never a partial day (the prototype showed 02:00-UTC same-day rows; real build filters `day < todayUTC`).
 2. Run-rate is derived, labeled, and resets on refresh — never presented as a live feed.
 3. Numbers wear ink. Color carries category or direction, one hue per job.
-4. Every section carries its own as-of stamp when its source differs from the page stamp.
+4. Every section carries its own as-of stamp when its source differs from the page stamp. Weekly-cadence sources (Radar standards scan, Olas) stamp as "week of YYYY-MM-DD", never a day — the Stamp component supports both grains. Radar shares additionally carry the per-check-denominator footnote (never compare shares across standards without it).
 5. Fallback data is labeled ("cached · as of …"), never silent.
 6. No fabricated rows anywhere (hero streams, placeholder events — banned; the v4 lesson).
 
