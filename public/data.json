@@ -1,31 +1,31 @@
 {
-  "updatedAt": "2026-07-06T02:06:33.553397Z",
+  "updatedAt": "2026-07-07T02:01:57.024385Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
-        "queryId": 7873181,
-        "executionId": "01KWTJR2WRKKBXCZ31HP9R93WY",
-        "executedAt": "2026-07-06T02:05:36.921772Z",
+        "queryId": 7895747,
+        "executionId": "01KWV5H4H9H229GX80AB61K5SR",
+        "executedAt": "2026-07-06T07:33:48.506632Z",
         "lastCostCredits": 4.908382353
       },
       "x402Daily": {
         "queryId": 7881006,
-        "executionId": "01KWP0C7SGDSX38JB6M9VPF5J4",
-        "executedAt": "2026-07-04T07:27:35.592772Z",
-        "lastCostCredits": 11.727205883
+        "executionId": "01KWX4W330Z6WJXH1S0S9SBFPC",
+        "executedAt": "2026-07-07T02:01:11.414519Z",
+        "lastCostCredits": 1.470735295
       },
       "baseAgentic": {
         "queryId": 6731879,
-        "executionId": "01KWTJS380GXCQY9C0DV1GNDJK",
-        "executedAt": "2026-07-06T02:05:49.677695Z",
-        "lastCostCredits": 2.1625
+        "executionId": "01KWX4XREKTEH2EZY19RWVA6Q6",
+        "executedAt": "2026-07-07T02:01:46.698736Z",
+        "lastCostCredits": 2.586029412
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01KWTJSEBA67QGMNCN8SF8VQ6B",
-        "executedAt": "2026-07-06T02:05:54.511201Z",
-        "lastCostCredits": 0.048029412
+        "executionId": "01KWX4YRP1C510W6RK44GVDDVB",
+        "executedAt": "2026-07-07T02:01:57.024385Z",
+        "lastCostCredits": 0.139735295
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -45,7 +45,7 @@
     {
       "name": "x402 Payment Analytics",
       "author": "@thechriscen",
-      "queryId": 7873181
+      "queryId": 7895747
     },
     {
       "name": "x402 Analytics",
@@ -74,9 +74,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-07-04T07:27:35.592772Z",
-    "totalTxs": 154872635,
-    "totalVolume": 40948580,
+    "asOf": "2026-07-06T07:33:48.506632Z",
+    "totalTxs": 154922243,
+    "totalVolume": 40950395,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -127,23 +127,11 @@
       },
       {
         "month": "Jul 26",
-        "txs": 867548,
-        "vol": 37586
+        "txs": 917156,
+        "vol": 39401
       }
     ],
     "daily": [
-      {
-        "day": "2026-05-06",
-        "txs": 160439
-      },
-      {
-        "day": "2026-05-07",
-        "txs": 166198
-      },
-      {
-        "day": "2026-05-08",
-        "txs": 165761
-      },
       {
         "day": "2026-05-09",
         "txs": 163292
@@ -371,6 +359,18 @@
       {
         "day": "2026-07-04",
         "txs": 54980
+      },
+      {
+        "day": "2026-07-05",
+        "txs": 192967
+      },
+      {
+        "day": "2026-07-06",
+        "txs": 201605
+      },
+      {
+        "day": "2026-07-07",
+        "txs": 15123
       }
     ],
     "protocols": [
@@ -444,8 +444,8 @@
     ]
   },
   "baseAgentic": {
-    "asOf": "2026-07-06T02:05:49.677695Z",
-    "totalTxs": 1346854,
+    "asOf": "2026-07-07T02:01:46.698736Z",
+    "totalTxs": 1353435,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1562,18 +1562,19 @@
         "consumer": 465,
         "infrastructure": 6940,
         "total": 7405
+      },
+      {
+        "day": "2026-07-06",
+        "consumer": 669,
+        "infrastructure": 5912,
+        "total": 6581
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-07-06T02:05:54.511201Z",
-    "totalMemos": 12325571,
+    "asOf": "2026-07-07T02:01:57.024385Z",
+    "totalMemos": 12325801,
     "daily": [
-      {
-        "day": "2026-04-08",
-        "memos": 32823,
-        "senders": 27
-      },
       {
         "day": "2026-04-09",
         "memos": 25477,
@@ -2016,8 +2017,13 @@
       },
       {
         "day": "2026-07-06",
-        "memos": 24,
-        "senders": 5
+        "memos": 234,
+        "senders": 13
+      },
+      {
+        "day": "2026-07-07",
+        "memos": 20,
+        "senders": 4
       }
     ]
   },
