@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-03T07:12:50.413Z",
+  "generatedAt": "2026-07-09T01:54:46.440Z",
   "x402": {
-    "cutoff": "2026-07-01",
-    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows.",
+    "cutoff": "2026-07-02",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02)",
     "protocolsApprox": true,
-    "totalTxs": 154005087,
-    "totalVolume": 40910994,
+    "totalTxs": 154087864,
+    "totalVolume": 40919497,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -53,6 +53,11 @@
         "month": "2026-06",
         "txs": 4778845,
         "vol": 272293
+      },
+      {
+        "month": "2026-07",
+        "txs": 82777,
+        "vol": 8503
       }
     ],
     "protocols": [
@@ -63,8 +68,8 @@
       },
       {
         "name": "Other",
-        "txs": 33817570,
-        "vol": 122193
+        "txs": 33888540,
+        "vol": 129347
       },
       {
         "name": "Dexter",
@@ -73,8 +78,8 @@
       },
       {
         "name": "PayAI",
-        "txs": 30879881,
-        "vol": 124575
+        "txs": 30891657,
+        "vol": 125894
       },
       {
         "name": "DayDreams",
@@ -98,22 +103,22 @@
       },
       {
         "name": "ThirdWeb",
-        "txs": 753,
-        "vol": 1025
+        "txs": 770,
+        "vol": 1047
       },
       {
         "name": "Ultravioleta",
-        "txs": 211,
+        "txs": 216,
         "vol": 12
       },
       {
         "name": "x402RS",
-        "txs": 165,
-        "vol": 246
+        "txs": 171,
+        "vol": 247
       },
       {
         "name": "Mogami",
-        "txs": 121,
+        "txs": 123,
         "vol": 14
       },
       {
@@ -123,8 +128,8 @@
       },
       {
         "name": "B402",
-        "txs": 32,
-        "vol": 1579
+        "txs": 33,
+        "vol": 1587
       },
       {
         "name": "Questflow",
