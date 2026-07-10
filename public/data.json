@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-10T01:53:57.695574Z",
+  "updatedAt": "2026-07-10T02:24:33.163939Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -38,6 +38,11 @@
         "executionId": "01KWP0RZGFT7KV015NCFEV8AAJ",
         "executedAt": "2026-07-04T07:34:45.858957Z",
         "lastCostCredits": 1.216617648
+      },
+      "x402TokenSplit": {
+        "queryId": 7931767,
+        "executionId": "01KX4XDCZG69SJY6W07WM8ZHN8",
+        "executedAt": "2026-07-10T02:24:33.163939Z"
       }
     }
   },
@@ -71,6 +76,11 @@
       "name": "Olas Ecosystem Activity",
       "author": "@adrian0x",
       "queryId": 7881008
+    },
+    {
+      "name": "x402 token split (Base, trailing 30d)",
+      "author": "agenteconomy",
+      "queryId": 7931767
     }
   ],
   "x402": {
@@ -441,7 +451,14 @@
         "txs": 142,
         "color": "#9D4EDD"
       }
-    ]
+    ],
+    "tokenSplit": {
+      "asOf": "2026-07-10T02:24:33.163939Z",
+      "windowDays": 30,
+      "usdcSharePct": 97.44,
+      "totalPayments": 130252,
+      "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
+    }
   },
   "baseAgentic": {
     "asOf": "2026-07-10T01:53:50.58931Z",
