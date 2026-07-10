@@ -44,6 +44,12 @@ const MCP_REGISTRY = 'https://registry.modelcontextprotocol.io/v0/servers'
 const SMITHERY = 'https://registry.smithery.ai/servers?pageSize=1'
 const VIRTUALS_APP = 'https://api.virtuals.io/api/virtuals'
 const VIRTUALS_ACP = 'https://acpx.virtuals.io/api/agents'
+// Since 2026-07-06 api.virtuals.io/api/virtuals REQUIRES a filters[chain] param
+// — an unscoped call 400s server-side ("Cannot set properties of undefined
+// (setting 'chain')"). So the launched total is summed per-chain. (acpx.virtuals
+// .io/api/agents is unaffected and actually rejects filters[chain].) Chains with
+// agents on 2026-07-10: BASE 53,374 · SOLANA 511 · ETH 2.
+const VIRTUALS_CHAINS = ['BASE', 'SOLANA', 'ETH']
 const KOIOS = 'https://api.koios.rest/api/v1/address_txs'
 // Masumi Network mainnet payment (escrow) contract — cross-verified against
 // their public explorer (31,022 txs matched exactly on 2026-06-10).
@@ -199,8 +205,14 @@ async function fetchAgentSupply(prev) {
 // once per ~20h. Our sums come from the primary per-agent records, not from
 // scraping their headline page.
 async function fetchVirtualsEcosystem(prev) {
-  const launched = await getJsonRetry(`${VIRTUALS_APP}?pagination%5BpageSize%5D=1`)
-  const launchedAgents = num(launched?.meta?.pagination?.total)
+  // Sum the launched total across the chains Virtuals deploys on (the endpoint
+  // now demands a filters[chain] scope — see VIRTUALS_CHAINS note above).
+  let launchedAgents = 0
+  for (const chain of VIRTUALS_CHAINS) {
+    const page = await getJsonRetry(`${VIRTUALS_APP}?filters%5Bchain%5D=${chain}&pagination%5BpageSize%5D=1`)
+    launchedAgents += num(page?.meta?.pagination?.total)
+    await sleep(120)
+  }
   const acpFirst = await getJsonRetry(`${VIRTUALS_ACP}?pagination%5BpageSize%5D=1`)
   const acpRegisteredAgents = num(acpFirst?.meta?.pagination?.total)
   if (launchedAgents <= 0 || acpRegisteredAgents <= 0) throw new Error('Virtuals totals missing')
@@ -407,6 +419,30 @@ async function fetchSolanaAgents(prev) {
   }
 }
 
+// 10. x402 token split — NO network call. The USDC-vs-total volume split lives
+// in the Dune pipeline's data.json (x402.tokenSplit); lift it verbatim into a
+// top-level web-sources key so the apex usdc-share page can read it from this
+// feed too. Reads data.json from the same output dir the pipeline writes to
+// (public/ in prod, DATA_OUT_DIR when overridden). If data.json has no split
+// yet, pass the previous value through so the key never flaps.
+function readX402TokenSplit(prev) {
+  try {
+    const data = JSON.parse(readFileSync(join(OUT_DIR, 'data.json'), 'utf8'))
+    const ts = data?.x402?.tokenSplit
+    if (ts && Number.isFinite(Number(ts.usdcSharePct))) {
+      return {
+        asOf: ts.asOf || data.updatedAt || new Date().toISOString(),
+        windowDays: num(ts.windowDays) || 30,
+        usdcSharePct: Number(ts.usdcSharePct),
+        ...(ts.totalPayments != null ? { totalPayments: num(ts.totalPayments) } : {}),
+        ...(ts.note ? { note: ts.note } : {}),
+      }
+    }
+  } catch { /* data.json missing/unreadable — fall through to prev */ }
+  if (prev) return prev
+  throw new Error('data.json has no x402.tokenSplit and no previous value to reuse')
+}
+
 async function main() {
   console.log('Fetching non-Dune web sources...\n')
   const out = { updatedAt: new Date().toISOString(), schema: 2 }
@@ -425,6 +461,7 @@ async function main() {
     ['solanaAgents', () => fetchSolanaAgents(prev.solanaAgents)],
     ['standardsAdoption', () => fetchStandardsAdoption(prev.standardsAdoption)],
     ['inferenceDemand', () => fetchInferenceDemand(prev.inferenceDemand)],
+    ['x402TokenSplit', () => readX402TokenSplit(prev.x402TokenSplit)],
   ]
   const results = await Promise.allSettled(sections.map(([, fn]) => fn()))
   let fulfilled = 0
@@ -469,6 +506,9 @@ async function main() {
   }
   if (out.inferenceDemand) {
     console.log(`  inference demand: ${(out.inferenceDemand.totalTokens / 1e12).toFixed(2)}T tokens / ${out.inferenceDemand.windowDays}d (OpenRouter)`)
+  }
+  if (out.x402TokenSplit) {
+    console.log(`  x402 token split: ${out.x402TokenSplit.usdcSharePct}% USDC by vol (trailing ${out.x402TokenSplit.windowDays}d${out.x402TokenSplit.totalPayments != null ? `, ${out.x402TokenSplit.totalPayments.toLocaleString()} payments` : ''})`)
   }
 }
 

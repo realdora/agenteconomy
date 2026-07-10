@@ -165,6 +165,22 @@ const QUERIES = [
     slaHours: 360,
     label: 'Olas (weekly data)',
   },
+  {
+    key: 'x402TokenSplit',
+    // Trailing-30d USDC-vs-total volume split on Base, scoped by the LIVE
+    // facilitator registry (query_6057445). Self-contained rolling window: NO
+    // baseline, NO self-folding, NO window_start parameter (the SQL hardcodes
+    // `now() - interval '30' day`), so it deliberately has no baselineKey.
+    // Single aggregated row — ~0.8 credits measured 2026-07-10, safely under
+    // the query cap. optional=true: a failure here must never block the rest of
+    // the build (it only feeds the secondary gated usdc-share page).
+    id: Number(process.env.DUNE_QID_X402TOKENSPLIT || 7931767),
+    limit: 10,
+    maxAgeHours: 20,
+    slaHours: 54,
+    optional: true,
+    label: 'x402 token split',
+  },
 ]
 
 // ── HTTP ─────────────────────────────────────────────────────
@@ -535,6 +551,25 @@ const PARSERS = {
     }
   },
 
+  x402TokenSplit(rows) {
+    // One aggregated row: usdc_vol, total_vol, usdc_txs, total_txs. The apex
+    // page wants a volume-weighted share, so usdcSharePct = usdc_vol/total_vol.
+    assertRowShape(rows, ['usdc_vol', 'total_vol', 'usdc_txs', 'total_txs'], 'Q x402TokenSplit')
+    const r = rows[0] || {}
+    const usdcVol = safeNum(r.usdc_vol)
+    const totalVol = safeNum(r.total_vol)
+    const totalTxs = safeNum(r.total_txs)
+    const usdcTxs = safeNum(r.usdc_txs)
+    const usdcSharePct = totalVol > 0 ? parseFloat(((usdcVol / totalVol) * 100).toFixed(2)) : 0
+    return {
+      usdcSharePct,
+      totalPayments: Math.round(totalTxs),
+      usdcTxs: Math.round(usdcTxs),
+      usdcVol: Math.round(usdcVol),
+      totalVol: Math.round(totalVol),
+    }
+  },
+
   olas(rows, baselines) {
     const base = baselines?.olas
     assertRowShape(rows, base ? ['time', 'chain', 'total_weekly_transactions_number'] : ['time', 'chain', 'total_weekly_transactions_number', 'global_cumulative_transactions_number'], 'Q olas')
@@ -592,6 +627,10 @@ const REUSERS = {
   virtualsAcp: d => d?.virtualsAcp || null,
   erc8004Registry: d => d?.erc8004Registry || null,
   olas: d => d?.olas || null,
+  x402TokenSplit: d => (d?.x402?.tokenSplit ? {
+    usdcSharePct: d.x402.tokenSplit.usdcSharePct,
+    totalPayments: d.x402.tokenSplit.totalPayments,
+  } : null),
 }
 
 function existingAsOf(existing, key) {
@@ -607,6 +646,8 @@ function existingAsOf(existing, key) {
       return existing?.erc8004Registry?.asOf || existing?.updatedAt || null
     case 'olas':
       return existing?.olas?.asOf || existing?.updatedAt || null
+    case 'x402TokenSplit':
+      return existing?.x402?.tokenSplit?.asOf || existing?.x402?.asOf || existing?.updatedAt || null
     default:
       return existing?.updatedAt || null
   }
@@ -645,6 +686,9 @@ function legacyBootstrapData(existing) {
 function freshnessBreaches(meta) {
   const breaches = []
   for (const query of QUERIES) {
+    // Optional sources that have never been materialized don't count against
+    // the SLA — a missing secondary metric must not turn the whole run red.
+    if (query.optional && !meta?.[query.key]) continue
     const effectiveAge = ageHours(meta?.[query.key]?.executedAt)
     if (effectiveAge > query.slaHours) {
       breaches.push(`${query.label}: data is ${effectiveAge.toFixed(1)}h old (SLA ${query.slaHours}h)`)
@@ -989,8 +1033,13 @@ async function main() {
       }
       throw state.probeError || new Error(`${query.label}: no data available from any source`)
     } catch (error) {
-      hardFailures.push(`${query.label}: ${error.message}`)
-      console.error(`${query.label} FAILED: ${error.message}`)
+      if (query.optional) {
+        warnings.push(`${query.label}: ${error.message} (optional source — skipped, not blocking build)`)
+        console.warn(warnings[warnings.length - 1])
+      } else {
+        hardFailures.push(`${query.label}: ${error.message}`)
+        console.error(`${query.label} FAILED: ${error.message}`)
+      }
     }
   }
 
@@ -1125,6 +1174,7 @@ async function main() {
       { name: 'Virtuals ACP', author: '@hashed_official', queryId: QUERIES[3].id },
       { name: 'ERC-8004 Trustless Agents', author: '@hashed_official', queryId: QUERIES[4].id },
       { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: QUERIES[5].id },
+      { name: 'x402 token split (Base, trailing 30d)', author: 'agenteconomy', queryId: QUERIES[6].id },
     ],
     x402: {
       asOf: olderOf(asOf('x402Cumulative'), asOf('x402Daily')),
@@ -1144,6 +1194,18 @@ async function main() {
         { name: 'Arbitrum',  txs: 522,      color: '#12AAFF' },
         { name: 'SEI',       txs: 142,      color: '#9D4EDD' },
       ],
+      // Trailing-30d USDC-vs-total volume split on Base (live registry scope).
+      // Rolling ratio, not cumulative — never folded, may move either way. Fresh
+      // fragment wins; else reuse the prior split; else omit the key entirely.
+      ...(f.x402TokenSplit ? {
+        tokenSplit: {
+          asOf: asOf('x402TokenSplit'),
+          windowDays: 30,
+          usdcSharePct: f.x402TokenSplit.usdcSharePct,
+          totalPayments: f.x402TokenSplit.totalPayments,
+          note: 'trailing 30d, Base, live facilitator registry scope; volume-weighted share',
+        },
+      } : (existing?.x402?.tokenSplit ? { tokenSplit: existing.x402.tokenSplit } : {})),
     },
     baseAgentic: { asOf: asOf('baseAgentic'), ...f.baseAgentic },
     virtualsAcp: { asOf: asOf('virtualsAcp'), ...f.virtualsAcp },
@@ -1193,6 +1255,9 @@ async function main() {
   console.log(`  Tempo/MPP:    ${data.tempoMpp.totalEvents.toLocaleString()} events, ${data.tempoMpp.uniquePayers} payers`)
   console.log(`  ERC-8004 Reg: ${data.erc8004Registry.totalAgents.toLocaleString()} agents across ${data.erc8004Registry.chainsTracked} chains`)
   console.log(`  Olas:         ${data.olas.totalTxs.toLocaleString()} txs, ${data.olas.chains.length} chains`)
+  if (data.x402.tokenSplit) {
+    console.log(`  x402 split:   ${data.x402.tokenSplit.usdcSharePct}% USDC by vol (trailing ${data.x402.tokenSplit.windowDays}d, ${data.x402.tokenSplit.totalPayments.toLocaleString()} payments)`)
+  }
   console.log(`  executions:   ${executionsUsed}; execution credits: ${budget.runCredits.toFixed(2)}; downloads skipped/reused: ${Object.values(fragmentSources).filter(v => v === 'unchanged' || v === 'previous-build' || v === 'bootstrap').length}/${QUERIES.length}`)
   warnings.forEach(w => console.log(`::warning::${w}`))
 
