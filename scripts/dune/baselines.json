@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-09T01:54:46.440Z",
+  "generatedAt": "2026-07-10T01:53:58.087Z",
   "x402": {
-    "cutoff": "2026-07-02",
-    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02)",
+    "cutoff": "2026-07-03",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03)",
     "protocolsApprox": true,
-    "totalTxs": 154087864,
-    "totalVolume": 40919497,
+    "totalTxs": 154288826,
+    "totalVolume": 40927628,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -56,8 +56,8 @@
       },
       {
         "month": "2026-07",
-        "txs": 82777,
-        "vol": 8503
+        "txs": 283739,
+        "vol": 16634
       }
     ],
     "protocols": [
@@ -68,8 +68,8 @@
       },
       {
         "name": "Other",
-        "txs": 33888540,
-        "vol": 129347
+        "txs": 34068862,
+        "vol": 134853
       },
       {
         "name": "Dexter",
@@ -78,8 +78,8 @@
       },
       {
         "name": "PayAI",
-        "txs": 30891657,
-        "vol": 125894
+        "txs": 30912249,
+        "vol": 128466
       },
       {
         "name": "DayDreams",
@@ -103,12 +103,12 @@
       },
       {
         "name": "ThirdWeb",
-        "txs": 770,
-        "vol": 1047
+        "txs": 793,
+        "vol": 1090
       },
       {
         "name": "Ultravioleta",
-        "txs": 216,
+        "txs": 237,
         "vol": 12
       },
       {
@@ -118,13 +118,13 @@
       },
       {
         "name": "Mogami",
-        "txs": 123,
+        "txs": 125,
         "vol": 14
       },
       {
         "name": "OpenX402",
-        "txs": 90,
-        "vol": 555
+        "txs": 92,
+        "vol": 565
       },
       {
         "name": "B402",
