@@ -560,7 +560,11 @@ const PARSERS = {
     const totalVol = safeNum(r.total_vol)
     const totalTxs = safeNum(r.total_txs)
     const usdcTxs = safeNum(r.usdc_txs)
-    const usdcSharePct = totalVol > 0 ? parseFloat(((usdcVol / totalVol) * 100).toFixed(2)) : 0
+    // A zero total means the registry scope resolved to nothing (the exact
+    // stale-address failure mode that once produced a false 0% USDC) — refuse
+    // to publish rather than emit a misleading 0% share.
+    if (totalVol <= 0) throw new Error('x402TokenSplit: total_vol is 0 — registry scope likely broken; refusing to publish a false 0% split')
+    const usdcSharePct = parseFloat(((usdcVol / totalVol) * 100).toFixed(2))
     return {
       usdcSharePct,
       totalPayments: Math.round(totalTxs),
