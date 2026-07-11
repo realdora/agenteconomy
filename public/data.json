@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-10T02:24:33.163939Z",
+  "updatedAt": "2026-07-11T01:31:30.55372Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -11,21 +11,21 @@
       },
       "x402Daily": {
         "queryId": 7881006,
-        "executionId": "01KX4VMBSJYDRFFEVNKHTNWFX4",
-        "executedAt": "2026-07-10T01:53:25.75788Z",
-        "lastCostCredits": 2.656617648
+        "executionId": "01KX7CPTZNVMAC3KQQTCHVCTKZ",
+        "executedAt": "2026-07-11T01:30:35.725932Z",
+        "lastCostCredits": 3.044852942
       },
       "baseAgentic": {
         "queryId": 6731879,
-        "executionId": "01KX4VNPG0JCP15P6A0T7PFMCC",
-        "executedAt": "2026-07-10T01:53:50.58931Z",
-        "lastCostCredits": 3.073088236
+        "executionId": "01KX7CRG5VHN3SCHS0NQYE14PQ",
+        "executedAt": "2026-07-11T01:30:44.539269Z",
+        "lastCostCredits": 3.108382353
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01KX4VPC4AS1RG3NJASN39QY4H",
-        "executedAt": "2026-07-10T01:53:57.695574Z",
-        "lastCostCredits": 0.191088236
+        "executionId": "01KX7CRV916R85GC21C1DCM86Z",
+        "executedAt": "2026-07-11T01:30:53.396231Z",
+        "lastCostCredits": 0.212382353
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -35,9 +35,9 @@
       },
       "olas": {
         "queryId": 7881008,
-        "executionId": "01KWP0RZGFT7KV015NCFEV8AAJ",
-        "executedAt": "2026-07-04T07:34:45.858957Z",
-        "lastCostCredits": 1.216617648
+        "executionId": "01KX7CS10QHK0JK3J1F3N8K4SH",
+        "executedAt": "2026-07-11T01:31:30.55372Z",
+        "lastCostCredits": 2.289558824
       },
       "x402TokenSplit": {
         "queryId": 7931767,
@@ -142,10 +142,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-05-12",
-        "txs": 155470
-      },
       {
         "day": "2026-05-13",
         "txs": 148903
@@ -376,11 +372,15 @@
       },
       {
         "day": "2026-07-09",
-        "txs": 196337
+        "txs": 196678
       },
       {
         "day": "2026-07-10",
-        "txs": 13919
+        "txs": 194817
+      },
+      {
+        "day": "2026-07-11",
+        "txs": 10597
       }
     ],
     "protocols": [
@@ -461,8 +461,8 @@
     }
   },
   "baseAgentic": {
-    "asOf": "2026-07-10T01:53:50.58931Z",
-    "totalTxs": 1373236,
+    "asOf": "2026-07-11T01:30:44.539269Z",
+    "totalTxs": 1380302,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1603,18 +1603,19 @@
         "consumer": 646,
         "infrastructure": 4852,
         "total": 5498
+      },
+      {
+        "day": "2026-07-10",
+        "consumer": 1016,
+        "infrastructure": 6050,
+        "total": 7066
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-07-10T01:53:57.695574Z",
-    "totalMemos": 12326652,
+    "asOf": "2026-07-11T01:30:53.396231Z",
+    "totalMemos": 12326850,
     "daily": [
-      {
-        "day": "2026-04-12",
-        "memos": 16916,
-        "senders": 17
-      },
       {
         "day": "2026-04-13",
         "memos": 28510,
@@ -2057,8 +2058,13 @@
       },
       {
         "day": "2026-07-10",
-        "memos": 19,
-        "senders": 6
+        "memos": 208,
+        "senders": 7
+      },
+      {
+        "day": "2026-07-11",
+        "memos": 9,
+        "senders": 4
       }
     ]
   },
@@ -3035,24 +3041,24 @@
     ]
   },
   "olas": {
-    "asOf": "2026-07-04T07:34:45.858957Z",
-    "totalTxs": 17784192,
+    "asOf": "2026-07-11T01:31:30.55372Z",
+    "totalTxs": 17953446,
     "chains": [
       {
         "name": "Gnosis",
-        "txs": 17219484
+        "txs": 17364727
       },
       {
         "name": "Optimism",
-        "txs": 247849
+        "txs": 269563
       },
       {
         "name": "Polygon",
-        "txs": 186270
+        "txs": 188293
       },
       {
         "name": "Base",
-        "txs": 128983
+        "txs": 129257
       },
       {
         "name": "Ethereum",
@@ -3072,10 +3078,6 @@
       }
     ],
     "weekly": [
-      {
-        "week": "2025-07-07",
-        "txs": 194248
-      },
       {
         "week": "2025-07-14",
         "txs": 166044
@@ -3278,7 +3280,11 @@
       },
       {
         "week": "2026-06-29",
-        "txs": 119935
+        "txs": 161928
+      },
+      {
+        "week": "2026-07-06",
+        "txs": 127261
       }
     ]
   }

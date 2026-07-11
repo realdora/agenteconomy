@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-10T01:53:58.087Z",
+  "generatedAt": "2026-07-11T01:31:32.064Z",
   "x402": {
     "cutoff": "2026-07-03",
     "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03)",
@@ -1260,25 +1260,25 @@
     ]
   },
   "olas": {
-    "cutoff": "2026-05-04",
-    "source": "Frozen from public/data.json Olas weekly rows through week 2026-04-27; recent-window query fills weeks >= cutoff. Catch-up execution 01KWP0RZGFT7KV015NCFEV8AAJ validated the window through the current 2026-06-29 week, but cutoff is intentionally not advanced until that week closes.",
-    "totalTxs": 16449330,
+    "cutoff": "2026-06-29",
+    "source": "Frozen from public/data.json Olas weekly rows through week 2026-04-27; recent-window query fills weeks >= cutoff. Catch-up execution 01KWP0RZGFT7KV015NCFEV8AAJ validated the window through the current 2026-06-29 week, but cutoff is intentionally not advanced until that week closes. + folded weeks [2026-05-04, 2026-06-29)",
+    "totalTxs": 17664257,
     "chains": [
       {
         "name": "Gnosis",
-        "txs": 15972029
+        "txs": 17122122
       },
       {
         "name": "Optimism",
-        "txs": 205475
+        "txs": 231100
       },
       {
         "name": "Polygon",
-        "txs": 149946
+        "txs": 180736
       },
       {
         "name": "Base",
-        "txs": 120274
+        "txs": 128693
       },
       {
         "name": "Ethereum",
@@ -1505,6 +1505,38 @@
       {
         "week": "2026-04-27",
         "txs": 59302
+      },
+      {
+        "week": "2026-05-04",
+        "txs": 173818
+      },
+      {
+        "week": "2026-05-11",
+        "txs": 145781
+      },
+      {
+        "week": "2026-05-18",
+        "txs": 148359
+      },
+      {
+        "week": "2026-05-25",
+        "txs": 136662
+      },
+      {
+        "week": "2026-06-01",
+        "txs": 128453
+      },
+      {
+        "week": "2026-06-08",
+        "txs": 113844
+      },
+      {
+        "week": "2026-06-15",
+        "txs": 156264
+      },
+      {
+        "week": "2026-06-22",
+        "txs": 211746
       }
     ]
   }
