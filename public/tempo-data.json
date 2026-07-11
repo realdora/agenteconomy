@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-07-11T07:41:51.657Z",
-  "totalEvents": 43853,
-  "uniquePayers": 1823,
+  "updatedAt": "2026-07-11T12:56:45.893Z",
+  "totalEvents": 43882,
+  "uniquePayers": 1825,
   "uniquePayees": 90,
   "byType": {
-    "ChannelOpened": 22071,
+    "ChannelOpened": 22086,
     "CloseRequested": 3053,
     "ChannelExpired": 2865,
-    "ChannelClosed": 15109,
+    "ChannelClosed": 15123,
     "Settled": 384,
     "TopUp": 371
   },
@@ -194,13 +194,13 @@
     },
     {
       "day": "2026-04-16",
-      "events": 1680,
+      "events": 1684,
       "payers": 57,
       "payees": 10
     },
     {
       "day": "2026-04-17",
-      "events": 474,
+      "events": 470,
       "payers": 35,
       "payees": 6
     },
@@ -260,13 +260,13 @@
     },
     {
       "day": "2026-04-27",
-      "events": 192,
+      "events": 191,
       "payers": 52,
       "payees": 4
     },
     {
       "day": "2026-04-28",
-      "events": 418,
+      "events": 419,
       "payers": 65,
       "payees": 7
     },
@@ -680,13 +680,13 @@
     },
     {
       "day": "2026-07-06",
-      "events": 102,
+      "events": 100,
       "payers": 5,
       "payees": 3
     },
     {
       "day": "2026-07-07",
-      "events": 28,
+      "events": 30,
       "payers": 2,
       "payees": 2
     },
@@ -710,9 +710,9 @@
     },
     {
       "day": "2026-07-11",
-      "events": 2,
-      "payers": 1,
-      "payees": 1
+      "events": 31,
+      "payers": 3,
+      "payees": 2
     }
   ]
 }
