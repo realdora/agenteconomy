@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-11T01:31:32.064Z",
+  "generatedAt": "2026-07-11T06:12:26.691Z",
   "x402": {
-    "cutoff": "2026-07-03",
-    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03)",
+    "cutoff": "2026-07-07",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07)",
     "protocolsApprox": true,
-    "totalTxs": 154288826,
-    "totalVolume": 40927628,
+    "totalTxs": 155064255,
+    "totalVolume": 40954597,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -56,8 +56,8 @@
       },
       {
         "month": "2026-07",
-        "txs": 283739,
-        "vol": 16634
+        "txs": 1059168,
+        "vol": 43603
       }
     ],
     "protocols": [
@@ -68,8 +68,8 @@
       },
       {
         "name": "Other",
-        "txs": 34068862,
-        "vol": 134853
+        "txs": 34801715,
+        "vol": 156615
       },
       {
         "name": "Dexter",
@@ -78,8 +78,8 @@
       },
       {
         "name": "PayAI",
-        "txs": 30912249,
-        "vol": 128466
+        "txs": 30954651,
+        "vol": 133225
       },
       {
         "name": "DayDreams",
@@ -103,33 +103,33 @@
       },
       {
         "name": "ThirdWeb",
-        "txs": 793,
-        "vol": 1090
+        "txs": 855,
+        "vol": 1228
       },
       {
         "name": "Ultravioleta",
-        "txs": 237,
-        "vol": 12
+        "txs": 312,
+        "vol": 18
       },
       {
         "name": "x402RS",
-        "txs": 171,
+        "txs": 183,
         "vol": 247
       },
       {
         "name": "Mogami",
-        "txs": 125,
+        "txs": 137,
         "vol": 14
       },
       {
         "name": "OpenX402",
-        "txs": 92,
-        "vol": 565
+        "txs": 96,
+        "vol": 615
       },
       {
         "name": "B402",
-        "txs": 33,
-        "vol": 1587
+        "txs": 42,
+        "vol": 1841
       },
       {
         "name": "Questflow",
