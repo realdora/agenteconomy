@@ -47,6 +47,13 @@ jobs:
           DUNE_MONTHLY_CREDIT_CAP: '2000'
           DUNE_RUN_CREDIT_CAP: '25'
           DUNE_QUERY_CREDIT_CAP: '10'
+          # Fold daily with a 4-day lag: keeps every window ~5 days, so the
+          # priciest query (x402 day-grain, ~0.9 credits/window-day) runs at
+          # ~4.5 credits — 2x headroom under the 10-credit query cap. The
+          # 7-day defaults let the window peak at 8 days, which hit the cap
+          # exactly on 2026-07-10.
+          DUNE_FOLD_TRIGGER_DAYS: '4'
+          DUNE_FOLD_LAG_DAYS: '4'
         run: node scripts/fetch-data.js
 
       - name: Commit updated data.json

@@ -788,16 +788,22 @@ function freshExecutionBlockReason(state, budget, prev, baselines) {
   const previousCost = creditNumber(prev?.lastCostCredits)
   if (previousCost > QUERY_CREDIT_CAP) {
     // An over-cap record only describes the window it was executed against.
-    // Once the baseline cutoff has advanced PAST that execution's date, the
-    // scanned window has shrunk and the old cost no longer predicts the next
-    // one — allow a fresh (still cap-protected) attempt.
+    // Once the current window is strictly SMALLER than that one, the old cost
+    // no longer predicts the next attempt — allow a fresh (still cap-protected)
+    // try. Preferred evidence: the recorded lastWindowStart vs the current
+    // cutoff. Legacy records (no lastWindowStart) fall back to comparing the
+    // execution date, which is coarser but only ever lifts later, never sooner.
     const cutoff = state.query.baselineKey ? baselines?.[state.query.baselineKey]?.cutoff : null
+    const cutoffDay = cutoff ? String(cutoff).slice(0, 10) : null
+    const prevWindow = String(prev?.lastWindowStart || '').slice(0, 10)
     const prevDay = String(prev?.executedAt || '').slice(0, 10)
-    const windowShrankSince = Boolean(cutoff && prevDay && prevDay < cutoff.slice(0, 10))
+    const windowShrankSince = Boolean(
+      cutoffDay && (prevWindow ? cutoffDay > prevWindow : prevDay && prevDay < cutoffDay),
+    )
     if (!windowShrankSince) {
       return `previous execution cost ${previousCost.toFixed(2)} exceeded query cap ${QUERY_CREDIT_CAP}`
     }
-    console.log(`${state.query.label}: previous over-cap cost ${previousCost.toFixed(2)} predates cutoff ${cutoff} — window has shrunk, allowing a fresh attempt`)
+    console.log(`${state.query.label}: previous over-cap cost ${previousCost.toFixed(2)} was for a larger window (start ${prevWindow || 'unknown'}) — cutoff now ${cutoffDay}, allowing a fresh attempt`)
   }
   return null
 }
@@ -925,6 +931,9 @@ async function main() {
     console.log(`${state.query.label}: latest result ${ageLabel}; executing fresh (engine ${PERFORMANCE})`)
     executionsUsed += 1
     try {
+      // Recorded so an over-cap cost can later be judged against the window it
+      // actually scanned (freshExecutionBlockReason's shrink rule).
+      state.windowStartUsed = state.query.baselineKey ? baselines?.[state.query.baselineKey]?.cutoff ?? null : null
       state.execResult = await executeAndWait(state.query, baselines)
       state.execId = state.execResult.execution_id || null
       state.execEndedAt = getExecutionEndedAt(state.execResult) || new Date().toISOString()
@@ -976,7 +985,7 @@ async function main() {
         const fragment = REUSERS[query.key](existing)
         if (fragment) {
           fragments[query.key] = fragment
-          metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt, lastCostCredits: prev.lastCostCredits }
+          metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt, lastCostCredits: prev.lastCostCredits, lastWindowStart: prev.lastWindowStart }
           fragmentSources[query.key] = 'unchanged'
           console.log(`${query.label}: unchanged (execution ${state.latestId}); skipping download`)
           continue
@@ -994,6 +1003,7 @@ async function main() {
             executedAt: prev.executedAt,
             bootstrap: prev.bootstrap || undefined,
             lastCostCredits: prev.lastCostCredits,
+            lastWindowStart: prev.lastWindowStart,
           }
           fragmentSources[query.key] = state.preferPreviousReason ? 'previous-build' : 'bootstrap'
           const reason = state.preferPreviousReason || 'bootstrap metadata has no trusted execution id yet'
@@ -1019,7 +1029,17 @@ async function main() {
           console.warn(warnings[warnings.length - 1])
         }
         fragments[query.key] = PARSERS[query.key](rows, baselines)
-        metaOut[query.key] = { queryId: query.id, executionId, executedAt, lastCostCredits: state.executionCostCredits ?? prev?.lastCostCredits }
+        // A cost record describes ONE execution. When the ingested execution id
+        // moves on, a stale over-cap record must not keep blocking retries
+        // forever — carry cost/window only while the execution is the same.
+        const sameExecution = Boolean(executionId && prev?.executionId === executionId)
+        metaOut[query.key] = {
+          queryId: query.id,
+          executionId,
+          executedAt,
+          lastCostCredits: state.executionCostCredits ?? (sameExecution ? prev?.lastCostCredits : undefined),
+          lastWindowStart: state.windowStartUsed ?? (sameExecution ? prev?.lastWindowStart : undefined),
+        }
         fragmentSources[query.key] = source
         console.log(`${query.label}: ${rows.length} rows (${source})`)
         continue
@@ -1029,7 +1049,7 @@ async function main() {
       const fragment = REUSERS[query.key](existing)
       if (fragment && prev) {
         fragments[query.key] = fragment
-        metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt, bootstrap: prev.bootstrap || undefined, lastCostCredits: prev.lastCostCredits }
+        metaOut[query.key] = { queryId: query.id, executionId: prev.executionId, executedAt: prev.executedAt, bootstrap: prev.bootstrap || undefined, lastCostCredits: prev.lastCostCredits, lastWindowStart: prev.lastWindowStart }
         fragmentSources[query.key] = 'previous-build'
         warnings.push(`${query.label}: Dune unreachable (${state.probeError?.message || 'no data'}); reusing previous build`)
         console.warn(warnings[warnings.length - 1])

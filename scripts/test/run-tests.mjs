@@ -66,11 +66,13 @@ function fixtureRows(id, { totalTxs = 150_000_000, totalVol = 40_000_000 } = {})
           total_weekly_transactions_number: 5000 + i,
           global_cumulative_transactions_number: 2_000_000 + i * 1000,
         })))
+    case 7931767: // x402 token split (trailing-30d, single aggregated row)
+      return [{ usdc_vol: 950_000, total_vol: 1_000_000, usdc_txs: 9_500_000, total_txs: 10_000_000 }]
     default: throw new Error(`no fixture for query ${id}`)
   }
 }
 
-const ALL_IDS = [6058135, 6084845, 6731879, 6200422, 6130922, 3344834]
+const ALL_IDS = [6058135, 6084845, 6731879, 6200422, 6130922, 3344834, 7931767]
 
 function defaultScenario() {
   const queries = {}
@@ -213,9 +215,9 @@ const countLog = (log, pattern) => log.filter(l => l.includes(pattern)).length
 console.log('\nS1 cold start (fresh caches, no executions expected)')
 const s1 = await runPipeline(defaultScenario())
 check('exit 0', s1.status === 0, `status=${s1.status}\n${s1.stdout}`)
-check('no executions', countLog(s1.log, '/execute') === 0)
-check('6 probes', countLog(s1.log, 'limit=1&') === 6, JSON.stringify(s1.log))
-check('6 full downloads', s1.log.filter(l => /limit=(1000|5000)/.test(l)).length === 6)
+check('no executions', countLog(s1.log, '/execute') === 0, JSON.stringify(s1.log.filter(l => l.includes('execute'))))
+check('7 probes', countLog(s1.log, 'limit=1&') === 7, JSON.stringify(s1.log))
+check('7 full downloads', s1.log.filter(l => /limit=(10000|5000|1000|10)&/.test(l)).length === 7, JSON.stringify(s1.log))
 check('data.json written with meta', !!s1.data && JSON.parse(s1.data).meta?.queries?.x402Cumulative?.executionId === 'exec-6058135-v1')
 check('asOf stamps present', !!JSON.parse(s1.data).x402.asOf && !!JSON.parse(s1.data).olas.asOf)
 const SEED = s1.data // canonical previous build for later scenarios
@@ -224,7 +226,7 @@ const SEED = s1.data // canonical previous build for later scenarios
 console.log('\nS2 unchanged (probe-only, zero downloads, no write)')
 const s2 = await runPipeline(defaultScenario(), { seedDataJson: SEED })
 check('exit 0', s2.status === 0, `status=${s2.status}\n${s2.stdout}`)
-check('6 probes', countLog(s2.log, 'limit=1&') === 6)
+check('7 probes', countLog(s2.log, 'limit=1&') === 7)
 check('zero full downloads', s2.log.filter(l => /limit=(1000|5000)/.test(l)).length === 0, JSON.stringify(s2.log))
 check('no write reported', s2.stdout.includes('no data changes'))
 check('file byte-identical', s2.data === SEED)
@@ -642,7 +644,7 @@ const s13a = await runPipeline(s13scenarioA, {
 })
 check('exit 0', s13a.status === 0, `status=${s13a.status}\n${s13a.stdout}`)
 check('stale record lifted → executed', countLog(s13a.log, '/query/6084845/execute') === 1, JSON.stringify(s13a.log.filter(l => l.includes('6084845'))))
-check('unblock reason logged', s13a.stdout.includes('window has shrunk'), s13a.stdout)
+check('unblock reason logged', s13a.stdout.includes('allowing a fresh attempt'), s13a.stdout)
 
 const s13b = await runPipeline(s13scenarioA, {
   seedDataJson: JSON.stringify(s13seed),
@@ -652,6 +654,27 @@ const s13b = await runPipeline(s13scenarioA, {
 check('exit 0', s13b.status === 0, `status=${s13b.status}`)
 check('same-window record still blocks', countLog(s13b.log, '/query/6084845/execute') === 0, JSON.stringify(s13b.log.filter(l => l.includes('execute'))))
 check('block reason emitted', s13b.stdout.includes('exceeded query cap'), s13b.stdout)
+
+// S13c — a stale over-cap record is EXECUTION-scoped: when a newer execution
+// is ingested (different id), the record drops instead of blocking forever.
+console.log('\nS13c over-cap record drops when the ingested execution moves on')
+const s13cseed = JSON.parse(SEED)
+s13cseed.meta.queries.x402Daily.lastCostCredits = 11.73
+s13cseed.meta.queries.x402Daily.lastWindowStart = isoDaysAgo(9)
+s13cseed.meta.queries.x402Daily.executedAt = `${isoDaysAgo(2)}T02:00:00Z`
+const s13cscenario = defaultScenario()
+// fresh-enough newer execution from "someone else": not due, different id → 'latest' download path
+s13cscenario.queries[6084845].latest = { execution_id: 'exec-daily-other', endedHoursAgo: 1, rows: fixtureRows(6084845) }
+const s13c = await runPipeline(s13cscenario, {
+  seedDataJson: JSON.stringify(s13cseed),
+  baselines: { x402Daily: { cutoff: isoDaysAgo(8), daily: [{ day: isoDaysAgo(9), txs: 100 }] } },
+  extraEnv: { DUNE_REFRESH_KEYS: 'x402Daily', DUNE_QUERY_CREDIT_CAP: '10' },
+})
+const s13cmeta = JSON.parse(s13c.data).meta.queries.x402Daily
+check('exit 0', s13c.status === 0, `status=${s13c.status}\n${s13c.stdout}`)
+check('newer execution ingested', s13cmeta.executionId === 'exec-daily-other', JSON.stringify(s13cmeta))
+check('stale over-cap cost dropped', s13cmeta.lastCostCredits === undefined, JSON.stringify(s13cmeta))
+check('stale window record dropped', s13cmeta.lastWindowStart === undefined, JSON.stringify(s13cmeta))
 
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)
