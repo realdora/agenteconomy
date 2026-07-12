@@ -1,64 +1,64 @@
 {
-  "updatedAt": "2026-07-12T08:21:16.207Z",
+  "updatedAt": "2026-07-12T13:24:22.869Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-07-12T08:21:16.544Z",
+    "asOf": "2026-07-12T13:24:23.274Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 394606368,
-        "price": 0.599735,
-        "change24h": -3.09403
+        "mcap": 392673658,
+        "price": 0.597288,
+        "change24h": -4.00283
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 360838883,
-        "price": 0.160513,
-        "change24h": -0.27549
+        "mcap": 360052490,
+        "price": 0.160206,
+        "change24h": -1.05713
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 270119989,
-        "price": 0.112964,
-        "change24h": -6.38778
+        "mcap": 271194191,
+        "price": 0.113416,
+        "change24h": -4.06064
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 7766152,
-        "price": 0.02788714,
-        "change24h": 0.55525
+        "mcap": 7767585,
+        "price": 0.02789092,
+        "change24h": 0.89718
       }
     ],
-    "basketMcap": 1033331392,
-    "basketVol24h": 138858235,
+    "basketMcap": 1031687924,
+    "basketVol24h": 124519827,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 2697672656,
-        "vol24h": 325889539,
-        "updatedAt": "2026-07-12T08:12:37.006Z"
+        "mcap": 2696263752,
+        "vol24h": 285382407,
+        "updatedAt": "2026-07-12T13:17:38.651Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1149874888,
-        "vol24h": 164265767,
-        "updatedAt": "2026-07-12T08:15:28.110Z"
+        "mcap": 1149158345,
+        "vol24h": 149612091,
+        "updatedAt": "2026-07-12T13:20:26.625Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-07-12T08:22:43.562Z",
-    "uniqueProviders": 1482,
-    "totalListings": 25307,
+    "asOf": "2026-07-12T13:25:43.441Z",
+    "uniqueProviders": 1485,
+    "totalListings": 25330,
     "top2ListingSharePct": 45,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-07-12T08:21:19.287Z",
-    "launchedAgents": 54047,
+    "asOf": "2026-07-12T13:24:26.125Z",
+    "launchedAgents": 54086,
     "acpRegisteredAgents": 44048,
     "aggregates": {
       "asOf": "2026-07-12T03:00:36.558Z",
@@ -135,7 +135,7 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-07-12T08:21:17.721Z",
+    "asOf": "2026-07-12T13:24:24.568Z",
     "totalTxs": 33038,
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Cross-verified against the Masumi explorer on 2026-06-10."
   },
@@ -159,7 +159,7 @@
     "note": "getProgramAccounts counts on Solana agent-registry programs (public RPC). Upper bound of registrations. By-registry breakdown for the census page; do not cite the Foundation \"9,000+\" marketing figure."
   },
   "standardsAdoption": {
-    "asOf": "2026-07-06T08:42:45.851Z",
+    "asOf": "2026-07-12T13:24:25.476Z",
     "rows": [
       {
         "check": "robotsTxt",
@@ -566,7 +566,7 @@
       ]
     },
     "prevMonth": {
-      "date": "2026-06-08",
+      "date": "2026-06-14",
       "rows": [
         {
           "check": "robotsTxt",
