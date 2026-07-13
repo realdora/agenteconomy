@@ -1,0 +1,38 @@
+name: Update Dashboard
+
+# Reprint the dashboard from the latest feeds every 6 hours (after the data
+# crons) and deploy. The dashboard is a static product by design — see
+# docs/superpowers/specs/2026-07-07-dashboard-redesign-design.md (Path A
+# amendment): the feeds change a few times a day, so scheduled regeneration
+# IS the honest freshness model.
+on:
+  schedule:
+    - cron: '15 3,9,15,21 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: update-dashboard
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Feeds from this checkout (cron-committed, canonical)
+        run: |
+          mkdir -p dashboard/data
+          cp public/data.json public/web-sources.json dashboard/data/
+          cp public/tempo-data.json dashboard/data/ 2>/dev/null || true
+      - name: Build
+        run: node dashboard/build.mjs
+      - name: Deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_fFSVN6tRoGVgunTP7gDNa5g3
+          VERCEL_PROJECT_ID: prj_jMEyoKO279IN9yOOz5PZCG7FeETN
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then echo "::warning::VERCEL_TOKEN secret not set — skipping deploy"; exit 0; fi
+          npx vercel deploy --prod --yes --token="$VERCEL_TOKEN" --cwd dashboard/dist
