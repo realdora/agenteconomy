@@ -240,6 +240,11 @@ const xDaily = closed(d.x402.daily)
 const lastDay = xDaily.at(-1)
 const perSec = lastDay.txs / 86400
 const regC = closed(d.erc8004Registry.daily); const acpC = closed(d.virtualsAcp.daily)
+// Masumi weekly series (present once the pipeline has backfilled it) — chart
+// only complete weeks: a week is closed when its 7th day ends before the
+// feed's own asOf day.
+const masumiAsOfDay = String(w.masumi.asOf).slice(0, 10)
+const masumiW = (w.masumi.weekly || []).filter(r => new Date(Date.parse(r.week) + 7 * 86400000).toISOString().slice(0, 10) <= masumiAsOfDay)
 const BRIEF = [
   { tag: 'PAYMENTS', c: '#0f766e', bg: '#ecfdf5', href: '/x402', n: fmt(lastDay.txs), s: `x402 settlements on ${lastDay.day} — the daily pulse of agent payments.`, cta: 'Open x402 →' },
   { tag: 'CONCENTRATION', c: '#b45309', bg: '#fffbeb', href: '/x402', n: d.x402.protocols[0].share + '%', s: `${d.x402.protocols[0].name}'s share of all x402 settlements — the facilitator layer is still concentrated.`, cta: 'Open facilitators →' },
@@ -254,7 +259,7 @@ const IDX = [
   { slug: 'erc-8004', role: 'Where agents claim an on-chain identity — we count sign-ups, not activity', ev: d.erc8004Registry.totalAgents, unit: 'registered agents', grain: '28 days', s: regC.slice(-28).map(r => r.agents) },
   { slug: 'tempo-mpp', role: 'Machine-to-machine payment channels on Tempo, the Stripe-backed chain', ev: d.tempoMpp.totalEvents, unit: 'channel events', grain: '28 days', s: closed(d.tempoMpp.daily).slice(-28).map(r => r.events) },
   { slug: 'base-agentic', role: 'All agent-driven activity on Base beyond the named protocols — how big the wider scene is', ev: d.baseAgentic.totalTxs, unit: 'ecosystem transactions', grain: '28 days', s: closed(d.baseAgentic.daily).slice(-28).map(r => r.total) },
-  { slug: 'masumi', role: 'Agent payments on Cardano, held in escrow until the work is done', ev: w.masumi.totalTxs, unit: 'escrow transactions', grain: 'totals', s: null },
+  { slug: 'masumi', role: 'Agent payments on Cardano, held in escrow until the work is done', ev: w.masumi.totalTxs, unit: 'escrow transactions', grain: masumiW.length ? '28 weeks' : 'totals', s: masumiW.length ? masumiW.slice(-28).map(r => r.txs) : null },
 ]
 const OFFCHAIN = [
   { href: '/market', l: 'Agent token basket', v: '$' + compact(w.agentTokens.basketMcap), s: 'Curated 4-token market cap — the price the market puts on the sector.', cta: 'Market →' },
@@ -373,11 +378,15 @@ protoPage('masumi', {
   kpiItems: [
     { l: 'Escrow transactions', v: compact(w.masumi.totalTxs), f: fmt(w.masumi.totalTxs) },
     { l: 'Chain', v: 'Cardano', f: 'mainnet payment contract' },
+    ...(masumiW.length ? [{ l: `Weekly · week of ${masumiW.at(-1).week.slice(5)}`, v: compact(masumiW.at(-1).txs), f: fmt(masumiW.at(-1).txs) }] : []),
     { l: 'As of', v: new Date(w.masumi.asOf).toISOString().slice(5, 10), f: 'refreshed with the feed' },
   ],
-  charts: [],
+  charts: masumiW.length ? [{ kick: 'Weekly', h2: 'Weekly escrow activity.', html: chartBox('Masumi transactions per week', 'Weekly totals · hover for exact figures', masumiW.slice(-52).map(r => ({ l: r.week.slice(5), v: r.txs })), { ranges: ['8W', '26W'], def: '26W' }) }] : [],
   split: null,
-  noteList: [
+  noteList: masumiW.length ? [
+    'Transactions on the Masumi mainnet payment (escrow) contract, counted via the public Koios API and cross-verified against the Masumi explorer.',
+    'The weekly series is rebuilt from the contract’s full on-chain transaction history (block timestamps, Monday-start UTC weeks); the current week appears once it completes.',
+  ] : [
     'Transactions on the Masumi mainnet payment (escrow) contract, counted via the public Koios API and cross-verified against the Masumi explorer.',
     'The feed currently carries the cumulative total only — a time series lands when the source exposes one. We show what is measured, not an interpolation.',
   ],
