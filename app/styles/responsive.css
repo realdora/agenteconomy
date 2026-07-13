@@ -208,6 +208,12 @@
     /* smaller floor so long single words (e.g. "Methodology") don't overflow narrow phones */
     font-size: clamp(40px, 12vw, 56px);
   }
+
+  /* report titles are multi-word ("State of the Agent Economy — …") —
+     one size down so the longest line fits a 390px phone */
+  .ae-report-page .ae-route-hero h1 {
+    font-size: clamp(30px, 10.5vw, 44px);
+  }
 }
 
 /* Cite hero chain: once blocks shrink on narrow phones, tighten the block labels

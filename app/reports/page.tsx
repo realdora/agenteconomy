@@ -44,7 +44,7 @@ export default async function ReportsIndex() {
   return (
     <>
       <HeaderSection />
-      <main className="ae-route-page">
+      <main className="ae-route-page ae-report-page">
         <section className="ae-route-hero">
           <div>
             <div className="ae-route-kicker">/reports</div>

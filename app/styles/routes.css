@@ -71,3 +71,13 @@
   line-height: 1.5;
   margin: 16px 0 0;
 }
+
+/* Monthly report pages read as a centered article column — the wide
+   route container left the body hugging the left half of the screen. */
+.ae-report-page {
+  max-width: 808px;
+}
+
+.ae-report-page .ae-route-hero h1 {
+  font-size: clamp(44px, 9.5vw, 76px);
+}
