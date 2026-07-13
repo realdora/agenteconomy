@@ -104,8 +104,10 @@ tr:last-child td{border-bottom:0}
 .foot{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--faint)}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
 .reveal.in{opacity:1;transform:none}
-.bar{transform:scaleY(0);transform-origin:bottom;transition:transform .55s cubic-bezier(.22,1,.36,1)}
+.bar{transform:scaleY(0);transform-origin:bottom;transition:transform .65s cubic-bezier(.22,1,.36,1)}
 .chartv.drawn .bar{transform:scaleY(1)}
+.chartv svg{opacity:0;transform:translateY(10px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.chartv.drawn svg{opacity:1;transform:none}
 .ep{padding:18px 0;border-bottom:1px solid #f0efeb}
 .method{font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600;letter-spacing:.08em;color:#0f766e;background:#ecfdf5;border-radius:6px;padding:3px 8px;margin-right:10px;vertical-align:middle}
 .method.mcp{color:#7c3aed;background:#f5f3ff}
@@ -129,7 +131,7 @@ pre{font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:12px;background
   .scrim{position:fixed;inset:0;background:rgba(28,25,23,.25);z-index:25;opacity:0;pointer-events:none;transition:opacity .2s}
   .scrim.open{opacity:1;pointer-events:auto}
 }
-@media (prefers-reduced-motion: reduce){.reveal,.bar,.hbar .fill,.side{transition:none!important;opacity:1!important;transform:none!important}}
+@media (prefers-reduced-motion: reduce){.reveal,.bar,.hbar .fill,.side,.chartv svg{transition:none!important;opacity:1!important;transform:none!important}}
 `
 
 const JS = `
@@ -154,10 +156,11 @@ function drawChart(box){
   const max=Math.max(...series.map(r=>r[mode.field]||0))||1
   let s=''
   for(const t of [0.5,1])s+='<line x1="0" y1="'+(166-146*t)+'" x2="'+PLOT+'" y2="'+(166-146*t)+'" stroke="#efede8" stroke-dasharray="2 4"/><text x="'+W+'" y="'+(166-146*t+3.5)+'" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+unit(max*t)+'</text>'
-  series.forEach((r,i)=>{const v=r[mode.field]||0;const bh=(v/max)*146;s+='<rect class="bar" data-i="'+i+'" style="transition-delay:'+Math.min(i*8,400)+'ms" x="'+(i*slot+(slot-bw)/2)+'" y="'+(166-bh)+'" width="'+bw+'" height="'+Math.max(bh,0.5)+'" rx="3" fill="#0f766e" opacity="'+(i===n-1?1:0.55)+'"/>'})
+  series.forEach((r,i)=>{const v=r[mode.field]||0;const bh=(v/max)*146;s+='<rect class="bar" data-i="'+i+'" style="transition-delay:'+Math.min(i*12,480)+'ms" x="'+(i*slot+(slot-bw)/2)+'" y="'+(166-bh)+'" width="'+bw+'" height="'+Math.max(bh,0.5)+'" rx="3" fill="#0f766e" opacity="'+(i===n-1?1:0.55)+'"/>'})
   s+='<text x="0" y="184" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[0].l+'</text><text x="'+PLOT+'" y="184" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[n-1].l+'</text>'
   box.classList.remove('drawn')
   box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+s+'</svg><div class="tip"></div>'
+  void box.offsetWidth
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('drawn')))
   const svg=box.querySelector('svg'),tip=box.querySelector('.tip')
   let hi=null
