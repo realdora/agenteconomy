@@ -134,12 +134,12 @@ pre{font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:12px;background
 
 const JS = `
 const ease=t=>t>=1?1:1-Math.pow(2,-10*t)
-function countUp(el,target,dec=0,dur=1600){const s=performance.now();const tick=n=>{const t=ease(Math.min((n-s)/dur,1));el.textContent=(target*t).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});if(t<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+function countUp(el,target,dec=0,dur=1600,onDone){const s=performance.now();const tick=n=>{const t=ease(Math.min((n-s)/dur,1));el.textContent=(target*t).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});if(t<1)requestAnimationFrame(tick);else if(onDone)onDone()};requestAnimationFrame(tick)}
 document.querySelectorAll('.cnt').forEach(el=>countUp(el,Number(el.dataset.v),Number(el.dataset.dec||0)))
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:0.15})
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el))
 const big=document.getElementById('bignum')
-if(big){countUp(big,Number(big.dataset.v),0,2000);const rate=Number(big.dataset.rate);let t0=performance.now();setTimeout(()=>setInterval(()=>{const est=Number(big.dataset.v)+(performance.now()-t0)/1000*rate;big.innerHTML=Math.floor(est).toLocaleString('en-US').replace(/(\\d{3})$/,'<span class="live-digits">$1</span>')},1000),2200)}
+if(big){const target=Number(big.dataset.v),rate=Number(big.dataset.rate);const paint=v=>{big.innerHTML=Math.floor(v).toLocaleString('en-US').replace(/(\\d{3})$/,'<span class="live-digits">$1</span>')};countUp(big,target,0,2000,()=>{const t0=performance.now();paint(target);setInterval(()=>paint(target+(performance.now()-t0)/1000*rate),1000)})}
 const UNITS={compact:v=>v>=1e12?(v/1e12).toFixed(2)+'T':v>=1e9?(v/1e9).toFixed(1)+'B':v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':String(Math.round(v)),usd:v=>'$'+UNITS.compact(v),full:v=>Number(v).toLocaleString('en-US'),usdfull:v=>'$'+Number(v).toLocaleString('en-US')}
 function drawChart(box){
   const all=JSON.parse(box.dataset.series)
@@ -150,12 +150,12 @@ function drawChart(box){
   const unitName=mode.field==='v2'?(box.dataset.unit2||'compact'):(box.dataset.unit||'compact')
   const unit=UNITS[unitName]
   const fullUnit=UNITS[unitName==='usd'?'usdfull':'full']
-  const W=1040,H=190,n=series.length,slot=W/n,bw=Math.min(20,slot*0.72)
+  const W=1040,H=190,PLOT=W-72,n=series.length,slot=PLOT/n,bw=Math.min(20,slot*0.72)
   const max=Math.max(...series.map(r=>r[mode.field]||0))||1
   let s=''
-  for(const t of [0.5,1])s+='<line x1="0" y1="'+(166-146*t)+'" x2="'+W+'" y2="'+(166-146*t)+'" stroke="#efede8" stroke-dasharray="2 4"/><text x="'+W+'" y="'+(162-146*t)+'" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+unit(max*t)+'</text>'
+  for(const t of [0.5,1])s+='<line x1="0" y1="'+(166-146*t)+'" x2="'+PLOT+'" y2="'+(166-146*t)+'" stroke="#efede8" stroke-dasharray="2 4"/><text x="'+W+'" y="'+(166-146*t+3.5)+'" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+unit(max*t)+'</text>'
   series.forEach((r,i)=>{const v=r[mode.field]||0;const bh=(v/max)*146;s+='<rect class="bar" data-i="'+i+'" style="transition-delay:'+Math.min(i*8,400)+'ms" x="'+(i*slot+(slot-bw)/2)+'" y="'+(166-bh)+'" width="'+bw+'" height="'+Math.max(bh,0.5)+'" rx="3" fill="#0f766e" opacity="'+(i===n-1?1:0.55)+'"/>'})
-  s+='<text x="0" y="184" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[0].l+'</text><text x="'+W+'" y="184" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[n-1].l+'</text>'
+  s+='<text x="0" y="184" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[0].l+'</text><text x="'+PLOT+'" y="184" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[n-1].l+'</text>'
   box.classList.remove('drawn')
   box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+s+'</svg><div class="tip"></div>'
   requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('drawn')))
@@ -245,13 +245,13 @@ const BRIEF = [
 ]
 const spark = series => { if (!series || !series.length) return '<span style="font-family:GeistMono,Menlo,monospace;font-size:10px;color:#a8a29e">totals only</span>'; const max = Math.max(...series); const n = series.length; return `<svg width="96" height="18" viewBox="0 0 96 18">${series.map((v, i) => `<rect x="${i * (96 / n)}" y="${18 - (max ? v / max : 0) * 16}" width="${96 / n - 1.4}" height="${(max ? v / max : 0) * 16}" rx="1" fill="#0f766e" opacity="0.55"/>`).join('')}</svg>` }
 const IDX = [
-  { slug: 'x402', role: 'HTTP-native agent payments', ev: d.x402.totalTxs, unit: 'settlements', extra: ` · $${compact(d.x402.totalVolume)} settled`, grain: '28 days', s: xDaily.slice(-28).map(r => r.txs) },
-  { slug: 'olas', role: 'Autonomous agent network', ev: d.olas.totalTxs, unit: 'agent transactions', grain: '28 weeks', s: d.olas.weekly.slice(-28).map(r => r.txs) },
-  { slug: 'virtuals-acp', role: 'Agent-to-agent commerce', ev: d.virtualsAcp.totalMemos, unit: 'commerce memos', grain: '28 days', s: acpC.slice(-28).map(r => r.memos) },
-  { slug: 'erc-8004', role: 'Agent identity registry', ev: d.erc8004Registry.totalAgents, unit: 'registered agents', grain: '28 days', s: regC.slice(-28).map(r => r.agents) },
-  { slug: 'tempo-mpp', role: 'Machine payment channels', ev: d.tempoMpp.totalEvents, unit: 'channel events', grain: '28 days', s: closed(d.tempoMpp.daily).slice(-28).map(r => r.events) },
-  { slug: 'base-agentic', role: 'Ecosystem context', ev: d.baseAgentic.totalTxs, unit: 'ecosystem transactions', grain: '28 days', s: closed(d.baseAgentic.daily).slice(-28).map(r => r.total) },
-  { slug: 'masumi', role: 'Agent escrow payments (Cardano)', ev: w.masumi.totalTxs, unit: 'escrow transactions', grain: 'totals', s: null },
+  { slug: 'x402', role: 'How agents pay per request over the web — the busiest payment rail we track', ev: d.x402.totalTxs, unit: 'settlements', extra: ` · $${compact(d.x402.totalVolume)} settled`, grain: '28 days', s: xDaily.slice(-28).map(r => r.txs) },
+  { slug: 'olas', role: 'Agents that trade and predict on their own — this is their on-chain transaction trail', ev: d.olas.totalTxs, unit: 'agent transactions', grain: '28 weeks', s: d.olas.weekly.slice(-28).map(r => r.txs) },
+  { slug: 'virtuals-acp', role: 'Agents hiring and paying other agents — each memo is one step of a deal', ev: d.virtualsAcp.totalMemos, unit: 'commerce memos', grain: '28 days', s: acpC.slice(-28).map(r => r.memos) },
+  { slug: 'erc-8004', role: 'Where agents claim an on-chain identity — we count sign-ups, not activity', ev: d.erc8004Registry.totalAgents, unit: 'registered agents', grain: '28 days', s: regC.slice(-28).map(r => r.agents) },
+  { slug: 'tempo-mpp', role: 'Machine-to-machine payment channels on Tempo, the Stripe-backed chain', ev: d.tempoMpp.totalEvents, unit: 'channel events', grain: '28 days', s: closed(d.tempoMpp.daily).slice(-28).map(r => r.events) },
+  { slug: 'base-agentic', role: 'All agent-driven activity on Base beyond the named protocols — how big the wider scene is', ev: d.baseAgentic.totalTxs, unit: 'ecosystem transactions', grain: '28 days', s: closed(d.baseAgentic.daily).slice(-28).map(r => r.total) },
+  { slug: 'masumi', role: 'Agent payments on Cardano, held in escrow until the work is done', ev: w.masumi.totalTxs, unit: 'escrow transactions', grain: 'totals', s: null },
 ]
 const OFFCHAIN = [
   { href: '/market', l: 'Agent token basket', v: '$' + compact(w.agentTokens.basketMcap), s: 'Curated 4-token market cap — the price the market puts on the sector.', cta: 'Market →' },
@@ -261,7 +261,7 @@ const OFFCHAIN = [
 ]
 const overview = `
 <div class="hero">
-  <div class="eyebrow">Events indexed by agenteconomy · live</div>
+  <div class="eyebrow">Events indexed by agenteconomy</div>
   <div class="big"><span id="bignum" data-v="${totalEvents}" data-rate="${perSec.toFixed(4)}">0</span></div>
   <div class="runrate">+${perSec.toFixed(2)} x402 settlements per second · run-rate from the latest complete day (${lastDay.day}) · recalibrates when new data lands</div>
   ${kpis([
