@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-12T01:44:07.929Z",
+  "generatedAt": "2026-07-13T01:47:42.746Z",
   "x402": {
-    "cutoff": "2026-07-07",
-    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07)",
+    "cutoff": "2026-07-09",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07) + folded days [2026-07-07, 2026-07-09)",
     "protocolsApprox": true,
-    "totalTxs": 155064255,
-    "totalVolume": 40954597,
+    "totalTxs": 155472305,
+    "totalVolume": 40966714,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -56,8 +56,8 @@
       },
       {
         "month": "2026-07",
-        "txs": 1059168,
-        "vol": 43603
+        "txs": 1467218,
+        "vol": 55720
       }
     ],
     "protocols": [
@@ -68,8 +68,8 @@
       },
       {
         "name": "Other",
-        "txs": 34801715,
-        "vol": 156615
+        "txs": 35174634,
+        "vol": 167841
       },
       {
         "name": "Dexter",
@@ -78,8 +78,8 @@
       },
       {
         "name": "PayAI",
-        "txs": 30954651,
-        "vol": 133225
+        "txs": 30986896,
+        "vol": 133890
       },
       {
         "name": "DayDreams",
@@ -102,29 +102,29 @@
         "vol": 300
       },
       {
-        "name": "ThirdWeb",
-        "txs": 855,
-        "vol": 1228
+        "name": "x402RS",
+        "txs": 2334,
+        "vol": 249
       },
       {
         "name": "Ultravioleta",
-        "txs": 312,
-        "vol": 18
+        "txs": 993,
+        "vol": 63
       },
       {
-        "name": "x402RS",
-        "txs": 183,
-        "vol": 247
+        "name": "ThirdWeb",
+        "txs": 888,
+        "vol": 1301
       },
       {
         "name": "Mogami",
-        "txs": 137,
+        "txs": 141,
         "vol": 14
       },
       {
         "name": "OpenX402",
-        "txs": 96,
-        "vol": 615
+        "txs": 113,
+        "vol": 720
       },
       {
         "name": "B402",
@@ -577,8 +577,8 @@
     ]
   },
   "x402Daily": {
-    "cutoff": "2026-07-08",
-    "source": "Frozen from public/data.json x402.daily through 2026-07-04 after execution 01KWP0C7SGDSX38JB6M9VPF5J4; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08)",
+    "cutoff": "2026-07-09",
+    "source": "Frozen from public/data.json x402.daily through 2026-07-04 after execution 01KWP0C7SGDSX38JB6M9VPF5J4; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09)",
     "daily": [
       {
         "day": "2026-05-06",
@@ -831,13 +831,17 @@
       {
         "day": "2026-07-07",
         "txs": 203267
+      },
+      {
+        "day": "2026-07-08",
+        "txs": 204317
       }
     ]
   },
   "virtualsAcp": {
-    "cutoff": "2026-07-08",
-    "source": "Frozen from public/data.json Virtuals ACP through 2026-07-04 after execution 01KWP0QFW4DXVD8KJBEQ8V7V8K; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08)",
-    "totalMemos": 12326072,
+    "cutoff": "2026-07-09",
+    "source": "Frozen from public/data.json Virtuals ACP through 2026-07-04 after execution 01KWP0QFW4DXVD8KJBEQ8V7V8K; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09)",
+    "totalMemos": 12326315,
     "daily": [
       {
         "day": "2026-04-06",
@@ -1302,6 +1306,11 @@
       {
         "day": "2026-07-07",
         "memos": 291,
+        "senders": 7
+      },
+      {
+        "day": "2026-07-08",
+        "memos": 243,
         "senders": 7
       }
     ]
