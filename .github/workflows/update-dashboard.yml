@@ -35,4 +35,9 @@ jobs:
           VERCEL_PROJECT_ID: prj_jMEyoKO279IN9yOOz5PZCG7FeETN
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then echo "::warning::VERCEL_TOKEN secret not set — skipping deploy"; exit 0; fi
-          npx vercel deploy --prod --yes --token="$VERCEL_TOKEN" --cwd dashboard/dist
+          # vercel@56 resolves the git repo root and server-builds with the
+          # repo's package.json (npm run build -> exit 254) instead of shipping
+          # the static dist. Pin the CLI major that treats the cwd as a plain
+          # static upload — same version the manual deploys used all week.
+          cd dashboard/dist
+          npx -y vercel@50.4.0 deploy --prod --yes --token="$VERCEL_TOKEN"
