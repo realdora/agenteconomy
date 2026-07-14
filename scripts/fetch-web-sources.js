@@ -288,26 +288,90 @@ async function fetchDevAdoption(prev) {
   }
 }
 
-// 6. Masumi Network (Cardano) — exact tx count on the mainnet payment contract
-// via Koios (free, count=exact comes back in the content-range header).
+// 6. Masumi Network (Cardano) — exact tx count + weekly history on the
+// mainnet payment contract via Koios. The weekly series is reconstructed from
+// the contract's on-chain transaction list (block_time per tx, aggregated into
+// Monday-start UTC weeks): full backfill on the first run (~34 pages), then
+// incremental from the last seen block. Koios `_after_block_height` is
+// INCLUSIVE (>=, verified 2026-07-13), so incremental rows at the boundary
+// block must be skipped or they double-count.
 async function fetchMasumi(prev) {
   const ctrl = new AbortController()
-  const t = setTimeout(() => ctrl.abort(), 25000)
+  const t = setTimeout(() => ctrl.abort(), 300000)
   try {
-    const res = await fetch(KOIOS, {
+    const head = await fetch(KOIOS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Prefer: 'count=exact', Range: '0-0' },
       body: JSON.stringify({ _addresses: [MASUMI_CONTRACT] }),
       signal: ctrl.signal,
     })
-    if (!res.ok && res.status !== 206) throw new Error(`Koios HTTP ${res.status}`)
-    const range = res.headers.get('content-range') || ''
+    if (!head.ok && head.status !== 206) throw new Error(`Koios HTTP ${head.status}`)
+    const range = head.headers.get('content-range') || ''
     const total = num(range.split('/')[1])
     if (total <= 0) throw new Error(`Koios content-range missing total (got "${range}")`)
+
+    // Cursor pagination — Koios' free tier silently restarts offset paging
+    // from row 0 past a certain offset (verified 2026-07-13), so `Range` is
+    // pinned to 0-999 and `_after_block_height` advances instead. When a page
+    // comes back full, its boundary block may be cut mid-block: those rows are
+    // discarded and re-counted in full on the next page (the filter is
+    // inclusive), which loses nothing and double-counts nothing.
+    const weeks = new Map((prev?.weekly || []).map(r => [r.week, r.txs]))
+    const skipThrough = weeks.size ? num(prev?.lastBlock) : 0 // fully counted in prior runs
+    let cursor = skipThrough
+    let lastBlock = skipThrough
+    const PAGE = 1000
+    const tally = r => {
+      const d = new Date(r.block_time * 1000)
+      const monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - ((d.getUTCDay() + 6) % 7)))
+      const wk = monday.toISOString().slice(0, 10)
+      weeks.set(wk, (weeks.get(wk) || 0) + 1)
+      if (r.block_height > lastBlock) lastBlock = r.block_height
+    }
+    for (; ;) {
+      const body = { _addresses: [MASUMI_CONTRACT] }
+      if (cursor) body._after_block_height = cursor
+      const res = await fetch(`${KOIOS}?order=block_height.asc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Range: `0-${PAGE - 1}` },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      })
+      if (!res.ok && res.status !== 206) throw new Error(`Koios page HTTP ${res.status} at cursor ${cursor}`)
+      const raw = await res.json()
+      const rows = raw.filter(r => r.block_height > skipThrough)
+      if (raw.length < PAGE) { // last page — decided on RAW length, not filtered
+        rows.forEach(tally)
+        break
+      }
+      const boundary = raw[raw.length - 1].block_height
+      if (boundary === cursor) throw new Error(`Koios paging stuck at block ${boundary}`)
+      rows.filter(r => r.block_height < boundary).forEach(tally)
+      cursor = boundary
+      await new Promise(r2 => setTimeout(r2, 150))
+    }
+
+    // zero-fill gap weeks so the series is continuous
+    const sorted = [...weeks.keys()].sort()
+    const weekly = []
+    if (sorted.length) {
+      for (let ts = Date.parse(sorted[0]); ts <= Date.parse(sorted[sorted.length - 1]); ts += 7 * 86400000) {
+        const wk = new Date(ts).toISOString().slice(0, 10)
+        weekly.push({ week: wk, txs: weeks.get(wk) || 0 })
+      }
+    }
+    const seriesSum = weekly.reduce((s, r) => s + r.txs, 0)
+    // hard gate: a series that disagrees with the exact count is corrupt —
+    // fail the section so the previous good data is reused
+    if (Math.abs(seriesSum - total) > 25) throw new Error(`Masumi weekly series sums to ${seriesSum}, count header says ${total}`)
+    if (seriesSum !== total) console.warn(`Masumi: series/total skew ${seriesSum - total} (txs landing mid-fetch)`)
+
     return {
       asOf: new Date().toISOString(),
       totalTxs: total,
-      note: 'Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Cross-verified against the Masumi explorer on 2026-06-10.',
+      lastBlock,
+      weekly,
+      note: 'Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10.',
     }
   } finally { clearTimeout(t) }
 }
