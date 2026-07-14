@@ -40,10 +40,10 @@ jobs:
           # Only these individually validated recent-window/low-cost sources
           # can spend credits. Keep this explicit so new sources cannot execute
           # until they get their own budget test.
-          DUNE_REFRESH_KEYS: 'x402Cumulative,x402Daily,baseAgentic,virtualsAcp,erc8004Registry,olas'
+          DUNE_REFRESH_KEYS: 'x402Cumulative,x402Daily,baseAgentic,virtualsAcp,erc8004Registry,olas,x402TokenSplit'
           # Credit governor: free Dune plan has 2,500 credits/month. Keep a
           # 500-credit reserve for manual recovery and unexpected export costs.
-          DUNE_MAX_EXECUTIONS_PER_RUN: '6'
+          DUNE_MAX_EXECUTIONS_PER_RUN: '7'
           DUNE_MONTHLY_CREDIT_CAP: '2000'
           DUNE_RUN_CREDIT_CAP: '25'
           # 15, not 10: the cap's job is to kill runaway full-history scans
