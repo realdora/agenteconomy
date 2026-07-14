@@ -202,7 +202,7 @@ if(location.hash==='#test-tooltip'){setTimeout(()=>{
 },1200)}
 `
 
-const shell = (slug, title, content) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2272%22 font-size=%2264%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22>a</text></svg>"><title>${title} · agent economy dashboard</title><style>${CSS}</style><script async src="https://www.googletagmanager.com/gtag/js?id=G-S6D2WTWRGZ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config","G-S6D2WTWRGZ")</script></head><body>
+const shell = (slug, title, content) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2272%22 font-size=%2264%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22>a</text></svg>"><title>${title} · agent economy dashboard</title><style>${CSS}</style><script async src="https://www.googletagmanager.com/gtag/js?id=G-S6D2WTWRGZ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config","G-S6D2WTWRGZ")</script></head><body>
 <div class="scrim"></div>
 <div class="side"><div class="logo">[<b>agenteconomy</b><span class="to">.to</span>]</div><div class="nav">
 ${NAV.map(g => (g.group ? `<div class="h">${g.group}</div>` : '') + g.items.map(([s, l]) => `<a href="${s === 'index' ? '/' : '/' + s}"${s === slug ? ' class="on"' : ''}>${l}</a>`).join('')).join('')}
@@ -492,6 +492,7 @@ writeFileSync(join(DIST, 'vercel.json'), JSON.stringify({
   trailingSlash: false,
   redirects: [{ source: '/data', destination: '/data-api', permanent: true }],
   headers: [
+    { source: '/(.*)', headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] },
     { source: '/(data|web-sources|tempo-data).json', headers: [{ key: 'Access-Control-Allow-Origin', value: '*' }, { key: 'Cache-Control', value: 's-maxage=300, stale-while-revalidate=600' }] },
     { source: '/fonts/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
   ],
