@@ -9,6 +9,13 @@ on:
   schedule:
     - cron: '15 3,9,15,21 * * *'
   workflow_dispatch:
+  # Reprint as soon as fresh Dune data lands — GitHub cron is best-effort
+  # (the 03:15 UTC slot was skipped outright on 2026-07-15), so the daily
+  # data commit itself is the reliable trigger. Runs even when the data
+  # workflow fails its SLA gate: data is still committed in that case.
+  workflow_run:
+    workflows: ["Update Dune Data"]
+    types: [completed]
 
 jobs:
   build-deploy:
