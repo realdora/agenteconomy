@@ -1,33 +1,34 @@
 {
-  "updatedAt": "2026-07-14T15:38:04.49212Z",
+  "updatedAt": "2026-07-15T01:19:51.728857Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
         "queryId": 7895747,
-        "executionId": "01KXF3FMJ2RQ4YCYH4EV5FA9H9",
-        "executedAt": "2026-07-14T01:22:39.500209Z",
-        "lastCostCredits": 5.473088236,
-        "lastWindowStart": "2026-07-09"
+        "executionId": "01KXHNN6K9152Z3E4A2SKB9KSS",
+        "executedAt": "2026-07-15T01:18:53.557433Z",
+        "lastCostCredits": 4.506029412,
+        "lastWindowStart": "2026-07-10"
       },
       "x402Daily": {
         "queryId": 7881006,
-        "executionId": "01KXF3G4M6FBX0V1GKD8XRNNAY",
-        "executedAt": "2026-07-14T01:23:14.618238Z",
-        "lastCostCredits": 1.943676471,
-        "lastWindowStart": "2026-07-09"
+        "executionId": "01KXHNP1905PMAFWDPQYE442PS",
+        "executedAt": "2026-07-15T01:19:27.518487Z",
+        "lastCostCredits": 2.134264706,
+        "lastWindowStart": "2026-07-10"
       },
       "baseAgentic": {
         "queryId": 6731879,
-        "executionId": "01KXF58JXAW3427W7R9SNNCFTD",
-        "executedAt": "2026-07-14T01:59:19.484268Z"
+        "executionId": "01KXHNQC10690SMTXY00XH5DPA",
+        "executedAt": "2026-07-15T01:19:51.728857Z",
+        "lastCostCredits": 2.811911765
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01KXF3HYYE7TVQ10DBRRGSP805",
-        "executedAt": "2026-07-14T01:23:46.947655Z",
-        "lastCostCredits": 0.208029412,
-        "lastWindowStart": "2026-07-09"
+        "executionId": "01KXHNQ15FASSYM6DM9ZPN1JSQ",
+        "executedAt": "2026-07-15T01:19:37.072291Z",
+        "lastCostCredits": 0.230970589,
+        "lastWindowStart": "2026-07-10"
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -88,9 +89,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-07-14T01:22:39.500209Z",
-    "totalTxs": 156448581,
-    "totalVolume": 41007360,
+    "asOf": "2026-07-15T01:18:53.557433Z",
+    "totalTxs": 156648877,
+    "totalVolume": 41033507,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -141,15 +142,11 @@
       },
       {
         "month": "Jul 26",
-        "txs": 2443494,
-        "vol": 96366
+        "txs": 2643790,
+        "vol": 122513
       }
     ],
     "daily": [
-      {
-        "day": "2026-05-16",
-        "txs": 160086
-      },
       {
         "day": "2026-05-17",
         "txs": 160339
@@ -384,18 +381,22 @@
       },
       {
         "day": "2026-07-14",
-        "txs": 11410
+        "txs": 231963
+      },
+      {
+        "day": "2026-07-15",
+        "txs": 10665
       }
     ],
     "protocols": [
       {
         "name": "Coinbase",
-        "share": 27.9,
+        "share": 27.8,
         "color": "#0052FF"
       },
       {
         "name": "Other",
-        "share": 23.1,
+        "share": 23.2,
         "color": "#6B7280"
       },
       {
@@ -465,8 +466,8 @@
     }
   },
   "baseAgentic": {
-    "asOf": "2026-07-14T01:59:19.484268Z",
-    "totalTxs": 1397296,
+    "asOf": "2026-07-15T01:19:51.728857Z",
+    "totalTxs": 1402089,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1631,18 +1632,19 @@
         "consumer": 863,
         "infrastructure": 3817,
         "total": 4680
+      },
+      {
+        "day": "2026-07-14",
+        "consumer": 981,
+        "infrastructure": 3812,
+        "total": 4793
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-07-14T01:23:46.947655Z",
-    "totalMemos": 12327502,
+    "asOf": "2026-07-15T01:19:37.072291Z",
+    "totalMemos": 12327746,
     "daily": [
-      {
-        "day": "2026-04-16",
-        "memos": 10247,
-        "senders": 16
-      },
       {
         "day": "2026-04-17",
         "memos": 12134,
@@ -2085,8 +2087,13 @@
       },
       {
         "day": "2026-07-14",
-        "memos": 10,
-        "senders": 4
+        "memos": 231,
+        "senders": 7
+      },
+      {
+        "day": "2026-07-15",
+        "memos": 23,
+        "senders": 5
       }
     ]
   },
