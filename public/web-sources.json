@@ -1,64 +1,64 @@
 {
-  "updatedAt": "2026-07-18T13:20:12.313Z",
+  "updatedAt": "2026-07-18T19:08:14.499Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-07-18T13:20:12.525Z",
+    "asOf": "2026-07-18T19:08:14.763Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 399964553,
-        "price": 0.608286,
-        "change24h": -1.91294
+        "mcap": 401010536,
+        "price": 0.610265,
+        "change24h": -4.47854
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 352164649,
-        "price": 0.15717,
-        "change24h": 0.00514
+        "mcap": 353047655,
+        "price": 0.157611,
+        "change24h": -1.82909
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 267461764,
-        "price": 0.111854,
-        "change24h": -4.59847
+        "mcap": 267079760,
+        "price": 0.111747,
+        "change24h": -3.00954
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 6933170,
-        "price": 0.02574583,
-        "change24h": 0.95458
+        "mcap": 7038770,
+        "price": 0.02612738,
+        "change24h": 2.34436
       }
     ],
-    "basketMcap": 1026524136,
-    "basketVol24h": 291190872,
+    "basketMcap": 1028176721,
+    "basketVol24h": 256647805,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 2684821856,
-        "vol24h": 447384415,
-        "updatedAt": "2026-07-18T13:12:37.175Z"
+        "mcap": 2699227490,
+        "vol24h": 396216409,
+        "updatedAt": "2026-07-18T19:02:38.028Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1124409472,
-        "vol24h": 127313005,
-        "updatedAt": "2026-07-18T13:10:27.587Z"
+        "mcap": 1126639060,
+        "vol24h": 103092617,
+        "updatedAt": "2026-07-18T19:05:28.249Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-07-18T13:21:31.412Z",
-    "uniqueProviders": 1583,
-    "totalListings": 24815,
+    "asOf": "2026-07-18T19:09:33.775Z",
+    "uniqueProviders": 1605,
+    "totalListings": 24835,
     "top2ListingSharePct": 44,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-07-18T13:20:14.812Z",
-    "launchedAgents": 54535,
+    "asOf": "2026-07-18T19:08:17.941Z",
+    "launchedAgents": 54560,
     "acpRegisteredAgents": 44048,
     "aggregates": {
       "asOf": "2026-07-18T02:43:26.229Z",
@@ -135,9 +135,9 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-07-18T13:20:18.868Z",
-    "totalTxs": 34705,
-    "lastBlock": 13694285,
+    "asOf": "2026-07-18T19:08:21.478Z",
+    "totalTxs": 34729,
+    "lastBlock": 13694814,
     "weekly": [
       {
         "week": "2025-06-23",
@@ -361,7 +361,7 @@
       },
       {
         "week": "2026-07-13",
-        "txs": 1667
+        "txs": 1691
       }
     ],
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10."
@@ -386,59 +386,59 @@
     "note": "getProgramAccounts counts on Solana agent-registry programs (public RPC). Upper bound of registrations. By-registry breakdown for the census page; do not cite the Foundation \"9,000+\" marketing figure."
   },
   "standardsAdoption": {
-    "asOf": "2026-07-12T13:24:25.476Z",
+    "asOf": "2026-07-18T19:08:16.778Z",
     "rows": [
       {
         "check": "robotsTxt",
-        "value": 92067
+        "value": 90072
       },
       {
         "check": "sitemap",
-        "value": 76017
+        "value": 74258
       },
       {
         "check": "linkHeaders",
-        "value": 9890
+        "value": 10020
       },
       {
         "check": "markdownNegotiation",
-        "value": 9874
+        "value": 8971
       },
       {
         "check": "robotsTxtAiRules",
-        "value": 88238
+        "value": 86333
       },
       {
         "check": "contentSignals",
-        "value": 7292
+        "value": 7250
       },
       {
         "check": "webBotAuth",
-        "value": 43
+        "value": 42
       },
       {
         "check": "apiCatalog",
-        "value": 328
+        "value": 372
       },
       {
         "check": "oauthDiscovery",
-        "value": 8815
+        "value": 7637
       },
       {
         "check": "oauthProtectedResource",
-        "value": 7747
+        "value": 6633
       },
       {
         "check": "mcpServerCard",
-        "value": 246
+        "value": 260
       },
       {
         "check": "a2aAgentCard",
-        "value": 27
+        "value": 26
       },
       {
         "check": "agentSkills",
-        "value": 265
+        "value": 282
       },
       {
         "check": "webMcp",
@@ -450,15 +450,15 @@
       },
       {
         "check": "mpp",
-        "value": 7
+        "value": 8
       },
       {
         "check": "ucp",
-        "value": 8099
+        "value": 7147
       },
       {
         "check": "acp",
-        "value": 10
+        "value": 7
       },
       {
         "check": "ap2",
@@ -466,11 +466,11 @@
       }
     ],
     "meta": {
-      "date": "2026-07-06",
-      "totalDomains": 160280,
-      "successfulDomains": 109494,
+      "date": "2026-07-13",
+      "totalDomains": 160308,
+      "successfulDomains": 107308,
       "normalization": "RAW_VALUES",
-      "lastUpdated": "2026-07-06",
+      "lastUpdated": "2026-07-13",
       "units": [
         {
           "name": "*",
@@ -480,372 +480,372 @@
       "domainCategories": [
         {
           "name": "Technology",
-          "value": 43918
+          "value": 43409
         },
         {
           "name": "Business & Economy",
-          "value": 23993
+          "value": 24033
         },
         {
           "name": "Entertainment",
-          "value": 23663
+          "value": 23335
         },
         {
           "name": "Shopping & Auctions",
-          "value": 20414
+          "value": 19488
         },
         {
           "name": "Business",
-          "value": 19047
+          "value": 19054
         },
         {
           "name": "Ecommerce",
-          "value": 17956
+          "value": 17032
         },
         {
           "name": "Education",
-          "value": 15908
+          "value": 15438
         },
         {
           "name": "Society & Lifestyle",
-          "value": 14600
+          "value": 13844
         },
         {
           "name": "Vehicles",
-          "value": 7626
+          "value": 7256
         },
         {
           "name": "News & Media",
-          "value": 7155
-        },
-        {
-          "name": "Internet Communication",
-          "value": 7049
+          "value": 7034
         },
         {
           "name": "Travel",
-          "value": 6882
+          "value": 6910
+        },
+        {
+          "name": "Internet Communication",
+          "value": 6694
         },
         {
           "name": "Sports",
-          "value": 5944
+          "value": 5714
         },
         {
           "name": "Information Technology",
-          "value": 4174
+          "value": 4156
         },
         {
           "name": "Gaming",
-          "value": 4060
-        },
-        {
-          "name": "Fashion",
-          "value": 3827
+          "value": 4007
         },
         {
           "name": "Health & Fitness",
-          "value": 3695
+          "value": 3720
         },
         {
           "name": "Health",
-          "value": 3695
+          "value": 3720
+        },
+        {
+          "name": "Fashion",
+          "value": 3597
         },
         {
           "name": "Politics",
-          "value": 3416
-        },
-        {
-          "name": "Forums",
-          "value": 3350
+          "value": 3313
         },
         {
           "name": "Real Estate",
-          "value": 3244
+          "value": 3192
         },
         {
-          "name": "Clothing",
-          "value": 3113
+          "name": "Forums",
+          "value": 3119
         },
         {
           "name": "Video Streaming",
-          "value": 2807
+          "value": 2824
+        },
+        {
+          "name": "Clothing",
+          "value": 2823
         },
         {
           "name": "Educational Institutions",
-          "value": 2607
+          "value": 2592
         },
         {
           "name": "Shareware/Freeware",
-          "value": 2601
+          "value": 2559
         },
         {
           "name": "Job Search & Careers",
-          "value": 2426
+          "value": 2356
         },
         {
           "name": "Personal Blogs",
-          "value": 2330
+          "value": 2190
         },
         {
           "name": "Economy & Finance",
-          "value": 2017
+          "value": 2052
         },
         {
           "name": "Personal Finance",
-          "value": 2010
+          "value": 2026
         },
         {
           "name": "Hobbies & Interests",
-          "value": 2004
+          "value": 1923
         },
         {
           "name": "Food & Drink",
-          "value": 1563
+          "value": 1500
         },
         {
           "name": "Government & Politics",
-          "value": 1536
-        },
-        {
-          "name": "Reference",
-          "value": 1505
+          "value": 1489
         },
         {
           "name": "Music",
-          "value": 1441
+          "value": 1424
+        },
+        {
+          "name": "Reference",
+          "value": 1410
         },
         {
           "name": "Trackers/Analytics",
-          "value": 1365
+          "value": 1354
         },
         {
           "name": "Ads",
-          "value": 1365
-        },
-        {
-          "name": "Magazines",
-          "value": 1181
+          "value": 1354
         },
         {
           "name": "Shopping",
-          "value": 1163
+          "value": 1181
         },
         {
           "name": "Information Security",
-          "value": 1122
+          "value": 1134
+        },
+        {
+          "name": "Magazines",
+          "value": 1110
         },
         {
           "name": "Government/Legal",
-          "value": 1046
+          "value": 1002
         },
         {
           "name": "Home & Garden",
-          "value": 978
-        },
-        {
-          "name": "Safe for Kids",
-          "value": 956
+          "value": 983
         },
         {
           "name": "Photography",
-          "value": 915
+          "value": 930
         },
         {
           "name": "Television",
-          "value": 907
+          "value": 890
         },
         {
-          "name": "Audio Streaming",
-          "value": 873
+          "name": "Safe for Kids",
+          "value": 888
         },
         {
           "name": "Auctions & Marketplaces",
-          "value": 870
+          "value": 857
+        },
+        {
+          "name": "Audio Streaming",
+          "value": 853
         },
         {
           "name": "Movies",
-          "value": 780
-        },
-        {
-          "name": "Religion & Spirituality",
-          "value": 743
-        },
-        {
-          "name": "Religion",
-          "value": 743
+          "value": 766
         },
         {
           "name": "Brokerage & Investing",
-          "value": 677
+          "value": 656
+        },
+        {
+          "name": "Religion & Spirituality",
+          "value": 643
+        },
+        {
+          "name": "Religion",
+          "value": 643
         },
         {
           "name": "Arts",
-          "value": 610
+          "value": 603
         },
         {
           "name": "Weather",
-          "value": 566
-        },
-        {
-          "name": "Pets",
-          "value": 501
-        },
-        {
-          "name": "Charity and Non-profit",
-          "value": 490
+          "value": 516
         },
         {
           "name": "Artificial Intelligence",
-          "value": 457
+          "value": 509
+        },
+        {
+          "name": "Charity and Non-profit",
+          "value": 487
+        },
+        {
+          "name": "Pets",
+          "value": 466
         },
         {
           "name": "Coupons",
-          "value": 425
+          "value": 418
         },
         {
           "name": "Parenting",
-          "value": 357
+          "value": 348
         },
         {
           "name": "Dating & Relationships",
           "value": 343
         },
         {
-          "name": "Science",
-          "value": 325
+          "name": "Comic Books",
+          "value": 318
         },
         {
-          "name": "Comic Books",
-          "value": 305
+          "name": "Science",
+          "value": 301
         },
         {
           "name": "Cartoons & Anime",
-          "value": 304
+          "value": 301
         },
         {
           "name": "Social Networks",
-          "value": 246
+          "value": 249
         },
         {
           "name": "Cryptocurrency",
-          "value": 242
+          "value": 245
         },
         {
           "name": "Lifestyle",
-          "value": 221
-        },
-        {
-          "name": "Lingerie & Bikini",
-          "value": 211
+          "value": 205
         },
         {
           "name": "Internet Phone & VOIP",
-          "value": 201
+          "value": 204
         },
         {
-          "name": "Translator",
+          "name": "Lingerie & Bikini",
           "value": 176
         },
         {
+          "name": "Translator",
+          "value": 143
+        },
+        {
           "name": "Military",
-          "value": 135
+          "value": 123
         },
         {
           "name": "Military & Weapons",
-          "value": 135
-        },
-        {
-          "name": "Arts & Crafts",
-          "value": 100
+          "value": 123
         },
         {
           "name": "Astrology",
-          "value": 94
+          "value": 97
+        },
+        {
+          "name": "Arts & Crafts",
+          "value": 96
         },
         {
           "name": "Humor",
-          "value": 88
+          "value": 85
         },
         {
           "name": "Swimsuits",
-          "value": 76
+          "value": 62
         },
         {
           "name": "Space & Astronomy",
-          "value": 61
+          "value": 59
         },
         {
           "name": "News",
           "value": 52
         },
         {
+          "name": "Messaging",
+          "value": 47
+        },
+        {
           "name": "Professional Networking",
-          "value": 51
+          "value": 46
         },
         {
           "name": "Fine Art",
-          "value": 46
-        },
-        {
-          "name": "Messaging",
-          "value": 46
+          "value": 40
         }
       ]
     },
     "prevMonth": {
-      "date": "2026-06-14",
+      "date": "2026-06-20",
       "rows": [
         {
           "check": "robotsTxt",
-          "value": 91571
+          "value": 89240
         },
         {
           "check": "sitemap",
-          "value": 76055
+          "value": 73809
         },
         {
           "check": "linkHeaders",
-          "value": 10491
+          "value": 10123
         },
         {
           "check": "markdownNegotiation",
-          "value": 7497
+          "value": 7833
         },
         {
           "check": "robotsTxtAiRules",
-          "value": 87809
+          "value": 85622
         },
         {
           "check": "contentSignals",
-          "value": 6003
+          "value": 6553
         },
         {
           "check": "webBotAuth",
-          "value": 33
+          "value": 40
         },
         {
           "check": "apiCatalog",
-          "value": 241
+          "value": 257
         },
         {
           "check": "oauthDiscovery",
-          "value": 7210
+          "value": 7258
         },
         {
           "check": "oauthProtectedResource",
-          "value": 184
+          "value": 198
         },
         {
           "check": "mcpServerCard",
-          "value": 183
+          "value": 197
         },
         {
           "check": "a2aAgentCard",
-          "value": 23
+          "value": 24
         },
         {
           "check": "agentSkills",
-          "value": 203
+          "value": 220
         },
         {
           "check": "webMcp",
@@ -853,19 +853,19 @@
         },
         {
           "check": "x402",
-          "value": 4
+          "value": 3
         },
         {
           "check": "mpp",
-          "value": 6
+          "value": 3
         },
         {
           "check": "ucp",
-          "value": 6407
+          "value": 6459
         },
         {
           "check": "acp",
-          "value": 6
+          "value": 9
         },
         {
           "check": "ap2",
