@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-19T01:32:56.919113Z",
+  "updatedAt": "2026-07-20T03:02:37.57072Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -46,9 +46,9 @@
       },
       "x402TokenSplit": {
         "queryId": 7931767,
-        "executionId": "01KXVZVVC82VJ9R458FVBMT6TH",
-        "executedAt": "2026-07-19T01:30:02.219793Z",
-        "lastCostCredits": 1.230735295
+        "executionId": "01KXYQJFPJ6RBMBSH9CN6MPS1X",
+        "executedAt": "2026-07-20T03:02:37.57072Z",
+        "lastCostCredits": 0.955441177
       }
     }
   },
@@ -459,10 +459,10 @@
       }
     ],
     "tokenSplit": {
-      "asOf": "2026-07-19T01:30:02.219793Z",
+      "asOf": "2026-07-20T03:02:37.57072Z",
       "windowDays": 30,
-      "usdcSharePct": 91.54,
-      "totalPayments": 54758,
+      "usdcSharePct": 87.95,
+      "totalPayments": 42705,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
