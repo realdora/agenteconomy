@@ -1,63 +1,63 @@
 {
-  "updatedAt": "2026-07-23T14:05:53.596Z",
+  "updatedAt": "2026-07-23T19:21:13.278Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-07-23T14:05:53.821Z",
+    "asOf": "2026-07-23T19:21:13.719Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 405314608,
-        "price": 0.616446,
-        "change24h": -5.7
+        "mcap": 400282651,
+        "price": 0.608672,
+        "change24h": -4.3
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 341989620,
-        "price": 0.152645,
-        "change24h": -0.9
+        "mcap": 340753077,
+        "price": 0.152056,
+        "change24h": -2.6
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 269327133,
-        "price": 0.112633,
-        "change24h": -4.7
+        "mcap": 269814755,
+        "price": 0.112843,
+        "change24h": -5.9
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 7017198,
-        "price": 0.02597516,
-        "change24h": -3.3
+        "mcap": 7010662,
+        "price": 0.02594284,
+        "change24h": -3.6
       }
     ],
-    "basketMcap": 1023648559,
-    "basketVol24h": 587761199,
+    "basketMcap": 1017861145,
+    "basketVol24h": 547363870,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 3297701424,
-        "vol24h": 702124802,
-        "updatedAt": "2026-07-23T14:03:11.000Z"
+        "mcap": 3256664488,
+        "vol24h": 665849636,
+        "updatedAt": "2026-07-23T19:19:11.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1257702009,
-        "vol24h": 122206519,
-        "updatedAt": "2026-07-23T14:03:11.000Z"
+        "mcap": 1250165948,
+        "vol24h": 109503158,
+        "updatedAt": "2026-07-23T19:19:11.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-07-23T14:07:26.206Z",
-    "uniqueProviders": 1647,
+    "asOf": "2026-07-23T19:22:38.271Z",
+    "uniqueProviders": 1629,
     "totalListings": 24913,
     "top2ListingSharePct": 44,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-07-23T14:05:56.621Z",
-    "launchedAgents": 54926,
+    "asOf": "2026-07-23T19:21:16.557Z",
+    "launchedAgents": 54935,
     "acpRegisteredAgents": 44051,
     "aggregates": {
       "asOf": "2026-07-23T02:57:58.460Z",
@@ -135,9 +135,9 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-07-23T14:05:58.893Z",
-    "totalTxs": 34998,
-    "lastBlock": 13715052,
+    "asOf": "2026-07-23T19:21:16.455Z",
+    "totalTxs": 35025,
+    "lastBlock": 13715592,
     "weekly": [
       {
         "week": "2025-06-23",
@@ -365,7 +365,7 @@
       },
       {
         "week": "2026-07-20",
-        "txs": 243
+        "txs": 270
       }
     ],
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10."
