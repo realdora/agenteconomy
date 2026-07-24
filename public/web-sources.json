@@ -1,65 +1,65 @@
 {
-  "updatedAt": "2026-07-23T19:21:13.278Z",
+  "updatedAt": "2026-07-24T02:49:45.408Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-07-23T19:21:13.719Z",
+    "asOf": "2026-07-24T02:49:45.849Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 400282651,
-        "price": 0.608672,
-        "change24h": -4.3
+        "mcap": 397181625,
+        "price": 0.603935,
+        "change24h": -3.7
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 340753077,
-        "price": 0.152056,
-        "change24h": -2.6
+        "mcap": 341875554,
+        "price": 0.152569,
+        "change24h": -2.3
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 269814755,
-        "price": 0.112843,
-        "change24h": -5.9
+        "mcap": 263772085,
+        "price": 0.110221,
+        "change24h": -9.7
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 7010662,
-        "price": 0.02594284,
-        "change24h": -3.6
+        "mcap": 6962823,
+        "price": 0.02577224,
+        "change24h": -2.5
       }
     ],
-    "basketMcap": 1017861145,
-    "basketVol24h": 547363870,
+    "basketMcap": 1009792087,
+    "basketVol24h": 493255454,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 3256664488,
-        "vol24h": 665849636,
-        "updatedAt": "2026-07-23T19:19:11.000Z"
+        "mcap": 3238256916,
+        "vol24h": 623095783,
+        "updatedAt": "2026-07-24T02:48:28.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1250165948,
-        "vol24h": 109503158,
-        "updatedAt": "2026-07-23T19:19:11.000Z"
+        "mcap": 1250442136,
+        "vol24h": 110780998,
+        "updatedAt": "2026-07-24T02:48:28.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-07-23T19:22:38.271Z",
-    "uniqueProviders": 1629,
-    "totalListings": 24913,
-    "top2ListingSharePct": 44,
+    "asOf": "2026-07-24T02:50:51.341Z",
+    "uniqueProviders": 1489,
+    "totalListings": 14201,
+    "top2ListingSharePct": 11,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
   "agentSupply": {
@@ -69,11 +69,11 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-07-23T19:21:16.557Z",
-    "launchedAgents": 54935,
+    "asOf": "2026-07-24T02:53:29.240Z",
+    "launchedAgents": 54947,
     "acpRegisteredAgents": 44051,
     "aggregates": {
-      "asOf": "2026-07-23T02:57:58.460Z",
+      "asOf": "2026-07-24T02:53:29.240Z",
       "grossAgenticUsd": 429980700,
       "totalJobs": 2574601,
       "successfulJobs": 2383879,
@@ -82,60 +82,60 @@
     }
   },
   "devAdoption": {
-    "asOf": "2026-07-23T03:00:04.488Z",
-    "totalWeeklyAvg4w": 574680,
+    "asOf": "2026-07-24T02:55:50.822Z",
+    "totalWeeklyAvg4w": 575122,
     "components": [
       {
         "registry": "npm",
         "pkg": "x402",
-        "weeklyAvg4w": 286047
+        "weeklyAvg4w": 290120
       },
       {
         "registry": "npm",
         "pkg": "@x402/core",
-        "weeklyAvg4w": 153718
+        "weeklyAvg4w": 153035
       },
       {
         "registry": "npm",
         "pkg": "@coinbase/x402",
-        "weeklyAvg4w": 41761
+        "weeklyAvg4w": 41605
       },
       {
         "registry": "pypi",
         "pkg": "x402",
-        "weeklyAvg4w": 38735
+        "weeklyAvg4w": 38898
       },
       {
         "registry": "npm",
         "pkg": "agent0-sdk",
-        "weeklyAvg4w": 25287
+        "weeklyAvg4w": 23804
       },
       {
         "registry": "pypi",
         "pkg": "cdp-sdk",
-        "weeklyAvg4w": 18555
+        "weeklyAvg4w": 17355
       },
       {
         "registry": "npm",
         "pkg": "@virtuals-protocol/acp-node-v2",
-        "weeklyAvg4w": 6893
+        "weeklyAvg4w": 6688
       },
       {
         "registry": "npm",
         "pkg": "@virtuals-protocol/acp-node",
-        "weeklyAvg4w": 3567
+        "weeklyAvg4w": 3521
       },
       {
         "registry": "pypi",
         "pkg": "virtuals-acp",
-        "weeklyAvg4w": 117
+        "weeklyAvg4w": 96
       }
     ],
     "basketVersion": 1,
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-07-23T19:21:16.455Z",
+    "asOf": "2026-07-24T02:49:47.322Z",
     "totalTxs": 35025,
     "lastBlock": 13715592,
     "weekly": [
@@ -1009,10 +1009,10 @@
     "note": "Daily token usage of top-50 public models on OpenRouter + aggregated other row (trailing default window). Provider-specific tokenizers — totals not comparable across models. Demand-side CONTEXT metric, not on-chain data."
   },
   "x402TokenSplit": {
-    "asOf": "2026-07-23T01:48:44.748057Z",
+    "asOf": "2026-07-24T01:45:27.632876Z",
     "windowDays": 30,
-    "usdcSharePct": 81.67,
-    "totalPayments": 44105,
+    "usdcSharePct": 82.18,
+    "totalPayments": 42685,
     "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
   }
 }
