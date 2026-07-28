@@ -2177,7 +2177,7 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 44509,
+    "totalEvents": 44510,
     "uniquePayers": 1840,
     "uniquePayees": 90,
     "byType": {
@@ -2186,7 +2186,7 @@
       "ChannelExpired": 2929,
       "ChannelClosed": 15388,
       "Settled": 384,
-      "TopUp": 394
+      "TopUp": 395
     },
     "daily": [
       {
@@ -2725,7 +2725,7 @@
       },
       {
         "day": "2026-07-28",
-        "events": 13,
+        "events": 14,
         "payers": 2,
         "payees": 2
       }
