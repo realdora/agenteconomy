@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-30T01:26:00.599Z",
+  "generatedAt": "2026-07-31T01:52:01.473Z",
   "x402": {
-    "cutoff": "2026-07-26",
-    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07) + folded days [2026-07-07, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26)",
+    "cutoff": "2026-07-27",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07) + folded days [2026-07-07, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27)",
     "protocolsApprox": true,
-    "totalTxs": 158774285,
-    "totalVolume": 41110908,
+    "totalTxs": 158976143,
+    "totalVolume": 41117226,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -56,8 +56,8 @@
       },
       {
         "month": "2026-07",
-        "txs": 4769198,
-        "vol": 199914
+        "txs": 4971056,
+        "vol": 206232
       }
     ],
     "protocols": [
@@ -68,8 +68,8 @@
       },
       {
         "name": "Other",
-        "txs": 38295829,
-        "vol": 261770
+        "txs": 38486388,
+        "vol": 267275
       },
       {
         "name": "Dexter",
@@ -78,18 +78,18 @@
       },
       {
         "name": "PayAI",
-        "txs": 31133222,
-        "vol": 173560
+        "txs": 31137267,
+        "vol": 173832
       },
       {
         "name": "DayDreams",
-        "txs": 11788874,
-        "vol": 5
+        "txs": 11788875,
+        "vol": 7
       },
       {
         "name": "Pieverse",
-        "txs": 1132918,
-        "vol": 24741
+        "txs": 1139942,
+        "vol": 24814
       },
       {
         "name": "Corbits",
@@ -108,28 +108,28 @@
       },
       {
         "name": "Ultravioleta",
-        "txs": 2366,
-        "vol": 123
+        "txs": 2429,
+        "vol": 126
       },
       {
         "name": "Mogami",
-        "txs": 2028,
-        "vol": 25
+        "txs": 2172,
+        "vol": 26
       },
       {
         "name": "ThirdWeb",
-        "txs": 1132,
-        "vol": 1617
+        "txs": 1145,
+        "vol": 1644
       },
       {
         "name": "OpenX402",
-        "txs": 310,
+        "txs": 311,
         "vol": 909
       },
       {
         "name": "B402",
-        "txs": 112,
-        "vol": 8493
+        "txs": 120,
+        "vol": 8929
       },
       {
         "name": "Questflow",
@@ -139,22 +139,22 @@
     ]
   },
   "erc8004Registry": {
-    "cutoff": "2026-07-25",
-    "source": "Frozen from public/data.json erc8004Registry through 2026-07-04 after execution 01KWP1RHHK6BDBSTMVQH0M0F50; contains exact totalAgents/chainsTracked, displayed top-chain distribution, and displayed 90-day daily series; recent-window query fills rows >= cutoff. + folded [2026-07-05, 2026-07-08) + folded [2026-07-08, 2026-07-10) + folded [2026-07-10, 2026-07-12) + folded [2026-07-12, 2026-07-14) + folded [2026-07-14, 2026-07-17) + folded [2026-07-17, 2026-07-19) + folded [2026-07-19, 2026-07-21) + folded [2026-07-21, 2026-07-23) + folded [2026-07-23, 2026-07-25)",
-    "totalAgents": 395373,
+    "cutoff": "2026-07-27",
+    "source": "Frozen from public/data.json erc8004Registry through 2026-07-04 after execution 01KWP1RHHK6BDBSTMVQH0M0F50; contains exact totalAgents/chainsTracked, displayed top-chain distribution, and displayed 90-day daily series; recent-window query fills rows >= cutoff. + folded [2026-07-05, 2026-07-08) + folded [2026-07-08, 2026-07-10) + folded [2026-07-10, 2026-07-12) + folded [2026-07-12, 2026-07-14) + folded [2026-07-14, 2026-07-17) + folded [2026-07-17, 2026-07-19) + folded [2026-07-19, 2026-07-21) + folded [2026-07-21, 2026-07-23) + folded [2026-07-23, 2026-07-25) + folded [2026-07-25, 2026-07-27)",
+    "totalAgents": 399142,
     "chainsTracked": 24,
     "chains": [
       {
         "name": "BNB",
-        "agents": 230069
+        "agents": 233540
       },
       {
         "name": "Base",
-        "agents": 60993
+        "agents": 61103
       },
       {
         "name": "Ethereum",
-        "agents": 54535
+        "agents": 54642
       },
       {
         "name": "MegaETH",
@@ -162,15 +162,15 @@
       },
       {
         "name": "Monad",
-        "agents": 10173
+        "agents": 10188
       },
       {
         "name": "Celo",
-        "agents": 10047
+        "agents": 10050
       },
       {
         "name": "Gnosis",
-        "agents": 4096
+        "agents": 4097
       },
       {
         "name": "Peaq",
@@ -182,11 +182,11 @@
       },
       {
         "name": "Avalanche",
-        "agents": 1776
+        "agents": 1779
       },
       {
         "name": "Arbitrum",
-        "agents": 1230
+        "agents": 1234
       },
       {
         "name": "Ink",
@@ -194,23 +194,27 @@
       },
       {
         "name": "Abstract",
-        "agents": 79
+        "agents": 103
       },
       {
         "name": "Tempo",
-        "agents": 24
+        "agents": 49
       },
       {
         "name": "Polygon",
-        "agents": 16
+        "agents": 19
       },
       {
         "name": "Optimism",
-        "agents": 9
+        "agents": 11
       },
       {
         "name": "Unichain",
         "agents": 2
+      },
+      {
+        "name": "Robinhood",
+        "agents": 1
       }
     ],
     "daily": [
@@ -653,12 +657,20 @@
       {
         "day": "2026-07-24",
         "agents": 2943
+      },
+      {
+        "day": "2026-07-25",
+        "agents": 2177
+      },
+      {
+        "day": "2026-07-26",
+        "agents": 1592
       }
     ]
   },
   "x402Daily": {
-    "cutoff": "2026-07-26",
-    "source": "Frozen from public/data.json x402.daily through 2026-07-04 after execution 01KWP0C7SGDSX38JB6M9VPF5J4; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26)",
+    "cutoff": "2026-07-27",
+    "source": "Frozen from public/data.json x402.daily through 2026-07-04 after execution 01KWP0C7SGDSX38JB6M9VPF5J4; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27)",
     "daily": [
       {
         "day": "2026-05-06",
@@ -983,13 +995,17 @@
       {
         "day": "2026-07-25",
         "txs": 193462
+      },
+      {
+        "day": "2026-07-26",
+        "txs": 194778
       }
     ]
   },
   "virtualsAcp": {
-    "cutoff": "2026-07-26",
-    "source": "Frozen from public/data.json Virtuals ACP through 2026-07-04 after execution 01KWP0QFW4DXVD8KJBEQ8V7V8K; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26)",
-    "totalMemos": 12330377,
+    "cutoff": "2026-07-27",
+    "source": "Frozen from public/data.json Virtuals ACP through 2026-07-04 after execution 01KWP0QFW4DXVD8KJBEQ8V7V8K; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27)",
+    "totalMemos": 12330578,
     "daily": [
       {
         "day": "2026-04-06",
@@ -1545,6 +1561,11 @@
         "day": "2026-07-25",
         "memos": 211,
         "senders": 9
+      },
+      {
+        "day": "2026-07-26",
+        "memos": 201,
+        "senders": 10
       }
     ]
   },
