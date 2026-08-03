@@ -149,81 +149,88 @@ Raw data available at [`agenteconomy.to/data.json`](https://agenteconomy.to/data
 
 ## Architecture
 
+This repo is the **data pipeline plus the dashboard**. The apex site
+(agenteconomy.to) is a separate Next.js app; it reads the feeds this repo
+publishes. Both are served by their own Vercel project.
+
 ```
-Dune API ──→ fetch-data.js ──→ public/data.json
-                                      │
-                                      ↓ (embedded at build time)
-GitHub Actions (daily) ──→ commit ──→ Vercel build
-                                          │
-                                          ↓
-                              vite build + prerender.js
-                                          │
-                                          ↓
-                             dist/<route>/index.html × 8
-                                          │
-                                          ↓
-                              Vercel CDN (bare-domain primary)
-                                          │
-              ┌───────────────────────────┼───────────────────────────┐
-              ↓                           ↓                           ↓
-         Crawlers /                Real browsers                 /api/og
-        AI engines              (hydrate React app)         (edge function)
+Dune API ─┐
+Koios     ├─→ scripts/fetch-data.js       ──→ public/data.json
+CoinGecko ├─→ scripts/fetch-web-sources.js──→ public/web-sources.json
+Tempo RPC ┴─→ scripts/index-tempo.mjs     ──→ public/tempo-data.json
+                                                   │
+                        GitHub Actions (cron) ──→ commit to main
+                                                   │
+                                                   ↓
+                                        dashboard/build.mjs
+                                     (14 static pages + feeds)
+                                                   │
+                                                   ↓
+                          Vercel project `agenteconomy-dash-v2`
+                              → dashboard.agenteconomy.to
+                                                   │
+                                                   ↓
+                                   apex site proxies the feeds at
+                                   agenteconomy.to/{data,web-sources}.json
 ```
 
 ### Project structure
 
 ```
-src/
-  App.jsx          # Dashboard + per-route content components, lazy chart wrapper
-  Charts.jsx       # Recharts re-exports (lazy-loaded by React.lazy)
-  data.js          # Fallback dataset and external source metadata
-  utils.js         # Formatting, moving averages, deltas, freshness, totals
-  styles.css       # @font-face declarations, theme tokens, layout
-  main.jsx         # Browser entry: BrowserRouter, hydrate, Vercel Analytics
-  entry-server.jsx # SSR entry: StaticRouter, render, head metadata exports
-
-api/
-  og.js            # Dynamic Open Graph image (Vercel Edge runtime, @vercel/og)
+dashboard/
+  build.mjs         # Static dashboard generator: 14 pages + feeds + headers
+  fonts/            # Self-hosted Geist / Geist Mono variable WOFF2
 
 scripts/
-  fetch-data.js     # Dune aggregation pipeline → public/data.json
-  prerender.js      # Builds dist/<route>/index.html + dist/sitemap.xml
-  tempo-summary.js  # Tempo MPP aggregation helper
+  fetch-data.js         # Dune aggregation pipeline → public/data.json
+  fetch-web-sources.js  # Off-chain sources → public/web-sources.json
+  index-tempo.mjs       # Tempo RPC re-scan → public/tempo-data.json
+  merge-tempo-into-data.mjs  # Folds Tempo totals into data.json
+  tempo-summary.js      # Tempo MPP aggregation helper
+  dune/                 # Dune client, baselines, backfill and month-freeze tools
+  test/run-tests.mjs    # Offline harness for fetch-data.js (no network, no credits)
 
 public/
-  fonts/            # Self-hosted Inter + JetBrains Mono variable WOFF2
-  data.json         # Daily-refreshed dataset (cron-managed, do not edit)
-  tempo-data.json   # Tempo MPP daily-refreshed dataset
-  sitemap.xml       # Source fallback (production sitemap is generated into dist/)
+  data.json         # On-chain feed, cron-managed — do not hand-edit
+  web-sources.json  # Off-chain feed, cron-managed — do not hand-edit
+  tempo-data.json   # Tempo MPP feed, cron-managed
   robots.txt        # AI bot allow rules + sitemap reference
   llms.txt          # AI engine site context per llmstxt.org
 ```
 
 ## Tech stack
 
-- **Frontend**: React 18 + Vite 5 with static site generation
-- **Routing**: React Router (BrowserRouter on client, StaticRouter on server)
-- **Charts**: Recharts (lazy-loaded post-mount)
-- **Hosting**: Vercel (bare-domain primary, www 308 redirects to bare)
-- **OG image**: Edge function via `@vercel/og`
-- **Analytics**: Vercel Analytics + optional Google Analytics 4 (env-var gated)
-- **Data pipeline**: GitHub Actions daily cron → Dune API → `data.json` → Vercel rebuild
-- **Sitemap**: Generated at build time from `data.json.updatedAt`
+- **Dashboard**: dependency-free static generator (`dashboard/build.mjs`), plain HTML/CSS/JS
+- **Hosting**: Vercel — `agenteconomy-dash-v2` (this dashboard), `agenteconomy-v4` (apex site)
+- **Analytics**: Google Analytics 4 (inline snippet in the generated shell)
+- **Data pipeline**: GitHub Actions cron → Dune / CoinGecko / Koios / Tempo RPC → feeds → commit
+- **Runtime dependency**: `viem` only (Tempo RPC indexer); everything else is Node built-ins
+
+### Output escaping
+
+`dashboard/build.mjs` writes HTML by string interpolation with no framework
+auto-escaping, while the feeds carry third-party strings (CoinGecko symbols,
+Dune facilitator and chain names, registry labels). **Every feed-derived value
+must pass through `esc()`** — or `escT()` for the client-side chart tooltip —
+before it lands in markup. The generated `dist/vercel.json` ships an enforced
+Content-Security-Policy as the second layer.
 
 ## Environment variables
 
 | Variable | Purpose | Required |
 |---|---|---|
-| `DUNE_API_KEY` | Authenticates the daily fetch-data pipeline | Yes (in GitHub Actions secrets) |
-| `VITE_GA_MEASUREMENT_ID` | Google Analytics 4 measurement ID (format `G-XXXXXXXXXX`). When unset, GA4 snippet is not injected. | Optional (set in Vercel project env vars for Production) |
-| `VERCEL_DEPLOY_HOOK_URL` | Optional secondary deploy trigger after cron commit | Optional (warning emitted when absent) |
-| `BUILD_CLEAN_URLS` | Set to `1` to also emit `dist/<route>.html` flat files for local `vite preview` convenience | Optional |
+| `DUNE_API_KEY` | Authenticates the daily fetch-data pipeline | Yes (GitHub Actions secret) |
+| `VERCEL_TOKEN` | Deploys the built dashboard from `update-dashboard.yml` | Yes (GitHub Actions secret) |
+| `CLOUDFLARE_RADAR_TOKEN` | Standards-adoption scan in fetch-web-sources | Optional (section skips when unset) |
+| `OPENROUTER_API_KEY` | Inference-demand series in fetch-web-sources | Optional (section skips when unset) |
+| `COINGECKO_API_KEY` | Makes the CoinGecko call reliable from CI IPs | Optional |
 
 ## Development
 
 ```bash
 npm install
-npm run dev
+npm run build:dashboard   # writes dashboard/dist (needs dashboard/data/*.json)
+npm test                  # offline pipeline tests, no network and no Dune credits
 ```
 
 ## Data refresh
@@ -240,10 +247,10 @@ To stay within Dune API plan limits, it executes at most `DUNE_MAX_EXECUTIONS_PE
 stale queries per run (default: 1) and otherwise uses Dune's latest cached rows. Use
 `DUNE_REFRESH_MODE=always` or `DUNE_REFRESH_MODE=never` to override freshness checks.
 
-When `public/data.json` changes, the commit to `main` is the primary production deploy
-trigger through the Vercel Git integration. `VERCEL_DEPLOY_HOOK_URL` is optional backup
-insurance; if it is absent or malformed, the workflow emits a warning and relies on
-Vercel Git auto-deploy.
+When a feed changes, the commit to `main` is what production picks up:
+`update-dashboard.yml` rebuilds and deploys the dashboard (on schedule and via
+`workflow_run` after the Dune job), and the apex site proxies the feeds at
+request time. There is no deploy hook.
 
 ## Methodology
 

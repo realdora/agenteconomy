@@ -51,18 +51,6 @@ jobs:
           git commit -m "chore: update tempo data $(date -u '+%Y-%m-%d %H:%M UTC')"
           git pull --rebase origin main
           git push
-
-      - name: Trigger Vercel production deployment
-        if: success()
-        env:
-          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
-        run: |
-          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
-            echo "::warning::No VERCEL_DEPLOY_HOOK_URL; relying on Vercel Git auto-deploy."
-            exit 0
-          fi
-          case "$VERCEL_DEPLOY_HOOK_URL" in
-            https://api.vercel.com/v1/integrations/deploy/prj_*)
-              curl --connect-timeout 10 --max-time 30 -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL" || true ;;
-            *) echo "::warning::VERCEL_DEPLOY_HOOK_URL not a deploy hook; skipping." ;;
-          esac
+          # No deploy hook: the dashboard is rebuilt on schedule by
+          # update-dashboard.yml and the apex site proxies data.json at request
+          # time. The old hook targeted a now-deleted project.
