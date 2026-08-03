@@ -8,3 +8,9 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 .env*.local
+# Public repo: block every env file shape, not just *.local. The pipeline keys
+# (Dune, Cloudflare Radar, OpenRouter) live in env files locally, and a plain
+# `.env` is the conventional name a tool or a person reaches for first.
+.env
+.env.*
+!.env.example
