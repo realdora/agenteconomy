@@ -4,6 +4,8 @@
 // and AI crawlers. This replaces the old pattern of hardcoding figures in the
 // long-form prose, which froze June numbers into pages that looked current.
 
+import { fetchFeed } from "./feed-fetch";
+
 const DATA_URL = "https://agenteconomy.to/data.json";
 
 export type StatRow = { label: string; value: string; note?: string };
@@ -158,7 +160,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
 
 export async function getProtocolStats(slug: string): Promise<ProtocolStats | null> {
   try {
-    const res = await fetch(DATA_URL, { next: { revalidate: 3600 } });
+    const res = await fetchFeed(DATA_URL);
     if (!res.ok) throw new Error(`data.json responded ${res.status}`);
     const d = await res.json();
     return buildStats(slug, d);

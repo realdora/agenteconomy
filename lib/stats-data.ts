@@ -2,6 +2,7 @@
 // hourly ISR — a stats page must never show a number older than the pipeline.
 
 import { FALLBACK as WEB_FALLBACK, type WebSourcesData } from "./web-sources";
+import { fetchFeed } from "./feed-fetch";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
 const WEB_URL = "https://agenteconomy.to/web-sources.json";
@@ -16,10 +17,10 @@ export type StatsContext = {
 
 export async function getStatsContext(): Promise<StatsContext> {
   const [data, web] = await Promise.all([
-    fetch(DATA_URL, { next: { revalidate: 3600 } })
+    fetchFeed(DATA_URL)
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null),
-    fetch(WEB_URL, { next: { revalidate: 3600 } })
+    fetchFeed(WEB_URL)
       .then((r) => (r.ok ? r.json() : WEB_FALLBACK))
       .catch(() => WEB_FALLBACK),
   ]);

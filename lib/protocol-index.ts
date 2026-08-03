@@ -3,6 +3,8 @@
 // agenteconomy.to/data.json. Server-fetched with hourly ISR + a baked-in fallback
 // (real values captured from the 2026-06-05 snapshot).
 
+import { fetchFeed } from "./feed-fetch";
+
 const DATA_URL = "https://agenteconomy.to/data.json";
 
 export type ProtocolRow = {
@@ -115,7 +117,7 @@ export const FALLBACK: ProtocolIndexData = {
 
 export async function getProtocolIndex(): Promise<ProtocolIndexData> {
   try {
-    const res = await fetch(DATA_URL, { next: { revalidate: 3600 } });
+    const res = await fetchFeed(DATA_URL);
     if (!res.ok) throw new Error(`data.json responded ${res.status}`);
     const d = await res.json();
     const num = (v: unknown) => (typeof v === "number" ? v : 0);
