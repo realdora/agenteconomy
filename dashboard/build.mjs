@@ -15,6 +15,10 @@ mkdirSync(join(DIST, 'fonts'), { recursive: true })
 const todayUTC = new Date().toISOString().slice(0, 10)
 const fmt = n => Number(n).toLocaleString('en-US')
 const compact = n => n >= 1e12 ? (n / 1e12).toFixed(2) + 'T' : n >= 1e9 ? (n / 1e9).toFixed(1) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(Math.round(n))
+// The feeds carry third-party strings (CoinGecko symbols, Dune facilitator/chain
+// names, registry labels) and this static builder has no framework auto-escaping —
+// every feed-derived string must pass through esc() before landing in HTML.
+const esc = v => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 // A day is COMPLETE only if the feed itself has moved past it — guarding both
 // against partial today-rows AND against a stale snapshot presenting its own
 // partial last day as complete. Cutoff = min(build day, feed's updatedAt day).
@@ -136,6 +140,7 @@ pre{font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:12px;background
 
 const JS = `
 const ease=t=>t>=1?1:1-Math.pow(2,-10*t)
+const escT=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
 function countUp(el,target,dec=0,dur=1600,onDone){const s=performance.now();const tick=n=>{const t=ease(Math.min((n-s)/dur,1));el.textContent=(target*t).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});if(t<1)requestAnimationFrame(tick);else if(onDone)onDone()};requestAnimationFrame(tick)}
 document.querySelectorAll('.cnt').forEach(el=>countUp(el,Number(el.dataset.v),Number(el.dataset.dec||0)))
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:0.15})
@@ -157,7 +162,7 @@ function drawChart(box){
   let s=''
   for(const t of [0.5,1])s+='<line x1="0" y1="'+(166-146*t)+'" x2="'+PLOT+'" y2="'+(166-146*t)+'" stroke="#efede8" stroke-dasharray="2 4"/><text x="'+W+'" y="'+(166-146*t+3.5)+'" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+unit(max*t)+'</text>'
   series.forEach((r,i)=>{const v=r[mode.field]||0;const bh=(v/max)*146;s+='<rect class="bar" data-i="'+i+'" style="transition-delay:'+Math.min(i*12,480)+'ms" x="'+(i*slot+(slot-bw)/2)+'" y="'+(166-bh)+'" width="'+bw+'" height="'+Math.max(bh,0.5)+'" rx="3" fill="#0f766e" opacity="'+(i===n-1?1:0.55)+'"/>'})
-  s+='<text x="0" y="184" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[0].l+'</text><text x="'+PLOT+'" y="184" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+series[n-1].l+'</text>'
+  s+='<text x="0" y="184" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+escT(series[0].l)+'</text><text x="'+PLOT+'" y="184" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+escT(series[n-1].l)+'</text>'
   box.classList.remove('drawn')
   box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+s+'</svg><div class="tip"></div>'
   void box.offsetWidth
@@ -171,7 +176,7 @@ function drawChart(box){
     const row=series[i];if(!row)return
     if(hi)hi.setAttribute('opacity',Number(hi.dataset.i)===n-1?1:0.55)
     hi=bars()[i];if(hi)hi.setAttribute('opacity',1)
-    tip.innerHTML=row.l+' · <span class="tv">'+fullUnit(row[mode.field]||0)+'</span>'
+    tip.innerHTML=escT(row.l)+' · <span class="tv">'+fullUnit(row[mode.field]||0)+'</span>'
     const v=row[mode.field]||0
     tip.style.left=((i*slot+slot/2)/W*r.width)+'px'
     tip.style.top=((166-(v/max)*146)/H*r.height)+'px'
@@ -221,15 +226,15 @@ function chartBox(title, sub, series, { unit = 'compact', unit2, ranges, fields,
   const pills = []
   if (fields) fields.forEach((f, i) => pills.push(`<span class="pill${i === 0 ? ' on' : ''}" data-field="${f.field}">${f.label}</span>`))
   if (ranges) for (const r of ranges) pills.push(`<span class="pill${r === def ? ' on' : ''}" data-range="${r}">${r}</span>`)
-  return `<div class="card pad"><div class="chart-top"><div class="t">${title}</div>${pills.length ? `<div class="pills" data-for="${id}">${pills.join('')}</div>` : ''}</div><div class="chart-sub">${sub}</div><div class="chartv" id="${id}" data-series='${JSON.stringify(series).replace(/'/g, '&#39;')}' data-unit="${unit}"${unit2 ? ` data-unit2="${unit2}"` : ''} data-default="${def || 'ALL'}"></div></div>`
+  return `<div class="card pad"><div class="chart-top"><div class="t">${title}</div>${pills.length ? `<div class="pills" data-for="${id}">${pills.join('')}</div>` : ''}</div><div class="chart-sub">${sub}</div><div class="chartv" id="${id}" data-series='${JSON.stringify(series).replace(/&/g, '&amp;').replace(/'/g, '&#39;')}' data-unit="${unit}"${unit2 ? ` data-unit2="${unit2}"` : ''} data-default="${def || 'ALL'}"></div></div>`
 }
 const hbars = (rows, unit = fmt) => rows.map(r => {
   const max = Math.max(...rows.map(x => x.value))
-  return `<div class="hbar"><div class="lbl">${r.label}</div><div class="track"><div class="fill" style="width:${max ? (r.value / max) * 100 : 0}%"></div></div><div class="val">${unit(r.value)}${r.note ? ` · ${r.note}` : ''}</div></div>`
+  return `<div class="hbar"><div class="lbl">${esc(r.label)}</div><div class="track"><div class="fill" style="width:${max ? (r.value / max) * 100 : 0}%"></div></div><div class="val">${unit(r.value)}${r.note ? ` · ${esc(r.note)}` : ''}</div></div>`
 }).join('')
-const kpis = items => `<div class="kpis" style="--n:${items.length}">${items.map(k => `<div class="kpi"><div class="l">${k.l}</div><div class="v">${k.v}</div>${k.f ? `<div class="f">${k.f}</div>` : ''}</div>`).join('')}</div>`
+const kpis = items => `<div class="kpis" style="--n:${items.length}">${items.map(k => `<div class="kpi"><div class="l">${esc(k.l)}</div><div class="v">${k.v}</div>${k.f ? `<div class="f">${esc(k.f)}</div>` : ''}</div>`).join('')}</div>`
 const sec = (kick, h, inner) => `<div class="sec reveal"><div class="kick">${kick}</div><h2>${h}</h2>${inner}</div>`
-const fnotes = list => `<div class="sec reveal"><div class="fnote"><div class="fnote-h">Notes · how to read</div><ul>${list.map(x => `<li>${x}</li>`).join('')}</ul></div></div>`
+const fnotes = list => `<div class="sec reveal"><div class="fnote"><div class="fnote-h">Notes · how to read</div><ul>${list.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>`
 const PROTO_ORDER = ['x402', 'olas', 'virtuals-acp', 'erc-8004', 'tempo-mpp', 'base-agentic', 'masumi']
 const PROTO_NAMES = { 'x402': 'x402', 'olas': 'Olas', 'virtuals-acp': 'Virtuals ACP', 'erc-8004': 'ERC-8004', 'tempo-mpp': 'Tempo MPP', 'base-agentic': 'Base agentic', 'masumi': 'Masumi' }
 const prevNext = slug => { const i = PROTO_ORDER.indexOf(slug); const L = PROTO_ORDER.length; const p = PROTO_ORDER[(i + L - 1) % L], n = PROTO_ORDER[(i + 1) % L]; return `<div class="pn"><a href="/${p}">← ${PROTO_NAMES[p]}</a><a href="/${n}">${PROTO_NAMES[n]} →</a></div>` }
@@ -280,10 +285,10 @@ const overview = `
     { l: `Daily x402 · ${lastDay.day.slice(5)}`, v: `<span class="cnt" data-v="${(lastDay.txs / 1e3).toFixed(1)}" data-dec="1">0</span>K` },
   ])}
 </div>
-${sec('The brief · latest complete day', 'What the agents did today.', `<div class="briefs">${BRIEF.map(b => `<a class="card brief" href="${b.href}"><span class="tag" style="color:${b.c};background:${b.bg}">${b.tag}</span><div class="n">${b.n}</div><div class="s">${b.s}</div><div class="cta">${b.cta}</div></a>`).join('')}</div>`)}
+${sec('The brief · latest complete day', 'What the agents did today.', `<div class="briefs">${BRIEF.map(b => `<a class="card brief" href="${b.href}"><span class="tag" style="color:${b.c};background:${b.bg}">${b.tag}</span><div class="n">${esc(b.n)}</div><div class="s">${esc(b.s)}</div><div class="cta">${b.cta}</div></a>`).join('')}</div>`)}
 ${sec('x402 · daily settlements', 'The daily pulse.', chartBox('x402 transactions per day', 'Measured from public on-chain settlement activity · hover any bar for the exact figure', xDaily.slice(-90).map(r => ({ l: r.day.slice(5), v: r.txs })), { ranges: ['7D', '30D', '60D', '90D'], def: '60D' }))}
 ${sec('The protocols', 'Payments, commerce, identity — each measured on-chain.', `<div class="briefs" style="grid-template-columns:repeat(3,1fr)">${IDX.map(r => `<a class="card brief" href="/${r.slug}"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:650;font-size:15px">${PROTO_NAMES[r.slug]}</span><span class="tag" style="color:#78716c;background:#f5f5f4">${r.grain}</span></div><div class="n">${compact(r.ev)}</div><div class="chart-sub" style="margin:0">${r.unit}${r.extra || ''}</div><div style="margin:10px 0 4px">${spark(r.s)}</div><div class="s" style="min-height:38px">${r.role}.</div><div class="cta">Open ${PROTO_NAMES[r.slug]} →</div></a>`).join('')}</div>`)}
-${sec('Sourced off-chain', 'The world around the protocols.', `<div class="briefs">${OFFCHAIN.map(b => `<a class="card brief" href="${b.href}"><span class="tag" style="color:#78716c;background:#f5f5f4">${b.l.toUpperCase()}</span><div class="n" style="font-size:25px">${b.v}</div><div class="s">${b.s}</div><div class="cta">${b.cta}</div></a>`).join('')}</div>`)}`
+${sec('Sourced off-chain', 'The world around the protocols.', `<div class="briefs">${OFFCHAIN.map(b => `<a class="card brief" href="${b.href}"><span class="tag" style="color:#78716c;background:#f5f5f4">${esc(b.l.toUpperCase())}</span><div class="n" style="font-size:25px">${esc(b.v)}</div><div class="s">${esc(b.s)}</div><div class="cta">${b.cta}</div></a>`).join('')}</div>`)}`
 writeFileSync(join(DIST, 'index.html'), shell('index', 'Agent economy overview', overview))
 
 // ── protocol pages ───────────────────────────────────────────────────────────
@@ -300,9 +305,9 @@ protoPage('x402', {
   kpiItems: [
     { l: 'Cumulative transactions', v: `<span class="cnt" data-v="${(d.x402.totalTxs / 1e6).toFixed(1)}" data-dec="1">0</span>M`, f: fmt(d.x402.totalTxs) },
     { l: 'USD settled', v: '$' + compact(d.x402.totalVolume), f: '$' + fmt(d.x402.totalVolume) },
-    { l: 'USDC share · 30d Base', v: (w.x402TokenSplit?.usdcSharePct ?? '—') + '%', f: 'volume-weighted' },
-    { l: 'Facilitators', v: d.x402.facilitatorsTracked, f: 'community registry' },
-    { l: 'Chains', v: d.x402.chainsTracked, f: 'EVM + Solana' },
+    { l: 'USDC share · 30d Base', v: esc(w.x402TokenSplit?.usdcSharePct ?? '—') + '%', f: 'volume-weighted' },
+    { l: 'Facilitators', v: esc(d.x402.facilitatorsTracked), f: 'community registry' },
+    { l: 'Chains', v: esc(d.x402.chainsTracked), f: 'EVM + Solana' },
   ],
   charts: [
     { kick: 'Daily', h2: 'Daily settlements.', html: chartBox('x402 transactions per day', 'Hover any bar for the exact figure', xDaily.slice(-90).map(r => ({ l: r.day.slice(5), v: r.txs })), { ranges: ['7D', '30D', '60D', '90D'], def: '60D' }) },
@@ -320,7 +325,7 @@ protoPage('olas', {
   kpiItems: [
     { l: 'Cumulative transactions', v: compact(d.olas.totalTxs), f: fmt(d.olas.totalTxs) },
     { l: 'Chains', v: d.olas.chains.length, f: 'Gnosis-led' },
-    { l: 'Largest chain', v: d.olas.chains[0].name, f: `${((d.olas.chains[0].txs / d.olas.totalTxs) * 100).toFixed(1)}% of total` },
+    { l: 'Largest chain', v: esc(d.olas.chains[0].name), f: `${((d.olas.chains[0].txs / d.olas.totalTxs) * 100).toFixed(1)}% of total` },
     { l: `Weekly · week of ${olasW.at(-1).week.slice(5)}`, v: compact(olasW.at(-1).txs), f: fmt(olasW.at(-1).txs) },
   ],
   charts: [{ kick: 'Weekly', h2: 'Weekly transactions.', html: chartBox('Olas transactions per week', 'Weekly totals · hover for exact figures', olasW.slice(-52).map(r => ({ l: r.week.slice(5), v: r.txs })), { ranges: ['8W', '26W'], def: '26W' }) }],
@@ -343,7 +348,7 @@ protoPage('erc-8004', {
   kpiItems: [
     { l: 'Registered agents', v: compact(d.erc8004Registry.totalAgents), f: fmt(d.erc8004Registry.totalAgents) },
     { l: 'Chains', v: d.erc8004Registry.chainsTracked, f: 'mainnets only' },
-    { l: 'Largest chain', v: d.erc8004Registry.chains[0].name, f: fmt(d.erc8004Registry.chains[0].agents) + ' agents' },
+    { l: 'Largest chain', v: esc(d.erc8004Registry.chains[0].name), f: fmt(d.erc8004Registry.chains[0].agents) + ' agents' },
     { l: `Daily · ${regC.at(-1).day.slice(5)}`, v: fmt(regC.at(-1).agents), f: 'latest complete day' },
   ],
   charts: [{ kick: 'Daily', h2: 'Daily registrations.', html: chartBox('New ERC-8004 agents per day', 'Registered events, testnets excluded', regC.slice(-90).map(r => ({ l: r.day.slice(5), v: r.agents })), { ranges: ['7D', '30D', '60D', '90D'], def: '60D' }) }],
@@ -401,7 +406,7 @@ ${kpis([
   { l: 'As of', v: new Date(w.updatedAt).toISOString().slice(5, 10), f: 'refreshed 6-hourly' },
 ])}
 ${sec('Token basket', 'Four tokens, one honest basket.', `<div class="card" style="padding:6px 18px"><table><thead><tr><th>Token</th><th>Role</th><th style="text-align:right">Market cap</th><th style="text-align:right">24h</th></tr></thead><tbody>
-${w.agentTokens.basket.map(t => `<tr><td class="p">${t.label} <span class="role" style="display:inline">· ${t.symbol}</span></td><td class="role">${t.note}</td><td class="num">$${compact(t.mcap)}</td><td class="num" style="color:${t.change24h >= 0 ? 'var(--live)' : 'var(--down)'}">${t.change24h >= 0 ? '+' : ''}${t.change24h.toFixed(2)}%</td></tr>`).join('')}
+${w.agentTokens.basket.map(t => `<tr><td class="p">${esc(t.label)} <span class="role" style="display:inline">· ${esc(t.symbol)}</span></td><td class="role">${esc(t.note)}</td><td class="num">$${compact(t.mcap)}</td><td class="num" style="color:${t.change24h >= 0 ? 'var(--live)' : 'var(--down)'}">${t.change24h >= 0 ? '+' : ''}${Number(t.change24h).toFixed(2)}%</td></tr>`).join('')}
 </tbody></table></div>`)}
 ${fnotes([`Curated basket (FET/KITE/VIRTUAL/OLAS) — deliberately NOT CoinGecko's broad "AI Agents" category ($${compact(w.agentTokens.categories[0]?.mcap || 0)}, memecoin-contaminated), which is shown here only as reference.`, 'Market data is off-chain context, kept apart from measured on-chain activity.'])}`)
 mkPage('agent-supply', 'Agent supply', `
@@ -427,10 +432,10 @@ const saMap = Object.fromEntries(sa.rows.map(r => [r.check, r.value]))
 mkPage('standards-adoption', 'Standards adoption', `
 ${kpis([
   { l: 'Domains scanned', v: compact(sa.meta.successfulDomains), f: `of ${compact(sa.meta.totalDomains)} attempted` },
-  { l: 'Scan week', v: `week of ${sa.meta.date.slice(5)}`, f: 'Cloudflare Radar · weekly' },
+  { l: 'Scan week', v: `week of ${esc(sa.meta.date.slice(5))}`, f: 'Cloudflare Radar · weekly' },
   { l: 'Standards tracked', v: AGENT_CHECKS.length, f: 'agent-facing checks' },
 ])}
-${sec('Agent standards on the open web', 'Who actually ships the new rails.', `<div class="card pad"><div class="chart-sub" style="margin-bottom:6px">Domains exposing each standard · week of ${sa.meta.date}</div>${hbars(AGENT_CHECKS.map(([k, l]) => ({ label: l, value: saMap[k] ?? 0 })), fmt)}</div>`)}
+${sec('Agent standards on the open web', 'Who actually ships the new rails.', `<div class="card pad"><div class="chart-sub" style="margin-bottom:6px">Domains exposing each standard · week of ${esc(sa.meta.date)}</div>${hbars(AGENT_CHECKS.map(([k, l]) => ({ label: l, value: saMap[k] ?? 0 })), fmt)}</div>`)}
 ${sec('Web-infra context', 'The baseline the agent web builds on.', `<div class="card pad">${hbars([['robotsTxt', 'robots.txt'], ['robotsTxtAiRules', 'robots.txt AI rules'], ['sitemap', 'sitemap'], ['oauthDiscovery', 'OAuth discovery'], ['contentSignals', 'content signals']].map(([k, l]) => ({ label: l, value: saMap[k] ?? 0 })), fmt)}</div>`)}
 ${fnotes([`Weekly scan of ${fmt(sa.meta.successfulDomains)} popular domains by Cloudflare Radar — figures describe the scan week, not a single day.`, 'Denominators differ per check (x402 only meaningful for paid-content sites) — never compare shares across standards without this footnote.', 'UCP figure is suspected over-detection upstream; treat as ceiling.'])}`)
 const infDays = w.inferenceDemand.days
@@ -456,7 +461,7 @@ ${sec('Reading the numbers', 'Three things to know before you quote us.', `<div 
 <li>Units are deliberately not blended: settlement activity is not audited commerce, and identity counts are not active agents. Each section states what its number actually measures.</li>
 <li>Anything the pipeline cannot fully measure is omitted and flagged — never estimated.</li></ul></div>`)}
 ${sec('Sources & attribution', 'Standing on public, credited work.', `<div class="card" style="padding:6px 18px"><table><thead><tr><th>Source</th><th>Author</th><th style="text-align:right">Reference</th></tr></thead><tbody>
-${d.sources.map(sr => `<tr><td class="p">${sr.name}</td><td class="role">${sr.author}</td><td class="num">Dune query ${sr.queryId}</td></tr>`).join('')}
+${d.sources.map(sr => `<tr><td class="p">${esc(sr.name)}</td><td class="role">${esc(sr.author)}</td><td class="num">Dune query ${esc(sr.queryId)}</td></tr>`).join('')}
 <tr><td class="p">Tempo MPP indexer</td><td class="role">agenteconomy (first-hand)</td><td class="num">Tempo RPC</td></tr>
 <tr><td class="p">Masumi escrow count</td><td class="role">Koios public API</td><td class="num">Cardano</td></tr>
 <tr><td class="p">Standards scan</td><td class="role">Cloudflare Radar</td><td class="num">weekly</td></tr>
@@ -492,7 +497,36 @@ writeFileSync(join(DIST, 'vercel.json'), JSON.stringify({
   trailingSlash: false,
   redirects: [{ source: '/data', destination: '/data-api', permanent: true }],
   headers: [
-    { source: '/(.*)', headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }] },
+    {
+      source: '/(.*)',
+      headers: [
+        { key: 'X-Robots-Tag', value: 'noindex, follow' },
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()' },
+        { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
+        // Enforced (not report-only). 'unsafe-inline' stays because the shell
+        // inlines its CSS/JS/GA snippet by design — the policy still blocks
+        // external script/object/frame injection outside the GA origin.
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "base-uri 'self'",
+            "object-src 'none'",
+            "frame-ancestors 'none'",
+            "form-action 'self'",
+            "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com",
+            "font-src 'self'",
+            "connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
+            'upgrade-insecure-requests',
+          ].join('; '),
+        },
+      ],
+    },
     { source: '/(data|web-sources|tempo-data).json', headers: [{ key: 'Access-Control-Allow-Origin', value: '*' }, { key: 'Cache-Control', value: 's-maxage=300, stale-while-revalidate=600' }] },
     { source: '/fonts/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
   ],
