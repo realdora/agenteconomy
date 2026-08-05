@@ -33,7 +33,12 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com",
       "font-src 'self'",
-      "connect-src 'self' https://dashboard.agenteconomy.to https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com",
+      // vercel-insights.com is for Vercel Speed Insights: its script beacons to
+      // /_vercel/speed-insights/vitals (same-origin) but falls back to
+      // https://vitals.vercel-insights.com/v2/vitals, which 'self' would block.
+      // Vercel Web Analytics needs nothing extra — its script and beacon are
+      // both same-origin under /_vercel/insights.
+      "connect-src 'self' https://dashboard.agenteconomy.to https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.vercel-insights.com",
       "upgrade-insecure-requests",
     ].join("; "),
   },
