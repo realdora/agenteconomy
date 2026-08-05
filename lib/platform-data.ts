@@ -2,6 +2,8 @@
 // shaped two ways: a `snapshot` (the real aggregate document) and a `feed` (real
 // recent daily entries). Server-fetched with hourly ISR + a baked-in fallback.
 
+import { fetchFeed } from "./feed-fetch";
+
 const DATA_URL = "https://agenteconomy.to/data.json";
 
 export type FeedEntry = { day: string; protocol: string; value: number; unit: string };
@@ -68,7 +70,7 @@ function buildFeed(d: any): FeedEntry[] {
 
 export async function getPlatformData(): Promise<PlatformData> {
   try {
-    const res = await fetch(DATA_URL, { next: { revalidate: 3600 } });
+    const res = await fetchFeed(DATA_URL);
     if (!res.ok) throw new Error(`data.json responded ${res.status}`);
     const d = await res.json();
     const x = d.x402 ?? {};

@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { PROTOCOL_SLUGS } from "@/lib/protocol-data";
 import { getStatsContext } from "@/lib/stats-data";
 import { availableStatDocs } from "@/lib/stats-registry";
+import { fetchFeed } from "@/lib/feed-fetch";
 
 const BASE = "https://agenteconomy.to";
 const DATA_URL = `${BASE}/data.json`;
@@ -13,7 +14,7 @@ type AgentDataMetadata = {
 
 async function getLastModified() {
   try {
-    const response = await fetch(DATA_URL, { next: { revalidate: 3600 } });
+    const response = await fetchFeed(DATA_URL);
     if (!response.ok) return new Date();
 
     const data = (await response.json()) as AgentDataMetadata;

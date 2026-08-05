@@ -4,6 +4,8 @@
 // Server-fetched from agenteconomy.to/web-sources.json with hourly ISR and a
 // baked-in fallback (real values captured from the 2026-06-10 snapshot).
 
+import { fetchFeed } from "./feed-fetch";
+
 const DATA_URL = "https://agenteconomy.to/web-sources.json";
 
 export type TokenRow = {
@@ -152,7 +154,7 @@ export const FALLBACK: WebSourcesData = {
 
 export async function getWebSources(): Promise<WebSourcesData> {
   try {
-    const res = await fetch(DATA_URL, { next: { revalidate: 3600 } });
+    const res = await fetchFeed(DATA_URL);
     if (!res.ok) throw new Error(`web-sources.json responded ${res.status}`);
     const d = await res.json();
     const num = (v: unknown) => (typeof v === "number" ? v : 0);

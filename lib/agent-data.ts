@@ -3,6 +3,8 @@
 // the HTML and refresh without a redeploy. Falls back to a baked-in snapshot if the
 // source is unreachable at build/request time, so the page never renders empty.
 
+import { fetchFeed } from "./feed-fetch";
+
 const DATA_URL = "https://agenteconomy.to/data.json";
 
 export type SharePart = { label: string; pct: number; color: string };
@@ -140,7 +142,7 @@ function buildShare(protocols: RawProtocol[]): SharePart[] {
 
 export async function getAgentData(): Promise<AgentData> {
   try {
-    const res = await fetch(DATA_URL, { next: { revalidate: 3600 } });
+    const res = await fetchFeed(DATA_URL);
     if (!res.ok) throw new Error(`data.json responded ${res.status}`);
     const d = await res.json();
     const x = d.x402 ?? {};
