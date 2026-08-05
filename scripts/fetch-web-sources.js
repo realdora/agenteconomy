@@ -216,6 +216,14 @@ async function fetchVirtualsEcosystem(prev) {
   const acpFirst = await getJsonRetry(`${VIRTUALS_ACP}?pagination%5BpageSize%5D=1`)
   const acpRegisteredAgents = num(acpFirst?.meta?.pagination?.total)
   if (launchedAgents <= 0 || acpRegisteredAgents <= 0) throw new Error('Virtuals totals missing')
+  // Plausibility ceiling on a remote-controlled walk length, matching the guard
+  // the Bazaar enumeration already has. Without it a malformed or hostile
+  // `total` drives an unbounded page loop that burns CI minutes and third-party
+  // quota before anything else notices. 200k agents is ~2000 pages — far above
+  // any real value, low enough to stop a runaway.
+  if (acpRegisteredAgents > 200000) {
+    throw new Error(`ACP total ${acpRegisteredAgents} implausibly large; refusing full enumeration`)
+  }
 
   let aggregates
   if (prev?.aggregates && isFresh(prev.aggregates)) {
