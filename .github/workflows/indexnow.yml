@@ -1,0 +1,78 @@
+name: Ping IndexNow
+
+# Keeps Bing's picture of the site current. Bing is the index behind ChatGPT
+# search and Copilot, so when it goes stale the loss is AI citations, not just
+# blue links — and it does go stale silently: the sitemap was hand-submitted
+# once in May 2026 and by August Bing still believed the site had 8 URLs while
+# the sitemap listed 27, missing every answer page from the July overhaul.
+#
+# This lives on `main` because GitHub only runs scheduled workflows from the
+# default branch, while the apex app lives on `v4-nextjs-redesign`. That split
+# is fine here: the job reads the LIVE sitemap over HTTP and needs nothing from
+# the repo it runs in, so it stays correct no matter which branch ships the site
+# or how it is deployed.
+#
+# No secret required — the IndexNow key is public by design (served at the site
+# root so the engine can verify domain ownership).
+
+on:
+  schedule:
+    # Weekly. The apex is deployed by hand, so there is no deploy event to hook;
+    # a weekly floor means the worst-case staleness is 7 days instead of months.
+    - cron: '40 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List the URLs without submitting them'
+        type: boolean
+        default: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: indexnow
+      cancel-in-progress: false
+    steps:
+      - name: Submit the live sitemap's URLs to IndexNow
+        run: |
+          SITE="https://agenteconomy.to"
+          KEY="4a11b76f92d04bafbf28f9331b62d0ce"
+
+          # Verify the key file is actually being served before submitting —
+          # IndexNow silently ignores a batch whose key cannot be verified, so
+          # without this the job would report success while doing nothing.
+          KEY_BODY=$(curl -fsS --max-time 20 "$SITE/$KEY.txt") || {
+            echo "::error::IndexNow key file is not reachable at $SITE/$KEY.txt"; exit 1; }
+          if [ "$KEY_BODY" != "$KEY" ]; then
+            echo "::error::Key file contents do not match the key"; exit 1
+          fi
+
+          URLS=$(curl -fsS --max-time 30 "$SITE/sitemap.xml" \
+            | grep -oE '<loc>[^<]*</loc>' | sed -E 's|</?loc>||g')
+          COUNT=$(printf '%s\n' "$URLS" | grep -c . || true)
+
+          # A collapsed sitemap means a broken build; submitting it would
+          # advertise the breakage to the engines.
+          if [ "$COUNT" -lt 10 ]; then
+            echo "::error::sitemap returned only $COUNT URLs — refusing to submit"; exit 1
+          fi
+          echo "sitemap: $COUNT URLs"
+
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            printf '%s\n' "$URLS"; echo "dry run — nothing submitted"; exit 0
+          fi
+
+          PAYLOAD=$(printf '%s\n' "$URLS" | jq -R . | jq -sc \
+            --arg host "agenteconomy.to" --arg key "$KEY" --arg loc "$SITE/$KEY.txt" \
+            '{host:$host, key:$key, keyLocation:$loc, urlList:.}')
+
+          CODE=$(curl -sS --max-time 30 -o /tmp/indexnow.out -w '%{http_code}' \
+            -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" --data "$PAYLOAD")
+
+          # 200 = accepted, 202 = queued before key validation. Anything else is a failure.
+          case "$CODE" in
+            200|202) echo "IndexNow accepted $COUNT URLs (HTTP $CODE)" ;;
+            *) echo "::error::IndexNow returned HTTP $CODE: $(head -c 300 /tmp/indexnow.out)"; exit 1 ;;
+          esac
