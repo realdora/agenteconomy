@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 5174",
     "start:lan": "next start -H 0.0.0.0 -p 5174",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "indexnow": "node scripts/indexnow.mjs",
+    "deploy": "vercel --prod --yes && node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",

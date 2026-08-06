@@ -20,9 +20,20 @@ export type MonthlyReport = {
   ym: string; // "2026-06"
   monthName: string; // "June 2026"
   asOf: string | null;
+  publishedAt: string; // instant the month closed — stable, see closedAt()
   metrics: ReportMetric[];
   coverageNotes: string[];
 };
+
+// A month report's publication date is the instant its month closed, not the
+// instant the page happened to re-render. Feeding the live feed timestamp into
+// datePublished made a June report claim it was published today, and re-claim it
+// tomorrow — a moving publication date on content that is immutable by design
+// (see the note in buildMonthlyReport).
+function closedAt(ym: string): string {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(Date.UTC(y, m, 1)).toISOString(); // month index m == the following month
+}
 
 export function isValidYm(ym: string): boolean {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(ym);
@@ -167,6 +178,7 @@ export function buildMonthlyReport(ym: string, ctx: StatsContext): MonthlyReport
     ym,
     monthName: name,
     asOf: (d.updatedAt as string) ?? null,
+    publishedAt: closedAt(ym),
     metrics,
     coverageNotes,
   };

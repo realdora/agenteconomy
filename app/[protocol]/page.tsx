@@ -268,6 +268,9 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
             url: `https://agenteconomy.to/${doc.slug}`,
             name: doc.name,
             description: doc.seoDescription,
+            // The page states "updated as of …" in prose; this is the same
+            // instant in the form an engine can read without parsing copy.
+            ...(stats?.asOf ? { dateModified: stats.asOf } : {}),
           }),
         }}
       />
