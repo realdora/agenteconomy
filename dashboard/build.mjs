@@ -207,7 +207,19 @@ if(location.hash==='#test-tooltip'){setTimeout(()=>{
 },1200)}
 `
 
-const shell = (slug, title, content) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2272%22 font-size=%2264%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22>a</text></svg>"><title>${title} · agent economy dashboard</title><style>${CSS}</style><script async src="https://www.googletagmanager.com/gtag/js?id=G-S6D2WTWRGZ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config","G-S6D2WTWRGZ")</script></head><body>
+// Vercel Web Analytics for a no-framework static site — the queue shim plus the
+// deferred loader, per Vercel's plain-HTML instructions. Both the script and its
+// /_vercel/insights/view beacon are same-origin, so the enforced CSP below
+// covers them with 'self' and needs no extra origin.
+//
+// The path is the documented /_vercel/insights/script.js rather than the
+// obfuscated per-project path the @vercel/analytics package emits: that hash is
+// project-scoped (the apex's 404s here) and nothing in a static build can derive
+// this project's. The tradeoff is that ad blockers recognise this path — the
+// same blockers already drop the GA tag above, so the counts move together.
+const VERCEL_ANALYTICS = `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>`
+
+const shell = (slug, title, content) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2272%22 font-size=%2264%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22>a</text></svg>"><title>${title} · agent economy dashboard</title><style>${CSS}</style><script async src="https://www.googletagmanager.com/gtag/js?id=G-S6D2WTWRGZ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config","G-S6D2WTWRGZ")</script>${VERCEL_ANALYTICS}</head><body>
 <div class="scrim"></div>
 <div class="side"><div class="logo">[<b>agenteconomy</b><span class="to">.to</span>]</div><div class="nav">
 ${NAV.map(g => (g.group ? `<div class="h">${g.group}</div>` : '') + g.items.map(([s, l]) => `<a href="${s === 'index' ? '/' : '/' + s}"${s === slug ? ' class="on"' : ''}>${l}</a>`).join('')).join('')}
