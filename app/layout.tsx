@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { formatEvents, getAgentData } from "@/lib/agent-data";
@@ -177,6 +178,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             script and beacon both live under /_vercel/insights, so the enforced
             CSP covers them with 'self' and needs no extra origin. */}
         <Analytics />
+        {/* Real-user Core Web Vitals. Unlike Analytics, this one needs a CSP
+            allowance: its beacon posts to /_vercel/speed-insights/vitals but
+            falls back to https://vitals.vercel-insights.com/v2/vitals, which
+            'self' would block — that origin is already in connect-src. */}
+        <SpeedInsights />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(siteJsonLd) }} />
       </body>
     </html>
