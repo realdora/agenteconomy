@@ -225,8 +225,26 @@ export default async function StatPage({ params }: StatPageProps) {
           </section>
         ) : null}
 
-        {/* Sources */}
+        {/* Cite this page — a ready-made attribution string. These figures get
+            quoted with no source or with the source mangled; handing over the
+            exact wording is the cheapest way to be credited correctly. */}
         <section className="mt-20 border-t border-white/10 pt-12 max-w-3xl">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-6">Cite this page</div>
+          <p className="text-white/60 text-[14.5px] leading-relaxed">
+            agent economy, “{doc.question}”, agenteconomy.to/stats/{doc.slug}
+            {stamp ? <>, figures as of {stamp} (UTC)</> : null}. Recomputable from{" "}
+            <a
+              href="/data.json"
+              className="underline decoration-white/25 underline-offset-4 hover:text-white transition"
+            >
+              agenteconomy.to/data.json
+            </a>
+            .
+          </p>
+        </section>
+
+        {/* Sources */}
+        <section className="mt-16 border-t border-white/10 pt-12 max-w-3xl">
           <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-6">Sources</div>
           <ul className="space-y-2.5">
             {doc.sources.map((s) => (

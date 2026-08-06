@@ -12,6 +12,11 @@ export type StatRow = { label: string; value: string; note?: string };
 
 export type ProtocolStats = {
   asOf: string | null; // ISO stamp of the section's own execution time
+  // The one figure worth putting in the <title>. Search results for these pages
+  // used to read "x402 | agent economy", which promises nothing a SERP snippet
+  // doesn't already show — and measured out at 0.2–0.4% CTR against 9% on the
+  // question-titled stat pages. The live count is the thing only this site has.
+  headline: { value: string; noun: string };
   rows: StatRow[];
   faq: { q: string; a: string }[];
   isLive: boolean;
@@ -44,6 +49,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
       const asOfLabel = formatAsOf(x.asOf ?? d.updatedAt) ?? "the latest pipeline run";
       return {
         asOf: x.asOf ?? d.updatedAt ?? null,
+        headline: { value: fmt(x.totalTxs), noun: "payments settled" },
         rows: [
           { label: "Cumulative transactions", value: fmt(x.totalTxs) },
           { label: "USD settlement volume", value: usd(x.totalVolume) },
@@ -73,6 +79,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
       const asOfLabel = formatAsOf(r.asOf ?? d.updatedAt) ?? "the latest pipeline run";
       return {
         asOf: r.asOf ?? d.updatedAt ?? null,
+        headline: { value: fmt(r.totalAgents), noun: "agents registered" },
         rows: [
           { label: "Registered agents", value: fmt(r.totalAgents) },
           { label: "Chains tracked", value: fmt(r.chainsTracked) },
@@ -94,6 +101,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
       const asOfLabel = formatAsOf(v.asOf ?? d.updatedAt) ?? "the latest pipeline run";
       return {
         asOf: v.asOf ?? d.updatedAt ?? null,
+        headline: { value: fmt(v.totalMemos), noun: "commerce memos" },
         rows: [
           { label: "Total commerce memos", value: fmt(v.totalMemos) },
           { label: "Latest daily memos", value: fmt(daily.memos), note: String(daily.day ?? "") },
@@ -117,6 +125,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
       const asOfLabel = formatAsOf(o.asOf ?? d.updatedAt) ?? "the latest pipeline run";
       return {
         asOf: o.asOf ?? d.updatedAt ?? null,
+        headline: { value: fmt(o.totalTxs), noun: "agent transactions" },
         rows: [
           { label: "Cumulative transactions", value: fmt(o.totalTxs) },
           { label: "Chains tracked", value: fmt(chainCount) },
@@ -138,6 +147,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
       const asOfLabel = formatAsOf(d.updatedAt) ?? "the latest pipeline run";
       return {
         asOf: d.updatedAt ?? null,
+        headline: { value: fmt(t.totalEvents), noun: "channel events" },
         rows: [
           { label: "Total MPP events", value: fmt(t.totalEvents) },
           { label: "Unique payers", value: fmt(t.uniquePayers) },

@@ -1114,9 +1114,535 @@ const x402VsAcp: StatDoc = {
   },
 };
 
+// ─── is x402 growing (trend) ─────────────────────────────────────────────────
+// The growth question is asked constantly and answered nowhere honestly: the
+// cumulative counter only ever rises, so citing it implies growth that the
+// monthly series does not support. This page reports what the series actually
+// says, including the part that is unflattering.
+const isX402Growing: StatDoc = {
+  slug: "is-x402-growing",
+  question: "Is x402 growing?",
+  shortTitle: "x402 growth trend",
+  seoDescription:
+    "Whether x402 is actually growing, from the full monthly series: transaction counts, settled volume, and the average payment size — including where each peaked and where it sits now.",
+  protocolSlug: "x402",
+  related: ["x402-transactions", "x402-daily-transactions", "average-x402-transaction-size"],
+  sources: [{ label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" }],
+  sections: [
+    {
+      heading: "Why the cumulative number cannot answer this",
+      body: [
+        "A cumulative counter rises by construction. Quoting one to argue growth is like citing an odometer to argue a car is accelerating — it can only go up, including while the thing slows down. The honest test is the monthly series: how much activity happened in each month, independently of everything before it.",
+        "This matters because the cumulative x402 figure is the number most often quoted, this site included. It is a legitimate measure of cumulative adoption. It is not evidence of momentum, and this page exists so the two do not get conflated.",
+      ],
+    },
+    {
+      heading: "Two series that disagree",
+      body: [
+        "Transaction counts and settled dollars tell different stories, and reading either alone gives the wrong answer. Counts collapsed from their late-2025 peak, then stabilised, and have been grinding upward off that floor. Settled volume fell far harder and has not recovered — which means the average payment has shrunk dramatically.",
+        "The most defensible reading is that x402 traffic is real, steady and mildly growing in count, while the economic weight behind each call has fallen to fractions of a cent. That pattern fits machine-to-machine micropayments and infrastructure traffic far better than it fits commerce. Anyone citing x402 as evidence of a booming agent economy should look at the volume line before doing so.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    const x = data?.x402 as Record<string, unknown> | undefined;
+    const monthly = arr(x?.monthly);
+    if (!x || monthly.length < 3) return null;
+    // The trailing month is still accruing; comparing a partial month against
+    // complete ones would manufacture a decline that has not happened.
+    const complete = monthly.slice(0, -1);
+    if (complete.length < 3) return null;
+    const last = complete[complete.length - 1];
+    const prev = complete[complete.length - 2];
+    const peak = complete.reduce((a, b) => (num(b.txs) > num(a.txs) ? b : a), complete[0]);
+    const peakVol = complete.reduce((a, b) => (num(b.vol) > num(a.vol) ? b : a), complete[0]);
+    const mom = num(prev.txs) ? ((num(last.txs) - num(prev.txs)) / num(prev.txs)) * 100 : 0;
+    const offPeak = num(peak.txs) ? (1 - num(last.txs) / num(peak.txs)) * 100 : 0;
+    const size = (r: Record<string, unknown>) => (num(r.txs) ? num(r.vol) / num(r.txs) : 0);
+    const stamp = asOfLabel(x.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    const dir = mom >= 0 ? "up" : "down";
+    return {
+      answer: `In counts, modestly — and only off a low base. ${last.month} recorded ${fmt(last.txs)} x402 transactions, ${dir} ${Math.abs(mom).toFixed(0)}% on ${prev.month} but still ${offPeak.toFixed(0)}% below the ${peak.month} peak of ${fmt(peak.txs)}. Settled volume tells a harsher story: ${usd(last.vol)} in ${last.month} against ${usd(peakVol.vol)} at the ${peakVol.month} peak, so the average payment has fallen from about $${size(peakVol).toFixed(2)} to about $${size(last).toFixed(3)}. Measured as of ${stamp}; the current month is excluded because it is incomplete.`,
+      asOf: (x.asOf as string) ?? data?.updatedAt ?? null,
+      rows: [
+        { label: `Latest complete month (${last.month})`, value: fmt(last.txs), note: "transactions" },
+        { label: "Month over month", value: `${mom >= 0 ? "+" : ""}${mom.toFixed(1)}%`, note: `vs ${prev.month}` },
+        { label: `Peak month (${peak.month})`, value: fmt(peak.txs), note: `now ${offPeak.toFixed(0)}% below it` },
+        { label: `Volume, latest month`, value: usd(last.vol) },
+        { label: `Volume, peak (${peakVol.month})`, value: usd(peakVol.vol) },
+        { label: "Average payment now", value: `$${size(last).toFixed(4)}`, note: `was $${size(peakVol).toFixed(2)} at peak` },
+      ],
+      chart: {
+        kind: "bars",
+        title: "x402 transactions per month (complete months only)",
+        unit: "transactions",
+        points: complete.map((r) => ({ label: String(r.month ?? ""), value: num(r.txs) })),
+      },
+      extraFaq: [
+        {
+          q: "Why does the cumulative x402 count keep rising if activity fell?",
+          a: "Because a cumulative total can only rise. It adds every month's activity to the running sum, so it climbs even during a decline — just more slowly. Momentum questions have to be answered from the monthly series, which is what this page charts.",
+        },
+        {
+          q: "Did x402 usage peak?",
+          a: `On monthly transaction count, the peak so far was ${peak.month} at ${fmt(peak.txs)}; the latest complete month is ${offPeak.toFixed(0)}% below it. On settled volume the gap is far wider. Whether that peak stands is an open question — the count has been recovering off its floor.`,
+        },
+      ],
+    };
+  },
+};
+
+// ─── how much money do agents move ───────────────────────────────────────────
+const moneyMoved: StatDoc = {
+  slug: "how-much-money-do-ai-agents-move",
+  question: "How much money do AI agents actually move?",
+  shortTitle: "Money moved by agents",
+  seoDescription:
+    "The measured dollar value flowing through AI agent protocols — x402 stablecoin settlement plus gross agentic value recorded in Virtuals ACP — with the caveats that make each figure honest.",
+  related: ["how-big-is-the-agent-economy", "x402-transactions", "virtuals-acp-activity"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "agent economy web-sources.json (off-chain feed)", url: "https://agenteconomy.to/web-sources.json" },
+  ],
+  sections: [
+    {
+      heading: "Two different dollars",
+      body: [
+        "There are two defensible dollar figures in the agent economy and they are not additive. The first is settlement: stablecoin actually moved on-chain to pay for a request, which x402 records and which can be summed from public transfers. The second is gross agentic value: the total value recorded against agent jobs in Virtuals ACP, computed here by summing every registered agent's own public record rather than by trusting a platform dashboard.",
+        "Settlement is the tighter number — the money provably changed hands on a public chain. Gross agentic value is broader: it captures the value attached to work agents did, whether or not it settled through a tracked rail. Adding them would double-count anything that appears in both, so this page keeps them apart.",
+      ],
+    },
+    {
+      heading: "What these numbers do not mean",
+      body: [
+        "Neither figure is revenue, and neither is proof of end-user demand. Settlement includes test traffic, infrastructure calls and repeated service invocations. Gross agentic value counts value recorded against jobs, including jobs between agents run by the same operator. Both are best read as measures of protocol activity — the size of the machine, not the profit it makes.",
+      ],
+    },
+  ],
+  build: ({ data, web }) => {
+    if (!data) return null;
+    const vol = num((data.x402 as Record<string, unknown>)?.totalVolume);
+    const gross = num((web?.virtuals as Record<string, unknown>)?.aggregates && ((web!.virtuals as Record<string, unknown>).aggregates as Record<string, unknown>).grossAgenticUsd);
+    const jobs = num((web?.virtuals as Record<string, unknown>)?.aggregates && ((web!.virtuals as Record<string, unknown>).aggregates as Record<string, unknown>).totalJobs);
+    if (!vol) return null;
+    const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
+    const perJob = jobs ? gross / jobs : 0;
+    return {
+      answer: `Two figures, measured differently and not additive. As of ${stamp}, x402 has settled ${usd(vol)} of stablecoin on-chain — money that provably changed hands to pay for agent requests.${gross ? ` Separately, Virtuals ACP records ${usd(gross)} of gross agentic value across ${fmt(jobs)} agent jobs, summed independently from every registered agent's public record rather than taken from a platform statistics page.` : ""} Neither number is revenue, and both include test and infrastructure activity.`,
+      asOf: data.updatedAt ?? null,
+      rows: [
+        { label: "x402 settled volume", value: usd(vol), note: "stablecoin, on-chain, measured" },
+        ...(gross ? [{ label: "Virtuals ACP gross agentic value", value: usd(gross), note: "summed per-agent, off-chain source" }] : []),
+        ...(jobs ? [{ label: "ACP jobs recorded", value: fmt(jobs) }] : []),
+        ...(perJob ? [{ label: "Average value per ACP job", value: `$${perJob.toFixed(2)}` }] : []),
+      ],
+      extraFaq: [
+        {
+          q: "Can I add these two numbers together?",
+          a: "No. They measure different things from different sources and overlap in unknown proportion — an ACP job can settle through a payment rail that x402 also counts. Summing them would double-count that intersection and produce a figure with no defensible meaning.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── which chain has the most agents ─────────────────────────────────────────
+const chainLeaderboard: StatDoc = {
+  slug: "which-chain-has-the-most-ai-agents",
+  question: "Which blockchain has the most AI agents?",
+  shortTitle: "Agents by chain",
+  seoDescription:
+    "Which chain leads on AI agent activity, separated by what is being counted — registered agent identities versus agent payment settlements, which produce different winners.",
+  related: ["how-many-ai-agents-are-onchain", "erc-8004-agents", "x402-transactions"],
+  sources: [{ label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" }],
+  sections: [
+    {
+      heading: "The answer depends on what you count",
+      body: [
+        "“Most AI agents” has two reasonable readings and they produce different winners. If you count registered identities — agents that signed up to an on-chain registry — one chain leads. If you count payment activity — agents actually settling for resources — another does. Publishing a single ranking without saying which is being counted is how misleading league tables get made.",
+        "Registration is also cheap and one-off, which makes it easy to move a leaderboard with a single campaign. Settlement is recurring and costs money each time, so it is harder to inflate. When the two rankings disagree, the settlement ranking is usually the better proxy for real usage.",
+      ],
+    },
+    {
+      heading: "Why some rows carry no percentage",
+      body: [
+        "A per-chain breakdown can refresh on a different cadence than the protocol total it belongs to, which leaves the parts summing to less than the whole. Where that happens, this page ranks by absolute count and states the coverage rather than quoting a share — dividing by an incomplete breakdown would inflate every chain's percentage and produce a table that contradicts the headline figures elsewhere on this site.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    if (!data) return null;
+    const reg = arr((data.erc8004Registry as Record<string, unknown>)?.chains)
+      .map((c) => ({ name: String(c.name ?? ""), v: num(c.agents) }))
+      .filter((c) => c.name && c.v)
+      .sort((a, b) => b.v - a.v);
+    const pay = arr((data.x402 as Record<string, unknown>)?.chains)
+      .map((c) => ({ name: String(c.name ?? ""), v: num(c.txs) }))
+      .filter((c) => c.name && c.v)
+      .sort((a, b) => b.v - a.v);
+    if (!reg.length || !pay.length) return null;
+
+    // A per-chain breakdown can lag its own protocol total — the x402 split is
+    // currently a partial snapshot summing to well under the headline count.
+    // Quoting a share against the breakdown's own sum would silently inflate
+    // every chain's percentage, so shares are only stated where the breakdown
+    // actually covers the protocol; otherwise the page says so and ranks by
+    // absolute count instead.
+    const regSum = reg.reduce((s, c) => s + c.v, 0);
+    const paySum = pay.reduce((s, c) => s + c.v, 0);
+    const regTotal = num((data.erc8004Registry as Record<string, unknown>)?.totalAgents) || regSum;
+    const payTotal = num((data.x402 as Record<string, unknown>)?.totalTxs) || paySum;
+    const COVERED = 0.95;
+    const regCovers = regTotal ? regSum / regTotal >= COVERED : false;
+    const payCovers = payTotal ? paySum / payTotal >= COVERED : false;
+    const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
+    const pct = (v: number, t: number) => (t ? ((v / t) * 100).toFixed(0) : "0");
+    const payCoverPct = payTotal ? ((paySum / payTotal) * 100).toFixed(0) : "0";
+
+    const regClause = regCovers
+      ? `${reg[0].name} leads with ${fmt(reg[0].v)} of ${fmt(regTotal)} ERC-8004 registrations (${pct(reg[0].v, regTotal)}%), ahead of ${reg[1]?.name} at ${fmt(reg[1]?.v)}`
+      : `${reg[0].name} leads with ${fmt(reg[0].v)} ERC-8004 registrations, ahead of ${reg[1]?.name} at ${fmt(reg[1]?.v)}`;
+    const payClause = payCovers
+      ? `${pay[0].name} leads with ${fmt(pay[0].v)} of ${fmt(payTotal)} x402 settlements (${pct(pay[0].v, payTotal)}%), ahead of ${pay[1]?.name} at ${fmt(pay[1]?.v)}`
+      : `${pay[0].name} leads with ${fmt(pay[0].v)} x402 settlements, ahead of ${pay[1]?.name} at ${fmt(pay[1]?.v)} — no share is quoted because the per-chain x402 split currently covers only ${payCoverPct}% of the ${fmt(payTotal)} settlements counted in total`;
+
+    return {
+      answer: `It depends which question you are asking. By registered agent identities, ${regClause}. By agent payment activity, ${payClause}. Registration is a one-time act and cheap to bulk-create; settlement recurs and costs money each time. Measured as of ${stamp}.`,
+      asOf: data.updatedAt ?? null,
+      rows: [
+        { label: "Most registered agents", value: reg[0].name, note: `${fmt(reg[0].v)} registrations` },
+        { label: "Most payment activity", value: pay[0].name, note: `${fmt(pay[0].v)} settlements` },
+        ...reg.slice(0, 5).map((c) => ({
+          label: `Registrations — ${c.name}`,
+          value: fmt(c.v),
+          ...(regCovers ? { note: `${pct(c.v, regTotal)}% of total` } : {}),
+        })),
+        ...pay.slice(0, 5).map((c) => ({ label: `x402 settlements — ${c.name}`, value: fmt(c.v) })),
+        ...(payCovers
+          ? []
+          : [
+              {
+                label: "Coverage caveat — x402 per-chain split",
+                value: `${payCoverPct}% of total`,
+                note: `breakdown sums to ${fmt(paySum)} against ${fmt(payTotal)} counted`,
+              },
+            ]),
+      ],
+      chart: {
+        kind: "bars",
+        title: "ERC-8004 registered agents by chain",
+        unit: "agents",
+        points: reg.slice(0, 8).map((c) => ({ label: c.name, value: c.v })),
+      },
+      extraFaq: [
+        {
+          q: "Does the leading chain by registrations have the most active agents?",
+          a: `Not necessarily. ${reg[0].name} leads registrations, while ${pay[0].name} leads x402 payment settlements. A registry entry proves an agent signed up once; it says nothing about whether it has done anything since.`,
+        },
+      ],
+    };
+  },
+};
+
+// ─── agent token market cap ──────────────────────────────────────────────────
+const tokenMarketCap: StatDoc = {
+  slug: "ai-agent-token-market-cap",
+  question: "What is the market cap of AI agent tokens?",
+  shortTitle: "Agent token market cap",
+  seoDescription:
+    "The market capitalisation of AI agent tokens from a deliberately curated basket, and why the broad exchange category figure is not a usable answer.",
+  related: ["how-big-is-the-agent-economy", "how-much-money-do-ai-agents-move", "olas-transactions"],
+  sources: [
+    { label: "agent economy web-sources.json (off-chain feed)", url: "https://agenteconomy.to/web-sources.json" },
+    { label: "CoinGecko (source for token market data)", url: "https://www.coingecko.com/" },
+  ],
+  sections: [
+    {
+      heading: "Why a curated basket, not the category",
+      body: [
+        "Exchange listings carry a broad “AI agent” category whose market cap runs far higher than the figure on this page. That number is not usable: the category is heavily contaminated by memecoins that reference agents in their branding and have no agent infrastructure behind them. Quoting it would measure narrative, not the sector.",
+        "The basket here is deliberately small and named, covering tokens attached to protocols this site independently measures on-chain. It will understate any broad definition of the sector, and that is the trade being made: a smaller number you can audit beats a bigger one you cannot.",
+      ],
+    },
+    {
+      heading: "Market cap is not the agent economy",
+      body: [
+        "Token market cap prices expectations about a sector's future. The on-chain figures elsewhere on this site measure what agents have already done. They move independently and frequently in opposite directions, which is precisely why this site keeps the off-chain market lens separate from the measured on-chain activity rather than blending them into one headline.",
+      ],
+    },
+  ],
+  available: ({ web }) => num((web?.agentTokens as Record<string, unknown>)?.basketMcap) > 0,
+  build: ({ web }) => {
+    const t = web?.agentTokens as Record<string, unknown> | undefined;
+    const mcap = num(t?.basketMcap);
+    if (!mcap) return null;
+    const basket = arr(t?.basket);
+    const vol = num(t?.basketVol24h);
+    const cats = arr(t?.categories);
+    const broad = num(cats[0]?.mcap);
+    const stamp = asOfLabel((t?.asOf as string) ?? (web as Record<string, unknown>)?.updatedAt as string) ?? "the latest refresh";
+    const top = basket.map((b) => ({ s: String(b.symbol ?? ""), m: num(b.mcap) })).sort((a, b) => b.m - a.m);
+    return {
+      answer: `As of ${stamp}, a curated basket of ${fmt(basket.length)} agent-protocol tokens (${basket.map((b) => String(b.symbol ?? "")).join(", ")}) carries a combined market capitalisation of ${usd(mcap)} on ${usd(vol)} of 24-hour trading volume.${broad ? ` The broad exchange “AI agent” category is far larger at ${usd(broad)}, but it is memecoin-contaminated and is shown only as contrast.` : ""} Market data is off-chain context and is kept separate from the measured on-chain activity elsewhere on this site.`,
+      asOf: (t?.asOf as string) ?? null,
+      rows: [
+        { label: "Curated basket market cap", value: usd(mcap), note: `${fmt(basket.length)} tokens` },
+        { label: "Basket 24h volume", value: usd(vol) },
+        ...(broad ? [{ label: "Broad exchange category (contrast)", value: usd(broad), note: "memecoin-contaminated" }] : []),
+        ...top.map((b) => ({ label: `— ${b.s}`, value: usd(b.m) })),
+      ],
+      chart: {
+        kind: "bars",
+        title: "Market cap by basket token",
+        unit: "USD",
+        points: top.map((b) => ({ label: b.s, value: b.m })),
+      },
+      extraFaq: [
+        {
+          q: "Why is your agent token market cap lower than the one I saw elsewhere?",
+          a: "Most published figures use an exchange's broad AI-agent category, which sweeps in tokens whose only connection to agents is the name. This page uses a named basket of tokens attached to protocols measured on-chain here, so it is smaller and checkable rather than larger and vague.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── how many services accept x402 ───────────────────────────────────────────
+const x402Services: StatDoc = {
+  slug: "how-many-services-accept-x402",
+  question: "How many services accept x402 payments?",
+  shortTitle: "x402 service supply",
+  seoDescription:
+    "How many APIs and services an agent can actually pay with x402 — measured as unique provider domains rather than raw catalog listings, and why that distinction matters.",
+  protocolSlug: "x402",
+  related: ["x402-transactions", "x402-facilitators", "how-many-mcp-servers-are-there"],
+  sources: [
+    { label: "agent economy web-sources.json (off-chain feed)", url: "https://agenteconomy.to/web-sources.json" },
+  ],
+  sections: [
+    {
+      heading: "Providers, not listings",
+      body: [
+        "A public catalog of x402-payable resources exists, and its raw listing count is the number usually quoted. It is the wrong unit: a single provider can publish hundreds of endpoints, so listings measure how prolific the largest publishers are rather than how many independent services accept the standard. Listings also churn heavily as providers add and retire endpoints.",
+        "The defensible headline is unique provider domains — how many distinct operators an agent could actually pay. It is a much smaller number and a far more stable one, and it is what this page leads with.",
+      ],
+    },
+    {
+      heading: "The supply side of the payment rail",
+      body: [
+        "Transaction counts measure demand: agents paying. Provider counts measure supply: things worth paying for. A payment standard needs both, and the ratio between them is informative — a rail with heavy traffic across few providers is concentrated infrastructure, while one with many providers and thin traffic is early and unproven.",
+      ],
+    },
+  ],
+  available: ({ web }) => num((web?.x402Services as Record<string, unknown>)?.uniqueProviders) > 0,
+  build: ({ web }) => {
+    const s = web?.x402Services as Record<string, unknown> | undefined;
+    const providers = num(s?.uniqueProviders);
+    if (!providers) return null;
+    const listings = num(s?.totalListings);
+    const top2 = num(s?.top2SharePct);
+    const stamp = asOfLabel((s?.asOf as string) ?? ((web as Record<string, unknown>)?.updatedAt as string)) ?? "the latest refresh";
+    return {
+      answer: `As of ${stamp}, ${fmt(providers)} unique provider domains publish resources payable over x402.${listings ? ` The underlying catalog carries ${fmt(listings)} raw listings, but listings are the wrong unit — one provider can publish hundreds of endpoints${top2 ? `, and the two largest hosts alone account for roughly ${top2}% of them` : ""}.` : ""} Provider domains are the stable measure of how many independent services an agent can actually pay.`,
+      asOf: (s?.asOf as string) ?? null,
+      rows: [
+        { label: "Unique provider domains", value: fmt(providers), note: "the defensible headline" },
+        ...(listings ? [{ label: "Raw catalog listings", value: fmt(listings), note: "churns; not a service count" }] : []),
+        ...(top2 ? [{ label: "Top-2 host share of listings", value: `${top2}%`, note: "concentration check" }] : []),
+        ...(listings && providers ? [{ label: "Listings per provider", value: (listings / providers).toFixed(1) }] : []),
+      ],
+      extraFaq: [
+        {
+          q: "Why is this number smaller than the x402 directory count I saw?",
+          a: "Directory counts are listings, not services. A single provider publishing hundreds of endpoints adds hundreds of listings but one provider. This page counts unique provider domains because that is what actually answers how many services an agent can pay.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── agents on Solana ────────────────────────────────────────────────────────
+const solanaAgents: StatDoc = {
+  slug: "how-many-ai-agents-are-on-solana",
+  question: "How many AI agents are on Solana?",
+  shortTitle: "Agents on Solana",
+  seoDescription:
+    "The count of AI agent accounts registered in Solana's on-chain agent registries, read directly from the registry programs — an upper bound on registrations, not a count of active agents.",
+  related: ["how-many-ai-agents-are-onchain", "which-chain-has-the-most-ai-agents", "erc-8004-agents"],
+  sources: [{ label: "agent economy web-sources.json (off-chain feed)", url: "https://agenteconomy.to/web-sources.json" }],
+  sections: [
+    {
+      heading: "Read from the registry programs, not a dashboard",
+      body: [
+        "Solana's agent identity landscape is not one registry but several, run by different teams with different schemas. This count comes from reading the registry programs' own accounts directly, which is why it can be recomputed by anyone with an RPC endpoint and does not depend on any project's self-reported figure.",
+        "Because the registries are independent, an agent registered in two of them counts twice. The total is therefore an upper bound on distinct agents, and the per-registry breakdown below is the more honest view.",
+      ],
+    },
+    {
+      heading: "Registrations are not activity",
+      body: [
+        "A registry account proves someone paid the rent to create it. It does not prove the agent has ever transacted, and registration is cheap enough that a single campaign can move the total sharply. Read this as the size of the identity layer on Solana, then read the payment figures elsewhere on this site for whether that identity layer is being used.",
+      ],
+    },
+  ],
+  available: ({ web }) => num((web?.solanaAgents as Record<string, unknown>)?.totalAccounts) > 0,
+  build: ({ web }) => {
+    const s = web?.solanaAgents as Record<string, unknown> | undefined;
+    const total = num(s?.totalAccounts);
+    if (!total) return null;
+    const regs = arr(s?.registries)
+      .map((r) => ({ name: String(r.label ?? ""), v: num(r.accounts) }))
+      .filter((r) => r.name && r.v)
+      .sort((a, b) => b.v - a.v);
+    const stamp = asOfLabel((s?.asOf as string) ?? ((web as Record<string, unknown>)?.updatedAt as string)) ?? "the latest refresh";
+    return {
+      answer: `As of ${stamp}, Solana's on-chain agent registries hold ${fmt(total)} registered agent accounts across ${fmt(regs.length)} independent registries${regs.length ? `, led by ${regs[0].name} with ${fmt(regs[0].v)}` : ""}. The figure is read directly from the registry programs, so it is independently recomputable — but because the registries do not deduplicate against each other, treat it as an upper bound on distinct agents rather than a census.`,
+      asOf: (s?.asOf as string) ?? null,
+      rows: [
+        { label: "Total registered accounts", value: fmt(total), note: "upper bound — registries overlap" },
+        ...regs.map((r) => ({ label: `— ${r.name}`, value: fmt(r.v) })),
+      ],
+      ...(regs.length > 1
+        ? {
+            chart: {
+              kind: "bars" as const,
+              title: "Registered agent accounts by Solana registry",
+              unit: "accounts",
+              points: regs.map((r) => ({ label: r.name.split(" ")[0], value: r.v })),
+            },
+          }
+        : {}),
+      extraFaq: [
+        {
+          q: "Is this every AI agent on Solana?",
+          a: "No. It counts accounts in the on-chain agent registries this site tracks. An agent operating on Solana without registering in one of them is invisible to this measure, and an agent registered in two is counted twice.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── developers building agents ──────────────────────────────────────────────
+const devAdoption: StatDoc = {
+  slug: "how-many-developers-are-building-ai-agents",
+  question: "How many developers are building AI agents?",
+  shortTitle: "Developer adoption",
+  seoDescription:
+    "Developer adoption of agent payment tooling, measured as weekly package downloads across a named SDK basket — a supply-side leading indicator, not a headcount.",
+  related: ["how-many-mcp-servers-are-there", "how-many-services-accept-x402", "which-agent-standards-are-actually-adopted"],
+  sources: [{ label: "agent economy web-sources.json (off-chain feed)", url: "https://agenteconomy.to/web-sources.json" }],
+  sections: [
+    {
+      heading: "Downloads are not developers",
+      body: [
+        "Nobody can count developers building agents, and any published headcount is a guess. What is countable is how often the tooling is installed: weekly download volume across a named basket of agent-payment SDKs. CI pipelines, mirrors and container rebuilds all inflate downloads, so this is a directional indicator of momentum rather than a population estimate.",
+        "It is still the most useful leading signal available. Tooling installs move before on-chain activity does — someone integrates the SDK weeks before their agent settles its first payment — so a sustained rise here tends to precede a rise in the measured figures elsewhere on this site.",
+      ],
+    },
+    {
+      heading: "Why the basket is named and small",
+      body: [
+        "The basket is listed explicitly so the figure can be recomputed and so its limits are visible. Packages that depend on one another are not summed into a single headline where that would double-count an install, and the per-package table below is the honest view. A broader basket would produce a larger number and a less meaningful one.",
+      ],
+    },
+  ],
+  available: ({ web }) => num((web?.devAdoption as Record<string, unknown>)?.totalWeeklyAvg4w) > 0,
+  build: ({ web }) => {
+    const d = web?.devAdoption as Record<string, unknown> | undefined;
+    const total = num(d?.totalWeeklyAvg4w);
+    if (!total) return null;
+    const comps = arr(d?.components)
+      .map((c) => ({ pkg: String(c.pkg ?? ""), reg: String(c.registry ?? ""), v: num(c.weeklyAvg4w) }))
+      .filter((c) => c.pkg)
+      .sort((a, b) => b.v - a.v);
+    const stamp = asOfLabel((d?.asOf as string) ?? ((web as Record<string, unknown>)?.updatedAt as string)) ?? "the latest refresh";
+    return {
+      answer: `There is no honest headcount, but the tooling can be counted: as of ${stamp}, a named basket of ${fmt(comps.length)} agent-payment SDKs averages ${fmt(total)} downloads per week over a trailing four-week window${comps.length ? `, led by ${comps[0].pkg} at ${fmt(comps[0].v)}` : ""}. Downloads include CI and mirror traffic, so read this as a directional adoption signal for agent-payment tooling, not as a number of people.`,
+      asOf: (d?.asOf as string) ?? null,
+      rows: [
+        { label: "Weekly downloads (4-week average)", value: fmt(total), note: `${fmt(comps.length)}-package basket` },
+        ...comps.map((c) => ({ label: `— ${c.pkg}`, value: fmt(c.v), note: c.reg })),
+      ],
+      extraFaq: [
+        {
+          q: "Can you tell me how many developers are building AI agents?",
+          a: "Not credibly, and neither can anyone else — package registries do not expose unique installers. This page reports what is measurable, weekly download volume across a named SDK basket, and is explicit that CI and mirror traffic inflate it.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── x402 vs Tempo MPP (comparison) ──────────────────────────────────────────
+const x402VsTempo: StatDoc = {
+  slug: "x402-vs-tempo-mpp",
+  question: "What is the difference between x402 and Tempo MPP?",
+  shortTitle: "x402 vs Tempo MPP",
+  seoDescription:
+    "x402 and Tempo MPP are both machine payment protocols built around HTTP 402, but one settles per request and the other opens payment channels — with current measured figures for each.",
+  related: ["x402-transactions", "tempo-mpp-stats", "x402-vs-virtuals-acp"],
+  sources: [{ label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" }],
+  sections: [
+    {
+      heading: "Per-request settlement versus payment channels",
+      body: [
+        "Both protocols answer the same question — how does a machine pay another machine for a resource — and both take HTTP 402 as their starting point, which is why they get lumped together. The mechanism differs. x402 settles each request on its own: a payment per call, independently visible on-chain. Tempo MPP opens a channel between a payer and a payee, through which many payments can flow before the channel closes.",
+        "That difference makes the raw counts incomparable. An x402 transaction is one payment. An MPP event is a channel lifecycle step, and a single channel can carry a great deal of value across many interactions while emitting few events. A protocol with fewer events is not necessarily smaller.",
+      ],
+    },
+    {
+      heading: "Maturity, and why the smaller number is not the weaker one",
+      body: [
+        "x402 has a longer public history and far more measured activity. Tempo MPP is early: the figures here are measured first-hand from the chain since mainnet debut, which is narrow but complete — this site runs its own indexer for it rather than relying on a third-party dataset. Its unique payer and payee counts are the more informative early signal, because they show whether usage is spreading or concentrated in a handful of parties.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    if (!data) return null;
+    const x = data.x402 as Record<string, unknown> | undefined;
+    const t = data.tempoMpp as Record<string, unknown> | undefined;
+    const xt = num(x?.totalTxs);
+    const te = num(t?.totalEvents);
+    if (!xt || !te) return null;
+    const payers = num(t?.uniquePayers);
+    const payees = num(t?.uniquePayees);
+    const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `Both are machine payment protocols built on HTTP 402, but x402 settles one payment per request while Tempo MPP opens payment channels through which many payments flow. As of ${stamp}, x402 has recorded ${fmt(xt)} settlements moving ${usd(x?.totalVolume)}, and Tempo MPP has recorded ${fmt(te)} channel events across ${fmt(payers)} unique payers and ${fmt(payees)} payees. The counts are not comparable one-to-one — a channel event is not a payment, and one channel can carry many.`,
+      asOf: data.updatedAt ?? null,
+      rows: [
+        { label: "x402 — mechanism", value: "Per-request settlement", note: "one payment, one on-chain record" },
+        { label: "Tempo MPP — mechanism", value: "Payment channels", note: "many payments per channel" },
+        { label: "x402 cumulative settlements", value: fmt(xt) },
+        { label: "x402 settled volume", value: usd(x?.totalVolume) },
+        { label: "Tempo MPP channel events", value: fmt(te) },
+        { label: "Tempo MPP unique payers", value: fmt(payers), note: `${fmt(payees)} payees` },
+      ],
+      extraFaq: [
+        {
+          q: "Is Tempo MPP smaller than x402?",
+          a: `By raw count, far smaller — ${fmt(te)} channel events against ${fmt(xt)} x402 settlements — but the units differ and MPP is much younger. A channel event is not a payment, so the ratio overstates the gap in economic activity by an unknown factor.`,
+        },
+        {
+          q: "Do x402 and Tempo MPP compete?",
+          a: "They overlap in intent and differ in shape. Per-request settlement suits one-off calls to arbitrary services; channels suit sustained relationships between two parties where opening a channel amortises over many interactions. Which is better depends on the traffic pattern, not on which has the larger counter.",
+        },
+      ],
+    };
+  },
+};
+
 export const STAT_DOCS: StatDoc[] = [
   whatIsAgentEconomy,
   x402VsAcp,
+  x402VsTempo,
+  isX402Growing,
+  moneyMoved,
+  chainLeaderboard,
+  tokenMarketCap,
+  x402Services,
+  solanaAgents,
+  devAdoption,
   x402Transactions,
   x402Daily,
   avgX402Size,

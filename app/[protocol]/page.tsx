@@ -23,7 +23,14 @@ export async function generateMetadata({ params }: ProtocolPageProps): Promise<M
   const doc = getProtocol(protocol);
   if (!doc) return {};
   const canonical = `https://agenteconomy.to/${doc.slug}`;
-  const title = `${doc.name} | agent economy`;
+  // Lead with the live figure. "x402 | agent economy" told a searcher nothing the
+  // result snippet didn't, and measured 0.2–0.4% CTR on the two highest-impression
+  // protocol pages while question-titled stat pages hit 9%. The count is the one
+  // thing only this site can put in a SERP, and hourly ISR keeps it honest.
+  const stats = await getProtocolStats(doc.slug);
+  const title = stats?.headline
+    ? `${doc.name} — ${stats.headline.value} ${stats.headline.noun} | agent economy`
+    : `${doc.name} | agent economy`;
 
   return {
     title,
