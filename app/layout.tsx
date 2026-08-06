@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
+
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { formatEvents, getAgentData } from "@/lib/agent-data";
 import { safeJsonLd } from "@/lib/seo";
@@ -115,6 +117,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="theme-dark">
         {children}
         <GoogleAnalytics />
+        {/* Imported from "@vercel/analytics/next", not "/react" — the Next entry
+            is what reports App Router route patterns instead of raw URLs. Its
+            script and beacon both live under /_vercel/insights, so the enforced
+            CSP covers them with 'self' and needs no extra origin. */}
+        <Analytics />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(siteJsonLd) }} />
       </body>
     </html>
