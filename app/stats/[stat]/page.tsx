@@ -85,9 +85,28 @@ export default async function StatPage({ params }: StatPageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
+      // These answer pages are the most-cited surface on the site, so they carry
+      // the trust signals explicitly: when the figure was last recomputed
+      // (dateModified, straight off the feed the answer is built from), who
+      // measured it, and what it is derived from.
+      {
+        "@type": "WebPage",
+        "@id": `${SITE}/stats/${doc.slug}#webpage`,
+        url: `${SITE}/stats/${doc.slug}`,
+        name: doc.question,
+        description: doc.seoDescription,
+        isPartOf: { "@id": `${SITE}/#website` },
+        about: { "@id": `${SITE}/#dataset` },
+        isBasedOn: `${SITE}/data.json`,
+        ...(computed?.asOf ? { dateModified: computed.asOf } : {}),
+        author: { "@id": `${SITE}/#founder` },
+        publisher: { "@id": `${SITE}/#organization` },
+        inLanguage: "en",
+      },
       {
         "@type": "FAQPage",
         "@id": `${SITE}/stats/${doc.slug}#faq`,
+        ...(computed?.asOf ? { dateModified: computed.asOf } : {}),
         mainEntity: faq.map((item) => ({
           "@type": "Question",
           name: item.q,

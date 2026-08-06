@@ -965,7 +965,158 @@ const usdcShare: StatDoc = {
   },
 };
 
+// ─── what is the agent economy (definitional) ────────────────────────────────
+// The top-of-funnel question an assistant is asked before any number question.
+// It lived only as prose on /about, so the site had no citable definition —
+// which is the one answer worth owning, since it frames every figure below it.
+const whatIsAgentEconomy: StatDoc = {
+  slug: "what-is-the-agent-economy",
+  question: "What is the agent economy?",
+  shortTitle: "What the agent economy is",
+  seoDescription:
+    "A definition of the agent economy grounded in measurement: autonomous software agents paying, registering and transacting on public blockchains — with the current observed size, not a forecast.",
+  related: ["how-big-is-the-agent-economy", "how-many-ai-agents-are-onchain", "x402-transactions"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "x402 — HTTP 402 payment standard", url: "https://www.x402.org/" },
+    { label: "ERC-8004 — trustless agents registry", url: "https://eips.ethereum.org/EIPS/eip-8004" },
+  ],
+  sections: [
+    {
+      heading: "A definition you can check",
+      body: [
+        "The agent economy is the set of economic actions that autonomous software agents perform on their own account — paying for a resource, registering an identity, hiring another agent, settling a job — rather than a human clicking through a checkout. The phrase is used loosely enough to mean almost anything, so this site pins it to something falsifiable: activity emitted by agent-specific protocols onto public blockchains, where anyone can recount it from the raw chain data.",
+        "That definition deliberately excludes a great deal. It excludes agents that merely read or summarise, because reading leaves no economic trace. It excludes agentic checkout flows that settle on private card rails, because those are not publicly measurable. And it excludes forecasts of what agents will spend, because a projection is a thesis, not an observation. What remains is narrower than the headlines and has the advantage of being verifiable.",
+      ],
+    },
+    {
+      heading: "The four things agents actually do on-chain",
+      body: [
+        "Measured activity falls into four kinds, and blending them produces nonsense. Payment: an agent pays per request over HTTP, which is what the x402 standard encodes and where stablecoin volume is observable. Identity: an agent registers itself in a public registry such as ERC-8004, which is a one-time act, not ongoing usage. Commerce: agents negotiate and settle jobs with each other, which Virtuals ACP records as lifecycle memos. Autonomous operation: agent services transact continuously on their own, which is most of what Olas activity represents.",
+        "Each kind has its own unit — settlements, registrations, memos, transactions — and this site keeps them separate for that reason. A registry with a large agent count is not a busy economy, and a busy payment rail is not proof of end-user demand. Reading the four together, and watching which one grows, is more informative than any single headline number.",
+      ],
+    },
+    {
+      heading: "Why the measured number is smaller than the ones you have read",
+      body: [
+        "Published agent-economy figures are usually market forecasts running to trillions by 2030. The number on this page is orders of magnitude smaller because it counts what has already happened on public chains. Both are legitimate; they answer different questions. The gap between them is the distance between thesis and adoption, and that gap — tracked month over month — is the actual signal.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    if (!data) return null;
+    const n = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+    const events =
+      n(data.x402?.totalTxs) +
+      n(data.olas?.totalTxs) +
+      n(data.virtualsAcp?.totalMemos) +
+      n(data.erc8004Registry?.totalAgents) +
+      n(data.baseAgentic?.totalTxs) +
+      n(data.tempoMpp?.totalEvents);
+    if (!events) return null;
+    const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
+    return {
+      answer: `The agent economy is economic activity carried out by autonomous software agents on their own account — paying for resources, registering identities, and settling jobs with each other — rather than by a human at a checkout. Measured on public blockchains as of ${stamp}, it amounts to ${fmt(events)} cumulative events across six protocol families, including ${fmt(data.x402?.totalTxs)} agent payment settlements that moved ${usd(data.x402?.totalVolume)} in stablecoins. That is observed activity, not a market forecast.`,
+      asOf: data.updatedAt ?? null,
+      rows: [
+        { label: "Payment — x402 settlements", value: fmt(data.x402?.totalTxs), note: "agents paying per request" },
+        { label: "Payment — stablecoin volume settled", value: usd(data.x402?.totalVolume) },
+        { label: "Identity — ERC-8004 registrations", value: fmt(data.erc8004Registry?.totalAgents), note: "sign-ups, not activity" },
+        { label: "Commerce — Virtuals ACP memos", value: fmt(data.virtualsAcp?.totalMemos), note: "job lifecycle steps" },
+        { label: "Autonomous operation — Olas transactions", value: fmt(data.olas?.totalTxs) },
+        { label: "Total tracked events", value: fmt(events), note: "activity index, mixed units" },
+      ],
+      extraFaq: [
+        {
+          q: "Is the agent economy the same as agentic commerce?",
+          a: "Not quite. Agentic commerce usually describes an agent buying on a human's behalf, often settling on conventional card rails. The agent economy as measured here is broader and stricter at once: it includes agent-to-agent activity that has no human buyer, and it counts only what settles on public chains where the figure can be independently recomputed.",
+        },
+        {
+          q: "Who measures the agent economy?",
+          a: "This site does, from public sources: open Dune queries over facilitator and registry contracts, a first-hand indexer for Tempo MPP, and public APIs for the off-chain context. Every figure is recomputable from the open feed at agenteconomy.to/data.json, and the method is documented at agenteconomy.to/methodology.",
+        },
+      ],
+    };
+  },
+};
+
+// ─── x402 vs Virtuals ACP (comparison) ───────────────────────────────────────
+// The site's first comparison page. "X vs Y" is among the most-cited answer
+// formats, and these two are the pair most often conflated: both are called
+// "agent payments" while measuring different acts in different units.
+const x402VsAcp: StatDoc = {
+  slug: "x402-vs-virtuals-acp",
+  question: "What is the difference between x402 and Virtuals ACP?",
+  shortTitle: "x402 vs Virtuals ACP",
+  seoDescription:
+    "x402 and Virtuals ACP both get called agent payments but measure different things — per-request settlement versus job lifecycle memos. A side-by-side with the current measured figures for each.",
+  related: ["x402-transactions", "virtuals-acp-activity", "how-big-is-the-agent-economy"],
+  sources: [
+    { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "x402 — HTTP 402 payment standard", url: "https://www.x402.org/" },
+    { label: "Virtuals Protocol — Agent Commerce Protocol", url: "https://whitepaper.virtuals.io/" },
+  ],
+  sections: [
+    {
+      heading: "They answer different questions",
+      body: [
+        "x402 is a payment standard. It revives the dormant HTTP 402 status code so a server can demand payment for a single request and an agent can settle it in stablecoins without an account, a subscription, or a human. Its unit is a settlement, and because settlement happens in stablecoins, it carries a dollar figure that can be summed.",
+        "Virtuals ACP is a commerce protocol. It structures a deal between two agents into recorded lifecycle steps — request, negotiation, transaction, evaluation — so that agent-to-agent work has an auditable trail. Its unit is a memo, and a memo is a step in a deal, not a completed sale. Counting memos as transactions overstates completed commerce, which is why this site never blends the two totals.",
+      ],
+    },
+    {
+      heading: "What the comparison does and does not tell you",
+      body: [
+        "Because the units differ, the larger number is not the more successful protocol. A single ACP job can produce several memos, and a single x402 settlement can be a test call or infrastructure traffic rather than end-user demand. The useful reading is directional: which one is accelerating, and whether payment volume is growing faster than the count of payments, which would indicate larger individual transactions rather than merely more of them.",
+        "They are also not competitors in any strict sense. A job negotiated through ACP still has to be paid for, and x402 is one of the rails that could settle it. Treat them as adjacent layers — commerce coordination above, per-request payment below — rather than as rivals for the same slot.",
+      ],
+    },
+  ],
+  build: ({ data }) => {
+    if (!data) return null;
+    const n = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+    const x = n(data.x402?.totalTxs);
+    const memos = n(data.virtualsAcp?.totalMemos);
+    if (!x || !memos) return null;
+    const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
+    const ratio = memos ? (x / memos).toFixed(1) : "—";
+    return {
+      answer: `x402 is a payment standard and Virtuals ACP is a commerce protocol, so they measure different acts: x402 counts per-request stablecoin settlements, while ACP counts lifecycle memos inside agent-to-agent deals. As of ${stamp}, x402 has recorded ${fmt(x)} settlements moving ${usd(data.x402?.totalVolume)} across ${fmt(data.x402?.chainsTracked)} chains, and Virtuals ACP has recorded ${fmt(memos)} memos. The counts are not comparable one-to-one — a memo is a step in a deal, not a completed sale.`,
+      asOf: data.updatedAt ?? null,
+      rows: [
+        { label: "x402 — what it counts", value: "Per-request settlements", note: "a payment standard" },
+        { label: "Virtuals ACP — what it counts", value: "Job lifecycle memos", note: "a commerce protocol" },
+        { label: "x402 cumulative settlements", value: fmt(x) },
+        { label: "x402 settled volume", value: usd(data.x402?.totalVolume), note: "ACP has no equivalent USD figure" },
+        { label: "Virtuals ACP cumulative memos", value: fmt(memos) },
+        { label: "Ratio (x402 settlements per ACP memo)", value: `${ratio}×`, note: "different units — directional only" },
+      ],
+      chart: {
+        kind: "bars",
+        title: "Cumulative activity — note the units differ",
+        unit: "events",
+        points: [
+          { label: "x402", value: x },
+          { label: "ACP", value: memos },
+        ],
+      },
+      extraFaq: [
+        {
+          q: "Does Virtuals ACP use x402?",
+          a: "They are adjacent layers rather than substitutes: ACP coordinates the deal between agents, and the payment still has to settle on some rail, of which x402 is one. This site measures each independently and does not assume any settlement path between them.",
+        },
+        {
+          q: "Which one is bigger?",
+          a: `By raw count x402 is larger — ${fmt(x)} settlements against ${fmt(memos)} memos — but the units are not equivalent, so the comparison is directional, not a ranking. x402 is also the only one of the two with a measurable stablecoin volume, at ${usd(data.x402?.totalVolume)}.`,
+        },
+      ],
+    };
+  },
+};
+
 export const STAT_DOCS: StatDoc[] = [
+  whatIsAgentEconomy,
+  x402VsAcp,
   x402Transactions,
   x402Daily,
   avgX402Size,

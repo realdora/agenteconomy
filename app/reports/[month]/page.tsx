@@ -64,11 +64,17 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
         "@id": `${canonical}#report`,
         headline: `State of the Agent Economy — ${report.monthName}`,
         url: canonical,
-        datePublished: report.asOf ?? undefined,
+        // Both dates are the month-close instant, not the render time. A closed
+        // month's figures are month-bounded and do not move, so claiming a fresh
+        // modification on every ISR pass would be the same lie the old
+        // render-timestamped datePublished told.
+        datePublished: report.publishedAt,
+        dateModified: report.publishedAt,
         author: { "@type": "Person", name: "realdora", url: "https://x.com/realdora_eth" },
-        publisher: { "@type": "Organization", name: "agent economy", url: SITE },
+        publisher: { "@id": `${SITE}/#organization` },
         about: "on-chain AI agent economy activity",
         isBasedOn: `${SITE}/data.json`,
+        inLanguage: "en",
       },
       {
         "@type": "BreadcrumbList",
