@@ -85,7 +85,7 @@ export default function MethodologyPage() {
         <section className="mt-24 border-t border-white/10 pt-12">
           <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">Coverage</div>
           <p className="font-display italic text-white text-[26px] leading-snug max-w-3xl mb-6">
-            5 agent-payment standards plus Base activity, across 11+ chains.
+            6 agent-payment standards plus Base activity, across 12+ chains.
           </p>
           <Link
             href="/data"

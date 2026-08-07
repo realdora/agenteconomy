@@ -3,6 +3,7 @@
 // not here, so visitors aren't confused into thinking data is shown per-protocol.
 
 import { erc8004Content, erc8004JsonLd, erc8004SeoDescription } from "./protocol-content/erc-8004";
+import { masumiContent, masumiJsonLd, masumiSeoDescription } from "./protocol-content/masumi";
 import { olasContent, olasJsonLd, olasSeoDescription } from "./protocol-content/olas";
 import { tempoMppContent, tempoMppJsonLd, tempoMppSeoDescription } from "./protocol-content/tempo-mpp";
 import {
@@ -30,7 +31,7 @@ export type ProtocolDoc = {
   dataKey: string; // its key in agenteconomy.to/data.json
 };
 
-export const PROTOCOL_SLUGS = ["x402", "erc-8004", "virtuals-acp", "olas", "tempo-mpp"] as const;
+export const PROTOCOL_SLUGS = ["x402", "erc-8004", "virtuals-acp", "olas", "tempo-mpp", "masumi"] as const;
 
 const PROTOCOLS: Record<string, ProtocolDoc> = {
   x402: {
@@ -112,6 +113,24 @@ const PROTOCOLS: Record<string, ProtocolDoc> = {
     content: tempoMppContent,
     jsonLd: tempoMppJsonLd,
     dataKey: "tempoMpp",
+  },
+  masumi: {
+    slug: "masumi",
+    name: "Masumi",
+    tagline: "Escrow-settled agent payments on Cardano.",
+    seoDescription: masumiSeoDescription,
+    overview:
+      "Masumi is an agent payment network on Cardano where one agent locks funds in escrow, the other delivers the work, and the contract releases payment when the job is done. It pairs that settlement layer with decentralised agent identities and a public registry, and has been merged into the x402 standard.",
+    points: [
+      { label: "Escrow, not per-request", body: "Funds lock on-chain and release on delivery, so payment and work are bound in one object." },
+      { label: "Outside the EVM", body: "The only tracked payment rail settling on Cardano — counted through the public Koios API, not Dune." },
+      { label: "Identity and registry", body: "Agents carry verifiable identities and a public track record; this site measures only the payment contract." },
+    ],
+    content: masumiContent,
+    jsonLd: masumiJsonLd,
+    // Sourced through a third-party public API, so it lives in the off-chain
+    // feed rather than data.json — see the methodology section on the page.
+    dataKey: "masumi",
   },
 };
 
