@@ -6,6 +6,7 @@
 import { fetchFeed } from "./feed-fetch";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
+const WEB_URL = "https://agenteconomy.to/web-sources.json";
 
 export type SharePart = { label: string; pct: number; color: string };
 
@@ -140,6 +141,24 @@ function buildShare(protocols: RawProtocol[]): SharePart[] {
   return built;
 }
 
+// Masumi settles on Cardano and is read through a public third-party API, so it
+// lives in the off-chain feed rather than data.json. It still belongs in the
+// headline event total: the copy says the flow is measured across six
+// protocols, and quietly summing only five of them would make that sentence
+// false. Fetched separately and degraded to zero on failure, so an outage in
+// the smaller feed can never blank the headline number.
+async function masumiEvents(): Promise<number> {
+  try {
+    const res = await fetchFeed(WEB_URL);
+    if (!res.ok) return 0;
+    const w = await res.json();
+    const n = Number(w?.masumi?.totalTxs);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export async function getAgentData(): Promise<AgentData> {
   try {
     const res = await fetchFeed(DATA_URL);
@@ -153,7 +172,8 @@ export async function getAgentData(): Promise<AgentData> {
       (d.virtualsAcp?.totalMemos ?? 0) +
       (d.erc8004Registry?.totalAgents ?? 0) +
       (d.baseAgentic?.totalTxs ?? 0) +
-      (d.tempoMpp?.totalEvents ?? 0);
+      (d.tempoMpp?.totalEvents ?? 0) +
+      (await masumiEvents());
 
     // Cumulative x402 monthly transactions — a real, monotonically-rising curve
     // (the raw per-period series are too volatile to plot as "growth").

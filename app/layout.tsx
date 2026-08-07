@@ -69,7 +69,7 @@ function buildSiteJsonLd(updatedAt: string | null, totals: { events: number; vol
         "@id": `${SITE_URL}/#dataset`,
         name: "Agent economy data",
         description:
-          "On-chain agent-payment activity (5 protocols, 11+ chains, measured) plus off-chain agent-economy signal (token market, service & agent supply, developer adoption, sourced).",
+          "On-chain agent-payment activity (6 protocols, 12+ chains, measured) plus off-chain agent-economy signal (token market, service & agent supply, developer adoption, sourced).",
         url: `${SITE_URL}/data`,
         license: `${SITE_URL}/about`,
         isAccessibleForFree: true,
@@ -117,11 +117,11 @@ function buildSiteJsonLd(updatedAt: string | null, totals: { events: number; vol
 export async function generateMetadata(): Promise<Metadata> {
   const { totalEvents } = await getAgentData();
   const ev = `${formatEvents(totalEvents)}+`;
-  const social = `On-chain flow measured across 5 protocols & 11+ chains (${ev} events); off-chain market, supply & developer signal sourced.`;
+  const social = `On-chain flow measured across 6 protocols & 12+ chains (${ev} events); off-chain market, supply & developer signal sourced.`;
   return {
     metadataBase: new URL("https://agenteconomy.to"),
     title: TITLE,
-    description: `The data authority for the agent economy. On-chain flow across 5 protocols and 11+ chains (${ev} events), measured — plus off-chain market, supply and developer signal.`,
+    description: `The data authority for the agent economy. On-chain flow across 6 protocols and 12+ chains (${ev} events), measured — plus off-chain market, supply and developer signal.`,
     applicationName: "agent economy",
     openGraph: {
       type: "website",

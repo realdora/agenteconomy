@@ -47,13 +47,14 @@ export const navMenus: NavMenu[] = [
     label: "Protocols",
     panel: {
       title: "Protocols",
-      subtitle: "The 5 standards powering on-chain agent payments.",
+      subtitle: "The 6 standards powering on-chain agent payments.",
       items: [
         { title: "x402", description: "HTTP 402 payment standard for agents", href: "/x402", logo: "/logos/protocols/x402.png" },
         { title: "ERC-8004", description: "Trust layer for AI agents", href: "/erc-8004" },
         { title: "Virtuals ACP", description: "Agent Commerce Protocol", href: "/virtuals-acp", logo: "/logos/protocols/virtuals.png" },
         { title: "Olas", description: "Autonomous agent network", href: "/olas", logo: "/logos/protocols/olas.png" },
         { title: "Tempo MPP", description: "Machine Payments Protocol", href: "/tempo-mpp", logo: "/logos/protocols/tempo.svg" },
+        { title: "Masumi", description: "Escrow agent payments on Cardano", href: "/masumi" },
       ],
     },
   },

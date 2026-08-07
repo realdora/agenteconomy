@@ -336,7 +336,7 @@ const agentEconomySize: StatDoc = {
   question: "How big is the on-chain agent economy?",
   shortTitle: "On-chain agent economy size",
   seoDescription:
-    "The measured size of the on-chain agent economy today — total events across six protocol families and settled stablecoin volume — as distinct from market-size forecasts.",
+    "The measured size of the on-chain agent economy today — total events across seven protocol families and settled stablecoin volume — as distinct from market-size forecasts.",
   related: ["x402-transactions", "how-many-ai-agents-are-onchain", "virtuals-acp-activity"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
@@ -353,7 +353,7 @@ const agentEconomySize: StatDoc = {
     {
       heading: "Measured size vs forecast size",
       body: [
-        "Most published answers to “how big is the agent economy” are forecasts of future commerce — McKinsey's trillions by 2030, Juniper's multi-billion agentic-commerce curves — or enterprise-software market sizing that has nothing to do with on-chain activity. This page answers a narrower, checkable question: how much agent-protocol activity is observable on public blockchains right now. That means transaction and event counts across six protocol families (x402, ERC-8004, Virtuals ACP, Olas, Tempo MPP, and Base's agentic ecosystem), plus the stablecoin volume x402 settlement actually moved.",
+        "Most published answers to “how big is the agent economy” are forecasts of future commerce — McKinsey's trillions by 2030, Juniper's multi-billion agentic-commerce curves — or enterprise-software market sizing that has nothing to do with on-chain activity. This page answers a narrower, checkable question: how much agent-protocol activity is observable on public blockchains right now. That means transaction and event counts across seven protocol families (x402, ERC-8004, Virtuals ACP, Olas, Tempo MPP, Masumi, and Base's agentic ecosystem), plus the stablecoin volume x402 settlement actually moved.",
         "The two kinds of numbers answer different questions and should not be blended. A forecast prices the opportunity; a measurement prices the present. When a report says agents will transact trillions, and the measured settled volume is in the tens of millions, both can be true — the gap is the distance between thesis and adoption, and tracking that gap over time is precisely what this dataset is for.",
       ],
     },
@@ -379,7 +379,7 @@ const agentEconomySize: StatDoc = {
     if (!total) return null;
     const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
     return {
-      answer: `As of ${stamp}, the measured on-chain agent economy spans ${fmt(total)} cumulative events across six protocol families, including ${fmt(data.x402?.totalTxs)} x402 payment settlements that moved ${usd(data.x402?.totalVolume)} in stablecoins. This is observed on-chain activity — not a market forecast — and it refreshes hourly from the open dataset.`,
+      answer: `As of ${stamp}, the measured on-chain agent economy spans ${fmt(total)} cumulative events across seven protocol families, including ${fmt(data.x402?.totalTxs)} x402 payment settlements that moved ${usd(data.x402?.totalVolume)} in stablecoins. This is observed on-chain activity — not a market forecast — and it refreshes hourly from the open dataset.`,
       asOf: data.updatedAt ?? null,
       rows: [
         { label: "Total tracked events (all protocols)", value: fmt(total), note: "activity index" },
@@ -1016,7 +1016,7 @@ const whatIsAgentEconomy: StatDoc = {
     if (!events) return null;
     const stamp = asOfLabel(data.updatedAt) ?? "the latest pipeline run";
     return {
-      answer: `The agent economy is economic activity carried out by autonomous software agents on their own account — paying for resources, registering identities, and settling jobs with each other — rather than by a human at a checkout. Measured on public blockchains as of ${stamp}, it amounts to ${fmt(events)} cumulative events across six protocol families, including ${fmt(data.x402?.totalTxs)} agent payment settlements that moved ${usd(data.x402?.totalVolume)} in stablecoins. That is observed activity, not a market forecast.`,
+      answer: `The agent economy is economic activity carried out by autonomous software agents on their own account — paying for resources, registering identities, and settling jobs with each other — rather than by a human at a checkout. Measured on public blockchains as of ${stamp}, it amounts to ${fmt(events)} cumulative events across seven protocol families, including ${fmt(data.x402?.totalTxs)} agent payment settlements that moved ${usd(data.x402?.totalVolume)} in stablecoins. That is observed activity, not a market forecast.`,
       asOf: data.updatedAt ?? null,
       rows: [
         { label: "Payment — x402 settlements", value: fmt(data.x402?.totalTxs), note: "agents paying per request" },

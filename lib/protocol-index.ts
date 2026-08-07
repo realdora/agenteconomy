@@ -6,6 +6,10 @@
 import { fetchFeed } from "./feed-fetch";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
+// Masumi is sourced through a public Cardano API, so its figures live in the
+// off-chain feed. Fetched separately and appended only when present — see the
+// note in getProtocolIndex on why it stays outside the fallback guard.
+const WEB_URL = "https://agenteconomy.to/web-sources.json";
 
 export type ProtocolRow = {
   slug: string;
@@ -86,6 +90,16 @@ const SEEDS: Record<string, RowSeed> = {
     unit: "transactions",
     sparkUnit: "txs / week",
   },
+  masumi: {
+    slug: "masumi",
+    name: "Masumi",
+    desc: "Escrow agent payments on Cardano",
+    href: "/masumi",
+    color: "#f2a900",
+    logo: null,
+    unit: "escrow payments",
+    sparkUnit: "txs / week",
+  },
   tempoMpp: {
     slug: "tempoMpp",
     name: "Tempo MPP",
@@ -115,6 +129,22 @@ export const FALLBACK: ProtocolIndexData = {
   ],
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function masumiRow(series: (arr: any, field: string) => number[]): Promise<ProtocolRow | null> {
+  try {
+    const res = await fetchFeed(WEB_URL);
+    if (!res.ok) return null;
+    const w = await res.json();
+    const total = Number(w?.masumi?.totalTxs);
+    if (!Number.isFinite(total) || total <= 0) return null;
+    const spark = series(w?.masumi?.weekly, "txs");
+    if (spark.length < 2) return null;
+    return row("masumi", total, "Cardano · escrow", spark);
+  } catch {
+    return null;
+  }
+}
+
 export async function getProtocolIndex(): Promise<ProtocolIndexData> {
   try {
     const res = await fetchFeed(DATA_URL);
@@ -139,7 +169,15 @@ export async function getProtocolIndex(): Promise<ProtocolIndexData> {
       row("tempoMpp", num(d.tempoMpp?.totalEvents), `${num(d.tempoMpp?.uniquePayers)} payers`, series(d.tempoMpp?.daily, "events")),
     ];
     // Any empty metric/series means the source moved under us — fall back whole.
+    // Masumi is deliberately checked AFTER this guard and appended only if its
+    // own feed answered: it lives in web-sources.json, and letting a second
+    // feed's outage collapse the whole on-chain list to a June snapshot would
+    // trade a missing row for five stale ones.
     if (rows.some((r) => !r.metric || r.spark.length < 2)) return FALLBACK;
+
+    const masumi = await masumiRow(series);
+    if (masumi) rows.push(masumi);
+
     return {
       updatedAt: typeof d.updatedAt === "string" ? d.updatedAt : null,
       rows,

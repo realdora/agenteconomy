@@ -7,6 +7,10 @@
 import { fetchFeed } from "./feed-fetch";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
+// Masumi is read through a third-party public API (Koios) rather than this
+// site's own indexing, so it lives in the off-chain feed. It is the only
+// protocol page whose figures come from there.
+const WEB_URL = "https://agenteconomy.to/web-sources.json";
 
 export type StatRow = { label: string; value: string; note?: string };
 
@@ -163,6 +167,49 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
         isLive: true,
       };
     }
+    case "masumi": {
+      const m = (d.masumi ?? {}) as Record<string, unknown>;
+      const total = num(m.totalTxs);
+      if (!total) return null;
+      // The feed ships the running week too, so it has to be dropped here: a
+      // week that is four days old reads as a ~40% collapse against complete
+      // ones. A week beginning W is complete once W+7d has passed at the feed's
+      // own as-of date — the same test the dashboard build applies.
+      const asOfDay = String((m.asOf as string) ?? (d.updatedAt as string) ?? "").slice(0, 10);
+      const weekly = arr(m.weekly).filter((r) => {
+        const start = Date.parse(String(r.week ?? ""));
+        if (Number.isNaN(start) || !asOfDay) return false;
+        return new Date(start + 7 * 86400000).toISOString().slice(0, 10) <= asOfDay;
+      });
+      const lastWeek = weekly.at(-1) ?? {};
+      const asOfLabel = formatAsOf((m.asOf as string) ?? (d.updatedAt as string)) ?? "the latest refresh";
+      return {
+        asOf: (m.asOf as string) ?? (d.updatedAt as string) ?? null,
+        headline: { value: fmt(total), noun: "escrow payments" },
+        rows: [
+          { label: "Escrow transactions", value: fmt(total), note: "mainnet payment contract" },
+          { label: "Chain", value: "Cardano", note: "the only non-EVM rail tracked" },
+          ...(weekly.length
+            ? [
+                { label: `Latest complete week`, value: fmt(lastWeek.txs), note: String(lastWeek.week ?? "") },
+                { label: "Weeks of history", value: fmt(weekly.length), note: "rebuilt from full contract history" },
+              ]
+            : []),
+          { label: "Source", value: "Koios public API", note: "cross-verified against Masumi's explorer" },
+        ],
+        faq: [
+          {
+            q: "How many Masumi transactions are there?",
+            a: `As of ${asOfLabel}, agent economy counts ${fmt(total)} transactions against the Masumi mainnet payment contract on Cardano, read from the chain through the public Koios API and cross-verified against Masumi's own explorer. The unit is escrow settlement activity, not audited end-user commerce.`,
+          },
+          {
+            q: "Why is Masumi counted differently from the other protocols?",
+            a: "It settles on Cardano rather than an EVM chain or Solana, so it cannot be read by the same Dune queries or RPC log scans. It is walked through Koios, a public Cardano API, and its figures live in web-sources.json with the other externally-sourced signals — a statement about provenance, not about confidence.",
+          },
+        ],
+        isLive: true,
+      };
+    }
     default:
       return null;
   }
@@ -170,8 +217,8 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
 
 export async function getProtocolStats(slug: string): Promise<ProtocolStats | null> {
   try {
-    const res = await fetchFeed(DATA_URL);
-    if (!res.ok) throw new Error(`data.json responded ${res.status}`);
+    const res = await fetchFeed(slug === "masumi" ? WEB_URL : DATA_URL);
+    if (!res.ok) throw new Error(`feed responded ${res.status}`);
     const d = await res.json();
     return buildStats(slug, d);
   } catch {

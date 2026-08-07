@@ -22,7 +22,7 @@ const openapi = {
     summary: "Open, key-less JSON feeds for on-chain agent-payment activity and off-chain agent-economy signal.",
     description:
       "Two schema-stable JSON documents describing the agent economy. `/data.json` = on-chain, measured " +
-      "(5 protocols, 11+ chains). `/web-sources.json` = off-chain, sourced (token market, service & agent " +
+      "(6 protocols, 12+ chains). `/web-sources.json` = off-chain, sourced (token market, service & agent " +
       "supply, the Virtuals economy, developer adoption, Masumi). No API key or signup. CORS-open. " +
       "Both carry `updatedAt`; per-section `asOf`/`note` describe provenance on the off-chain feed. " +
       "Agents can also call the MCP server at /api/mcp.",
