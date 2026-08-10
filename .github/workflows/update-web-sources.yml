@@ -39,16 +39,10 @@ jobs:
 
       - name: Commit web-sources.json
         id: commit
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/web-sources.json
-          if git diff --staged --quiet; then
-            echo "No web-source changes to commit"
-            exit 0
-          fi
-          git commit -m "chore: update web sources $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push
-          # No deploy hook: the dashboard is rebuilt on schedule by
-          # update-dashboard.yml and the apex site proxies web-sources.json at
-          # request time. The old hook targeted a now-deleted project.
+        uses: ./.github/actions/commit-push
+        with:
+          paths: public/web-sources.json
+          message: "chore: update web sources"
+        # No deploy hook: the dashboard is rebuilt on schedule by
+        # update-dashboard.yml and the apex site proxies web-sources.json at
+        # request time. The old hook targeted a now-deleted project.
