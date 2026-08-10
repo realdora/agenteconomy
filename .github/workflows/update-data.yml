@@ -64,20 +64,12 @@ jobs:
 
       - name: Commit updated data.json
         id: commit-data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # baselines.json advances when the pipeline self-folds a window — it
-          # must land in the same commit as the data it froze.
-          git add public/data.json scripts/dune/baselines.json
-          if git diff --staged --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No data changes to commit"
-            exit 0
-          fi
-          git commit -m "chore: update Dune data $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+        # baselines.json advances when the pipeline self-folds a window — it must
+        # land in the same commit as the data it froze, so both are staged together.
+        uses: ./.github/actions/commit-push
+        with:
+          paths: public/data.json scripts/dune/baselines.json
+          message: "chore: update Dune data"
 
       # Production picks up this commit without a deploy hook: the dashboard is
       # rebuilt by update-dashboard.yml (workflow_run on this workflow's

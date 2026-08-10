@@ -1,0 +1,53 @@
+name: Commit and push to main
+description: >
+  Stage, commit and push to main with rebase-and-retry. Three cron workflows
+  push to main from separate concurrency groups, so they can overlap; whoever
+  pushes second lands on a stale ref and git rejects it ("fetch first"). This
+  rebases onto whatever landed meanwhile and retries, turning an intermittent
+  red run into a non-event. The commits touch different files, so the rebase
+  is always clean.
+
+inputs:
+  paths:
+    description: Space-separated paths to stage.
+    required: true
+  message:
+    description: >
+      Commit message prefix. A UTC timestamp is appended, so pass a static
+      string here — do not embed shell like $(date), which would be evaluated
+      after template substitution.
+    required: true
+
+outputs:
+  changed:
+    description: "'true' when a commit was pushed, 'false' when there was nothing to commit."
+    value: ${{ steps.commit.outputs.changed }}
+
+runs:
+  using: composite
+  steps:
+    - id: commit
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add ${{ inputs.paths }}
+        if git diff --staged --quiet; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Nothing to commit"
+          exit 0
+        fi
+        git commit -m "${{ inputs.message }} $(date -u '+%Y-%m-%d %H:%M UTC')"
+        for attempt in 1 2 3 4 5; do
+          if git push; then
+            echo "pushed on attempt $attempt"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$attempt" = 5 ]; then
+            echo "::error::push still rejected after 5 rebase attempts"
+            exit 1
+          fi
+          echo "push rejected, rebasing onto origin/main (attempt $attempt)"
+          git pull --rebase origin main
+        done
