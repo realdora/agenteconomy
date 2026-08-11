@@ -1,27 +1,34 @@
 {
-  "updatedAt": "2026-08-10T00:59:14.443358Z",
+  "updatedAt": "2026-08-11T00:55:44.329704Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
         "queryId": 7895747,
-        "executionId": "01KZMJSABJBRB5Z1FN2MB3X8VV",
-        "executedAt": "2026-08-10T00:57:50.460364Z"
+        "executionId": "01KZQ4YRY65C33PAR6Q56PH76Z",
+        "executedAt": "2026-08-11T00:53:42.73422Z",
+        "lastCostCredits": 4.957794118,
+        "lastWindowStart": "2026-08-05"
       },
       "x402Daily": {
         "queryId": 7881006,
-        "executionId": "01KZMJT4ENT9QWRZ0NK0MC8ZFX",
-        "executedAt": "2026-08-10T00:58:39.978376Z"
+        "executionId": "01KZQ4Z8WJAM7CSHJY9WVPMKAH",
+        "executedAt": "2026-08-11T00:54:26.23626Z",
+        "lastCostCredits": 2.614264706,
+        "lastWindowStart": "2026-08-05"
       },
       "baseAgentic": {
         "queryId": 6731879,
-        "executionId": "01KZMJQ6YTN9T328CRTMHBYCFX",
-        "executedAt": "2026-08-10T00:57:24.446441Z"
+        "executionId": "01KZQ4YE1Q66S6MZE987P3WZMB",
+        "executedAt": "2026-08-11T00:53:23.526649Z",
+        "lastCostCredits": 2.324852942
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01KZMJVK1QXQFHKFS0QEMNKT3X",
-        "executedAt": "2026-08-10T00:58:43.668334Z"
+        "executionId": "01KZQ50JVGZNYZSYC2YYZTF31Y",
+        "executedAt": "2026-08-11T00:54:32.308619Z",
+        "lastCostCredits": 0.334605264,
+        "lastWindowStart": "2026-08-05"
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -37,8 +44,9 @@
       },
       "x402TokenSplit": {
         "queryId": 7931767,
-        "executionId": "01KZMJVRJKPY57R5QN4XQ0TEMJ",
-        "executedAt": "2026-08-10T00:59:14.443358Z"
+        "executionId": "01KZQ50RDFK4T41847G3K8ABBM",
+        "executedAt": "2026-08-11T00:55:44.329704Z",
+        "lastCostCredits": 0.646852942
       }
     }
   },
@@ -80,9 +88,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-08-10T00:57:50.460364Z",
-    "totalTxs": 161786928,
-    "totalVolume": 41272170,
+    "asOf": "2026-08-11T00:53:42.73422Z",
+    "totalTxs": 161973164,
+    "totalVolume": 41277948,
     "facilitatorsTracked": 18,
     "chainsTracked": 7,
     "monthly": [
@@ -138,15 +146,11 @@
       },
       {
         "month": "Aug 26",
-        "txs": 1771301,
-        "vol": 123092
+        "txs": 1957537,
+        "vol": 128870
       }
     ],
     "daily": [
-      {
-        "day": "2026-06-12",
-        "txs": 193692
-      },
       {
         "day": "2026-06-13",
         "txs": 193727
@@ -377,11 +381,15 @@
       },
       {
         "day": "2026-08-09",
-        "txs": 190393
+        "txs": 190572
       },
       {
         "day": "2026-08-10",
-        "txs": 6861
+        "txs": 184680
+      },
+      {
+        "day": "2026-08-11",
+        "txs": 6232
       }
     ],
     "protocols": [
@@ -392,7 +400,7 @@
       },
       {
         "name": "Other",
-        "share": 25.4,
+        "share": 25.5,
         "color": "#6B7280"
       },
       {
@@ -454,16 +462,16 @@
       }
     ],
     "tokenSplit": {
-      "asOf": "2026-08-10T00:59:14.443358Z",
+      "asOf": "2026-08-11T00:55:44.329704Z",
       "windowDays": 30,
-      "usdcSharePct": 96.3,
-      "totalPayments": 37914,
+      "usdcSharePct": 96.33,
+      "totalPayments": 40721,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
   "baseAgentic": {
-    "asOf": "2026-08-10T00:57:24.446441Z",
-    "totalTxs": 1491062,
+    "asOf": "2026-08-11T00:53:23.526649Z",
+    "totalTxs": 1494975,
     "daily": [
       {
         "day": "2026-01-01",
@@ -1790,18 +1798,19 @@
         "consumer": 459,
         "infrastructure": 3403,
         "total": 3862
+      },
+      {
+        "day": "2026-08-10",
+        "consumer": 901,
+        "infrastructure": 3012,
+        "total": 3913
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-08-10T00:58:43.668334Z",
-    "totalMemos": 12333326,
+    "asOf": "2026-08-11T00:54:32.308619Z",
+    "totalMemos": 12333504,
     "daily": [
-      {
-        "day": "2026-05-13",
-        "memos": 1929,
-        "senders": 13
-      },
       {
         "day": "2026-05-14",
         "memos": 1417,
@@ -2244,8 +2253,13 @@
       },
       {
         "day": "2026-08-10",
+        "memos": 178,
+        "senders": 7
+      },
+      {
+        "day": "2026-08-11",
         "memos": 3,
-        "senders": 2
+        "senders": 3
       }
     ]
   },
