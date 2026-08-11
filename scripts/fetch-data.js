@@ -759,6 +759,12 @@ function freshnessBreaches(meta) {
     // Optional sources that have never been materialized don't count against
     // the SLA — a missing secondary metric must not turn the whole run red.
     if (query.optional && !meta?.[query.key]) continue
+    // Read-only sources refresh on a third party's cadence, which no red run
+    // can accelerate: the first live ingest of the by-chain query arrived
+    // 1,524h old and would have failed this gate every day forever. Their
+    // consumers render the as-of date, so staleness is disclosed where it
+    // matters — on the page — rather than as a daily alarm nobody can act on.
+    if (query.readOnly) continue
     const effectiveAge = ageHours(meta?.[query.key]?.executedAt)
     if (effectiveAge > query.slaHours) {
       breaches.push(`${query.label}: data is ${effectiveAge.toFixed(1)}h old (SLA ${query.slaHours}h)`)
