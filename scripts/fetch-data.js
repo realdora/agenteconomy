@@ -181,6 +181,27 @@ const QUERIES = [
     optional: true,
     label: 'x402 token split',
   },
+  {
+    key: 'x402Chains',
+    // Cumulative x402 transactions by chain — @thechriscen's public query (the
+    // "Transactions by Chains" chart on dune.com/thechriscen/x402-payment-analytics,
+    // the same author already credited for the cumulative source). READ-ONLY by
+    // design: this key is deliberately NOT in DUNE_REFRESH_KEYS, so the pipeline
+    // only ever downloads his latest cached execution and never spends execution
+    // credits — the split refreshes whenever he refreshes his own dashboard.
+    // Replaces the frozen June-2026 hardcoded snapshot that used to live in the
+    // assembly below (kept there as the last-resort fallback).
+    id: Number(process.env.DUNE_QID_X402_CHAINS || 6166650),
+    limit: 1000,
+    readOnly: true,
+    maxAgeHours: 168,
+    // Generous SLA: a third party controls the refresh cadence. Three weeks
+    // stale = time for a human to find a replacement source, which is exactly
+    // what the red run is for.
+    slaHours: 504,
+    optional: true,
+    label: 'x402 chains',
+  },
 ]
 
 // ── HTTP ─────────────────────────────────────────────────────
@@ -574,6 +595,50 @@ const PARSERS = {
     }
   },
 
+  x402Chains(rows) {
+    // Third-party query whose exact column names we do not control, so this
+    // parser is deliberately defensive: find the chain column and the count
+    // column by name from known variants, and when nothing matches, log the
+    // observed columns and refuse — the assembly then falls back to the
+    // previous build's split rather than publishing garbage.
+    if (!rows.length) throw new Error('x402Chains: empty result')
+    const cols = Object.keys(rows[0])
+    const pick = (cands) => cands.find(c => cols.includes(c))
+    const chainCol = pick(['blockchain', 'chain', 'chain_name', 'network'])
+    const txCandidates = ['cumulative_txn', 'cumulative_transactions', 'total_txn', 'total_transactions', 'txn_count', 'tx_count', 'transactions', 'txns', 'txs', 'count']
+    const txCol = pick(txCandidates)
+    if (!chainCol || !txCol) {
+      throw new Error(`x402Chains: unrecognized columns [${cols.join(', ')}] — expected a chain column and a transaction-count column`)
+    }
+    // A cumulative column repeats per period → take MAX per chain; a periodic
+    // count column → SUM per chain. Detect by name.
+    const cumulative = txCol.startsWith('cumulative')
+    const byChain = {}
+    for (const row of rows) {
+      const raw = String(row[chainCol] ?? '').trim().toLowerCase()
+      if (!raw || TESTNETS.has(raw)) continue
+      const n = safeNum(row[txCol])
+      if (cumulative) byChain[raw] = Math.max(byChain[raw] ?? 0, n)
+      else byChain[raw] = (byChain[raw] ?? 0) + n
+    }
+    const CHAIN_COLORS = { Base: '#0052FF', Solana: '#9945FF', Polygon: '#8247E5', BNB: '#F0B90B', Avalanche: '#E84142', Arbitrum: '#12AAFF', SEI: '#9D4EDD' }
+    const chains = Object.entries(byChain)
+      .map(([raw, txs], i) => {
+        const name = chainName(raw)
+        return { name, txs: Math.round(txs), color: CHAIN_COLORS[name] || getColor(name, i) }
+      })
+      .filter(c => c.txs > 0)
+      .sort((a, b) => b.txs - a.txs)
+      .slice(0, 12)
+    // Plausibility: the split must at least resemble x402 scale. The June-2026
+    // snapshot summed ~127M; anything under 1M means we parsed the wrong thing.
+    const total = chains.reduce((s2, c) => s2 + c.txs, 0)
+    if (chains.length < 2 || total < 1_000_000) {
+      throw new Error(`x402Chains: implausible parse (${chains.length} chains, ${total} total) from columns [${cols.join(', ')}]`)
+    }
+    return { chains }
+  },
+
   olas(rows, baselines) {
     const base = baselines?.olas
     assertRowShape(rows, base ? ['time', 'chain', 'total_weekly_transactions_number'] : ['time', 'chain', 'total_weekly_transactions_number', 'global_cumulative_transactions_number'], 'Q olas')
@@ -635,6 +700,7 @@ const REUSERS = {
     usdcSharePct: d.x402.tokenSplit.usdcSharePct,
     totalPayments: d.x402.tokenSplit.totalPayments,
   } : null),
+  x402Chains: d => (Array.isArray(d?.x402?.chains) && d.x402.chains.length ? { chains: d.x402.chains } : null),
 }
 
 function existingAsOf(existing, key) {
@@ -773,6 +839,14 @@ function unsafeQueryReason(query) {
 }
 
 function freshExecutionBlockReason(state, budget, prev, baselines) {
+  // Unconditional, env-independent: a readOnly source may never execute. The
+  // DUNE_REFRESH_KEYS gate below only exists when the workflow sets that env,
+  // so on a bare local/test run it is wide open — which is exactly how a
+  // read-only third-party full-history query would end up executing and
+  // burning the credits this flag exists to protect.
+  if (state.query.readOnly) {
+    return `query ${state.query.key} is readOnly: latest cached results only, never executed`
+  }
   if (REFRESH_KEYS && !REFRESH_KEYS.has(state.query.key)) {
     return `query key ${state.query.key} is not selected by DUNE_REFRESH_KEYS`
   }
@@ -1199,25 +1273,41 @@ async function main() {
       { name: 'ERC-8004 Trustless Agents', author: '@hashed_official', queryId: QUERIES[4].id },
       { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: QUERIES[5].id },
       { name: 'x402 token split (Base, trailing 30d)', author: 'agenteconomy', queryId: QUERIES[6].id },
+      { name: 'x402 Transactions by Chain', author: '@thechriscen', queryId: QUERIES[7].id },
     ],
     x402: {
       asOf: olderOf(asOf('x402Cumulative'), asOf('x402Daily')),
       totalTxs: f.x402Cumulative.totalTxs,
       totalVolume: f.x402Cumulative.totalVolume,
       facilitatorsTracked: f.x402Cumulative.facilitatorsTracked || 15,
-      chainsTracked: 7,
       monthly: f.x402Cumulative.monthly,
       daily: f.x402Daily.daily,
       protocols: f.x402Cumulative.protocols,
-      chains: [
-        { name: 'Base',      txs: 72058130, color: '#0052FF' },
-        { name: 'Solana',    txs: 47231681, color: '#9945FF' },
-        { name: 'Polygon',   txs: 7184927,  color: '#8247E5' },
-        { name: 'BNB',       txs: 658610,   color: '#F0B90B' },
-        { name: 'Avalanche', txs: 4612,     color: '#E84142' },
-        { name: 'Arbitrum',  txs: 522,      color: '#12AAFF' },
-        { name: 'SEI',       txs: 142,      color: '#9D4EDD' },
-      ],
+      // Per-chain split. Live from @thechriscen's public by-chain query when
+      // readable (never executed by us — see the QUERIES entry); otherwise the
+      // previous build's split via REUSERS; the frozen June-2026 snapshot only
+      // remains as the last-resort floor for a from-scratch build with Dune down.
+      ...(() => {
+        const JUNE_SNAPSHOT = [
+          { name: 'Base',      txs: 72058130, color: '#0052FF' },
+          { name: 'Solana',    txs: 47231681, color: '#9945FF' },
+          { name: 'Polygon',   txs: 7184927,  color: '#8247E5' },
+          { name: 'BNB',       txs: 658610,   color: '#F0B90B' },
+          { name: 'Avalanche', txs: 4612,     color: '#E84142' },
+          { name: 'Arbitrum',  txs: 522,      color: '#12AAFF' },
+          { name: 'SEI',       txs: 142,      color: '#9D4EDD' },
+        ]
+        const chains = f.x402Chains?.chains || JUNE_SNAPSHOT
+        const live = Boolean(f.x402Chains?.chains)
+        return {
+          chainsTracked: chains.length,
+          chains,
+          // Consumers (dashboard label, apex pages) read these to state
+          // provenance honestly instead of a hardcoded "June 2026" caption.
+          chainsAsOf: live ? (metaOut.x402Chains?.executedAt || null) : '2026-06-30T00:00:00Z',
+          chainsSource: live ? 'dune:@thechriscen (read-only)' : 'frozen snapshot (June 2026)',
+        }
+      })(),
       // Trailing-30d USDC-vs-total volume split on Base (live registry scope).
       // Rolling ratio, not cumulative — never folded, may move either way. Fresh
       // fragment wins; else reuse the prior split; else omit the key entirely.
