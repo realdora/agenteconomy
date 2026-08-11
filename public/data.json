@@ -47,6 +47,11 @@
         "executionId": "01KZQ50RDFK4T41847G3K8ABBM",
         "executedAt": "2026-08-11T00:55:44.329704Z",
         "lastCostCredits": 0.646852942
+      },
+      "x402Chains": {
+        "queryId": 6166650,
+        "executionId": "01KTM9XPD6B3GTEQ42MEZVVG2Z",
+        "executedAt": "2026-06-08T19:17:55.234208Z"
       }
     }
   },
@@ -85,6 +90,11 @@
       "name": "x402 token split (Base, trailing 30d)",
       "author": "agenteconomy",
       "queryId": 7931767
+    },
+    {
+      "name": "x402 Transactions by Chain",
+      "author": "@thechriscen",
+      "queryId": 6166650
     }
   ],
   "x402": {
@@ -92,7 +102,6 @@
     "totalTxs": 161973164,
     "totalVolume": 41277948,
     "facilitatorsTracked": 18,
-    "chainsTracked": 7,
     "monthly": [
       {
         "month": "Oct 25",
@@ -424,43 +433,71 @@
         "color": "#EC4899"
       }
     ],
+    "chainsTracked": 12,
     "chains": [
       {
         "name": "Base",
-        "txs": 72058130,
+        "txs": 84755834,
         "color": "#0052FF"
       },
       {
         "name": "Solana",
-        "txs": 47231681,
+        "txs": 47379936,
         "color": "#9945FF"
       },
       {
         "name": "Polygon",
-        "txs": 7184927,
+        "txs": 17711224,
         "color": "#8247E5"
       },
       {
         "name": "BNB",
-        "txs": 658610,
+        "txs": 852523,
         "color": "#F0B90B"
       },
       {
+        "name": "Monad",
+        "txs": 20934,
+        "color": "#6366F1"
+      },
+      {
+        "name": "Xlayer",
+        "txs": 5538,
+        "color": "#6366F1"
+      },
+      {
         "name": "Avalanche",
-        "txs": 4612,
+        "txs": 4738,
         "color": "#E84142"
       },
       {
         "name": "Arbitrum",
-        "txs": 522,
+        "txs": 704,
         "color": "#12AAFF"
       },
       {
-        "name": "SEI",
-        "txs": 142,
-        "color": "#9D4EDD"
+        "name": "Ethereum",
+        "txs": 461,
+        "color": "#F97316"
+      },
+      {
+        "name": "Celo",
+        "txs": 188,
+        "color": "#EC4899"
+      },
+      {
+        "name": "Sei",
+        "txs": 106,
+        "color": "#14B8A6"
+      },
+      {
+        "name": "Peaq",
+        "txs": 90,
+        "color": "#EC4899"
       }
     ],
+    "chainsAsOf": "2026-06-08T19:17:55.234208Z",
+    "chainsSource": "dune:@thechriscen (read-only)",
     "tokenSplit": {
       "asOf": "2026-08-11T00:55:44.329704Z",
       "windowDays": 30,
