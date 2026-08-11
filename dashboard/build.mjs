@@ -152,7 +152,7 @@ function drawChart(box){
   const all=JSON.parse(box.dataset.series)
   if(!box._mode)box._mode={range:box.dataset.default||'ALL',field:'v'}
   const mode=box._mode
-  const N={'7D':7,'30D':30,'60D':60,'90D':90,'8W':8,'26W':26,'12M':12}[mode.range]
+  const N={'7D':7,'30D':30,'60D':60,'90D':90,'6M':6,'8W':8,'26W':26,'12M':12}[mode.range]
   const series=N?all.slice(-N):all
   const unitName=mode.field==='v2'?(box.dataset.unit2||'compact'):(box.dataset.unit||'compact')
   const unit=UNITS[unitName]
@@ -161,7 +161,7 @@ function drawChart(box){
   const max=Math.max(...series.map(r=>r[mode.field]||0))||1
   let s=''
   for(const t of [0.5,1])s+='<line x1="0" y1="'+(166-146*t)+'" x2="'+PLOT+'" y2="'+(166-146*t)+'" stroke="#efede8" stroke-dasharray="2 4"/><text x="'+W+'" y="'+(166-146*t+3.5)+'" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+unit(max*t)+'</text>'
-  series.forEach((r,i)=>{const v=r[mode.field]||0;const bh=(v/max)*146;s+='<rect class="bar" data-i="'+i+'" style="transition-delay:'+Math.min(i*12,480)+'ms" x="'+(i*slot+(slot-bw)/2)+'" y="'+(166-bh)+'" width="'+bw+'" height="'+Math.max(bh,0.5)+'" rx="3" fill="#0f766e" opacity="'+(i===n-1?1:0.55)+'"/>'})
+  series.forEach((r,i)=>{const v=r[mode.field]||0;const bh=(v/max)*146;s+='<rect class="bar" data-i="'+i+'" style="transition-delay:'+Math.min(i*12,480)+'ms" x="'+(i*slot+(slot-bw)/2)+'" y="'+(166-bh)+'" width="'+bw+'" height="'+Math.max(bh,2)+'" rx="3" fill="#0f766e" opacity="'+(i===n-1?1:0.55)+'"/>'})
   s+='<text x="0" y="184" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+escT(series[0].l)+'</text><text x="'+PLOT+'" y="184" text-anchor="end" fill="#a8a29e" font-size="10" font-family="GeistMono,Menlo,monospace">'+escT(series[n-1].l)+'</text>'
   box.classList.remove('drawn')
   box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%">'+s+'</svg><div class="tip"></div>'
@@ -323,9 +323,9 @@ protoPage('x402', {
   ],
   charts: [
     { kick: 'Daily', h2: 'Daily settlements.', html: chartBox('x402 transactions per day', 'Hover any bar for the exact figure', xDaily.slice(-90).map(r => ({ l: r.day.slice(5), v: r.txs })), { ranges: ['7D', '30D', '60D', '90D'], def: '60D' }) },
-    { kick: 'Monthly', h2: 'The monthly picture — count and dollars.', html: chartBox('x402 by month', 'Transactions or settled USD volume — switch with the tabs', d.x402.monthly.map(m => ({ l: m.month, v: m.txs, v2: m.vol })), { fields: [{ label: 'TRANSACTIONS', field: 'v' }, { label: 'VOLUME $', field: 'v2' }], unit: 'compact', unit2: 'usd' }) },
+    { kick: 'Monthly', h2: 'The monthly picture — count and dollars.', html: chartBox('x402 by month', 'Transactions or settled USD volume — switch with the tabs · ALL includes the Nov–Dec 2025 peak, which dwarfs every later month', d.x402.monthly.map(m => ({ l: m.month, v: m.txs, v2: m.vol })), { fields: [{ label: 'TRANSACTIONS', field: 'v' }, { label: 'VOLUME $', field: 'v2' }], ranges: ['6M', 'ALL'], def: '6M', unit: 'compact', unit2: 'usd' }) },
   ],
-  split: { kick: 'Distribution', h2: 'Where it settles, who settles it.', html: `<div class="chart-sub" style="margin-bottom:6px">Facilitator share of settlements</div>${hbars(d.x402.protocols.map(p => ({ label: p.name, value: p.share })), v => v + '%')}<div class="chart-sub" style="margin:18px 0 6px">Chain split — snapshot · June 2026 · not yet live</div>${hbars(d.x402.chains.map(c => ({ label: c.name, value: c.txs })), compact)}` },
+  split: { kick: 'Distribution', h2: 'Where it settles, who settles it.', html: `<div class="chart-sub" style="margin-bottom:6px">Facilitator share of settlements</div>${hbars(d.x402.protocols.map(p => ({ label: p.name, value: p.share })), v => v + '%')}<div class="chart-sub" style="margin:18px 0 6px">${d.x402.chainsAsOf && !String(d.x402.chainsSource || '').includes('snapshot') ? `Chain split · via public Dune query (@thechriscen) · as of ${new Date(d.x402.chainsAsOf).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}` : 'Chain split — snapshot · June 2026 · not yet live'}</div>${hbars(d.x402.chains.map(c => ({ label: c.name, value: c.txs })), compact)}` },
   noteList: [
     'Settlement counts include tests, infrastructure traffic and repeated service calls — real protocol activity, not verified end-user commerce.',
     `USDC share is a trailing-30-day, Base-only, volume-weighted figure (${fmt(w.x402TokenSplit?.totalPayments ?? 0)} payments in window).`,

@@ -66,6 +66,14 @@ function fixtureRows(id, { totalTxs = 150_000_000, totalVol = 40_000_000 } = {})
           total_weekly_transactions_number: 5000 + i,
           global_cumulative_transactions_number: 2_000_000 + i * 1000,
         })))
+    case 6166650: // x402 by chain (third-party read-only; month × chain cumulative)
+      return ['base', 'solana', 'polygon'].flatMap(chain =>
+        ['2026-05-01', '2026-06-01'].map((d, i) => ({
+          blockchain: chain,
+          date_time: d,
+          cumulative_txn: { base: 70_000_000, solana: 45_000_000, polygon: 7_000_000 }[chain] + i * 1_000_000,
+        })),
+      )
     case 7931767: // x402 token split (trailing-30d, single aggregated row)
       return [{ usdc_vol: 950_000, total_vol: 1_000_000, usdc_txs: 9_500_000, total_txs: 10_000_000 }]
     default: throw new Error(`no fixture for query ${id}`)
@@ -216,7 +224,7 @@ console.log('\nS1 cold start (fresh caches, no executions expected)')
 const s1 = await runPipeline(defaultScenario())
 check('exit 0', s1.status === 0, `status=${s1.status}\n${s1.stdout}`)
 check('no executions', countLog(s1.log, '/execute') === 0, JSON.stringify(s1.log.filter(l => l.includes('execute'))))
-check('7 probes', countLog(s1.log, 'limit=1&') === 7, JSON.stringify(s1.log))
+check('8 probes', countLog(s1.log, 'limit=1&') === 8, JSON.stringify(s1.log))
 check('7 full downloads', s1.log.filter(l => /limit=(10000|5000|1000|10)&/.test(l)).length === 7, JSON.stringify(s1.log))
 check('data.json written with meta', !!s1.data && JSON.parse(s1.data).meta?.queries?.x402Cumulative?.executionId === 'exec-6058135-v1')
 check('asOf stamps present', !!JSON.parse(s1.data).x402.asOf && !!JSON.parse(s1.data).olas.asOf)
@@ -226,7 +234,7 @@ const SEED = s1.data // canonical previous build for later scenarios
 console.log('\nS2 unchanged (probe-only, zero downloads, no write)')
 const s2 = await runPipeline(defaultScenario(), { seedDataJson: SEED })
 check('exit 0', s2.status === 0, `status=${s2.status}\n${s2.stdout}`)
-check('7 probes', countLog(s2.log, 'limit=1&') === 7)
+check('8 probes', countLog(s2.log, 'limit=1&') === 8)
 check('zero full downloads', s2.log.filter(l => /limit=(1000|5000)/.test(l)).length === 0, JSON.stringify(s2.log))
 check('no write reported', s2.stdout.includes('no data changes'))
 check('file byte-identical', s2.data === SEED)
