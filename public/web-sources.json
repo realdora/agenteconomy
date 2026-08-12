@@ -1,64 +1,64 @@
 {
-  "updatedAt": "2026-08-12T13:13:43.865Z",
+  "updatedAt": "2026-08-12T19:03:23.554Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-08-12T13:13:44.258Z",
+    "asOf": "2026-08-12T19:03:23.889Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 375044996,
-        "price": 0.569448,
-        "change24h": 3
+        "mcap": 396357961,
+        "price": 0.604747,
+        "change24h": 15.3
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 302079157,
-        "price": 0.135379,
-        "change24h": 1
+        "mcap": 300268814,
+        "price": 0.134658,
+        "change24h": 1.1
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 246215035,
-        "price": 0.102963,
-        "change24h": -0.9
+        "mcap": 239279883,
+        "price": 0.100115,
+        "change24h": -4.3
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 7465060,
-        "price": 0.02555519,
-        "change24h": 1.2
+        "mcap": 7240653,
+        "price": 0.02482502,
+        "change24h": -0.9
       }
     ],
-    "basketMcap": 930804248,
-    "basketVol24h": 122570939,
+    "basketMcap": 943147311,
+    "basketVol24h": 149538374,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 2726071792,
-        "vol24h": 467730589,
-        "updatedAt": "2026-08-12T13:06:26.000Z"
+        "mcap": 2703425638,
+        "vol24h": 476648294,
+        "updatedAt": "2026-08-12T19:02:34.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1132547961,
-        "vol24h": 226115943,
-        "updatedAt": "2026-08-12T13:06:26.000Z"
+        "mcap": 1146510530,
+        "vol24h": 233961831,
+        "updatedAt": "2026-08-12T19:02:34.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-08-12T13:15:20.056Z",
-    "uniqueProviders": 1577,
-    "totalListings": 15253,
+    "asOf": "2026-08-12T19:04:42.148Z",
+    "uniqueProviders": 1582,
+    "totalListings": 15191,
     "top2ListingSharePct": 9,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-08-12T13:13:46.395Z",
-    "launchedAgents": 55779,
+    "asOf": "2026-08-12T19:03:26.104Z",
+    "launchedAgents": 55790,
     "acpRegisteredAgents": 44051,
     "aggregates": {
       "asOf": "2026-08-12T02:10:41.830Z",
@@ -135,7 +135,7 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-08-12T13:13:48.830Z",
+    "asOf": "2026-08-12T19:03:27.399Z",
     "totalTxs": 36361,
     "lastBlock": 13799294,
     "weekly": [
