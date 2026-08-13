@@ -1,7 +1,7 @@
 import type { ProtocolDoc } from "../protocol-data";
 
 export const masumiSeoDescription =
-  "Masumi guide: escrow-settled agent payments on Cardano, counted from the mainnet payment contract via the public Koios API — transactions, weekly series, and the caveats that come with a non-EVM source.";
+  "Masumi guide: escrow-settled agent payments on Cardano, counted from the mainnet payment contract via the public Koios API — with full weekly history.";
 
 export const masumiContent: ProtocolDoc["content"] = [
   {

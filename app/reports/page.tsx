@@ -13,7 +13,7 @@ const FIRST_REPORT_YM = "2026-06";
 export const metadata: Metadata = {
   title: "State of the Agent Economy — monthly reports | agent economy",
   description:
-    "A monthly, on-chain-measured report on the agent economy: x402 payments, agent registrations, agent-to-agent commerce, and machine-payment activity — free to cite with attribution.",
+    "The monthly on-chain report on the agent economy: x402 payments, registrations, and agent-to-agent commerce — free to cite with attribution.",
   alternates: { canonical: `${SITE}/reports` },
   twitter: {
     card: "summary_large_image",

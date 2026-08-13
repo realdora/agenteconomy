@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: ReportPageProps): Promise<Met
   const name = monthName(month);
   const canonical = `${SITE}/reports/${month}`;
   const title = `State of the Agent Economy — ${name} | agent economy`;
-  const description = `The ${name} agent economy, measured on-chain: x402 transactions and volume, ERC-8004 registrations, Virtuals ACP commerce, Olas, Tempo MPP, and Base agentic activity — with month-over-month changes.`;
+  const description = `The ${name} agent economy, measured on-chain: x402 payments, ERC-8004 registrations, ACP commerce and more — with month-over-month changes.`;
   return {
     title,
     description,

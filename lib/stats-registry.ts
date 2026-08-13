@@ -336,7 +336,7 @@ const agentEconomySize: StatDoc = {
   question: "How big is the on-chain agent economy?",
   shortTitle: "On-chain agent economy size",
   seoDescription:
-    "The measured size of the on-chain agent economy today — total events across seven protocol families and settled stablecoin volume — as distinct from market-size forecasts.",
+    "The measured size of the on-chain agent economy: total events across seven protocol families plus settled stablecoin volume — observed data, not a forecast.",
   related: ["x402-transactions", "how-many-ai-agents-are-onchain", "virtuals-acp-activity"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
@@ -726,7 +726,7 @@ const standardsAdoption: StatDoc = {
   question: "Which AI agent standards are actually adopted on the web?",
   shortTitle: "Agent-standard web adoption",
   seoDescription:
-    "How many top web domains actually serve each AI-agent standard — x402, AP2, UCP, MCP server cards, A2A, ACP — measured by a weekly Cloudflare Radar agent-readiness scan, with raw counts, per-check shares, month-over-month change, and the caveats that make the shares non-comparable.",
+    "How many top web domains serve each AI-agent standard — x402, AP2, UCP, MCP, A2A, ACP — from Cloudflare Radar's weekly scan, with counts and MoM change.",
   related: ["how-many-mcp-servers-are-there", "how-many-ai-agents-are-onchain", "x402-transactions"],
   sources: [
     { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
@@ -826,7 +826,7 @@ const inferenceDemand: StatDoc = {
   question: "How much AI inference demand is there?",
   shortTitle: "AI inference demand",
   seoDescription:
-    "A demand-side context metric for the agent economy: total LLM inference tokens processed across the public models ranked on OpenRouter over a trailing window, charted daily, with the tokenizer caveat that keeps the totals from being comparable across models.",
+    "How much LLM inference the agent era is buying: daily token volume across OpenRouter's public models over a trailing window — a demand-side context signal.",
   related: ["how-many-mcp-servers-are-there", "how-big-is-the-agent-economy", "which-agent-standards-are-actually-adopted"],
   sources: [
     { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
@@ -894,7 +894,7 @@ const usdcShare: StatDoc = {
   question: "What share of agent payments are settled in USDC?",
   shortTitle: "USDC share of agent payments",
   seoDescription:
-    "The live share of on-chain agent payments settled in USDC versus other tokens, measured from x402 settlement data and benchmarked against the Keyrock report — with the independence caveat that benchmark requires.",
+    "The live USDC share of on-chain agent payments, measured from x402 settlement data and checked against the Keyrock report's non-independent 98.6% headline.",
   protocolSlug: "x402",
   related: ["x402-transactions", "average-x402-transaction-size", "how-big-is-the-agent-economy"],
   // Gated: this page only exists once the x402 token-split feed has landed with a
@@ -974,7 +974,7 @@ const whatIsAgentEconomy: StatDoc = {
   question: "What is the agent economy?",
   shortTitle: "What the agent economy is",
   seoDescription:
-    "A definition of the agent economy grounded in measurement: autonomous software agents paying, registering and transacting on public blockchains — with the current observed size, not a forecast.",
+    "What the agent economy is, defined by measurement: autonomous agents paying, registering and transacting on public blockchains — with its current observed size.",
   related: ["how-big-is-the-agent-economy", "how-many-ai-agents-are-onchain", "x402-transactions"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
@@ -1049,7 +1049,7 @@ const x402VsAcp: StatDoc = {
   question: "What is the difference between x402 and Virtuals ACP?",
   shortTitle: "x402 vs Virtuals ACP",
   seoDescription:
-    "x402 and Virtuals ACP both get called agent payments but measure different things — per-request settlement versus job lifecycle memos. A side-by-side with the current measured figures for each.",
+    "x402 vs Virtuals ACP: per-request settlement versus job lifecycle memos — why the counts aren't comparable, with current measured figures for each.",
   related: ["x402-transactions", "virtuals-acp-activity", "how-big-is-the-agent-economy"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
@@ -1124,7 +1124,7 @@ const isX402Growing: StatDoc = {
   question: "Is x402 growing?",
   shortTitle: "x402 growth trend",
   seoDescription:
-    "Whether x402 is actually growing, from the full monthly series: transaction counts, settled volume, and the average payment size — including where each peaked and where it sits now.",
+    "Is x402 growing? The full monthly series: transaction counts, settled volume and average payment size — where each peaked and where it stands now.",
   protocolSlug: "x402",
   related: ["x402-transactions", "x402-daily-transactions", "average-x402-transaction-size"],
   sources: [{ label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" }],
@@ -1198,7 +1198,7 @@ const moneyMoved: StatDoc = {
   question: "How much money do AI agents actually move?",
   shortTitle: "Money moved by agents",
   seoDescription:
-    "The measured dollar value flowing through AI agent protocols — x402 stablecoin settlement plus gross agentic value recorded in Virtuals ACP — with the caveats that make each figure honest.",
+    "How much money AI agents actually move: x402 stablecoin settlement plus Virtuals ACP gross agentic value — two measured figures that must not be summed.",
   related: ["how-big-is-the-agent-economy", "x402-transactions", "virtuals-acp-activity"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
@@ -1252,7 +1252,7 @@ const chainLeaderboard: StatDoc = {
   question: "Which blockchain has the most AI agents?",
   shortTitle: "Agents by chain",
   seoDescription:
-    "Which chain leads on AI agent activity, separated by what is being counted — registered agent identities versus agent payment settlements, which produce different winners.",
+    "Which blockchain has the most AI agents? Registered identities and payment settlements produce different winners — both rankings, measured on-chain.",
   related: ["how-many-ai-agents-are-onchain", "erc-8004-agents", "x402-transactions"],
   sources: [{ label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" }],
   sections: [
@@ -1413,7 +1413,7 @@ const x402Services: StatDoc = {
   question: "How many services accept x402 payments?",
   shortTitle: "x402 service supply",
   seoDescription:
-    "How many APIs and services an agent can actually pay with x402 — measured as unique provider domains rather than raw catalog listings, and why that distinction matters.",
+    "How many services accept x402: unique provider domains an agent can actually pay, versus raw catalog listings — and why the smaller number is the honest one.",
   protocolSlug: "x402",
   related: ["x402-transactions", "x402-facilitators", "how-many-mcp-servers-are-there"],
   sources: [
@@ -1467,7 +1467,7 @@ const solanaAgents: StatDoc = {
   question: "How many AI agents are on Solana?",
   shortTitle: "Agents on Solana",
   seoDescription:
-    "The count of AI agent accounts registered in Solana's on-chain agent registries, read directly from the registry programs — an upper bound on registrations, not a count of active agents.",
+    "How many AI agents are on Solana: registry accounts read directly from the on-chain programs — an upper bound on registrations, not active agents.",
   related: ["how-many-ai-agents-are-onchain", "which-chain-has-the-most-ai-agents", "erc-8004-agents"],
   sources: [{ label: "agent economy web-sources.json (off-chain feed)", url: "https://agenteconomy.to/web-sources.json" }],
   sections: [
@@ -1579,7 +1579,7 @@ const x402VsTempo: StatDoc = {
   question: "What is the difference between x402 and Tempo MPP?",
   shortTitle: "x402 vs Tempo MPP",
   seoDescription:
-    "x402 and Tempo MPP are both machine payment protocols built around HTTP 402, but one settles per request and the other opens payment channels — with current measured figures for each.",
+    "x402 vs Tempo MPP: both build on HTTP 402, but one settles per request and the other opens payment channels — with current measured figures for each.",
   related: ["x402-transactions", "tempo-mpp-stats", "x402-vs-virtuals-acp"],
   sources: [{ label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" }],
   sections: [

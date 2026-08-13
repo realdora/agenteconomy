@@ -67,11 +67,21 @@ export default async function StatPage({ params }: StatPageProps) {
   const computed = doc.build(ctx);
   const stamp = computed ? asOfLabel(computed.asOf) : null;
   const protocol = doc.protocolSlug ? getProtocol(doc.protocolSlug) : null;
-  const related = doc.related
+  // Related links are bidirectional at render time: the authored list plus any
+  // page that lists THIS one. The authored graph turned out to be one-way —
+  // newer pages linked to established ones, nothing linked back — which left
+  // nine pages with only the hub as an inbound link, and the three pages Google
+  // declined to index were all in that group. Deriving the reverse edges here
+  // fixes every current asymmetry and makes future additions immune: listing an
+  // established page from a new one links both directions automatically.
+  const reverse = availableStatDocs(ctx).filter((d) => d.related.includes(doc.slug)).map((d) => d.slug);
+  const related = [...new Set([...doc.related, ...reverse])]
+    .filter((slug) => slug !== doc.slug)
     .map((slug) => getStatDoc(slug))
     .filter((d): d is NonNullable<typeof d> => Boolean(d))
     // Never link to a gated slug whose feed has not landed — its page 404s.
-    .filter((d) => isStatDocAvailable(d, ctx));
+    .filter((d) => isStatDocAvailable(d, ctx))
+    .slice(0, 6);
 
   const faq = [
     { q: doc.question, a: computed?.answer ?? doc.seoDescription },
