@@ -13,7 +13,7 @@ const SITE = "https://agenteconomy.to";
 export const metadata: Metadata = {
   title: "Agent economy stats — live answers | agent economy",
   description:
-    "Live, dated answers to the agent economy's most-asked questions: x402 transaction counts, on-chain agent census, ERC-8004 registrations — every number measured on-chain and refreshed hourly.",
+    "Live, dated answers to the agent economy's most-asked questions — x402 counts, agent census, ERC-8004 registrations — measured on-chain, refreshed hourly.",
   alternates: { canonical: `${SITE}/stats` },
   twitter: {
     card: "summary_large_image",

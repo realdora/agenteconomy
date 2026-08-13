@@ -121,7 +121,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL("https://agenteconomy.to"),
     title: TITLE,
-    description: `The data authority for the agent economy. On-chain flow across 6 protocols and 12+ chains (${ev} events), measured — plus off-chain market, supply and developer signal.`,
+    description: `The data authority for the agent economy: ${ev} on-chain events measured across 6 protocols and 12+ chains, plus off-chain market and supply signal.`,
     applicationName: "agent economy",
     openGraph: {
       type: "website",
