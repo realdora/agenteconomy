@@ -1,65 +1,65 @@
 {
-  "updatedAt": "2026-08-14T02:05:48.327Z",
+  "updatedAt": "2026-08-14T07:26:50.067Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-08-14T02:05:48.639Z",
+    "asOf": "2026-08-14T07:26:50.538Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 383032968,
-        "price": 0.582262,
-        "change24h": -1.8
+        "mcap": 374280902,
+        "price": 0.568862,
+        "change24h": -3.8
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 303741309,
-        "price": 0.136131,
-        "change24h": 1.4
+        "mcap": 305047161,
+        "price": 0.136725,
+        "change24h": 0.4
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 240187744,
-        "price": 0.100512,
-        "change24h": -1
+        "mcap": 234814647,
+        "price": 0.098202,
+        "change24h": -2.9
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 5614762,
-        "price": 0.01924801,
-        "change24h": -22.9
+        "mcap": 5650926,
+        "price": 0.01936456,
+        "change24h": -22.8
       }
     ],
-    "basketMcap": 932576783,
-    "basketVol24h": 86389948,
+    "basketMcap": 919793636,
+    "basketVol24h": 81809924,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 2580914067,
-        "vol24h": 331408493,
-        "updatedAt": "2026-08-14T01:59:09.000Z"
+        "mcap": 2543005839,
+        "vol24h": 357773778,
+        "updatedAt": "2026-08-14T07:22:40.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1048293025,
-        "vol24h": 116367033,
-        "updatedAt": "2026-08-14T01:59:09.000Z"
+        "mcap": 1036499041,
+        "vol24h": 110795730,
+        "updatedAt": "2026-08-14T07:22:40.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-08-14T02:07:31.301Z",
-    "uniqueProviders": 1598,
-    "totalListings": 14866,
-    "top2ListingSharePct": 10,
+    "asOf": "2026-08-14T07:28:13.857Z",
+    "uniqueProviders": 1596,
+    "totalListings": 14605,
+    "top2ListingSharePct": 9,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
   "agentSupply": {
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-08-14T02:10:47.385Z",
-    "launchedAgents": 55860,
+    "asOf": "2026-08-14T07:27:29.162Z",
+    "launchedAgents": 55865,
     "acpRegisteredAgents": 44051,
     "aggregates": {
       "asOf": "2026-08-14T02:10:47.385Z",
@@ -135,9 +135,9 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-08-14T02:05:52.159Z",
-    "totalTxs": 36443,
-    "lastBlock": 13804132,
+    "asOf": "2026-08-14T07:26:54.365Z",
+    "totalTxs": 36491,
+    "lastBlock": 13806733,
     "weekly": [
       {
         "week": "2025-06-23",
@@ -377,7 +377,7 @@
       },
       {
         "week": "2026-08-10",
-        "txs": 119
+        "txs": 167
       }
     ],
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10."
