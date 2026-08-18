@@ -44,13 +44,13 @@ export async function generateMetadata({ params }: ProtocolPageProps): Promise<M
       siteName: "agent economy",
       title,
       description: doc.seoDescription,
-      images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
+      images: [{ url: "/og.png?v=paper1", width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: doc.seoDescription,
-      images: ["/og.png"],
+      images: ["/og.png?v=paper1"],
       creator: "@realdora_eth",
     },
   };

@@ -39,9 +39,9 @@ export async function generateMetadata({ params }: ReportPageProps): Promise<Met
       siteName: "agent economy",
       title,
       description,
-      images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
+      images: [{ url: "/og.png?v=paper1", width: 1200, height: 630, alt: title }],
     },
-    twitter: { card: "summary_large_image", title, description, images: ["/og.png"], creator: "@realdora_eth" },
+    twitter: { card: "summary_large_image", title, description, images: ["/og.png?v=paper1"], creator: "@realdora_eth" },
   };
 }
 
