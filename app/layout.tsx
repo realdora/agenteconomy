@@ -129,7 +129,7 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "agent economy",
       title: OG_TITLE,
       description: social,
-      images: [{ url: "/og.png", width: 1200, height: 630, alt: OG_TITLE }],
+      images: [{ url: "/og.png?v=paper1", width: 1200, height: 630, alt: OG_TITLE }],
     },
     twitter: {
       card: "summary_large_image",
@@ -137,7 +137,7 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: "@realdora_eth",
       title: OG_TITLE,
       description: social,
-      images: ["/og.png"],
+      images: ["/og.png?v=paper1"],
     },
   };
 }
