@@ -1,65 +1,65 @@
 {
-  "updatedAt": "2026-08-24T01:23:43.340Z",
+  "updatedAt": "2026-08-24T07:01:44.641Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-08-24T01:23:43.655Z",
+    "asOf": "2026-08-24T07:01:45.146Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 472272517,
-        "price": 0.717897,
-        "change24h": 6.1
+        "mcap": 468553041,
+        "price": 0.712278,
+        "change24h": 7.59814
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 370340459,
-        "price": 0.163832,
-        "change24h": 1.9
+        "mcap": 371453024,
+        "price": 0.164238,
+        "change24h": 6.61642
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 272829513,
-        "price": 0.114075,
-        "change24h": 5
+        "mcap": 276737016,
+        "price": 0.115723,
+        "change24h": 9.36578
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 6682642,
-        "price": 0.0228557,
-        "change24h": 0.8
+        "mcap": 6678892,
+        "price": 0.0228542,
+        "change24h": 3.43774
       }
     ],
-    "basketMcap": 1122125131,
-    "basketVol24h": 197778014,
+    "basketMcap": 1123421973,
+    "basketVol24h": 189378365,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 3142388780,
-        "vol24h": 507532707,
-        "updatedAt": "2026-08-24T01:17:54.000Z"
+        "mcap": 3130954461,
+        "vol24h": 531884702,
+        "updatedAt": "2026-08-24T06:55:44.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1221996089,
-        "vol24h": 213738378,
-        "updatedAt": "2026-08-24T01:17:54.000Z"
+        "mcap": 1212548287,
+        "vol24h": 205195429,
+        "updatedAt": "2026-08-24T06:55:44.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-08-24T01:25:09.657Z",
-    "uniqueProviders": 1607,
-    "totalListings": 15284,
-    "top2ListingSharePct": 12,
+    "asOf": "2026-08-24T07:03:26.850Z",
+    "uniqueProviders": 1612,
+    "totalListings": 15239,
+    "top2ListingSharePct": 13,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
   "agentSupply": {
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-08-24T01:26:59.542Z",
-    "launchedAgents": 56515,
+    "asOf": "2026-08-24T07:01:47.246Z",
+    "launchedAgents": 56532,
     "acpRegisteredAgents": 44051,
     "aggregates": {
       "asOf": "2026-08-24T01:26:59.542Z",
@@ -135,9 +135,9 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-08-24T01:23:45.355Z",
-    "totalTxs": 37266,
-    "lastBlock": 13846744,
+    "asOf": "2026-08-24T07:01:50.881Z",
+    "totalTxs": 37269,
+    "lastBlock": 13849101,
     "weekly": [
       {
         "week": "2025-06-23",
@@ -382,6 +382,10 @@
       {
         "week": "2026-08-17",
         "txs": 558
+      },
+      {
+        "week": "2026-08-24",
+        "txs": 3
       }
     ],
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10."
@@ -406,7 +410,7 @@
     "note": "getProgramAccounts counts on Solana agent-registry programs (public RPC). Upper bound of registrations. By-registry breakdown for the census page; do not cite the Foundation \"9,000+\" marketing figure."
   },
   "standardsAdoption": {
-    "asOf": "2026-08-18T06:46:02.031Z",
+    "asOf": "2026-08-24T07:01:47.452Z",
     "rows": [
       {
         "check": "robotsTxt",
@@ -817,59 +821,59 @@
       ]
     },
     "prevMonth": {
-      "date": "2026-07-21",
+      "date": "2026-07-27",
       "rows": [
         {
           "check": "robotsTxt",
-          "value": 88620
+          "value": 87831
         },
         {
           "check": "sitemap",
-          "value": 72908
+          "value": 72179
         },
         {
           "check": "linkHeaders",
-          "value": 9628
+          "value": 9911
         },
         {
           "check": "markdownNegotiation",
-          "value": 7697
+          "value": 7317
         },
         {
           "check": "robotsTxtAiRules",
-          "value": 85205
+          "value": 84484
         },
         {
           "check": "contentSignals",
-          "value": 7314
+          "value": 7694
         },
         {
           "check": "webBotAuth",
-          "value": 45
+          "value": 53
         },
         {
           "check": "apiCatalog",
-          "value": 395
+          "value": 407
         },
         {
           "check": "oauthDiscovery",
-          "value": 6248
+          "value": 5964
         },
         {
           "check": "oauthProtectedResource",
-          "value": 5177
+          "value": 4850
         },
         {
           "check": "mcpServerCard",
-          "value": 279
+          "value": 302
         },
         {
           "check": "a2aAgentCard",
-          "value": 25
+          "value": 23
         },
         {
           "check": "agentSkills",
-          "value": 315
+          "value": 314
         },
         {
           "check": "webMcp",
@@ -877,19 +881,19 @@
         },
         {
           "check": "x402",
-          "value": 2
+          "value": 1
         },
         {
           "check": "mpp",
-          "value": 7
+          "value": 6
         },
         {
           "check": "ucp",
-          "value": 5548
+          "value": 5138
         },
         {
           "check": "acp",
-          "value": 7
+          "value": 9
         },
         {
           "check": "ap2",
