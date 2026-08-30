@@ -321,6 +321,7 @@ const PROTOCOL_COLORS = {
   'Pieverse': '#EC4899', 'pieverse': '#EC4899', 'Mogami': '#F97316',
   'Corbits': '#84CC16', 'X402rs': '#64748B', 'AurraCloud': '#06B6D4',
   'Questflow': '#8B5CF6', 'Polygon': '#8247E5', 'Virtuals Protocol': '#22C55E',
+  'Celo': '#FCFF52',
 }
 const FALLBACK_COLORS = ['#6366F1', '#10B981', '#F59E0B', '#A855F7', '#14B8A6', '#EC4899', '#F97316', '#64748B']
 const getColor = (name, idx) => PROTOCOL_COLORS[name] || FALLBACK_COLORS[idx % FALLBACK_COLORS.length]
