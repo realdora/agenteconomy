@@ -1,14 +1,14 @@
 {
-  "updatedAt": "2026-09-04T01:57:36.903778Z",
+  "updatedAt": "2026-09-05T01:59:47.048045Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
         "queryId": 7895747,
-        "executionId": "01M1N220PFEVVEP9KPT27HFK43",
-        "executedAt": "2026-09-04T01:57:36.903778Z",
-        "lastCostCredits": 9.800147059,
-        "lastWindowStart": "2026-08-30"
+        "executionId": "01M1QMMBBJW4WNJ2WZBAYTYCF9",
+        "executedAt": "2026-09-05T01:59:11.718528Z",
+        "lastCostCredits": 11.1625,
+        "lastWindowStart": "2026-08-31"
       },
       "x402Daily": {
         "queryId": 7881006,
@@ -25,10 +25,10 @@
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01M1N1Y3C076TP81VD4SPWHMD8",
-        "executedAt": "2026-09-04T01:53:38.115927Z",
-        "lastCostCredits": 0.219605264,
-        "lastWindowStart": "2026-08-30"
+        "executionId": "01M1QMM5TN6JABTAYR3QQZ82Q1",
+        "executedAt": "2026-09-05T01:58:46.659794Z",
+        "lastCostCredits": 0.309342106,
+        "lastWindowStart": "2026-08-31"
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -39,16 +39,16 @@
       },
       "olas": {
         "queryId": 7881008,
-        "executionId": "01M15X728Q6RXQPBTH4K866PVA",
-        "executedAt": "2026-08-29T04:42:41.136727Z",
-        "lastCostCredits": 0.359205883,
-        "lastWindowStart": "2026-08-17"
+        "executionId": "01M1QMN5M0Q7C4H3VK19DJK6WA",
+        "executedAt": "2026-09-05T01:59:47.048045Z",
+        "lastCostCredits": 0.764852942,
+        "lastWindowStart": "2026-08-24"
       },
       "x402TokenSplit": {
         "queryId": 7931767,
-        "executionId": "01M1N1WSCEKD85VM7NTR67639D",
-        "executedAt": "2026-09-04T01:53:30.086842Z",
-        "lastCostCredits": 0.638970589
+        "executionId": "01M1QMHJ6A7PQ4YYGYJA68CE99",
+        "executedAt": "2026-09-05T01:58:37.24413Z",
+        "lastCostCredits": 1.287205883
       },
       "x402Chains": {
         "queryId": 6166650,
@@ -101,8 +101,8 @@
   ],
   "x402": {
     "asOf": "2026-09-03T01:59:05.266601Z",
-    "totalTxs": 182368182,
-    "totalVolume": 41644180,
+    "totalTxs": 183051562,
+    "totalVolume": 41653602,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -162,8 +162,8 @@
       },
       {
         "month": "Sep 26",
-        "txs": 4496920,
-        "vol": 57626
+        "txs": 5180300,
+        "vol": 67048
       }
     ],
     "daily": [
@@ -411,7 +411,7 @@
     "protocols": [
       {
         "name": "PayAI",
-        "share": 25.9,
+        "share": 26.1,
         "color": "#10B981"
       },
       {
@@ -421,17 +421,17 @@
       },
       {
         "name": "Coinbase",
-        "share": 23.9,
+        "share": 23.8,
         "color": "#0052FF"
       },
       {
         "name": "Dexter",
-        "share": 18,
+        "share": 17.9,
         "color": "#6366F1"
       },
       {
         "name": "DayDreams",
-        "share": 6.5,
+        "share": 6.4,
         "color": "#F59E0B"
       },
       {
@@ -506,10 +506,10 @@
     "chainsAsOf": "2026-08-19T10:27:46.041211Z",
     "chainsSource": "dune:@thechriscen (read-only)",
     "tokenSplit": {
-      "asOf": "2026-09-04T01:53:30.086842Z",
+      "asOf": "2026-09-05T01:58:37.24413Z",
       "windowDays": 30,
-      "usdcSharePct": 98.46,
-      "totalPayments": 47580,
+      "usdcSharePct": 98.47,
+      "totalPayments": 47184,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
@@ -1996,14 +1996,9 @@
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-09-04T01:53:38.115927Z",
-    "totalMemos": 12343789,
+    "asOf": "2026-09-05T01:58:46.659794Z",
+    "totalMemos": 12343967,
     "daily": [
-      {
-        "day": "2026-06-07",
-        "memos": 319,
-        "senders": 14
-      },
       {
         "day": "2026-06-08",
         "memos": 352,
@@ -2446,8 +2441,13 @@
       },
       {
         "day": "2026-09-04",
-        "memos": 13,
-        "senders": 4
+        "memos": 176,
+        "senders": 7
+      },
+      {
+        "day": "2026-09-05",
+        "memos": 15,
+        "senders": 5
       }
     ]
   },
@@ -3424,24 +3424,24 @@
     ]
   },
   "olas": {
-    "asOf": "2026-08-29T04:42:41.136727Z",
-    "totalTxs": 19120328,
+    "asOf": "2026-09-05T01:59:47.048045Z",
+    "totalTxs": 19225418,
     "chains": [
       {
         "name": "Gnosis",
-        "txs": 18420974
+        "txs": 18522911
       },
       {
         "name": "Optimism",
-        "txs": 366695
+        "txs": 367965
       },
       {
         "name": "Polygon",
-        "txs": 200027
+        "txs": 201709
       },
       {
         "name": "Base",
-        "txs": 131026
+        "txs": 131227
       },
       {
         "name": "Ethereum",
@@ -3461,10 +3461,6 @@
       }
     ],
     "weekly": [
-      {
-        "week": "2025-09-01",
-        "txs": 226489
-      },
       {
         "week": "2025-09-08",
         "txs": 186094
@@ -3667,7 +3663,11 @@
       },
       {
         "week": "2026-08-24",
-        "txs": 63886
+        "txs": 95945
+      },
+      {
+        "week": "2026-08-31",
+        "txs": 73031
       }
     ]
   }
