@@ -5,7 +5,7 @@ const urls = {
   canonical: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/data.json',
   apex: 'https://agenteconomy.to/data.json',
   dashboard: 'https://dashboard.agenteconomy.to/data.json',
-  tempo: 'https://agenteconomy.to/tempo-data.json',
+  tempo: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/tempo-data.json',
   web: 'https://agenteconomy.to/web-sources.json',
   runs: 'https://api.github.com/repos/realdora/agenteconomy/actions/runs?per_page=50&branch=main',
 }
