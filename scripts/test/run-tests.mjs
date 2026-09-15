@@ -112,6 +112,8 @@ function startMock(scenario, log) {
       if (usageConfig?.malformed) return send(200, { billingPeriods: [{}] })
       return send(200, {
         billingPeriods: [{
+          start_date: hoursAgo(24 * 10).slice(0, 10),
+          end_date: hoursAgo(-24 * 10).slice(0, 10),
           credits_used: usageConfig?.creditsUsed ?? 0,
           credits_included: usageConfig?.creditsIncluded ?? 2500,
         }],
@@ -126,7 +128,7 @@ function startMock(scenario, log) {
       return send(200, {
         execution_id: q.latest.execution_id,
         execution_ended_at: hoursAgo(q.latest.endedHoursAgo),
-        result: { rows: q.latest.rows.slice(0, limit) },
+        result: { rows: q.latest.rows.slice(0, limit), metadata: { total_row_count: q.latest.rows.length } },
       })
     }
     if ((m = url.pathname.match(/^\/query\/(\d+)\/execute$/))) {
@@ -156,7 +158,7 @@ function startMock(scenario, log) {
       return send(200, {
         execution_id: m[1],
         execution_ended_at: hoursAgo(0),
-        result: { rows: q.execute.rows.slice(0, limit) },
+        result: { rows: q.execute.rows.slice(0, limit), metadata: { total_row_count: q.execute.rows.length } },
       })
     }
     send(404, { error: { message: `unhandled ${url.pathname}` } })
@@ -683,6 +685,34 @@ check('exit 0', s13c.status === 0, `status=${s13c.status}\n${s13c.stdout}`)
 check('newer execution ingested', s13cmeta.executionId === 'exec-daily-other', JSON.stringify(s13cmeta))
 check('stale over-cap cost dropped', s13cmeta.lastCostCredits === undefined, JSON.stringify(s13cmeta))
 check('stale window record dropped', s13cmeta.lastWindowStart === undefined, JSON.stringify(s13cmeta))
+
+// Owned chain query uses baseline + daily rows; cache failures retain coverage.
+console.log('\nS14 owned chain refresh and fallback')
+const chainBase = { cutoff: isoDaysAgo(4), counts: { base: 80_000_000, solana: 40_000_000 } }
+const chainRows = [4, 3, 2, 1].flatMap(n => ['base', 'solana'].map(blockchain => ({
+  day: isoDaysAgo(n), blockchain, total_txn: 100, window_start: isoDaysAgo(4), window_end: isoDaysAgo(0),
+})))
+const chainScenario = defaultScenario()
+chainScenario.queries[8734676] = {
+  latest: { execution_id: 'owned-chains', endedHoursAgo: 1, rows: chainRows },
+  execute: { behavior: 'succeed', execution_id: 'owned-chains-fresh', rows: chainRows, costCredits: 8.7 },
+}
+const chainOptions = { seedDataJson: SEED, baselines: { x402Chains: chainBase }, extraEnv: { DUNE_QID_X402_CHAINS: '8734676', DUNE_REFRESH_KEYS: 'x402Chains' } }
+const owned = await runPipeline(chainScenario, chainOptions)
+const ownedData = JSON.parse(owned.data)
+check('owned chain totals include frozen history once', ownedData.x402.chains.find(c => c.name === 'Base')?.txs === 80_000_400, owned.stdout)
+check('owned coverage is data end, not execution time', ownedData.x402.chainsAsOf === new Date(Date.parse(isoDaysAgo(0)) - 1).toISOString())
+check('owned source disclosed', ownedData.x402.chainsSource.includes('agenteconomy'))
+const badChainScenario = defaultScenario()
+badChainScenario.queries[8734676] = { ...chainScenario.queries[8734676], latest: { execution_id: 'bad-window', endedHoursAgo: 1, rows: chainRows.slice(2) } }
+const rejected = await runPipeline(badChainScenario, { ...chainOptions, seedDataJson: owned.data })
+check('bad window retains exact prior split', JSON.stringify(JSON.parse(rejected.data).x402.chains) === JSON.stringify(ownedData.x402.chains))
+check('bad window never advances coverage', JSON.parse(rejected.data).x402.chainsAsOf === ownedData.x402.chainsAsOf)
+const dueChainScenario = defaultScenario()
+dueChainScenario.queries[8734676] = { ...chainScenario.queries[8734676], latest: { ...chainScenario.queries[8734676].latest, endedHoursAgo: 30 } }
+const refreshed = await runPipeline(dueChainScenario, chainOptions)
+check('owned chain executes when due', countLog(refreshed.log, '/query/8734676/execute') === 1, refreshed.stdout)
+check('owned chain refresh succeeds', refreshed.status === 0, refreshed.stdout)
 
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)

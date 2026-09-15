@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-15T02:22:12.656054Z",
+  "updatedAt": "2026-09-15T20:33:11.225306Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -51,9 +51,11 @@
         "lastCostCredits": 2.605576924
       },
       "x402Chains": {
-        "queryId": 6166650,
-        "executionId": "01M0CRJPC8YNVG97M8Q8N0DGXQ",
-        "executedAt": "2026-08-19T10:27:46.041211Z"
+        "queryId": 8734676,
+        "executionId": "01M2KCB6QK8J3A49WGJ2BD7PX9",
+        "executedAt": "2026-09-15T20:33:11.225306Z",
+        "lastCostCredits": 8.679423077,
+        "lastWindowStart": "2026-09-11"
       }
     }
   },
@@ -95,8 +97,8 @@
     },
     {
       "name": "x402 Transactions by Chain",
-      "author": "@thechriscen",
-      "queryId": 6166650
+      "author": "agenteconomy",
+      "queryId": 8734676
     }
   ],
   "x402": {
@@ -444,27 +446,27 @@
     "chains": [
       {
         "name": "Base",
-        "txs": 84969790,
+        "txs": 85007718,
         "color": "#0052FF"
       },
       {
         "name": "Solana",
-        "txs": 48235859,
+        "txs": 66884356,
         "color": "#9945FF"
       },
       {
         "name": "Polygon",
-        "txs": 29472684,
+        "txs": 34379873,
         "color": "#8247E5"
       },
       {
         "name": "BNB",
-        "txs": 910185,
+        "txs": 910187,
         "color": "#F0B90B"
       },
       {
         "name": "Celo",
-        "txs": 760020,
+        "txs": 764051,
         "color": "#14B8A6"
       },
       {
@@ -474,37 +476,37 @@
       },
       {
         "name": "Monad",
-        "txs": 21010,
+        "txs": 21166,
         "color": "#10B981"
       },
       {
         "name": "Avalanche",
-        "txs": 4979,
+        "txs": 5830,
         "color": "#E84142"
       },
       {
         "name": "Arbitrum",
-        "txs": 1442,
+        "txs": 2806,
         "color": "#12AAFF"
       },
       {
         "name": "Ethereum",
-        "txs": 522,
+        "txs": 632,
         "color": "#F97316"
       },
       {
-        "name": "Sei",
-        "txs": 145,
-        "color": "#14B8A6"
+        "name": "Optimism",
+        "txs": 301,
+        "color": "#F59E0B"
       },
       {
-        "name": "Optimism",
-        "txs": 138,
-        "color": "#F59E0B"
+        "name": "Sei",
+        "txs": 199,
+        "color": "#9D4EDD"
       }
     ],
-    "chainsAsOf": "2026-08-19T10:27:46.041211Z",
-    "chainsSource": "dune:@thechriscen (read-only)",
+    "chainsAsOf": "2026-09-14T23:59:59.999Z",
+    "chainsSource": "dune:agenteconomy (owned SQL; legacy address-activity scope)",
     "tokenSplit": {
       "asOf": "2026-09-15T02:21:38.429419Z",
       "windowDays": 30,

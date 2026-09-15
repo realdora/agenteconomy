@@ -2501,5 +2501,34 @@
         "txs": 95664
       }
     ]
+  },
+  "x402Chains": {
+    "cutoff": "2026-09-11",
+    "counts": {
+      "polygon": 33662614,
+      "hyperevm": 56,
+      "celo": 762550,
+      "megaeth": 45,
+      "sei": 195,
+      "base": 84995498,
+      "avalanche_c": 5648,
+      "optimism": 300,
+      "xlayer": 134206,
+      "monad": 21166,
+      "solana": 66810298,
+      "robinhood": 93,
+      "arbitrum": 2685,
+      "ethereum": 631,
+      "bnb": 910187,
+      "unichain": 7,
+      "peaq": 90,
+      "mantle": 20,
+      "berachain": 3,
+      "abstract": 9
+    },
+    "source": "Legacy query 6166650 complete months before 2026-08-01; owned query 8734676 day counts from 2026-08-01. Legacy sender-address membership retained.",
+    "historyExecutionId": "01M0CRJPC8YNVG97M8Q8N0DGXQ",
+    "backfillExecutionId": "01M2KC5ZD4P5M7EESDQ3Q8NKA1",
+    "registryVersion": "Chris EVM v34; Solana v9; frozen 2026-09-15"
   }
 }
