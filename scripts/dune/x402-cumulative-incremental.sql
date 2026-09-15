@@ -98,6 +98,7 @@ evm_transfers AS (
         WHEN tx_from = 0x3be45f576696a2fd5a93c1330cd19f1607ab311d THEN 'xEcho'
         WHEN tx_from = 0x26e824c08a4547ab90fbd761fb80065f7e68768e THEN 'B402'
         WHEN tx_from = 0x12343e649e6b2b2b77649dfab88f103c02f3c78b THEN 'Pieverse'
+        WHEN tx_from = 0x0d74d5cefd2e7f24e623330ebe3d8d4cb45ffb48 THEN 'Celo'
         ELSE 'Other'
       END AS facilitator
   FROM tokens.transfers
