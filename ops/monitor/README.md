@@ -1,6 +1,6 @@
 # Daily data monitor (pilot)
 
-Status on 2026-09-15: **deployed for daily read-only checks; email remains disabled and no email has been sent**. Cloudflare authorization is restored. Recipient is confirmed; email-provider onboarding is pending. Keep `EMAIL_ENABLED=false` and do not set the repository `DATA_MONITOR_URL` until the activation checklist passes.
+Status on 2026-09-15: **daily checks and Resend email are enabled**. One labelled test email was accepted at 21:42 UTC and Resend reported Delivered (recipient mail server accepted it; inbox placement is not independently confirmed). GitHub relay activation is tracked below. No paid plan or DNS migration was used.
 
 ## User decision
 
@@ -24,7 +24,7 @@ One SQLite-backed Durable Object serializes state changes. It stores last check,
 
 Secrets in Cloudflare: `MONITOR_TOKEN`, `RESEND_API_KEY`, `ALERT_TO`, `ALERT_FROM`. Matching GitHub secrets: `DATA_MONITOR_TOKEN`, `DATA_MONITOR_RESEND_KEY`, `DATA_MONITOR_ALERT_TO`, `DATA_MONITOR_ALERT_FROM`. GitHub variable `DATA_MONITOR_URL` enables the relay. Workflow code always comes from main, never an untrusted workflow-run branch.
 
-The proposed provider is Resend; its testing sender only permits the account's own email. Such an initial single-recipient pilot must be labelled as a pilot. A verified sender domain is the next step if delivery is poor or recipients expand; do not silently change DNS. No email-provider account has yet been created by this change.
+The provider is Resend (free account); its testing sender only permits the account's own email. Such an initial single-recipient pilot must be labelled as a pilot. A verified sender domain is the next step if delivery is poor or recipients expand; do not silently change DNS. A sending-only API key is stored in platform secrets; the local recovery copy is outside the repository with mode 0600.
 
 Mail payload and idempotency key are saved before delivery. A failed request does not mark the alert as sent. An ambiguous request is retried with identical key/body within 24h. Older ambiguous attempts stop automatic delivery pending provider-log review. API acceptance is recorded as `provider-accepted`, **not confirmed inbox delivery**.
 
@@ -36,7 +36,7 @@ Mail payload and idempotency key are saved before delivery. A failed request doe
 
 `wrangler deploy --dry-run --config ops/monitor/wrangler.jsonc`
 
-Confirmed: stale coverage despite fresh timestamps, missing optional source, missing day, cumulative regression, quiet healthy state, new alerts, 24h reminders, one recovery notification, missed workflow and recovered workflow. Local production snapshots pass after correcting Radar's weekly cadence. Worker bundle builds successfully. Cloudflare runtime is verified: unauthorized `/status` returns 401; authenticated real-data check returns 200 with zero issues (2026-09-15 21:24 UTC). The first live check exposed a non-public Tempo URL; it was corrected to the repository’s canonical feed and rechecked. Workflow relay, actual sending and inbox arrival are not yet verified.
+Confirmed: stale coverage despite fresh timestamps, missing optional source, missing day, cumulative regression, quiet healthy state, new alerts, 24h reminders, one recovery notification, missed workflow and recovered workflow. Local production snapshots pass after correcting Radar's weekly cadence. Worker bundle builds successfully. Cloudflare runtime is verified: unauthorized `/status` returns 401; authenticated real-data check returns 200 with zero issues (2026-09-15 21:24 UTC). The first live check exposed a non-public Tempo URL; it was corrected to the repository’s canonical feed and rechecked. Actual sending and Resend Delivered status are verified for test message `c0c3439f-eeb1-436b-9e55-1b46eaf202a6`. Public health returns 200 with email enabled. Inbox placement and real incident delivery are not yet independently verified. Relay/heartbeat activation follows the checklist below.
 
 ## Activation checklist
 
@@ -53,4 +53,4 @@ Thresholds and source rules live in `core.mjs`; schedules in `wrangler.jsonc` an
 
 ## Deployment evidence
 
-Worker: `https://agenteconomy-data-monitor.facto-sync-worker.workers.dev`; version `a3c783e2-99eb-418a-8cc0-cadc14087740`. Cron `17 7 * * *` is installed. Sending is disabled; health intentionally reports unhealthy until email is enabled. GitHub relay has not been activated. Draft PR: https://github.com/realdora/agenteconomy/pull/40.
+Worker: `https://agenteconomy-data-monitor.facto-sync-worker.workers.dev`; version `7b8cb2c8-38f9-4147-ad11-ab48178ca4ba`. Cron `17 7 * * *` is installed. Sending is enabled; health returns 200. GitHub relay secrets are configured; the repository URL is enabled when this PR lands. PR: https://github.com/realdora/agenteconomy/pull/40.
