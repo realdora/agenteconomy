@@ -1,0 +1,35 @@
+name: Data Monitor Relay
+on:
+  workflow_run:
+    workflows: ["Update Dune Data", "Update Tempo Data", "Update Web Sources", "Update Dashboard"]
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '47 8 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: data-monitor-relay
+  cancel-in-progress: false
+jobs:
+  relay:
+    if: vars.DATA_MONITOR_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Notify on failures or verify the monitor heartbeat
+        env:
+          DATA_MONITOR_URL: ${{ vars.DATA_MONITOR_URL }}
+          MONITOR_TOKEN: ${{ secrets.DATA_MONITOR_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.DATA_MONITOR_RESEND_KEY }}
+          ALERT_TO: ${{ secrets.DATA_MONITOR_ALERT_TO }}
+          ALERT_FROM: ${{ secrets.DATA_MONITOR_ALERT_FROM }}
+          MONITOR_MODE: ${{ github.event_name == 'workflow_run' && 'event' || 'heartbeat' }}
+          RUN_EVENT: ${{ toJSON(github.event.workflow_run) }}
+        run: node ops/monitor/relay.mjs

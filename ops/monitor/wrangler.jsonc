@@ -1,0 +1,11 @@
+{
+  "name": "agenteconomy-data-monitor",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-15",
+  "workers_dev": true,
+  "triggers": { "crons": ["17 7 * * *"] },
+  "durable_objects": { "bindings": [{ "name": "MONITOR", "class_name": "MonitorState" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MonitorState"] }],
+  "vars": { "EMAIL_ENABLED": "false" },
+  "observability": { "enabled": true }
+}
