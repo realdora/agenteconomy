@@ -26,6 +26,8 @@ import {
   foldRegistryWindow,
 } from './dune/baseline-lib.mjs'
 
+import { chainWindowTotals, foldChainWindow, selectUsagePeriod } from './dune/x402-chains-lib.mjs'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = process.env.DATA_OUT_DIR || join(__dirname, '..', 'public')
 const API_KEY = process.env.DUNE_API_KEY
@@ -70,6 +72,7 @@ const SELF_FOLD = process.env.DUNE_SELF_FOLD !== '0'
 const FOLD_TRIGGER_DAYS = Number(process.env.DUNE_FOLD_TRIGGER_DAYS || 7)
 const FOLD_LAG_DAYS = Number(process.env.DUNE_FOLD_LAG_DAYS || 7)
 const BLOCKED_FRESH_QUERY_IDS = new Set([
+  6166650, // legacy full-history chain query: never execute automatically.
   6058135, // x402 full-history rescan; original quota burner.
   6130922, // ERC-8004 registry full evms.logs rescan.
   7666075, // dead suspended-account x402 fork.
@@ -183,22 +186,13 @@ const QUERIES = [
   },
   {
     key: 'x402Chains',
-    // Cumulative x402 transactions by chain — @thechriscen's public query (the
-    // "Transactions by Chains" chart on dune.com/thechriscen/x402-payment-analytics,
-    // the same author already credited for the cumulative source). READ-ONLY by
-    // design: this key is deliberately NOT in DUNE_REFRESH_KEYS, so the pipeline
-    // only ever downloads his latest cached execution and never spends execution
-    // credits — the split refreshes whenever he refreshes his own dashboard.
-    // Replaces the frozen June-2026 hardcoded snapshot that used to live in the
-    // assembly below (kept there as the last-resort fallback).
+    // Owned daily-window query; keep the legacy ID read-only for rollback.
     id: Number(process.env.DUNE_QID_X402_CHAINS || 6166650),
-    limit: 1000,
-    readOnly: true,
-    maxAgeHours: 168,
-    // Generous SLA: a third party controls the refresh cadence. Three weeks
-    // stale = time for a human to find a replacement source, which is exactly
-    // what the red run is for.
-    slaHours: 504,
+    limit: 10000,
+    baselineKey: 'x402Chains',
+    readOnly: !process.env.DUNE_QID_X402_CHAINS || Number(process.env.DUNE_QID_X402_CHAINS) === 6166650,
+    maxAgeHours: 20,
+    slaHours: 54,
     optional: true,
     label: 'x402 chains',
   },
@@ -253,8 +247,7 @@ function optionalCreditNumber(value) {
 
 async function readUsage() {
   const payload = await duneRequest('/usage', { method: 'POST', body: JSON.stringify({}) })
-  const periods = payload.billingPeriods || payload.billing_periods || []
-  const current = periods[periods.length - 1] || payload
+  const current = selectUsagePeriod(payload)
   const creditsUsed = optionalCreditNumber(current.credits_used ?? current.creditsUsed ?? payload.credits_used ?? payload.creditsUsed)
   if (creditsUsed === null) {
     throw new Error('usage response missing credits_used')
@@ -275,6 +268,13 @@ function ageHours(isoString) {
   const time = Date.parse(isoString)
   if (!Number.isFinite(time)) return Infinity
   return (Date.now() - time) / 36e5
+}
+
+function assertCompleteChainResult(payload) {
+  if (payload.is_partial || payload.state === 'QUERY_STATE_COMPLETED_PARTIAL' ||
+      payload.result?.metadata?.total_row_count !== payload.result?.rows?.length) {
+    throw Error('x402 chains: incomplete result; refusing to replace history')
+  }
 }
 
 function resultRows(payload, context) {
@@ -595,7 +595,17 @@ const PARSERS = {
     }
   },
 
-  x402Chains(rows) {
+  x402Chains(rows, baselines) {
+    if (baselines?.x402Chains) {
+      const { counts, coveredThrough } = chainWindowTotals(baselines.x402Chains, rows)
+      const colors = { Base: '#0052FF', Solana: '#9945FF', Polygon: '#8247E5', BNB: '#F0B90B', Avalanche: '#E84142', Arbitrum: '#12AAFF', Sei: '#9D4EDD', Celo: '#14B8A6', Xlayer: '#6366F1', Monad: '#10B981', Ethereum: '#F97316', Optimism: '#F59E0B' }
+      const chains = Object.entries(counts).filter(([, n]) => n > 0)
+        .sort((a, b) => b[1] - a[1]).slice(0, 12).map(([raw, txs], i) => {
+          const name = chainName(raw)
+          return { name, txs, color: colors[name] || getColor(name, i) }
+        })
+      return { chains, coveredThrough, source: 'dune:agenteconomy (owned SQL; legacy address-activity scope)' }
+    }
     // Third-party query whose exact column names we do not control, so this
     // parser is deliberately defensive: find the chain column and the count
     // column by name from known variants, and when nothing matches, log the
@@ -700,7 +710,7 @@ const REUSERS = {
     usdcSharePct: d.x402.tokenSplit.usdcSharePct,
     totalPayments: d.x402.tokenSplit.totalPayments,
   } : null),
-  x402Chains: d => (Array.isArray(d?.x402?.chains) && d.x402.chains.length ? { chains: d.x402.chains } : null),
+  x402Chains: d => (Array.isArray(d?.x402?.chains) && d.x402.chains.length ? { chains: d.x402.chains, coveredThrough: d.x402.chainsAsOf, source: d.x402.chainsSource } : null),
 }
 
 function existingAsOf(existing, key) {
@@ -795,7 +805,7 @@ async function executeAndWait(query, baselines) {
     })
   } catch (error) {
     // Legacy/fork queries don't declare the parameter — retry once without it.
-    if (windowStart && error.status === 400 && /param/i.test(error.message || '')) {
+    if (query.key !== 'x402Chains' && windowStart && error.status === 400 && /param/i.test(error.message || '')) {
       console.warn(`${query.label}: query rejected window_start parameter; retrying without it`)
       started = await duneRequest(`/query/${query.id}/execute`, {
         method: 'POST',
@@ -850,6 +860,7 @@ function freshExecutionBlockReason(state, budget, prev, baselines) {
   // so on a bare local/test run it is wide open — which is exactly how a
   // read-only third-party full-history query would end up executing and
   // burning the credits this flag exists to protect.
+  if (state.query.key === 'x402Chains' && !state.query.readOnly && !baselines?.x402Chains?.cutoff) return 'owned chain query requires a validated baseline'
   if (state.query.readOnly) {
     return `query ${state.query.key} is readOnly: latest cached results only, never executed`
   }
@@ -1052,6 +1063,7 @@ async function main() {
 
     try {
       if (state.execResult) {
+        if (query.key === 'x402Chains' && !query.readOnly) assertCompleteChainResult(state.execResult)
         rows = resultRows(state.execResult, `${query.label} fresh execution`)
         source = 'execution'
         executionId = state.execId
@@ -1097,6 +1109,7 @@ async function main() {
 
       if (!rows && state.probe) {
         const full = await duneRequest(`/query/${query.id}/results?limit=${query.limit}&allow_partial_results=true`)
+        if (query.key === 'x402Chains' && !query.readOnly) assertCompleteChainResult(full)
         rows = resultRows(full, `${query.label} latest result`)
         source = 'latest'
         executionId = full.execution_id || state.latestId
@@ -1138,6 +1151,11 @@ async function main() {
       throw state.probeError || new Error(`${query.label}: no data available from any source`)
     } catch (error) {
       if (query.optional) {
+        if (query.key === 'x402Chains' && prev && REUSERS.x402Chains(existing)) {
+          fragments[query.key] = REUSERS.x402Chains(existing)
+          metaOut[query.key] = { ...prev }
+          fragmentSources[query.key] = 'previous-build'
+        }
         warnings.push(`${query.label}: ${error.message} (optional source — skipped, not blocking build)`)
         console.warn(warnings[warnings.length - 1])
       } else {
@@ -1185,6 +1203,7 @@ async function main() {
         return foldX402DayGrainWindow(base, rows, cut)
       },
     },
+    x402Chains: { baselineKey: 'x402Chains', fold: foldChainWindow },
     x402Daily: { baselineKey: 'x402Daily', fold: foldX402DailySeries },
     virtualsAcp: { baselineKey: 'virtualsAcp', fold: foldVirtualsWindow },
     erc8004Registry: { baselineKey: 'erc8004Registry', fold: foldRegistryWindow },
@@ -1279,7 +1298,7 @@ async function main() {
       { name: 'ERC-8004 Trustless Agents', author: '@hashed_official', queryId: QUERIES[4].id },
       { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: QUERIES[5].id },
       { name: 'x402 token split (Base, trailing 30d)', author: 'agenteconomy', queryId: QUERIES[6].id },
-      { name: 'x402 Transactions by Chain', author: '@thechriscen', queryId: QUERIES[7].id },
+      { name: 'x402 Transactions by Chain', author: QUERIES[7].readOnly ? '@thechriscen' : 'agenteconomy', queryId: QUERIES[7].id },
     ],
     x402: {
       asOf: olderOf(asOf('x402Cumulative'), asOf('x402Daily')),
@@ -1289,10 +1308,8 @@ async function main() {
       monthly: f.x402Cumulative.monthly,
       daily: f.x402Daily.daily,
       protocols: f.x402Cumulative.protocols,
-      // Per-chain split. Live from @thechriscen's public by-chain query when
-      // readable (never executed by us — see the QUERIES entry); otherwise the
-      // previous build's split via REUSERS; the frozen June-2026 snapshot only
-      // remains as the last-resort floor for a from-scratch build with Dune down.
+      // Own bounded chain query + frozen history; preserve the previous split
+      // and its true coverage date if a refresh fails.
       ...(() => {
         const JUNE_SNAPSHOT = [
           { name: 'Base',      txs: 72058130, color: '#0052FF' },
@@ -1310,8 +1327,8 @@ async function main() {
           chains,
           // Consumers (dashboard label, apex pages) read these to state
           // provenance honestly instead of a hardcoded "June 2026" caption.
-          chainsAsOf: live ? (metaOut.x402Chains?.executedAt || null) : '2026-06-30T00:00:00Z',
-          chainsSource: live ? 'dune:@thechriscen (read-only)' : 'frozen snapshot (June 2026)',
+          chainsAsOf: live ? (f.x402Chains.coveredThrough || metaOut.x402Chains?.executedAt || null) : '2026-06-30T00:00:00Z',
+          chainsSource: live ? (f.x402Chains.source || 'dune:@thechriscen (read-only)') : 'frozen snapshot (June 2026)',
         }
       })(),
       // Trailing-30d USDC-vs-total volume split on Base (live registry scope).
