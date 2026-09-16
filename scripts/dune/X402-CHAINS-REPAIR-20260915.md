@@ -22,3 +22,7 @@ Tests: `node --test scripts/test/x402-chains.test.mjs`; `node scripts/test/run-t
 Raw results, definition, SQL, costs and comparison are archived at `/Users/dora/projects/agenteconomy-data-pilot/research/x402-chain-repair-20260915/`. Pre-August history remains a frozen snapshot, not a new full-history audit.
 
 To pause only this source, remove x402Chains from the refresh allowlist. Do not connect the daily baseline parser to the old monthly query. Full rollback must restore code, workflow, baseline and chain data together while preserving unrelated newer data updates.
+
+## September 16 refresh scheduling correction
+
+The first next-day run skipped chains because the previous evening's manual repair was less than 20h old. This left coverage on September 14 while daily totals reached September 15. Refresh selection now also marks the owned complete-day chain query due when its cache was executed before today's UTC date, or the same ingested execution still lacks yesterday's coverage. A newer unseen current-day execution can be downloaded without another paid execution. Existing caps, scope allowlist, baseline checks and fallback remain unchanged.

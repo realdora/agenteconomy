@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers'
-import { inspectFeeds, inspectRuns, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
+import { inspectFeeds, inspectEvents, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
 
 const urls = {
   canonical: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/data.json',
@@ -7,7 +7,6 @@ const urls = {
   dashboard: 'https://dashboard.agenteconomy.to/data.json',
   tempo: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/tempo-data.json',
   web: 'https://agenteconomy.to/web-sources.json',
-  runs: 'https://api.github.com/repos/realdora/agenteconomy/actions/runs?per_page=50&branch=main',
 }
 async function collect(fetcher = fetch) {
   return Object.fromEntries(await Promise.all(Object.entries(urls).map(async ([name, url]) => {
@@ -37,7 +36,8 @@ export class MonitorState extends DurableObject {
         state.events ||= {}
         const previous = state.events[event.name]
         if (previous && previous.id >= event.id) return Response.json({ skipped: 'duplicate/older event' })
-        state.events[event.name] = { id: event.id, conclusion: event.conclusion, at: iso }
+        if (event.completedAt && (!Number.isFinite(Date.parse(event.completedAt)) || Date.parse(event.completedAt) > now + 60000)) return new Response('Invalid completion time', { status: 400 })
+        state.events[event.name] = { id: event.id, conclusion: event.conclusion, at: iso, completedAt: event.completedAt || iso }
         // Healthy success events do not run another check or send a message.
         if (event.conclusion === 'success' && !(state.issues || []).length) {
           await this.ctx.storage.put('state', state)
@@ -50,10 +50,7 @@ export class MonitorState extends DurableObject {
         const feeds = await collect()
         const inspected = inspectFeeds(feeds, observations, now)
         issues = inspected.issues; observations = inspected.observations
-        if (feeds.runs.error) issues.push({ id: 'monitor.github', detail: `无法检查任务记录：${feeds.runs.error}` })
-        else issues.push(...inspectRuns(feeds.runs.workflow_runs || [], now))
-        // Callback can arrive before GitHub's list endpoint catches up.
-        if (event && event.conclusion !== 'success') issues.push({ id: `task.failed.${event.name}`, detail: `${event.name} 执行失败（${event.conclusion}）。https://github.com/realdora/agenteconomy/actions/runs/${event.id}` })
+        issues.push(...inspectEvents(state.events, now))
         issues = [...new Map(issues.map(i => [i.id, i])).values()]
         state.lastCheckedAt = iso
         if (path === '/daily') state.lastDailyAt = iso

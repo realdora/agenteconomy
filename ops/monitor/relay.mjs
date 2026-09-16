@@ -19,7 +19,7 @@ if (mode === 'heartbeat') {
 }
 if (!process.env.MONITOR_TOKEN) throw Error('Monitor token missing')
 const event = JSON.parse(process.env.RUN_EVENT || '{}')
-const payload = { name: event.name, id: event.id, conclusion: event.conclusion }
+const payload = { name: event.name, id: event.id, conclusion: event.conclusion, completedAt: event.updated_at }
 const r = await fetch(root + '/event', {
   method: 'POST', signal: AbortSignal.timeout(35000),
   headers: { Authorization: `Bearer ${process.env.MONITOR_TOKEN}`, 'Content-Type': 'application/json' },

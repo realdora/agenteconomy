@@ -36,7 +36,7 @@ Mail payload and idempotency key are saved before delivery. A failed request doe
 
 `wrangler deploy --dry-run --config ops/monitor/wrangler.jsonc`
 
-Confirmed: stale coverage despite fresh timestamps, missing optional source, missing day, cumulative regression, quiet healthy state, new alerts, 24h reminders, one recovery notification, missed workflow and recovered workflow. Local production snapshots pass after correcting Radar's weekly cadence. Worker bundle builds successfully. Cloudflare runtime is verified: unauthorized `/status` returns 401; authenticated real-data check returns 200 with zero issues (2026-09-15 21:24 UTC). The first live check exposed a non-public Tempo URL; it was corrected to the repository’s canonical feed and rechecked. Actual sending and Resend Delivered status are verified for test message `c0c3439f-eeb1-436b-9e55-1b46eaf202a6`. Public health returns 200 with email enabled. Inbox placement and real incident delivery are not yet independently verified. Relay/heartbeat activation follows the checklist below.
+Confirmed: stale coverage despite fresh timestamps, missing optional source, missing day, cumulative regression, quiet healthy state, new alerts, 24h reminders, one recovery notification, missed workflow and recovered workflow. Local production snapshots pass after correcting Radar's weekly cadence. Worker bundle builds successfully. Cloudflare runtime is verified: unauthorized `/status` returns 401; authenticated real-data check returns 200 with zero issues (2026-09-15 21:24 UTC). The first live check exposed a non-public Tempo URL; it was corrected to the repository’s canonical feed and rechecked. Actual sending and Resend Delivered status are verified for test message `c0c3439f-eeb1-436b-9e55-1b46eaf202a6`. Public health returns 200 with email enabled. Inbox placement and real incident delivery are not yet independently verified. Relay and independent heartbeat were both verified on September 15.
 
 ## Activation checklist
 
@@ -53,4 +53,12 @@ Thresholds and source rules live in `core.mjs`; schedules in `wrangler.jsonc` an
 
 ## Deployment evidence
 
-Worker: `https://agenteconomy-data-monitor.facto-sync-worker.workers.dev`; version `7b8cb2c8-38f9-4147-ad11-ab48178ca4ba`. Cron `17 7 * * *` is installed. Sending is enabled; health returns 200. GitHub relay secrets are configured; the repository URL is enabled when this PR lands. PR: https://github.com/realdora/agenteconomy/pull/40.
+Worker: `https://agenteconomy-data-monitor.facto-sync-worker.workers.dev`; version `7b8cb2c8-38f9-4147-ad11-ab48178ca4ba`. Cron `17 7 * * *` is installed. Sending is enabled; health returns 200. GitHub relay and the repository URL are enabled. PR: https://github.com/realdora/agenteconomy/pull/40.
+
+## September 16 incident correction
+
+The first scheduled alert correctly found x402 chains covered only September 14. A manual repair the previous evening was still younger than the collector's 20h cache threshold, so the September 16 run skipped the new complete UTC day. Owned chain refresh now considers UTC-day coverage in addition to execution age; same-day complete caches remain reusable. Existing credit guards and previous-data fallback remain active.
+
+The same alert included HTTP 403 reading GitHub's anonymous Actions API. Later checks succeeded; the original response body/headers were not retained, so its precise cause is unproven. The Worker now checks its authenticated completion-event ledger instead of polling that API. The relay supplies the actual completion timestamp so a late callback cannot make an old run look current. Existing event records migrate using their receipt timestamp. Missing completion evidence after 30h still alerts, explicitly identifying either a missed job or failed callback delivery. New deployments need initial completion records for all four workflows.
+
+Validation: 8 monitor tests, full offline collector suite including fresh-cache/stale-coverage regression and same-day no-extra-execution, Worker bundle and syntax checks. Daily cron frequency is unchanged.
