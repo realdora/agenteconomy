@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { inspectFeeds, inspectRuns, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
+import { inspectFeeds, inspectRuns, inspectEvents, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
 const now = Date.parse('2026-09-15T21:00:00Z')
 const base = JSON.parse(readFileSync(new URL('../../public/data.json', import.meta.url)))
 const web = JSON.parse(readFileSync(new URL('../../public/web-sources.json', import.meta.url)))
@@ -51,4 +51,16 @@ test('independent daily heartbeat catches a missed check on the same morning', (
   assert.equal(monitorHealthy(previous, Date.parse('2026-09-15T07:00:00Z'), true), true)
   assert.equal(monitorHealthy(previous, Date.parse('2026-09-15T08:47:00Z'), true), false)
   assert.equal(monitorHealthy({ lastDailyAt: '2026-09-15T07:17:00Z' }, Date.parse('2026-09-15T08:47:00Z'), true), true)
+})
+test('callback watchdog supports existing state and detects missing, late and failed jobs', () => {
+  const events = Object.fromEntries(WORKFLOWS.map((name, id) => [name, { id: id + 1, conclusion: 'success', at: new Date(now).toISOString() }]))
+  assert.deepEqual(inspectEvents(events, now), [])
+  assert.equal(inspectEvents({}, now).length, 4)
+  events['Update Dune Data'].completedAt = new Date(now - 31 * 3600000).toISOString()
+  assert.ok(inspectEvents(events, now).some(i => i.id === 'task.missing.Update Dune Data'))
+  events['Update Dune Data'].completedAt = new Date(now).toISOString()
+  events['Update Dune Data'].conclusion = 'failure'
+  assert.ok(inspectEvents(events, now).some(i => i.id === 'task.failed.Update Dune Data'))
+  events['Update Dune Data'].conclusion = 'success'
+  assert.deepEqual(inspectEvents(events, now), [])
 })

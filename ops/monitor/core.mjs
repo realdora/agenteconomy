@@ -34,7 +34,7 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
       ['x402Chains', data.x402?.chainsAsOf],
       ['x402Daily', [...(data.x402?.daily || [])].map(r => r.day).filter(Boolean).sort().at(-1)],
     ]) {
-      if (!stamp || String(stamp).slice(0, 10) < yesterday) add(`coverage.${key}`, `应覆盖至 ${yesterday}；当前仅覆盖至 ${stamp || '未知'}。请检查是否漏跑或上游未推进。`)
+      if (!stamp || String(stamp).slice(0, 10) < yesterday) add(`coverage.${key}`, `${key === 'x402Chains' ? 'x402 分链' : 'x402 日频'}应覆盖至 ${yesterday}；当前仅覆盖至 ${stamp || '未知'}。请检查是否漏跑或上游未推进。`)
     }
     for (const field of ['x402.totalTxs', 'x402.totalVolume', 'baseAgentic.totalTxs', 'virtualsAcp.totalMemos', 'erc8004Registry.totalAgents', 'olas.totalTxs']) {
       const value = get(data, field)
@@ -81,6 +81,18 @@ export function inspectRuns(runs, now = Date.now()) {
     if (completed && completed.conclusion !== 'success') issues.push({ id: `task.failed.${name}`, detail: `${name} 状态：${completed.conclusion}。${completed.html_url}` })
   }
   return issues
+}
+
+// Trusted completion callbacks already arrive from GitHub Actions. Use them
+// for the daily watchdog instead of an anonymous, IP-rate-limited API read.
+export function inspectEvents(events = {}, now = Date.now()) {
+  return inspectRuns(Object.entries(events).map(([name, event]) => ({
+    name, id: event.id, head_branch: 'main', status: 'completed',
+    conclusion: event.conclusion, updated_at: event.completedAt || event.at,
+    html_url: `https://github.com/realdora/agenteconomy/actions/runs/${event.id}`,
+  })), now).map(issue => issue.id.startsWith('task.missing.') ? {
+    ...issue, detail: `${issue.id.slice('task.missing.'.length)} 超过 30 小时没有有效完成回调；请检查任务是否漏跑或回调投递失败。`,
+  } : issue)
 }
 
 export function notificationPlan(state, issues, now, { test = false } = {}) {

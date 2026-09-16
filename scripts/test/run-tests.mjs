@@ -714,5 +714,14 @@ const refreshed = await runPipeline(dueChainScenario, chainOptions)
 check('owned chain executes when due', countLog(refreshed.log, '/query/8734676/execute') === 1, refreshed.stdout)
 check('owned chain refresh succeeds', refreshed.status === 0, refreshed.stdout)
 
+// Regression: a recent manual repair must not suppress the next complete day.
+const laggingChainSeed = structuredClone(ownedData)
+laggingChainSeed.x402.chainsAsOf = new Date(Date.parse(isoDaysAgo(1)) - 1).toISOString()
+const crossedDay = await runPipeline(chainScenario, { ...chainOptions, seedDataJson: JSON.stringify(laggingChainSeed) })
+check('fresh execution age cannot hide stale chain coverage', countLog(crossedDay.log, '/query/8734676/execute') === 1, crossedDay.stdout)
+check('cross-day refresh advances coverage without losing baseline', JSON.parse(crossedDay.data).x402.chainsAsOf === ownedData.x402.chainsAsOf && JSON.parse(crossedDay.data).x402.chains.find(c => c.name === 'Base')?.txs === 80_000_400, crossedDay.stdout)
+const sameDay = await runPipeline(chainScenario, { ...chainOptions, seedDataJson: owned.data })
+check('already complete current cache does not execute again', countLog(sameDay.log, '/query/8734676/execute') === 0, sameDay.stdout)
+
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)

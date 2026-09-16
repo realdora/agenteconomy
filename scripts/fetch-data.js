@@ -996,12 +996,21 @@ async function main() {
         console.warn(`probe ${query.label}: ${state.probeError.message}`)
       }
     }
+    // A complete-day window executed yesterday cannot include yesterday's
+    // whole day, even if a manual repair made that cache less than 20h old.
+    // Newer unseen executions can be downloaded without re-executing them.
+    const today = new Date().toISOString().slice(0, 10)
+    const yesterday = new Date(Date.parse(today) - 86400000).toISOString().slice(0, 10)
+    state.coverageDue = query.key === 'x402Chains' && !query.readOnly && (
+      String(state.latestEndedAt || '').slice(0, 10) < today ||
+      (state.latestId === prev?.executionId && String(existing?.x402?.chainsAsOf || '').slice(0, 10) < yesterday)
+    )
     states.push(state)
   }
 
   // Phase 2 — decide refreshes, most-overdue first, strictly sequential.
   const dueStates = states
-    .filter(s => s.latestAge > s.query.maxAgeHours)
+    .filter(s => s.latestAge > s.query.maxAgeHours || s.coverageDue)
     .sort((a, b) => (b.latestAge / b.query.maxAgeHours) - (a.latestAge / a.query.maxAgeHours))
   let executionsUsed = 0
   for (const state of dueStates) {
