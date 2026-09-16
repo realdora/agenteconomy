@@ -1,0 +1,105 @@
+{
+  "version": "2026-09-16-legacy-scope-v1",
+  "owner": "realdoraa",
+  "policy": "Preserve validated legacy scope; candidate addresses need separate review before inclusion.",
+  "registries": {
+    "6054244": {
+      "sourceUrl": "https://dune.com/queries/6054244",
+      "sourceOwner": "hashed_official",
+      "sourceVersion": 37,
+      "capturedAt": "2026-09-16",
+      "file": "registries/6054244.sql",
+      "sha256": "7400cf34f75e49641f55f1f73d4c7788409d4a7a8984b300755487d87ecaf2df"
+    },
+    "6057445": {
+      "sourceUrl": "https://dune.com/queries/6057445",
+      "sourceOwner": "thechriscen",
+      "sourceVersion": 34,
+      "capturedAt": "2026-09-16",
+      "file": "registries/6057445.sql",
+      "sha256": "8dea1725ae9bbf485d97fa1eeb31a408ea44cfc03a11df3cc1b8a9d42240965a"
+    },
+    "6084776": {
+      "sourceUrl": "https://dune.com/queries/6084776",
+      "sourceOwner": "hashed_official",
+      "sourceVersion": 7,
+      "capturedAt": "2026-09-16",
+      "file": "registries/6084776.sql",
+      "sha256": "521e52bfa068d4968b4003fe31953b9c239068b8b37cf003caf3316095dc6b60"
+    },
+    "6148921": {
+      "sourceUrl": "https://dune.com/queries/6148921",
+      "sourceOwner": "thechriscen",
+      "sourceVersion": 9,
+      "capturedAt": "2026-09-16",
+      "file": "registries/6148921.sql",
+      "sha256": "afed4bd4c4d21d0556911d5990e9179f2845c866949faf5f63034be868b62084"
+    }
+  },
+  "queries": {
+    "x402Cumulative": {
+      "sourceQueryId": 7895747,
+      "sourceOwner": "realdoraa",
+      "sourceVersion": 2,
+      "template": "templates/x402Cumulative.sql",
+      "generated": "generated/x402Cumulative.sql",
+      "registries": [
+        "6057445",
+        "6148921"
+      ],
+      "parameters": [
+        {
+          "key": "window_start",
+          "value": "2026-09-12",
+          "type": "text"
+        }
+      ],
+      "queryId": 8748138,
+      "sqlSha256": "aca8288dfe1a121f88bf1d9b55b2592410a55d04130ed6c2be6b6c69b79b1603"
+    },
+    "x402Daily": {
+      "sourceQueryId": 7881006,
+      "sourceOwner": "realdoraa",
+      "sourceVersion": 2,
+      "template": "templates/x402Daily.sql",
+      "generated": "generated/x402Daily.sql",
+      "registries": [
+        "6054244",
+        "6084776"
+      ],
+      "parameters": [
+        {
+          "key": "window_start",
+          "value": "2026-09-12",
+          "type": "text"
+        }
+      ],
+      "queryId": 8748139,
+      "sqlSha256": "7a241a9ce2e1838e162136aeeb29922fecacf657f5d44a47699b5088ae953d37"
+    },
+    "x402TokenSplit": {
+      "sourceQueryId": 7931767,
+      "sourceOwner": "realdoraa",
+      "sourceVersion": 2,
+      "template": "templates/x402TokenSplit.sql",
+      "generated": "generated/x402TokenSplit.sql",
+      "registries": [
+        "6057445"
+      ],
+      "parameters": [],
+      "queryId": 8748140,
+      "sqlSha256": "e9ad41dc29407e834605d67e8b31bdb88c6aefb7f0fe46292eb7061685f7502a"
+    },
+    "baseAgentic": {
+      "sourceQueryId": 6731879,
+      "sourceOwner": "ax1research",
+      "sourceVersion": 6,
+      "template": "templates/baseAgentic.sql",
+      "generated": "generated/baseAgentic.sql",
+      "registries": [],
+      "parameters": [],
+      "queryId": 8748141,
+      "sqlSha256": "d18a6c7389b7f0bce3462900249f039feb29a4904fc247b46890549b34b76fc6"
+    }
+  }
+}

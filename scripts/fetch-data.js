@@ -27,8 +27,10 @@ import {
 } from './dune/baseline-lib.mjs'
 
 import { chainWindowTotals, foldChainWindow, selectUsagePeriod } from './dune/x402-chains-lib.mjs'
+import { calendarRefreshDue } from './dune/refresh-policy.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const OWNED_DEFINITIONS = JSON.parse(readFileSync(join(__dirname, 'dune/owned/manifest.json'), 'utf8'))
 const OUT_DIR = process.env.DATA_OUT_DIR || join(__dirname, '..', 'public')
 const API_KEY = process.env.DUNE_API_KEY
 
@@ -1001,9 +1003,9 @@ async function main() {
     // Newer unseen executions can be downloaded without re-executing them.
     const today = new Date().toISOString().slice(0, 10)
     const yesterday = new Date(Date.parse(today) - 86400000).toISOString().slice(0, 10)
-    state.coverageDue = query.key === 'x402Chains' && !query.readOnly && (
-      String(state.latestEndedAt || '').slice(0, 10) < today ||
-      (state.latestId === prev?.executionId && String(existing?.x402?.chainsAsOf || '').slice(0, 10) < yesterday)
+    state.coverageDue = calendarRefreshDue(query, state.latestEndedAt) || (
+      query.key === 'x402Chains' && !query.readOnly && state.latestId === prev?.executionId &&
+      String(existing?.x402?.chainsAsOf || '').slice(0, 10) < yesterday
     )
     states.push(state)
   }
@@ -1308,7 +1310,9 @@ async function main() {
       { name: 'Olas Ecosystem Activity', author: '@adrian0x', queryId: QUERIES[5].id },
       { name: 'x402 token split (Base, trailing 30d)', author: 'agenteconomy', queryId: QUERIES[6].id },
       { name: 'x402 Transactions by Chain', author: QUERIES[7].readOnly ? '@thechriscen' : 'agenteconomy', queryId: QUERIES[7].id },
-    ],
+    ].map(source => Object.values(OWNED_DEFINITIONS.queries).some(q => q.queryId === source.queryId)
+      ? { ...source, maintainer: 'agenteconomy', definitionVersion: OWNED_DEFINITIONS.version }
+      : source),
     x402: {
       asOf: olderOf(asOf('x402Cumulative'), asOf('x402Daily')),
       totalTxs: f.x402Cumulative.totalTxs,
