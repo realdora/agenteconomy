@@ -1,27 +1,22 @@
 {
-  "updatedAt": "2026-09-16T15:02:00.270968Z",
+  "updatedAt": "2026-09-16T15:31:31.142831Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
-        "queryId": 7895747,
-        "executionId": "01M2KZXPRV52G6ZDRPB7HMDAZX",
-        "executedAt": "2026-09-16T02:15:08.785133Z",
-        "lastCostCredits": 9.704038462,
-        "lastWindowStart": "2026-09-11"
+        "queryId": 8748138,
+        "executionId": "01M2NDCYQ11EB5Z3HKMWZ1EMJV",
+        "executedAt": "2026-09-16T15:30:34.377981Z"
       },
       "x402Daily": {
-        "queryId": 7881006,
-        "executionId": "01M2KZSWBKQNQV8TMBXTH2W9NZ",
-        "executedAt": "2026-09-16T02:13:29.090013Z",
-        "lastCostCredits": 6.953269231,
-        "lastWindowStart": "2026-09-11"
+        "queryId": 8748139,
+        "executionId": "01M2NDERKYCKYH2NW48H34CF7J",
+        "executedAt": "2026-09-16T15:31:07.237475Z"
       },
       "baseAgentic": {
-        "queryId": 6731879,
-        "executionId": "01M2KZV6QXC19W9QVT1B9E7XP9",
-        "executedAt": "2026-09-16T02:14:14.200664Z",
-        "lastCostCredits": 8.227115385
+        "queryId": 8748141,
+        "executionId": "01M2NDG3GH817YT1ZJ7GMT64ZT",
+        "executedAt": "2026-09-16T15:31:31.142831Z"
       },
       "virtualsAcp": {
         "queryId": 7881007,
@@ -45,10 +40,9 @@
         "lastWindowStart": "2026-08-31"
       },
       "x402TokenSplit": {
-        "queryId": 7931767,
-        "executionId": "01M2KZWPGNZPZH6QWG100AHS7K",
-        "executedAt": "2026-09-16T02:14:46.134544Z",
-        "lastCostCredits": 2.614807693
+        "queryId": 8748140,
+        "executionId": "01M2NDFRWYZ8DRV77F5AKTDVYQ",
+        "executedAt": "2026-09-16T15:31:17.165138Z"
       },
       "x402Chains": {
         "queryId": 8734676,
@@ -63,17 +57,23 @@
     {
       "name": "x402 Payment Analytics",
       "author": "@thechriscen",
-      "queryId": 7895747
+      "queryId": 8748138,
+      "maintainer": "agenteconomy",
+      "definitionVersion": "2026-09-16-legacy-scope-v1"
     },
     {
       "name": "x402 Analytics",
       "author": "@hashed_official",
-      "queryId": 7881006
+      "queryId": 8748139,
+      "maintainer": "agenteconomy",
+      "definitionVersion": "2026-09-16-legacy-scope-v1"
     },
     {
       "name": "BASE Agentic Ecosystem",
       "author": "@ax1research",
-      "queryId": 6731879
+      "queryId": 8748141,
+      "maintainer": "agenteconomy",
+      "definitionVersion": "2026-09-16-legacy-scope-v1"
     },
     {
       "name": "Virtuals ACP",
@@ -93,7 +93,9 @@
     {
       "name": "x402 token split (Base, trailing 30d)",
       "author": "agenteconomy",
-      "queryId": 7931767
+      "queryId": 8748140,
+      "maintainer": "agenteconomy",
+      "definitionVersion": "2026-09-16-legacy-scope-v1"
     },
     {
       "name": "x402 Transactions by Chain",
@@ -102,9 +104,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-09-16T02:13:29.090013Z",
-    "totalTxs": 187541595,
-    "totalVolume": 41758719,
+    "asOf": "2026-09-16T15:30:34.377981Z",
+    "totalTxs": 187661409,
+    "totalVolume": 41762489,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -164,8 +166,8 @@
       },
       {
         "month": "Sep 26",
-        "txs": 9670333,
-        "vol": 172165
+        "txs": 9790147,
+        "vol": 175935
       }
     ],
     "daily": [
@@ -403,17 +405,17 @@
       },
       {
         "day": "2026-09-15",
-        "txs": 180201
+        "txs": 188541
       },
       {
         "day": "2026-09-16",
-        "txs": 15335
+        "txs": 121525
       }
     ],
     "protocols": [
       {
         "name": "PayAI",
-        "share": 26.8,
+        "share": 26.7,
         "color": "#10B981"
       },
       {
@@ -508,15 +510,15 @@
     "chainsAsOf": "2026-09-15T23:59:59.999Z",
     "chainsSource": "dune:agenteconomy (owned SQL; legacy address-activity scope)",
     "tokenSplit": {
-      "asOf": "2026-09-16T02:14:46.134544Z",
+      "asOf": "2026-09-16T15:31:17.165138Z",
       "windowDays": 30,
-      "usdcSharePct": 94.42,
-      "totalPayments": 41853,
+      "usdcSharePct": 94.6,
+      "totalPayments": 43564,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
   "baseAgentic": {
-    "asOf": "2026-09-16T02:14:14.200664Z",
+    "asOf": "2026-09-16T15:31:31.142831Z",
     "totalTxs": 2720314,
     "daily": [
       {
