@@ -6,6 +6,6 @@
   "triggers": { "crons": ["17 7 * * *"] },
   "durable_objects": { "bindings": [{ "name": "MONITOR", "class_name": "MonitorState" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MonitorState"] }],
-  "vars": { "EMAIL_ENABLED": "true" },
+  "vars": { "EMAIL_ENABLED": "true", "MINI_MONITOR_ENABLED": "true" },
   "observability": { "enabled": true }
 }

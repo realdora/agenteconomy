@@ -109,6 +109,6 @@ export function notificationPlan(state, issues, now, { test = false } = {}) {
     kind, ids,
     subject: `[Agent Economy] ${recovery ? '监控异常已恢复' : newIssue ? '数据监控发现异常' : '数据异常仍未恢复'}`,
     text: recovery ? '此前通知的异常已通过本次检查。\nhttps://dashboard.agenteconomy.to/' :
-      issues.map(i => `• ${i.detail}`).join('\n\n') + '\n\n影响：部分数据可能延迟或不完整，请以各指标真实截至时间为准。\n监控只读，不会补零、修改生产数据或自动执行收费查询。\n运行记录：https://github.com/realdora/agenteconomy/actions\n分链页面：https://dashboard.agenteconomy.to/x402.html',
+      issues.map(i => `• ${i.detail}`).join('\n\n') + '\n\n影响：数据更新、归档或恢复能力可能受影响，具体范围见上方。Mini或备份异常不等于网站已停更。\n监控不会补零、修改生产数据或自动执行收费查询。\n运行记录：https://github.com/realdora/agenteconomy/actions\n分链页面：https://dashboard.agenteconomy.to/x402.html',
   }
 }
