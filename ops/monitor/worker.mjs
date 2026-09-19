@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers'
 import { inspectFeeds, inspectEvents, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
+import { readMini, inspectMini } from './mini.mjs'
 
 const urls = {
   canonical: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/data.json',
@@ -29,6 +30,15 @@ export class MonitorState extends DurableObject {
       const state = await this.ctx.storage.get('state') || {}
       if (path === '/status') return Response.json(state)
       const now = Date.now(), iso = new Date(now).toISOString()
+      if (path === '/mini') {
+        let payload
+        try { payload = await readMini(request, now) } catch { return new Response('Invalid Mini report', {status:400}) }
+        if (state.mini && Date.parse(payload.sentAt) <= Date.parse(state.mini.payload.sentAt)) return Response.json({skipped:'duplicate/older report'})
+        state.mini = {receivedAt:iso, payload}
+        await this.ctx.storage.put('state', state)
+        return Response.json({accepted:true, receivedAt:iso}) // No mail or data fetch on heartbeat.
+      }
+      if (path === '/mini-check') return Response.json({checkedAt:iso, issues:inspectMini(state.mini, now), lastReceivedAt:state.mini?.receivedAt || null})
       let event = null
       if (path === '/event') {
         event = await request.json()
@@ -51,6 +61,9 @@ export class MonitorState extends DurableObject {
         const inspected = inspectFeeds(feeds, observations, now)
         issues = inspected.issues; observations = inspected.observations
         issues.push(...inspectEvents(state.events, now))
+        if (this.env.MINI_MONITOR_ENABLED === 'true') {
+          issues.push(...(path === '/daily' ? inspectMini(state.mini, now) : (state.issues || []).filter(i => i.id.startsWith('mini.'))))
+        }
         issues = [...new Map(issues.map(i => [i.id, i])).values()]
         state.lastCheckedAt = iso
         if (path === '/daily') state.lastDailyAt = iso
@@ -98,14 +111,19 @@ export default {
   },
   async fetch(request, env) {
     const path = new URL(request.url).pathname
+    if (path === '/mini') {
+      if (!env.MINI_MONITOR_TOKEN || request.headers.get('Authorization') !== `Bearer ${env.MINI_MONITOR_TOKEN}`) return new Response('Unauthorized', {status:401})
+      if (request.method !== 'POST') return new Response('Method not allowed', {status:405})
+      return stub(env).fetch(request)
+    }
     if (path === '/health' && request.method === 'GET') {
       const state = await (await stub(env).fetch(new Request('https://internal/status'))).json()
       const healthy = monitorHealthy(state, Date.now(), env.EMAIL_ENABLED === 'true')
       return Response.json({ lastDailyAt: state.lastDailyAt || null, emailEnabled: env.EMAIL_ENABLED === 'true', deliveryProblem: Boolean(state.deliveryError), ok: healthy }, { status: healthy ? 200 : 503 })
     }
     if (!env.MONITOR_TOKEN || request.headers.get('Authorization') !== `Bearer ${env.MONITOR_TOKEN}`) return new Response('Unauthorized', { status: 401 })
-    if (!['/status', '/daily', '/event', '/test'].includes(path)) return new Response('Not found', { status: 404 })
-    if (request.method !== (path === '/status' ? 'GET' : 'POST')) return new Response('Method not allowed', { status: 405 })
+    if (!['/status', '/daily', '/event', '/test', '/mini-check'].includes(path)) return new Response('Not found', { status: 404 })
+    if (request.method !== (['/status','/mini-check'].includes(path) ? 'GET' : 'POST')) return new Response('Method not allowed', { status: 405 })
     return stub(env).fetch(request)
   },
 }
