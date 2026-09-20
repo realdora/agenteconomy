@@ -12,6 +12,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, copyFileSync } fr
 import { tmpdir } from 'os'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import {receiptRequest} from '../../ops/monitor/dune-receipts.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCRIPT = join(__dirname, '..', 'fetch-data.js')
@@ -95,12 +96,19 @@ function defaultScenario() {
 
 // ── Mock Dune API ────────────────────────────────────────────
 function startMock(scenario, log) {
-  const executions = {} // execution_id → query id
+  const executions = scenario.sharedExecutions || {} // execution_id → query id
   let usageCalls = 0
-  const server = createServer((req, res) => {
+  const server = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost')
     log.push(`${req.method} ${url.pathname}${url.search}`)
     const send = (code, body) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)) }
+    if(url.pathname.startsWith('/dune-receipts/') && scenario.receipts) {
+      let body='';for await(const chunk of req)body+=chunk
+      const map=scenario.receipts
+      const storage={get:async k=>structuredClone(map.get(k)),put:async(k,v)=>{for(const [a,b] of typeof k==='string'?[[k,v]]:Object.entries(k))map.set(a,structuredClone(b))}}
+      const response=await receiptRequest(new Request('https://mock'+url.pathname,{method:req.method,body}),storage)
+      return send(response.status,await response.json())
+    }
 
     let m
     if (req.method === 'POST' && url.pathname === '/usage') {
@@ -136,6 +144,7 @@ function startMock(scenario, log) {
       if (!q) return send(404, { error: { message: 'not found' } })
       const eid = q.execute.execution_id || `exec-${m[1]}-fresh`
       executions[eid] = m[1]
+      if(q.execute.httpError)return send(q.execute.httpError,{error:{message:'upstream response lost'}})
       return send(200, { execution_id: eid })
     }
     if ((m = url.pathname.match(/^\/execution\/([^/]+)\/status$/))) {
@@ -722,6 +731,23 @@ check('fresh execution age cannot hide stale chain coverage', countLog(crossedDa
 check('cross-day refresh advances coverage without losing baseline', JSON.parse(crossedDay.data).x402.chainsAsOf === ownedData.x402.chainsAsOf && JSON.parse(crossedDay.data).x402.chains.find(c => c.name === 'Base')?.txs === 80_000_400, crossedDay.stdout)
 const sameDay = await runPipeline(chainScenario, { ...chainOptions, seedDataJson: owned.data })
 check('already complete current cache does not execute again', countLog(sameDay.log, '/query/8734676/execute') === 0, sameDay.stdout)
+
+console.log('\nS15 shared receipts: real pipeline rerun resumes the original execution')
+const receiptScenario=structuredClone(dueChainScenario)
+receiptScenario.receipts=new Map();receiptScenario.sharedExecutions={}
+const receiptOptions={...chainOptions,extraEnv:{...chainOptions.extraEnv,DUNE_RECEIPTS_REQUIRED:'1',DATA_MONITOR_URL:'https://agenteconomy-data-monitor.facto-sync-worker.workers.dev',MONITOR_TOKEN:'test-only',GITHUB_RUN_ID:'100',GITHUB_RUN_ATTEMPT:'1',GITHUB_SHA:'a'.repeat(40),NODE_OPTIONS:`--import=${join(__dirname,'receipt-fetch-shim.mjs')}`}}
+const receiptFirst=await runPipeline(receiptScenario,receiptOptions)
+check('first run executes once and saves shared ID',countLog(receiptFirst.log,'/query/8734676/execute')===1 && receiptScenario.receipts.get('dune:x402Chains')?.records[0]?.phase==='completed',receiptFirst.stdout)
+const receiptAgain=await runPipeline(receiptScenario,receiptOptions)
+check('rerun polls original ID without POST execute',countLog(receiptAgain.log,'/query/8734676/execute')===0 && countLog(receiptAgain.log,'/execution/owned-chains-fresh/status')===1,receiptAgain.stdout)
+check('rerun produces identical chain totals',JSON.stringify(JSON.parse(receiptFirst.data).x402.chains)===JSON.stringify(JSON.parse(receiptAgain.data).x402.chains))
+const lostScenario=structuredClone(dueChainScenario)
+lostScenario.receipts=new Map();lostScenario.sharedExecutions={};lostScenario.queries[8734676].execute.httpError=503
+const lostFirst=await runPipeline(lostScenario,receiptOptions)
+const lostAgain=await runPipeline(lostScenario,receiptOptions)
+check('execute 503 never automatically retries',countLog(lostFirst.log,'/query/8734676/execute')===1,lostFirst.stdout)
+check('next process stays blocked on ambiguous receipt',countLog(lostAgain.log,'/query/8734676/execute')===0 && lostAgain.ghOutput.includes('receipt_hold=true'),lostAgain.stdout)
+check('ambiguous run uses validated cache coverage without zeroing totals',JSON.parse(lostAgain.data).x402.chainsAsOf===ownedData.x402.chainsAsOf && JSON.stringify(JSON.parse(lostAgain.data).x402.chains)===JSON.stringify(ownedData.x402.chains))
 
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)

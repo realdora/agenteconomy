@@ -27,6 +27,9 @@ jobs:
         id: fetch-data
         env:
           DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+          DUNE_RECEIPTS_REQUIRED: '1'
+          DATA_MONITOR_URL: ${{ vars.DATA_MONITOR_URL }}
+          MONITOR_TOKEN: ${{ secrets.DATA_MONITOR_TOKEN }}
           # Owned SQL + versioned registries: scripts/dune/owned/manifest.json.
           # Pin these together with the reviewed definitions and rollback IDs.
           DUNE_QID_X402_CUMULATIVE: '8748138'
@@ -81,7 +84,7 @@ jobs:
       # Freshness SLA gate — runs AFTER commit so stale-but-honest data still
       # ships; the red run is the signal that a human needs to look.
       - name: Freshness SLA gate
-        if: steps.fetch-data.outputs.sla_breach == 'true'
+        if: steps.fetch-data.outputs.sla_breach == 'true' || steps.fetch-data.outputs.receipt_hold == 'true'
         run: |
-          echo "::error::A data source breached its freshness SLA. See 'Fetch Dune data' logs for details."
+          echo "::error::Freshness SLA or shared execution receipt needs attention. Review the fetch logs; do not blindly re-run an ambiguous execution."
           exit 1

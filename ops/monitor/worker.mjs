@@ -1,6 +1,7 @@
 import { DurableObject } from 'cloudflare:workers'
 import { inspectFeeds, inspectEvents, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
 import { readMini, inspectMini } from './mini.mjs'
+import { receiptRequest } from './dune-receipts.mjs'
 
 const urls = {
   canonical: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/data.json',
@@ -27,6 +28,7 @@ export class MonitorState extends DurableObject {
   async fetch(request) {
     return this.ctx.blockConcurrencyWhile(async () => {
       const path = new URL(request.url).pathname
+      if(path.startsWith('/dune-receipts/')) return receiptRequest(request,this.ctx.storage)
       const state = await this.ctx.storage.get('state') || {}
       if (path === '/status') return Response.json(state)
       const now = Date.now(), iso = new Date(now).toISOString()
@@ -122,6 +124,11 @@ export default {
       return Response.json({ lastDailyAt: state.lastDailyAt || null, emailEnabled: env.EMAIL_ENABLED === 'true', deliveryProblem: Boolean(state.deliveryError), ok: healthy }, { status: healthy ? 200 : 503 })
     }
     if (!env.MONITOR_TOKEN || request.headers.get('Authorization') !== `Bearer ${env.MONITOR_TOKEN}`) return new Response('Unauthorized', { status: 401 })
+    if(path.startsWith('/dune-receipts/')) {
+      if(!['claim','execution','settle','status'].some(p=>path==='/dune-receipts/'+p))return new Response('Not found',{status:404})
+      if(request.method!==(path.endsWith('/status')?'GET':'POST'))return new Response('Method not allowed',{status:405})
+      return env.MONITOR.get(env.MONITOR.idFromName('dune-execution-receipts-v1')).fetch(request)
+    }
     if (!['/status', '/daily', '/event', '/test', '/mini-check'].includes(path)) return new Response('Not found', { status: 404 })
     if (request.method !== (['/status','/mini-check'].includes(path) ? 'GET' : 'POST')) return new Response('Method not allowed', { status: 405 })
     return stub(env).fetch(request)

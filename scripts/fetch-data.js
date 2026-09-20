@@ -28,11 +28,14 @@ import {
 
 import { chainWindowTotals, foldChainWindow, selectUsagePeriod } from './dune/x402-chains-lib.mjs'
 import { calendarRefreshDue } from './dune/refresh-policy.mjs'
+import { makeReceiptClient, digest } from './dune/execution-receipts.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OWNED_DEFINITIONS = JSON.parse(readFileSync(join(__dirname, 'dune/owned/manifest.json'), 'utf8'))
 const OUT_DIR = process.env.DATA_OUT_DIR || join(__dirname, '..', 'public')
 const API_KEY = process.env.DUNE_API_KEY
+const RECEIPTS_REQUIRED = process.env.DUNE_RECEIPTS_REQUIRED === '1'
+let receiptHold = false
 
 if (!API_KEY) {
   console.error('Missing DUNE_API_KEY')
@@ -221,7 +224,8 @@ async function duneRequest(path, options = {}) {
     if (res.ok) return json
     const message = json?.error?.message || json?.message || text || `HTTP ${res.status}`
     const retryable = res.status === 429 || res.status >= 500
-    if (retryable && attempt < 3) {
+    // Execute is not idempotent. A 5xx/429 does not prove nothing started.
+    if (retryable && !path.endsWith('/execute') && attempt < 3) {
       console.warn(`Dune API ${res.status} on ${path}; retrying in ${RETRY_DELAY_MS / 1000}s (attempt ${attempt}/2)`)
       await sleep(RETRY_DELAY_MS)
       continue
@@ -799,47 +803,46 @@ async function executeAndWait(query, baselines) {
   // baselines.json — never PATCH the SQL (a PATCH bumps the query version and
   // wipes Dune-side state; that bit us hard in the incremental era).
   const windowStart = query.baselineKey ? baselines?.[query.baselineKey]?.cutoff : null
-  let started
-  try {
-    started = await duneRequest(`/query/${query.id}/execute`, {
-      method: 'POST',
-      body: executionRequestBody(windowStart ? { query_parameters: { window_start: windowStart } } : {}),
-    })
-  } catch (error) {
-    // Legacy/fork queries don't declare the parameter — retry once without it.
-    if (query.key !== 'x402Chains' && windowStart && error.status === 400 && /param/i.test(error.message || '')) {
-      console.warn(`${query.label}: query rejected window_start parameter; retrying without it`)
-      started = await duneRequest(`/query/${query.id}/execute`, {
-        method: 'POST',
-        body: executionRequestBody(),
-      })
-    } else {
-      throw error
-    }
-  }
-  const executionId = started.execution_id
+  const parameters=windowStart?{window_start:windowStart}:{}
+  const execute=()=>duneRequest(`/query/${query.id}/execute`,{method:'POST',body:executionRequestBody(windowStart?{query_parameters:parameters}:{})})
+  let receiptClient,receipt,executionId
+  if(RECEIPTS_REQUIRED) {
+    receiptClient=makeReceiptClient({url:process.env.DATA_MONITOR_URL,token:process.env.MONITOR_TOKEN,
+      owner:`github:${process.env.GITHUB_RUN_ID}:${process.env.GITHUB_RUN_ATTEMPT}`,sourceCommit:process.env.GITHUB_SHA})
+    const generated=OWNED_DEFINITIONS.queries[query.key]?.generated
+    const legacy={x402Chains:'x402-chains-daily-window.sql',virtualsAcp:'virtuals-acp-recent-window.sql',erc8004Registry:'erc8004-registry-recent-window.sql',olas:'olas-recent-window.sql'}
+    const sqlPath=generated?join(__dirname,'dune/owned',generated):join(__dirname,'dune',legacy[query.key]||'unapproved.sql')
+    const spec={queryKey:query.key,queryId:query.id,sqlHash:digest(readFileSync(sqlPath,'utf8')),registryHash:digest(OWNED_DEFINITIONS.registries),
+      baselineHash:digest(query.baselineKey?baselines?.[query.baselineKey]??null:null),parameters,performance:PERFORMANCE}
+    spec.fingerprint=digest(spec)
+    receipt=await receiptClient.begin(spec,execute);executionId=receipt.executionId
+    console.log(`${query.label}: using shared execution ${executionId}`)
+  } else executionId=(await execute()).execution_id
   if (!executionId) throw new Error(`Dune ${query.id}: execute response missing execution_id`)
   const startedAt = Date.now()
   while (Date.now() - startedAt < EXECUTION_TIMEOUT_MS) {
     const status = await duneRequest(`/execution/${executionId}/status`)
     const statusCost = creditNumber(status.execution_cost_credits)
+    const receiptCost = status.execution_cost_credits == null ? null : optionalCreditNumber(status.execution_cost_credits)
     if (status.state === 'QUERY_STATE_COMPLETED' || status.state === 'QUERY_STATE_COMPLETED_PARTIAL') {
+      if(receiptClient)await receiptClient.settle(receipt,status.state==='QUERY_STATE_COMPLETED'?'completed':'partial',receiptCost)
       const result = await duneRequest(`/execution/${executionId}/results?limit=${query.limit}&allow_partial_results=true`)
       result._executionCostCredits = statusCost
       result._executionStatus = status
       return result
+    }
+    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_CANCELLED' || status.state === 'QUERY_STATE_EXPIRED') {
+      if(receiptClient)await receiptClient.settle(receipt,status.state==='QUERY_STATE_FAILED'?'failed':'cancelled',receiptCost)
+      const detail = status?.error?.message || status.state
+      const error = new Error(`Dune ${query.id}: execution ${executionId} ${detail}`)
+      error.executionCostCredits = statusCost
+      throw error
     }
     if (statusCost >= QUERY_CREDIT_CAP) {
       await duneRequest(`/execution/${executionId}/cancel`, { method: 'POST' }).catch(error => {
         console.warn(`${query.label}: failed to cancel execution ${executionId} at ${statusCost.toFixed(2)} credits (${error.message})`)
       })
       const error = new Error(`Dune ${query.id}: execution ${executionId} cancelled by query cap ${QUERY_CREDIT_CAP} after ${statusCost.toFixed(2)} credits`)
-      error.executionCostCredits = statusCost
-      throw error
-    }
-    if (status.state === 'QUERY_STATE_FAILED' || status.state === 'QUERY_STATE_CANCELED' || status.state === 'QUERY_STATE_CANCELLED' || status.state === 'QUERY_STATE_EXPIRED') {
-      const detail = status?.error?.message || status.state
-      const error = new Error(`Dune ${query.id}: execution ${executionId} ${detail}`)
       error.executionCostCredits = statusCost
       throw error
     }
@@ -1049,6 +1052,7 @@ async function main() {
       }
     } catch (error) {
       state.execError = error
+      if(error.receiptHold)receiptHold=true
       state.executionCostCredits = creditNumber(error.executionCostCredits)
       if (state.executionCostCredits > 0) {
         budget.runCredits += state.executionCostCredits
@@ -1412,7 +1416,7 @@ async function main() {
   warnings.forEach(w => console.log(`::warning::${w}`))
 
   if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\nbaselines_changed=${foldedCount > 0}\n`)
+    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\nbaselines_changed=${foldedCount > 0}\nreceipt_hold=${receiptHold}\n`)
   }
   if (slaBreaches.length > 0) {
     console.error(`::error::Freshness SLA breached (data published, but needs attention):\n- ${slaBreaches.join('\n- ')}`)
