@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-28T23:01:31.793Z",
+  "updatedAt": "2026-09-29T04:50:06.822Z",
   "schema": 2,
   "agentTokens": {
     "asOf": "2026-09-28T23:01:32.124Z",
@@ -56,9 +56,9 @@
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-09-28T23:03:41.093Z",
+    "asOf": "2026-09-29T04:52:36.083Z",
     "uniqueProviders": 2036,
-    "totalListings": 19006,
+    "totalListings": 19088,
     "top2ListingSharePct": 11,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -69,14 +69,14 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-09-28T04:19:32.962Z",
-    "launchedAgents": 59109,
+    "asOf": "2026-09-29T04:53:55.950Z",
+    "launchedAgents": 59140,
     "acpRegisteredAgents": 44052,
     "aggregates": {
-      "asOf": "2026-09-27T11:41:28.037Z",
-      "grossAgenticUsd": 429983974,
-      "totalJobs": 2577690,
-      "successfulJobs": 2386964,
+      "asOf": "2026-09-29T04:53:55.950Z",
+      "grossAgenticUsd": 429985260,
+      "totalJobs": 2578220,
+      "successfulJobs": 2387493,
       "agentsScanned": 44052,
       "note": "Summed across every registered ACP agent record (public per-agent API) — independently computed, not scraped from the Virtuals stats page."
     }
@@ -135,7 +135,7 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-09-28T23:01:42.606Z",
+    "asOf": "2026-09-29T04:50:19.934Z",
     "totalTxs": 38706,
     "lastBlock": 14000633,
     "weekly": [
