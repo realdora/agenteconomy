@@ -1,64 +1,64 @@
 {
-  "updatedAt": "2026-09-29T21:59:34.623Z",
+  "updatedAt": "2026-09-30T04:36:09.553Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-09-28T23:01:32.124Z",
+    "asOf": "2026-09-30T04:36:09.830Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 541724080,
-        "price": 0.822874,
-        "change24h": -0.3344
+        "mcap": 518141305,
+        "price": 0.786928,
+        "change24h": -1.91683
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 516627750,
-        "price": 0.223558,
-        "change24h": -9.56076
+        "mcap": 510584337,
+        "price": 0.221089,
+        "change24h": 0.92084
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 327063289,
-        "price": 0.136847,
-        "change24h": -10.60827
+        "mcap": 325907136,
+        "price": 0.136249,
+        "change24h": 0.22673
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 14644841,
-        "price": 0.04891291,
-        "change24h": 8.57788
+        "mcap": 14640728,
+        "price": 0.0488978,
+        "change24h": 0.27803
       }
     ],
-    "basketMcap": 1400059960,
-    "basketVol24h": 356106003,
+    "basketMcap": 1369273506,
+    "basketVol24h": 275975151,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 4012295259,
-        "vol24h": 567502595,
-        "updatedAt": "2026-09-28T22:57:11.000Z"
+        "mcap": 3947941588,
+        "vol24h": 485023106,
+        "updatedAt": "2026-09-30T04:28:06.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1448877131,
-        "vol24h": 371155654,
-        "updatedAt": "2026-09-28T22:57:11.000Z"
+        "mcap": 1438889654,
+        "vol24h": 287337618,
+        "updatedAt": "2026-09-30T04:28:06.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-09-29T22:03:14.818Z",
-    "uniqueProviders": 2020,
-    "totalListings": 19157,
+    "asOf": "2026-09-30T04:39:27.510Z",
+    "uniqueProviders": 2017,
+    "totalListings": 19115,
     "top2ListingSharePct": 11,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -69,11 +69,11 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-09-29T21:59:39.715Z",
-    "launchedAgents": 59147,
+    "asOf": "2026-09-30T04:39:44.638Z",
+    "launchedAgents": 59148,
     "acpRegisteredAgents": 44052,
     "aggregates": {
-      "asOf": "2026-09-29T04:53:55.950Z",
+      "asOf": "2026-09-30T04:39:44.638Z",
       "grossAgenticUsd": 429985260,
       "totalJobs": 2578220,
       "successfulJobs": 2387493,
@@ -135,9 +135,9 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-09-29T21:59:40.579Z",
-    "totalTxs": 38775,
-    "lastBlock": 14004772,
+    "asOf": "2026-09-30T04:36:14.861Z",
+    "totalTxs": 38777,
+    "lastBlock": 14005464,
     "weekly": [
       {
         "week": "2025-06-23",
@@ -405,7 +405,7 @@
       },
       {
         "week": "2026-09-28",
-        "txs": 77
+        "txs": 79
       }
     ],
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10."
