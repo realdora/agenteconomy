@@ -54,8 +54,8 @@ export function inspectMini(record, now = Date.now()) {
   }
   // Server-owned deadlines still alert if Mini is offline or its jobs expire.
   for (const [id, label, end, lead] of [
-    ['archive', 'Dune归档试用读取', '2026-09-24T00:00:00Z', 3],
-    ['pilot', 'Mini/R2备份试点', '2026-09-29T00:00:00Z', 3],
+    ['archive', 'Dune归档读取', '2026-10-14T00:00:00Z', 3],
+    ['pilot', 'Mini/R2备份试点', '2026-10-14T00:00:00Z', 3],
     ['credential', 'R2上传凭证', '2026-10-15T00:00:00Z', 7],
   ]) {
     const remaining = Date.parse(end) - now

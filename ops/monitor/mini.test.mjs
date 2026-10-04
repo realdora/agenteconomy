@@ -18,7 +18,8 @@ test('offline Mini is caught externally; fresh heartbeat cannot mask stale archi
 test('failure, disk floor and expired pilot remain visible even if Mini stops sending',()=>{
  const r=record();r.payload.backup.status='error';r.payload.diskFreeGiB=39
  assert(inspectMini(r,now).some(i=>i.id==='mini.status.backup'));assert(inspectMini(r,now).some(i=>i.id==='mini.disk'))
- assert(inspectMini(null,Date.parse('2026-09-21T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
+ assert(!inspectMini(null,Date.parse('2026-10-05T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
+ assert(inspectMini(null,Date.parse('2026-10-11T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
  assert(inspectMini(null,Date.parse('2026-10-16T07:17:00Z')).some(i=>i.id==='mini.expiry.credential'))
 })
 test('infrastructure incidents use existing once-daily reminders and single recovery',()=>{
