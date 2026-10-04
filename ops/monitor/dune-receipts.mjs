@@ -2,6 +2,24 @@
 // producer access. Called only behind the existing trusted admin authentication.
 export const RECEIPT_QUERIES = Object.freeze({x402Cumulative:8748138,x402Daily:8748139,x402TokenSplit:8748140,baseAgentic:8748141,x402Chains:8734676,virtualsAcp:7881007,erc8004Registry:7881124,olas:7881008})
 const RESERVATIONS = {x402Cumulative:15,x402Daily:15,x402TokenSplit:3,baseAgentic:10,x402Chains:15,virtualsAcp:2,erc8004Registry:5,olas:2}
+// One-day catch-up after the paid plan resumed. Never reset receipts or grant
+// another execution for a slot. UTC expiry restores the normal 45-credit pool.
+const RECOVERY_DAY = '2026-10-04'
+const RECOVERY_RESERVATIONS = {...RESERVATIONS,x402Cumulative:45,x402Daily:25,x402Chains:25,erc8004Registry:15}
+const policy = day => day===RECOVERY_DAY ? {reservations:RECOVERY_RESERVATIONS,cap:120} : {reservations:RESERVATIONS,cap:45}
+async function reviewedRecoveryBudget(storage,day,budget) {
+  if(day!==RECOVERY_DAY || !budget.halted)return budget
+  const states=await storage.get(Object.keys(RECEIPT_QUERIES).map(k=>'dune:'+k))
+  const records=[...states.values()].flatMap(s=>s.records.filter(r=>r.day===day))
+  // The reviewed overrun completed successfully with a known cost and its
+  // result/baseline were published by run 37218499618. Any other uncertainty
+  // keeps the hold. No generic reset endpoint is exposed.
+  if(!records.some(r=>r.queryKey==='x402Chains' && r.executionId==='01M43XEGEJ93KM3S9RWH1EZ3A9' && r.phase==='completed' && r.costCredits===20.374264706))return budget
+  if(records.some(r=>!terminal(r.phase) || !Number.isFinite(r.costCredits) || r.costCredits<0 || r.costCredits>RECOVERY_RESERVATIONS[r.queryKey]))return budget
+  const cost=records.reduce((sum,r)=>sum+r.costCredits,0)
+  if(cost>120)return budget
+  return {...budget,reservedCredits:cost,halted:false,recoveryReview:'37218499618',recoveryDay:day}
+}
 const hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x)
 const validId = x => typeof x === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(x)
 const terminal = phase => ['completed','failed','cancelled','partial'].includes(phase)
@@ -40,9 +58,10 @@ export async function receiptRequest(request,storage,now=Date.now()) {
       if(!existing.executionId)return reply({error:'ambiguous execution; no automatic retry',record:existing},409)
       return reply({action:'resume',record:existing})
     }
-    const budgetKey='dune-budget:'+day,budget=await storage.get(budgetKey)||{reservedCredits:0,halted:false}
-    const reservation=RESERVATIONS[queryKey]
-    if(budget.halted || budget.reservedCredits+reservation>45)return reply({error:'shared daily credit reservation exhausted'},409)
+    const budgetKey='dune-budget:'+day
+    const budget=await reviewedRecoveryBudget(storage,day,await storage.get(budgetKey)||{reservedCredits:0,halted:false})
+    const {reservations,cap}=policy(day),reservation=reservations[queryKey]
+    if(budget.halted || budget.reservedCredits+reservation>cap)return reply({error:'shared daily credit reservation exhausted'},409)
     const record={...body,day,phase:'intent',createdAt:iso,updatedAt:iso,executionId:null,reservedCredits:reservation}
     // Retain terminal history 31 days; unresolved records are never expired.
     state.records=state.records.filter(r=>!terminal(r.phase)||Date.parse(r.day)>=now-31*864e5)
@@ -70,7 +89,7 @@ export async function receiptRequest(request,storage,now=Date.now()) {
     record.phase=body.phase;record.costCredits=body.costCredits;record.updatedAt=iso
     // Missing cost keeps the full reservation and halts new queries that day.
     if(body.costCredits===null)budget.halted=true
-    else {budget.reservedCredits+=body.costCredits-record.reservedCredits;if(body.costCredits>record.reservedCredits || budget.reservedCredits>45)budget.halted=true}
+    else {budget.reservedCredits+=body.costCredits-record.reservedCredits;if(body.costCredits>record.reservedCredits || budget.reservedCredits>policy(record.day).cap)budget.halted=true}
     await storage.put({[key]:state,[budgetKey]:budget});return reply({record})
   }
   return reply({error:'not found'},404)

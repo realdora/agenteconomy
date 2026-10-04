@@ -6,8 +6,8 @@ const root='https://agenteconomy-data-monitor.facto-sync-worker.workers.dev'
 const day0=Date.parse('2026-09-20T01:00:00Z')
 const spec={queryKey:'x402Chains',queryId:8734676,sqlHash:'a'.repeat(64),registryHash:'b'.repeat(64),baselineHash:'c'.repeat(64),parameters:{window_start:'2026-09-15'},performance:''}
 spec.fingerprint=digest(spec)
-function lab() {
-  const map=new Map();let now=day0,queue=Promise.resolve(),calls=0,drop=null
+function lab(start=day0) {
+  const map=new Map();let now=start,queue=Promise.resolve(),calls=0,drop=null
   const storage={get:async k=>Array.isArray(k)?new Map(k.filter(x=>map.has(x)).map(x=>[x,structuredClone(map.get(x))])):structuredClone(map.get(k)),
     put:async(k,v)=>{for(const [a,b] of typeof k==='string'?[[k,v]]:Object.entries(k))map.set(a,structuredClone(b))}}
   const fetcher=(url,options)=>{
@@ -66,4 +66,42 @@ test('realistic eight-query daily cost fits reservations; over-reservation cost 
   assert.equal(l.count(),8);assert(l.map.get('dune-budget:2026-09-20').reservedCredits<35)
   const over=lab();const r=await over.client().begin(spec,over.execute);await over.client().settle(r,'completed',16)
   assert.equal(over.map.get('dune-budget:2026-09-20').halted,true)
+})
+
+const recoveryDate=Date.parse('2026-10-04T17:00:00Z')
+function recoveredLab({unknown=false,executionId='01M43XEGEJ93KM3S9RWH1EZ3A9'}={}) {
+  const l=lab(recoveryDate)
+  l.map.set('dune:x402Chains',{records:[{...spec,day:'2026-10-04',phase:'completed',executionId,costCredits:20.374264706,reservedCredits:15}]})
+  l.map.set('dune-budget:2026-10-04',{reservedCredits:20.374264706,halted:true})
+  if(unknown)l.map.set('dune:baseAgentic',{records:[{day:'2026-10-04',queryKey:'baseAgentic',phase:'intent',executionId:null,reservedCredits:10}]})
+  return l
+}
+function forQuery(queryKey,queryId) {
+  const value={...spec,queryKey,queryId};delete value.fingerprint;value.fingerprint=digest(value);return value
+}
+test('dated recovery reviews only the verified completed overrun and preserves execution identity',async()=>{
+  const l=recoveredLab(),c=l.client()
+  const r=await c.begin(forQuery('x402Cumulative',8748138),l.execute)
+  assert.equal(r.reservedCredits,45)
+  assert.equal(l.map.get('dune-budget:2026-10-04').recoveryReview,'37218499618')
+  await c.settle(r,'completed',30)
+  await c.begin(spec,l.execute);assert.equal(l.count(),1)
+  assert.equal(l.map.get('dune:x402Chains').records[0].executionId,'01M43XEGEJ93KM3S9RWH1EZ3A9')
+})
+test('recovery never releases unknown executions, unreviewed overruns or unknown costs',async()=>{
+  for(const l of [recoveredLab({unknown:true}),recoveredLab({executionId:'UNREVIEWED'}),recoveredLab()]) {
+    if(!l.map.has('dune:baseAgentic') && l.map.get('dune:x402Chains').records[0].executionId!=='UNREVIEWED')l.map.set('dune:olas',{records:[{day:'2026-10-04',queryKey:'olas',phase:'failed',costCredits:null,reservedCredits:2}]})
+    await assert.rejects(l.client().begin(forQuery('x402Daily',8748139),l.execute),/reservation/)
+    assert.equal(l.count(),0)
+  }
+})
+test('recovery is bounded at 120 and next UTC day returns to normal limits',async()=>{
+  const l=lab(recoveryDate),c=l.client()
+  l.map.set('dune-budget:2026-10-04',{reservedCredits:100,halted:false})
+  await assert.rejects(c.begin(forQuery('x402Cumulative',8748138),l.execute),/reservation/)
+  l.advance()
+  const r=await c.begin(forQuery('x402Cumulative',8748138),l.execute)
+  assert.equal(r.reservedCredits,15)
+  await c.settle(r,'completed',16)
+  assert.equal(l.map.get('dune-budget:2026-10-05').halted,true)
 })
