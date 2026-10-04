@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-23T02:21:57.139089Z",
+  "updatedAt": "2026-10-04T16:55:33.743623Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -19,16 +19,16 @@
       },
       "baseAgentic": {
         "queryId": 8748141,
-        "executionId": "01M360Y0THQBK2TX45WN8HA5Y5",
-        "executedAt": "2026-09-23T02:19:20.392457Z",
-        "lastCostCredits": 9.260961539
+        "executionId": "01M43XDSHNVWTMFZ8DTKSP5NY1",
+        "executedAt": "2026-10-04T16:54:56.660286Z",
+        "lastCostCredits": 6.22132353
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01M360Z1CVH87SVFBX76RSEWHN",
-        "executedAt": "2026-09-23T02:19:32.390341Z",
-        "lastCostCredits": 0.462763158,
-        "lastWindowStart": "2026-09-18"
+        "executionId": "01M43XE502CT8KQTT99DX727TM",
+        "executedAt": "2026-10-04T16:55:07.859702Z",
+        "lastCostCredits": 0.699441177,
+        "lastWindowStart": "2026-09-19"
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -52,10 +52,10 @@
       },
       "x402Chains": {
         "queryId": 8734676,
-        "executionId": "01M360ZCSMK6T555MCNTWQS2QE",
-        "executedAt": "2026-09-23T02:20:08.553873Z",
-        "lastCostCredits": 7.580961539,
-        "lastWindowStart": "2026-09-18"
+        "executionId": "01M43XEGEJ93KM3S9RWH1EZ3A9",
+        "executedAt": "2026-10-04T16:55:33.743623Z",
+        "lastCostCredits": 20.374264706,
+        "lastWindowStart": "2026-09-19"
       }
     }
   },
@@ -454,27 +454,27 @@
     "chains": [
       {
         "name": "Base",
-        "txs": 85026747,
+        "txs": 85045422,
         "color": "#0052FF"
       },
       {
         "name": "Solana",
-        "txs": 66974404,
+        "txs": 67008337,
         "color": "#9945FF"
       },
       {
         "name": "Polygon",
-        "txs": 35094803,
+        "txs": 37179565,
         "color": "#8247E5"
       },
       {
         "name": "BNB",
-        "txs": 910187,
+        "txs": 910188,
         "color": "#F0B90B"
       },
       {
         "name": "Celo",
-        "txs": 764563,
+        "txs": 773902,
         "color": "#14B8A6"
       },
       {
@@ -489,31 +489,31 @@
       },
       {
         "name": "Avalanche",
-        "txs": 5867,
+        "txs": 6015,
         "color": "#E84142"
       },
       {
         "name": "Arbitrum",
-        "txs": 2828,
+        "txs": 3060,
         "color": "#12AAFF"
       },
       {
         "name": "Ethereum",
-        "txs": 634,
+        "txs": 638,
         "color": "#F97316"
       },
       {
         "name": "Optimism",
-        "txs": 305,
+        "txs": 307,
         "color": "#F59E0B"
       },
       {
         "name": "Sei",
-        "txs": 233,
+        "txs": 267,
         "color": "#9D4EDD"
       }
     ],
-    "chainsAsOf": "2026-09-22T23:59:59.999Z",
+    "chainsAsOf": "2026-10-03T23:59:59.999Z",
     "chainsSource": "dune:agenteconomy (owned SQL; legacy address-activity scope)",
     "tokenSplit": {
       "asOf": "2026-09-23T02:21:57.139089Z",
@@ -524,8 +524,8 @@
     }
   },
   "baseAgentic": {
-    "asOf": "2026-09-23T02:19:20.392457Z",
-    "totalTxs": 2758359,
+    "asOf": "2026-10-04T16:54:56.660286Z",
+    "totalTxs": 2821258,
     "daily": [
       {
         "day": "2026-01-01",
@@ -2116,68 +2116,79 @@
         "consumer": 1569,
         "infrastructure": 4752,
         "total": 6321
+      },
+      {
+        "day": "2026-09-23",
+        "consumer": 1334,
+        "infrastructure": 5416,
+        "total": 6750
+      },
+      {
+        "day": "2026-09-24",
+        "consumer": 1141,
+        "infrastructure": 3936,
+        "total": 5077
+      },
+      {
+        "day": "2026-09-25",
+        "consumer": 1449,
+        "infrastructure": 4335,
+        "total": 5784
+      },
+      {
+        "day": "2026-09-26",
+        "consumer": 1395,
+        "infrastructure": 3287,
+        "total": 4682
+      },
+      {
+        "day": "2026-09-27",
+        "consumer": 1247,
+        "infrastructure": 3384,
+        "total": 4631
+      },
+      {
+        "day": "2026-09-28",
+        "consumer": 1300,
+        "infrastructure": 5354,
+        "total": 6654
+      },
+      {
+        "day": "2026-09-29",
+        "consumer": 2807,
+        "infrastructure": 4292,
+        "total": 7099
+      },
+      {
+        "day": "2026-09-30",
+        "consumer": 4123,
+        "infrastructure": 3441,
+        "total": 7564
+      },
+      {
+        "day": "2026-10-01",
+        "consumer": 2613,
+        "infrastructure": 3371,
+        "total": 5984
+      },
+      {
+        "day": "2026-10-02",
+        "consumer": 1643,
+        "infrastructure": 3583,
+        "total": 5226
+      },
+      {
+        "day": "2026-10-03",
+        "consumer": 1285,
+        "infrastructure": 2163,
+        "total": 3448
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-09-23T02:19:32.390341Z",
-    "totalMemos": 12346768,
+    "asOf": "2026-10-04T16:55:07.859702Z",
+    "totalMemos": 12359712,
     "daily": [
-      {
-        "day": "2026-06-26",
-        "memos": 335,
-        "senders": 12
-      },
-      {
-        "day": "2026-06-27",
-        "memos": 284,
-        "senders": 7
-      },
-      {
-        "day": "2026-06-28",
-        "memos": 234,
-        "senders": 7
-      },
-      {
-        "day": "2026-06-29",
-        "memos": 261,
-        "senders": 8
-      },
-      {
-        "day": "2026-06-30",
-        "memos": 247,
-        "senders": 6
-      },
-      {
-        "day": "2026-07-01",
-        "memos": 270,
-        "senders": 8
-      },
-      {
-        "day": "2026-07-02",
-        "memos": 427,
-        "senders": 9
-      },
-      {
-        "day": "2026-07-03",
-        "memos": 223,
-        "senders": 9
-      },
-      {
-        "day": "2026-07-04",
-        "memos": 66,
-        "senders": 5
-      },
-      {
-        "day": "2026-07-05",
-        "memos": 227,
-        "senders": 7
-      },
-      {
-        "day": "2026-07-06",
-        "memos": 234,
-        "senders": 13
-      },
       {
         "day": "2026-07-07",
         "memos": 291,
@@ -2570,8 +2581,63 @@
       },
       {
         "day": "2026-09-23",
-        "memos": 17,
-        "senders": 5
+        "memos": 140,
+        "senders": 9
+      },
+      {
+        "day": "2026-09-24",
+        "memos": 1399,
+        "senders": 13
+      },
+      {
+        "day": "2026-09-25",
+        "memos": 5292,
+        "senders": 14
+      },
+      {
+        "day": "2026-09-26",
+        "memos": 127,
+        "senders": 8
+      },
+      {
+        "day": "2026-09-27",
+        "memos": 4580,
+        "senders": 13
+      },
+      {
+        "day": "2026-09-28",
+        "memos": 583,
+        "senders": 14
+      },
+      {
+        "day": "2026-09-29",
+        "memos": 136,
+        "senders": 10
+      },
+      {
+        "day": "2026-09-30",
+        "memos": 131,
+        "senders": 10
+      },
+      {
+        "day": "2026-10-01",
+        "memos": 184,
+        "senders": 10
+      },
+      {
+        "day": "2026-10-02",
+        "memos": 153,
+        "senders": 7
+      },
+      {
+        "day": "2026-10-03",
+        "memos": 153,
+        "senders": 9
+      },
+      {
+        "day": "2026-10-04",
+        "memos": 83,
+        "senders": 6
       }
     ]
   },
