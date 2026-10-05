@@ -1,12 +1,26 @@
 // Shared execute ledger. It does not coordinate Git publication or grant Mini
 // producer access. Called only behind the existing trusted admin authentication.
 export const RECEIPT_QUERIES = Object.freeze({x402Cumulative:8748138,x402Daily:8748139,x402TokenSplit:8748140,baseAgentic:8748141,x402Chains:8734676,virtualsAcp:7881007,erc8004Registry:7881124,olas:7881008})
-const RESERVATIONS = {x402Cumulative:15,x402Daily:15,x402TokenSplit:3,baseAgentic:10,x402Chains:15,virtualsAcp:2,erc8004Registry:5,olas:2}
+const RESERVATIONS = {x402Cumulative:15,x402Daily:15,x402TokenSplit:3,baseAgentic:10,x402Chains:15,virtualsAcp:5,erc8004Registry:5,olas:2}
 // One-day catch-up after the paid plan resumed. Never reset receipts or grant
 // another execution for a slot. UTC expiry restores the normal 45-credit pool.
 const RECOVERY_DAY = '2026-10-04'
 const RECOVERY_RESERVATIONS = {...RESERVATIONS,x402Cumulative:45,x402Daily:25,x402Chains:25,erc8004Registry:15}
-const policy = day => day===RECOVERY_DAY ? {reservations:RECOVERY_RESERVATIONS,cap:120} : {reservations:RESERVATIONS,cap:45}
+const policy = day => day===RECOVERY_DAY ? {reservations:RECOVERY_RESERVATIONS,cap:120,queryCap:45} : {reservations:RESERVATIONS,cap:45,queryCap:15}
+async function migrateEstimateHold(storage,day,budget) {
+  if(day<=RECOVERY_DAY || !budget.halted || budget.policyVersion===2)return budget
+  const states=await storage.get(Object.keys(RECEIPT_QUERIES).map(k=>'dune:'+k))
+  const records=[...states.values()].flatMap(s=>s.records.filter(r=>r.day===day))
+  const {cap,queryCap}=policy(day)
+  // Only migrate a legacy estimate-overrun hold whose entire daily ledger is
+  // independently accounted for by successful, known-cost executions. Never
+  // reset a missing-cost/ambiguous/new-policy halt or discard any receipt.
+  if(!records.length || records.some(r=>r.phase!=='completed' || !validId(r.executionId) || !Number.isFinite(r.costCredits) || r.costCredits<0 || r.costCredits>queryCap))return budget
+  if(!records.some(r=>r.costCredits>r.reservedCredits))return budget
+  const cost=records.reduce((sum,r)=>sum+r.costCredits,0)
+  if(cost>cap || !Number.isFinite(budget.reservedCredits) || Math.abs(cost-budget.reservedCredits)>1e-6)return budget
+  return {...budget,halted:false,policyVersion:2,migration:{reason:'known cost exceeded estimate only',day,executionIds:records.map(r=>r.executionId)}}
+}
 async function reviewedRecoveryBudget(storage,day,budget) {
   if(day!==RECOVERY_DAY || !budget.halted)return budget
   const states=await storage.get(Object.keys(RECEIPT_QUERIES).map(k=>'dune:'+k))
@@ -59,13 +73,14 @@ export async function receiptRequest(request,storage,now=Date.now()) {
       return reply({action:'resume',record:existing})
     }
     const budgetKey='dune-budget:'+day
-    const budget=await reviewedRecoveryBudget(storage,day,await storage.get(budgetKey)||{reservedCredits:0,halted:false})
+    const reviewed=await reviewedRecoveryBudget(storage,day,await storage.get(budgetKey)||{reservedCredits:0,halted:false,policyVersion:2})
+    const budget=await migrateEstimateHold(storage,day,reviewed)
     const {reservations,cap}=policy(day),reservation=reservations[queryKey]
     if(budget.halted || budget.reservedCredits+reservation>cap)return reply({error:'shared daily credit reservation exhausted'},409)
     const record={...body,day,phase:'intent',createdAt:iso,updatedAt:iso,executionId:null,reservedCredits:reservation}
     // Retain terminal history 31 days; unresolved records are never expired.
     state.records=state.records.filter(r=>!terminal(r.phase)||Date.parse(r.day)>=now-31*864e5)
-    state.records.push(record);budget.reservedCredits+=reservation
+    state.records.push(record);budget.reservedCredits+=reservation;budget.policyVersion=2
     // Multi-key put is atomic; the outer Durable Object serializes this handler.
     await storage.put({[key]:state,[budgetKey]:budget})
     return reply({action:'execute',record})
@@ -89,7 +104,10 @@ export async function receiptRequest(request,storage,now=Date.now()) {
     record.phase=body.phase;record.costCredits=body.costCredits;record.updatedAt=iso
     // Missing cost keeps the full reservation and halts new queries that day.
     if(body.costCredits===null)budget.halted=true
-    else {budget.reservedCredits+=body.costCredits-record.reservedCredits;if(body.costCredits>record.reservedCredits || budget.reservedCredits>policy(record.day).cap)budget.halted=true}
+    // Reservations are scheduling estimates, not per-query stop thresholds.
+    // Charge the actual cost; stop only at the real query/day limits. A known
+    // 3.87-credit result exceeding a 2-credit estimate must not halt a whole day.
+    else {budget.reservedCredits+=body.costCredits-record.reservedCredits;if(body.costCredits>policy(record.day).queryCap || budget.reservedCredits>policy(record.day).cap)budget.halted=true}
     await storage.put({[key]:state,[budgetKey]:budget});return reply({record})
   }
   return reply({error:'not found'},404)

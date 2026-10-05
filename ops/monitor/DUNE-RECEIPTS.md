@@ -16,7 +16,7 @@ The slot is query key plus server UTC day. The immutable fingerprint includes qu
 
 ## Budget behavior
 
-The shared ledger reserves 15 credits for cumulative/daily/chains, 10 for Base, 5 for registry, 3 for token split, and 2 each for Virtuals/Olas. These conservative per-query scheduling allowances reflect the archived September 19 costs plus headroom. A new intent needs enough of a 45-credit daily reservation pool. Known terminal cost replaces its reservation once. Missing cost retains the reservation and halts new requests that day; an observed cost above its reservation also halts new starts pending review. Unknown executions keep their reservation.
+The shared ledger reserves 15 credits for cumulative/daily/chains, 10 for Base, 5 for registry, 3 for token split, 5 for Virtuals, and 2 for Olas. These conservative per-query scheduling allowances reflect the archived September 19 costs plus headroom. A new intent needs enough of a 45-credit daily reservation pool. Known terminal cost replaces its reservation once. Missing cost retains the reservation and halts new requests that day. Reservations are scheduling estimates: known cost replaces the estimate, and new starts halt when actual cost exceeds the 15-credit query threshold or the shared daily ledger exceeds 45 credits. A small estimate overrun alone does not halt all sources. Unknown executions keep their reservation.
 
 This is **not a supplier-enforced hard spending cap**. Actual running costs may exceed a reservation between polls. Existing monthly usage checks, the 45-credit per-run check and 15-credit query cancellation remain. Receipts do not authorize any plan upgrade or paid verification. Conservative reservation holds may delay a query when activity rises; review actual costs before changing allowances.
 
@@ -41,3 +41,9 @@ The real local Cloudflare SQLite runtime also granted one simulated execute, sur
 Release order: deploy Worker; verify authenticated empty/existing ledger and rejection of unauthenticated/Mini/unapproved-query requests; then merge the workflow/client. Do not create fake production receipts. Observe the next scheduled Dune run to validate real execution receipt creation without buying an extra test execution.
 
 Rollback: stop new paid executions first (set `DUNE_MAX_EXECUTIONS_PER_RUN=0` or pause the workflow), inspect all nonterminal receipts, and keep the receipt store. Revert producer integration only after reconciling in-flight queries. Do not simply unset `DUNE_RECEIPTS_REQUIRED` while an intent is ambiguous. The previous monitor Worker can be restored only while guarded producer execution is paused; never erase existing monitor or receipt state.
+
+## October 5 estimate-hold repair
+
+Run 37257178141 spent 4.188382353 on Base and 3.874264706 on Virtuals. The old two-credit Virtuals estimate incorrectly halted all remaining sources at only 8.062647059/day. Virtuals scheduling estimate is now five credits; settlement uses the existing actual query/day limits rather than treating estimates as separate stop limits. Monthly 2,000 and daily 45 limits are unchanged.
+
+A legacy halted ledger migrates to policy version 2 only if every same-day record completed successfully with a known nonnegative cost at or below 15, the costs sum exactly to the ledger (within 1e-6), the sum is at most 45, and at least one cost exceeded its estimate. Unknown/failed/executing records, mismatched sums, and new-policy holds remain blocked. Receipts and execution IDs are retained; no reset endpoint is added.
