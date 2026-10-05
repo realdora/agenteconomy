@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-04T17:23:05.913406Z",
+  "updatedAt": "2026-10-05T02:59:02.990914Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -19,16 +19,16 @@
       },
       "baseAgentic": {
         "queryId": 8748141,
-        "executionId": "01M43XDSHNVWTMFZ8DTKSP5NY1",
-        "executedAt": "2026-10-04T16:54:56.660286Z",
-        "lastCostCredits": 6.22132353
+        "executionId": "01M44ZPQ198FJP5EVV9WQ9S7XS",
+        "executedAt": "2026-10-05T02:55:33.815142Z",
+        "lastCostCredits": 4.188382353
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01M43XE502CT8KQTT99DX727TM",
-        "executedAt": "2026-10-04T16:55:07.859702Z",
-        "lastCostCredits": 0.699441177,
-        "lastWindowStart": "2026-09-19"
+        "executionId": "01M44ZSYJV9Q1MH1NWKW267N6C",
+        "executedAt": "2026-10-05T02:59:02.990914Z",
+        "lastCostCredits": 3.874264706,
+        "lastWindowStart": "2026-09-30"
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -529,8 +529,8 @@
     }
   },
   "baseAgentic": {
-    "asOf": "2026-10-04T16:54:56.660286Z",
-    "totalTxs": 2821258,
+    "asOf": "2026-10-05T02:55:33.815142Z",
+    "totalTxs": 2825209,
     "daily": [
       {
         "day": "2026-01-01",
@@ -2187,18 +2187,19 @@
         "consumer": 1285,
         "infrastructure": 2163,
         "total": 3448
+      },
+      {
+        "day": "2026-10-04",
+        "consumer": 1366,
+        "infrastructure": 2585,
+        "total": 3951
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-10-04T16:55:07.859702Z",
-    "totalMemos": 12359712,
+    "asOf": "2026-10-05T02:59:02.990914Z",
+    "totalMemos": 12359780,
     "daily": [
-      {
-        "day": "2026-07-07",
-        "memos": 291,
-        "senders": 7
-      },
       {
         "day": "2026-07-08",
         "memos": 243,
@@ -2641,8 +2642,13 @@
       },
       {
         "day": "2026-10-04",
-        "memos": 83,
+        "memos": 132,
         "senders": 6
+      },
+      {
+        "day": "2026-10-05",
+        "memos": 19,
+        "senders": 3
       }
     ]
   },
