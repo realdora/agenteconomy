@@ -1,21 +1,21 @@
 {
-  "updatedAt": "2026-10-05T02:59:02.990914Z",
+  "updatedAt": "2026-10-05T04:21:09.512607Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
         "queryId": 8748138,
-        "executionId": "01M43YV0CWDRCAFWS8TFSREWTN",
-        "executedAt": "2026-10-04T17:20:07.985091Z",
-        "lastCostCredits": 17.931911765,
-        "lastWindowStart": "2026-09-19"
+        "executionId": "01M454KX5ANGC3PYK1EBWBW86Q",
+        "executedAt": "2026-10-05T04:20:12.740601Z",
+        "lastCostCredits": 4.251911765,
+        "lastWindowStart": "2026-09-30"
       },
       "x402Daily": {
         "queryId": 8748139,
-        "executionId": "01M43YWA8B9M9SD3YDN9NBPC92",
-        "executedAt": "2026-10-04T17:20:55.126586Z",
-        "lastCostCredits": 11.423676471,
-        "lastWindowStart": "2026-09-19"
+        "executionId": "01M454MXTRVFGCZ93WSVXTDPP1",
+        "executedAt": "2026-10-05T04:20:48.46751Z",
+        "lastCostCredits": 2.353088236,
+        "lastWindowStart": "2026-09-30"
       },
       "baseAgentic": {
         "queryId": 8748141,
@@ -46,16 +46,16 @@
       },
       "x402TokenSplit": {
         "queryId": 8748140,
-        "executionId": "01M43YXS5PTDJCJ29D72CCN1KT",
-        "executedAt": "2026-10-04T17:21:17.020499Z",
-        "lastCostCredits": 1.146029412
+        "executionId": "01M454P3PXWMMJHY5P0XDV59ER",
+        "executedAt": "2026-10-05T04:21:09.512607Z",
+        "lastCostCredits": 1.096617648
       },
       "x402Chains": {
         "queryId": 8734676,
-        "executionId": "01M43XEGEJ93KM3S9RWH1EZ3A9",
-        "executedAt": "2026-10-04T16:55:33.743623Z",
-        "lastCostCredits": 20.374264706,
-        "lastWindowStart": "2026-09-19"
+        "executionId": "01M454JWF47KQCEY2AHNEX1FV0",
+        "executedAt": "2026-10-05T04:19:38.804131Z",
+        "lastCostCredits": 9.0025,
+        "lastWindowStart": "2026-09-30"
       }
     }
   },
@@ -110,9 +110,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-10-04T17:20:07.985091Z",
-    "totalTxs": 190458543,
-    "totalVolume": 41873263,
+    "asOf": "2026-10-05T04:20:12.740601Z",
+    "totalTxs": 190551441,
+    "totalVolume": 41876015,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -177,15 +177,11 @@
       },
       {
         "month": "Oct 26",
-        "txs": 727638,
-        "vol": 22846
+        "txs": 820536,
+        "vol": 25598
       }
     ],
     "daily": [
-      {
-        "day": "2026-08-06",
-        "txs": 187162
-      },
       {
         "day": "2026-08-07",
         "txs": 192313
@@ -420,13 +416,17 @@
       },
       {
         "day": "2026-10-04",
-        "txs": 140326
+        "txs": 197957
+      },
+      {
+        "day": "2026-10-05",
+        "txs": 33180
       }
     ],
     "protocols": [
       {
         "name": "Other",
-        "share": 26.6,
+        "share": 26.7,
         "color": "#6B7280"
       },
       {
@@ -459,17 +459,17 @@
     "chains": [
       {
         "name": "Base",
-        "txs": 85045422,
+        "txs": 85047071,
         "color": "#0052FF"
       },
       {
         "name": "Solana",
-        "txs": 67008337,
+        "txs": 67017293,
         "color": "#9945FF"
       },
       {
         "name": "Polygon",
-        "txs": 37179565,
+        "txs": 37367181,
         "color": "#8247E5"
       },
       {
@@ -479,7 +479,7 @@
       },
       {
         "name": "Celo",
-        "txs": 773902,
+        "txs": 777446,
         "color": "#14B8A6"
       },
       {
@@ -494,7 +494,7 @@
       },
       {
         "name": "Avalanche",
-        "txs": 6015,
+        "txs": 6016,
         "color": "#E84142"
       },
       {
@@ -514,17 +514,17 @@
       },
       {
         "name": "Sei",
-        "txs": 267,
+        "txs": 268,
         "color": "#9D4EDD"
       }
     ],
-    "chainsAsOf": "2026-10-03T23:59:59.999Z",
+    "chainsAsOf": "2026-10-04T23:59:59.999Z",
     "chainsSource": "dune:agenteconomy (owned SQL; legacy address-activity scope)",
     "tokenSplit": {
-      "asOf": "2026-10-04T17:21:17.020499Z",
+      "asOf": "2026-10-05T04:21:09.512607Z",
       "windowDays": 30,
-      "usdcSharePct": 87.61,
-      "totalPayments": 56302,
+      "usdcSharePct": 87.81,
+      "totalPayments": 56726,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
