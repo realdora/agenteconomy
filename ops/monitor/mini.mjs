@@ -46,6 +46,7 @@ export function inspectMini(record, now = Date.now()) {
     if (!p.archive.lastSuccessDate || p.archive.lastSuccessDate < due) add('archive', `Mini生产归档应至少完成 ${due}；最近成功日期：${p.archive.lastSuccessDate || '缺失'}。`)
     if (!p.backup.lastUploadDate || p.backup.lastUploadDate < due) add('backup', `R2备份应至少完成 ${due}；最近成功上传日期：${p.backup.lastUploadDate || '缺失'}。`)
     if (!p.backup.archiveThrough || p.backup.archiveThrough < due) add('backupCoverage', `R2已封存备份应包含至少 ${due} 的生产归档；实际仅至 ${p.backup.archiveThrough || '缺失'}。上传成功不代表最新归档已包含。`)
+    if (!validStamp(p.backup.lastRestoredAt) || now-Date.parse(p.backup.lastRestoredAt)>35*DAY) add('restoreCheck', `超过35天未完成实际恢复验证（最近：${p.backup.lastRestoredAt || '缺失'}）。请用独立只读凭证下载备份并验证校验值及八项生产结果。`)
     // Morning monitor observes the previous day's Mini report. That report
     // needs complete Tempo coverage through its own previous UTC day.
     const tempoDue = date(now - 2 * DAY)
@@ -54,9 +55,8 @@ export function inspectMini(record, now = Date.now()) {
   }
   // Server-owned deadlines still alert if Mini is offline or its jobs expire.
   for (const [id, label, end, lead] of [
-    ['archive', 'Dune归档读取', '2026-10-14T00:00:00Z', 3],
-    ['pilot', 'Mini/R2备份试点', '2026-10-14T00:00:00Z', 3],
     ['credential', 'R2上传凭证', '2026-10-15T00:00:00Z', 7],
+    ['restoreCredential', 'R2只读恢复凭证', '2026-10-19T00:00:00Z', 7],
   ]) {
     const remaining = Date.parse(end) - now
     if (remaining <= lead * DAY) add('expiry.' + id, `${label}${remaining <= 0 ? '已到期' : '即将到期'}：${end.slice(0,10)}。需人工确认后续配置；监控不会自动续费、延长试用或替换凭证。`)

@@ -22,7 +22,7 @@ export async function reportMini(root, {now=new Date(), outcome, fetcher=fetch, 
   const file=path.join(root,'mini-monitor-health.json'),previous=read(file),day=now.toISOString().slice(0,10)
   const payload=buildMiniReport(root,now,outcome)
   // Routine timestamps/disk drift do not produce another same-day heartbeat.
-  const fingerprint=createHash('sha256').update(JSON.stringify({tempo:payload.tempo.status,through:payload.tempo.through,archive:payload.archive,backup:payload.backup.status,uploaded:payload.backup.lastUploadDate,included:payload.backup.archiveThrough,lowDisk:payload.diskFreeGiB===null||payload.diskFreeGiB<40})).digest('hex')
+  const fingerprint=createHash('sha256').update(JSON.stringify({tempo:payload.tempo.status,through:payload.tempo.through,archive:payload.archive,backup:payload.backup.status,uploaded:payload.backup.lastUploadDate,included:payload.backup.archiveThrough,restored:payload.backup.lastRestoredAt,lowDisk:payload.diskFreeGiB===null||payload.diskFreeGiB<40})).digest('hex')
   if(previous.lastSentDate===day&&previous.fingerprint===fingerprint)return {status:'already-reported'}
   const attempts=previous.lastAttemptDate===day?previous.attemptsToday||0:0
   if(attempts>=3)return {status:'daily-report-limit'}

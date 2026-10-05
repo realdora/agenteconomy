@@ -19,9 +19,18 @@ test('failure, disk floor and expired pilot remain visible even if Mini stops se
  const r=record();r.payload.backup.status='error';r.payload.diskFreeGiB=39
  assert(inspectMini(r,now).some(i=>i.id==='mini.status.backup'));assert(inspectMini(r,now).some(i=>i.id==='mini.disk'))
  assert(!inspectMini(null,Date.parse('2026-10-05T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
- assert(inspectMini(null,Date.parse('2026-10-11T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
+ assert(!inspectMini(null,Date.parse('2026-10-11T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
  assert(inspectMini(null,Date.parse('2026-10-16T07:17:00Z')).some(i=>i.id==='mini.expiry.credential'))
+ assert(inspectMini(null,Date.parse('2026-10-12T07:17:00Z')).some(i=>i.id==='mini.expiry.restoreCredential'))
 })
+test('monthly restore verification is monitored independently of upload health',()=>{
+ const r=record();r.payload.backup.lastRestoredAt=null;
+ assert(inspectMini(r,now).some(i=>i.id==='mini.restoreCheck'));
+ r.payload.backup.lastRestoredAt=new Date(now-34*86400000).toISOString();
+ assert(!inspectMini(r,now).some(i=>i.id==='mini.restoreCheck'));
+ r.payload.backup.lastRestoredAt=new Date(now-36*86400000).toISOString();
+ assert(inspectMini(r,now).some(i=>i.id==='mini.restoreCheck'));
+});
 test('infrastructure incidents use existing once-daily reminders and single recovery',()=>{
  const issues=inspectMini(null,now),first=notificationPlan({},issues,now);assert.equal(first.kind,'alert')
  const state={notifiedIds:first.ids,lastSentAt:new Date(now).toISOString()}
@@ -39,7 +48,9 @@ test('sender excludes secrets, sends once, allows state recovery, caps failures 
  const credentialFile=path.join(root,'private.json');fs.writeFileSync(credentialFile,JSON.stringify({url:'https://agenteconomy-data-monitor.facto-sync-worker.workers.dev/mini',token:'a'.repeat(64)}),{mode:0o600})
  let calls=0;const opts={now:new Date('2026-09-19T15:00:00Z'),credentialFile,fetcher:async(url,o)=>{calls++;assert(!o.body.includes('do-not-send'));assert(!o.body.includes('secret'));return Response.json({accepted:true})}}
  assert.equal((await reportMini(root,opts)).status,'reported');assert.equal((await reportMini(root,opts)).status,'already-reported');assert.equal(calls,1)
- assert.equal((await reportMini(root,{...opts,outcome:{status:'error'}})).status,'reported');assert.equal((await reportMini(root,opts)).status,'reported');assert.equal((await reportMini(root,{...opts,outcome:{status:'error'}})).status,'daily-report-limit')
+ backup.lastRestoredAt='2026-09-19T14:00:00Z';fs.writeFileSync(path.join(root,'backup-health.json'),JSON.stringify(backup));
+ assert.equal((await reportMini(root,opts)).status,'reported');assert.equal(calls,2)
+ assert.equal((await reportMini(root,{...opts,outcome:{status:'error'}})).status,'reported');assert.equal((await reportMini(root,opts)).status,'daily-report-limit')
  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root,'backup-health.json'))),backup)
  const tomorrow={...opts,now:new Date('2026-09-20T15:00:00Z'),fetcher:async()=>{throw Error('secret network details')}};assert.equal((await reportMini(root,tomorrow)).status,'report-failed');assert(!fs.readFileSync(path.join(root,'mini-monitor-health.json'),'utf8').includes('secret network details'))
 })
