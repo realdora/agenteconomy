@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-05T04:21:09.512607Z",
+  "updatedAt": "2026-10-06T03:44:01.654469Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -19,9 +19,9 @@
       },
       "baseAgentic": {
         "queryId": 8748141,
-        "executionId": "01M44ZPQ198FJP5EVV9WQ9S7XS",
-        "executedAt": "2026-10-05T02:55:33.815142Z",
-        "lastCostCredits": 4.188382353
+        "executionId": "01M47MYJZZ2PSJGF37TNSQ7E48",
+        "executedAt": "2026-10-06T03:44:01.654469Z",
+        "lastCostCredits": 16.618970589
       },
       "virtualsAcp": {
         "queryId": 7881007,
@@ -529,8 +529,8 @@
     }
   },
   "baseAgentic": {
-    "asOf": "2026-10-05T02:55:33.815142Z",
-    "totalTxs": 2825209,
+    "asOf": "2026-10-06T03:44:01.654469Z",
+    "totalTxs": 2829846,
     "daily": [
       {
         "day": "2026-01-01",
@@ -2193,6 +2193,12 @@
         "consumer": 1366,
         "infrastructure": 2585,
         "total": 3951
+      },
+      {
+        "day": "2026-10-05",
+        "consumer": 1464,
+        "infrastructure": 3173,
+        "total": 4637
       }
     ]
   },
