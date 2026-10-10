@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-10T03:16:58.851932Z",
+  "updatedAt": "2026-10-10T18:55:05.478033Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -19,9 +19,9 @@
       },
       "baseAgentic": {
         "queryId": 8748141,
-        "executionId": "01M47MYJZZ2PSJGF37TNSQ7E48",
-        "executedAt": "2026-10-06T03:44:01.654469Z",
-        "lastCostCredits": 16.618970589
+        "executionId": "01M4KJNV4W1SKRT9J5PTRT3YTS",
+        "executedAt": "2026-10-10T18:55:05.478033Z",
+        "lastCostCredits": 6.094264706
       },
       "virtualsAcp": {
         "queryId": 7881007,
@@ -529,8 +529,8 @@
     }
   },
   "baseAgentic": {
-    "asOf": "2026-10-06T03:44:01.654469Z",
-    "totalTxs": 2829846,
+    "asOf": "2026-10-10T18:55:05.478033Z",
+    "totalTxs": 2848738,
     "daily": [
       {
         "day": "2026-01-01",
@@ -2199,6 +2199,30 @@
         "consumer": 1464,
         "infrastructure": 3173,
         "total": 4637
+      },
+      {
+        "day": "2026-10-06",
+        "consumer": 1298,
+        "infrastructure": 2931,
+        "total": 4229
+      },
+      {
+        "day": "2026-10-07",
+        "consumer": 1118,
+        "infrastructure": 3323,
+        "total": 4441
+      },
+      {
+        "day": "2026-10-08",
+        "consumer": 1229,
+        "infrastructure": 5703,
+        "total": 6932
+      },
+      {
+        "day": "2026-10-09",
+        "consumer": 686,
+        "infrastructure": 2604,
+        "total": 3290
       }
     ]
   },
