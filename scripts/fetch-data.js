@@ -27,6 +27,7 @@ import {
 } from './dune/baseline-lib.mjs'
 
 import { chainWindowTotals, foldChainWindow, selectUsagePeriod } from './dune/x402-chains-lib.mjs'
+import { queryCreditCap } from './dune/credit-policy.mjs'
 import { calendarRefreshDue } from './dune/refresh-policy.mjs'
 import { makeReceiptClient, digest } from './dune/execution-receipts.mjs'
 
@@ -797,7 +798,8 @@ const MONOTONIC = {
 }
 
 // ── Execution (sequential: free plan = 1 concurrent query) ───
-async function executeAndWait(query, baselines) {
+async function executeAndWait(query, baselines, budget) {
+  let executionCap = Math.min(queryCreditCap(query, QUERY_CREDIT_CAP), RUN_CREDIT_CAP - budget.runCredits, MONTHLY_CREDIT_CAP - budget.usageBefore.creditsUsed - budget.runCredits)
   // Recent-window queries declare a {{window_start}} text parameter; we drive
   // it from the frozen-baseline cutoff. Advancing the window = editing
   // baselines.json — never PATCH the SQL (a PATCH bumps the query version and
@@ -816,6 +818,7 @@ async function executeAndWait(query, baselines) {
       baselineHash:digest(query.baselineKey?baselines?.[query.baselineKey]??null:null),parameters,performance:PERFORMANCE}
     spec.fingerprint=digest(spec)
     receipt=await receiptClient.begin(spec,execute);executionId=receipt.executionId
+    if(Number.isFinite(receipt.executionCreditCap)) executionCap=Math.min(executionCap,receipt.executionCreditCap)
     console.log(`${query.label}: using shared execution ${executionId}`)
   } else executionId=(await execute()).execution_id
   if (!executionId) throw new Error(`Dune ${query.id}: execute response missing execution_id`)
@@ -838,11 +841,11 @@ async function executeAndWait(query, baselines) {
       error.executionCostCredits = statusCost
       throw error
     }
-    if (statusCost >= QUERY_CREDIT_CAP) {
+    if (statusCost >= executionCap) {
       await duneRequest(`/execution/${executionId}/cancel`, { method: 'POST' }).catch(error => {
         console.warn(`${query.label}: failed to cancel execution ${executionId} at ${statusCost.toFixed(2)} credits (${error.message})`)
       })
-      const error = new Error(`Dune ${query.id}: execution ${executionId} cancelled by query cap ${QUERY_CREDIT_CAP} after ${statusCost.toFixed(2)} credits`)
+      const error = new Error(`Dune ${query.id}: execution ${executionId} cancelled by execution cap ${executionCap} after ${statusCost.toFixed(2)} credits`)
       error.executionCostCredits = statusCost
       throw error
     }
@@ -860,6 +863,7 @@ function unsafeQueryReason(query) {
 }
 
 function freshExecutionBlockReason(state, budget, prev, baselines) {
+  const queryCap = queryCreditCap(state.query, QUERY_CREDIT_CAP)
   // Unconditional, env-independent: a readOnly source may never execute. The
   // DUNE_REFRESH_KEYS gate below only exists when the workflow sets that env,
   // so on a bare local/test run it is wide open — which is exactly how a
@@ -878,11 +882,11 @@ function freshExecutionBlockReason(state, budget, prev, baselines) {
   if (budget.runCredits >= RUN_CREDIT_CAP) {
     return `run credit cap reached (${budget.runCredits.toFixed(2)}/${RUN_CREDIT_CAP})`
   }
-  if (budget.usageBefore && budget.usageBefore.creditsUsed + budget.runCredits + QUERY_CREDIT_CAP > MONTHLY_CREDIT_CAP) {
+  if (budget.usageBefore && budget.usageBefore.creditsUsed + budget.runCredits + queryCap > MONTHLY_CREDIT_CAP) {
     return `monthly cap guard would be exceeded (${budget.usageBefore.creditsUsed.toFixed(2)} used, cap ${MONTHLY_CREDIT_CAP})`
   }
   const previousCost = creditNumber(prev?.lastCostCredits)
-  if (previousCost > QUERY_CREDIT_CAP) {
+  if (previousCost > queryCap) {
     // An over-cap record only describes the window it was executed against.
     // Once the current window is strictly SMALLER than that one, the old cost
     // no longer predicts the next attempt — allow a fresh (still cap-protected)
@@ -897,7 +901,7 @@ function freshExecutionBlockReason(state, budget, prev, baselines) {
       cutoffDay && (prevWindow ? cutoffDay > prevWindow : prevDay && prevDay < cutoffDay),
     )
     if (!windowShrankSince) {
-      return `previous execution cost ${previousCost.toFixed(2)} exceeded query cap ${QUERY_CREDIT_CAP}`
+      return `previous execution cost ${previousCost.toFixed(2)} exceeded query cap ${queryCap}`
     }
     console.log(`${state.query.label}: previous over-cap cost ${previousCost.toFixed(2)} was for a larger window (start ${prevWindow || 'unknown'}) — cutoff now ${cutoffDay}, allowing a fresh attempt`)
   }
@@ -1028,6 +1032,7 @@ async function main() {
     const blocked = freshExecutionBlockReason(state, budget, prev, baselines)
     if (blocked) {
       state.preferPreviousReason = blocked
+      if (blocked.startsWith('previous execution cost')) state.refreshHold = blocked
       warnings.push(`${state.query.label}: fresh execution blocked (${blocked}); using previous-build data when available`)
       console.warn(warnings[warnings.length - 1])
       continue
@@ -1039,20 +1044,22 @@ async function main() {
       // Recorded so an over-cap cost can later be judged against the window it
       // actually scanned (freshExecutionBlockReason's shrink rule).
       state.windowStartUsed = state.query.baselineKey ? baselines?.[state.query.baselineKey]?.cutoff ?? null : null
-      state.execResult = await executeAndWait(state.query, baselines)
+      state.execResult = await executeAndWait(state.query, baselines, budget)
       state.execId = state.execResult.execution_id || null
       state.execEndedAt = getExecutionEndedAt(state.execResult) || new Date().toISOString()
       state.executionCostCredits = creditNumber(state.execResult._executionCostCredits)
       budget.runCredits += state.executionCostCredits
       budget.executionCosts.push({ key: state.query.key, queryId: state.query.id, executionId: state.execId, credits: state.executionCostCredits })
       console.log(`${state.query.label}: execution cost ${state.executionCostCredits.toFixed(2)} credits`)
-      if (state.executionCostCredits > QUERY_CREDIT_CAP) {
-        warnings.push(`${state.query.label}: execution cost ${state.executionCostCredits.toFixed(2)} exceeds query cap ${QUERY_CREDIT_CAP}; future automatic executions will be blocked until reviewed`)
+      if (state.executionCostCredits > queryCreditCap(state.query, QUERY_CREDIT_CAP)) {
+        state.refreshHold = `execution cost ${state.executionCostCredits.toFixed(2)} exceeds query cap ${queryCreditCap(state.query, QUERY_CREDIT_CAP)}`
+        warnings.push(`${state.query.label}: execution cost ${state.executionCostCredits.toFixed(2)} exceeds query cap ${queryCreditCap(state.query, QUERY_CREDIT_CAP)}; future automatic executions will be blocked until reviewed`)
         console.warn(warnings[warnings.length - 1])
       }
     } catch (error) {
       state.execError = error
       if(error.receiptHold)receiptHold=true
+      if(error.receiptHold || /cancelled by execution cap/.test(error.message)) state.refreshHold = error.message
       state.executionCostCredits = creditNumber(error.executionCostCredits)
       if (state.executionCostCredits > 0) {
         budget.runCredits += state.executionCostCredits
@@ -1179,6 +1186,16 @@ async function main() {
       }
     }
   }
+
+  // Publish an explicit hold even while the last successful data is within SLA.
+  // Preserve it on reuse; clear only with a genuinely newer, usable execution.
+  for (const state of states) {
+    const key=state.query.key, meta=metaOut[key], prev=prevMeta[key]
+    if (!meta) continue
+    const hold=state.refreshHold || (meta.executionId===prev?.executionId ? prev?.refreshHold : null)
+    if (hold) meta.refreshHold=hold
+  }
+  const queryHold=Object.values(metaOut).some(meta=>meta.refreshHold)
 
   if (hardFailures.length > 0) {
     throw new Error(`No usable data for required queries:\n- ${hardFailures.join('\n- ')}`)
@@ -1416,7 +1433,7 @@ async function main() {
   warnings.forEach(w => console.log(`::warning::${w}`))
 
   if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\nbaselines_changed=${foldedCount > 0}\nreceipt_hold=${receiptHold}\n`)
+    appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\nsla_breach=${slaBreaches.length > 0}\nbudget_hold=${Boolean(budget.holdReason)}\nbaselines_changed=${foldedCount > 0}\nreceipt_hold=${receiptHold}\nquery_hold=${queryHold}\n`)
   }
   if (slaBreaches.length > 0) {
     console.error(`::error::Freshness SLA breached (data published, but needs attention):\n- ${slaBreaches.join('\n- ')}`)

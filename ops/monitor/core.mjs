@@ -27,6 +27,8 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
   if (data && !data.error) {
     for (const [key, hours] of Object.entries(queryHours)) {
       freshness(`source.${key}`, data.meta?.queries?.[key]?.executedAt, hours)
+      const hold=data.meta?.queries?.[key]?.refreshHold
+      if(hold) add(`hold.${key}`, `${key} 自动更新被保护规则暂停：${hold}。旧数据仍可展示，但需要处理后才能恢复。`)
     }
     // Coverage is independent of a recent successful query or overall updatedAt.
     const yesterday = new Date(now - 86400000).toISOString().slice(0, 10)

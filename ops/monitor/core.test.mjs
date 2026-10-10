@@ -64,3 +64,10 @@ test('callback watchdog supports existing state and detects missing, late and fa
   events['Update Dune Data'].conclusion = 'success'
   assert.deepEqual(inspectEvents(events, now), [])
 })
+
+test('a persistent query hold alerts before freshness SLA expires and clears on recovery',()=>{
+  const f=feeds();f.canonical.meta.queries.baseAgentic.refreshHold='previous execution cost exceeds cap'
+  assert.ok(inspectFeeds(f,{},now).issues.some(i=>i.id==='hold.baseAgentic'))
+  delete f.canonical.meta.queries.baseAgentic.refreshHold
+  assert.ok(!inspectFeeds(f,{},now).issues.some(i=>i.id==='hold.baseAgentic'))
+})

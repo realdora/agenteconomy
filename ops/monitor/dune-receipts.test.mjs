@@ -148,3 +148,31 @@ test('migration rejects unknown, failed, over-limit, unbalanced and new-policy h
     assert.equal(l.count(),0)
   }
 })
+
+// Current policy regressions: reproduce the October 6 incident without live SQL.
+test('known query overrun is isolated across days while unrelated work continues',async()=>{
+  const l=lab(Date.parse('2026-10-07T16:00:00Z')),c=l.client()
+  const r=await c.begin(spec,l.execute);await c.settle(r,'completed',16.62)
+  assert.equal(l.map.get('dune-budget:2026-10-07').halted,false)
+  await c.begin(forQuery('virtualsAcp',7881007),l.execute)
+  l.advance()
+  await assert.rejects(c.begin(spec,l.execute),/query cost hold/)
+  assert.equal(l.count(),2)
+})
+test('reviewed Base can recover; effective limit respects remaining shared daily budget',async()=>{
+  const l=lab(Date.parse('2026-10-07T16:00:00Z')),c=l.client()
+  l.map.set('dune-budget:2026-10-07',{reservedCredits:27.6167353,halted:false,policyVersion:2})
+  const r=await c.begin(forQuery('baseAgentic',8748141),l.execute)
+  assert.equal(r.executionCreditCap,45-27.6167353)
+  await c.settle(r,'completed',16.62)
+  assert.equal(l.map.get('dune-budget:2026-10-07').halted,false)
+  await assert.rejects(c.begin(spec,l.execute),/reservation exhausted/)
+})
+test('daily overrun and unknown cost still halt the whole pool under isolated policy',async()=>{
+  for(const cost of [46,null]) {
+    const l=lab(Date.parse('2026-10-07T16:00:00Z')),c=l.client()
+    const r=await c.begin(spec,l.execute);await c.settle(r,'completed',cost)
+    assert.equal(l.map.get('dune-budget:2026-10-07').halted,true)
+    await assert.rejects(c.begin(forQuery('olas',7881008),l.execute),/reservation halted/)
+  }
+})

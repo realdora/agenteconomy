@@ -1,3 +1,4 @@
+import {queryCreditCap, ISOLATED_QUERY_POLICY_DAY} from '../../scripts/dune/credit-policy.mjs'
 // Shared execute ledger. It does not coordinate Git publication or grant Mini
 // producer access. Called only behind the existing trusted admin authentication.
 export const RECEIPT_QUERIES = Object.freeze({x402Cumulative:8748138,x402Daily:8748139,x402TokenSplit:8748140,baseAgentic:8748141,x402Chains:8734676,virtualsAcp:7881007,erc8004Registry:7881124,olas:7881008})
@@ -72,12 +73,18 @@ export async function receiptRequest(request,storage,now=Date.now()) {
       if(!existing.executionId)return reply({error:'ambiguous execution; no automatic retry',record:existing},409)
       return reply({action:'resume',record:existing})
     }
+    // A known overrun isolates its unchanged query, not unrelated sources.
+    const previous=state.records.at(-1)
+    if(day>=ISOLATED_QUERY_POLICY_DAY && previous?.fingerprint===body.fingerprint &&
+      previous.costCredits>queryCreditCap({key:queryKey,id:queryId}))return reply({error:'query cost hold; review query before executing'},409)
     const budgetKey='dune-budget:'+day
     const reviewed=await reviewedRecoveryBudget(storage,day,await storage.get(budgetKey)||{reservedCredits:0,halted:false,policyVersion:2})
     const budget=await migrateEstimateHold(storage,day,reviewed)
     const {reservations,cap}=policy(day),reservation=reservations[queryKey]
-    if(budget.halted || budget.reservedCredits+reservation>cap)return reply({error:'shared daily credit reservation exhausted'},409)
-    const record={...body,day,phase:'intent',createdAt:iso,updatedAt:iso,executionId:null,reservedCredits:reservation}
+    if(budget.halted)return reply({error:'shared daily credit reservation halted; reconcile cost or daily overrun'},409)
+    if(budget.reservedCredits+reservation>cap)return reply({error:'shared daily credit reservation exhausted'},409)
+    const executionCreditCap=Math.min(queryCreditCap({key:queryKey,id:queryId},policy(day).queryCap),cap-budget.reservedCredits)
+    const record={...body,day,executionCreditCap,phase:'intent',createdAt:iso,updatedAt:iso,executionId:null,reservedCredits:reservation}
     // Retain terminal history 31 days; unresolved records are never expired.
     state.records=state.records.filter(r=>!terminal(r.phase)||Date.parse(r.day)>=now-31*864e5)
     state.records.push(record);budget.reservedCredits+=reservation;budget.policyVersion=2
@@ -105,9 +112,9 @@ export async function receiptRequest(request,storage,now=Date.now()) {
     // Missing cost keeps the full reservation and halts new queries that day.
     if(body.costCredits===null)budget.halted=true
     // Reservations are scheduling estimates, not per-query stop thresholds.
-    // Charge the actual cost; stop only at the real query/day limits. A known
-    // 3.87-credit result exceeding a 2-credit estimate must not halt a whole day.
-    else {budget.reservedCredits+=body.costCredits-record.reservedCredits;if(body.costCredits>policy(record.day).queryCap || budget.reservedCredits>policy(record.day).cap)budget.halted=true}
+    // Charge actual cost. From the reviewed policy date, a known query overrun
+    // holds only that query; unknown costs and the daily cap still halt the pool.
+    else {budget.reservedCredits+=body.costCredits-record.reservedCredits;if((record.day<ISOLATED_QUERY_POLICY_DAY && body.costCredits>policy(record.day).queryCap) || budget.reservedCredits>=policy(record.day).cap)budget.halted=true}
     await storage.put({[key]:state,[budgetKey]:budget});return reply({record})
   }
   return reply({error:'not found'},404)

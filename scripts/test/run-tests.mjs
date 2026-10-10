@@ -673,6 +673,8 @@ const s13b = await runPipeline(s13scenarioA, {
 check('exit 0', s13b.status === 0, `status=${s13b.status}`)
 check('same-window record still blocks', countLog(s13b.log, '/query/6084845/execute') === 0, JSON.stringify(s13b.log.filter(l => l.includes('execute'))))
 check('block reason emitted', s13b.stdout.includes('exceeded query cap'), s13b.stdout)
+check('blocked source sets workflow gate immediately', s13b.ghOutput.includes('query_hold=true'), s13b.ghOutput)
+check('blocked source is visible in published metadata', Boolean(JSON.parse(s13b.data).meta.queries.x402Daily.refreshHold))
 
 // S13c — a stale over-cap record is EXECUTION-scoped: when a newer execution
 // is ingested (different id), the record drops instead of blocking forever.
@@ -748,6 +750,21 @@ const lostAgain=await runPipeline(lostScenario,receiptOptions)
 check('execute 503 never automatically retries',countLog(lostFirst.log,'/query/8734676/execute')===1,lostFirst.stdout)
 check('next process stays blocked on ambiguous receipt',countLog(lostAgain.log,'/query/8734676/execute')===0 && lostAgain.ghOutput.includes('receipt_hold=true'),lostAgain.stdout)
 check('ambiguous run uses validated cache coverage without zeroing totals',JSON.parse(lostAgain.data).x402.chainsAsOf===ownedData.x402.chainsAsOf && JSON.stringify(JSON.parse(lostAgain.data).x402.chains)===JSON.stringify(ownedData.x402.chains))
+
+console.log('\nS16 reviewed Base cap and hold recovery')
+const baseScenario=defaultScenario()
+baseScenario.queries[8748141]={latest:{execution_id:'base-old',endedHoursAgo:36,rows:fixtureRows(6731879)},execute:{behavior:'succeed',execution_id:'base-recovered',rows:fixtureRows(6731879),costCredits:16.62}}
+const baseSeed=JSON.parse(SEED)
+baseSeed.meta.queries.baseAgentic={queryId:8748141,executionId:'base-old',executedAt:hoursAgo(36),lastCostCredits:16.618970589,refreshHold:'prior reviewed hold'}
+const baseOptions={seedDataJson:JSON.stringify(baseSeed),extraEnv:{DUNE_QID_BASE_AGENTIC:'8748141',DUNE_REFRESH_KEYS:'baseAgentic',DUNE_QUERY_CREDIT_CAP:'15'}}
+const baseRecovered=await runPipeline(baseScenario,baseOptions)
+check('reviewed Base executes exactly once',countLog(baseRecovered.log,'/query/8748141/execute')===1,baseRecovered.stdout)
+check('reviewed cost is accepted and prior hold clears',JSON.parse(baseRecovered.data).meta.queries.baseAgentic.lastCostCredits===16.62 && !JSON.parse(baseRecovered.data).meta.queries.baseAgentic.refreshHold,baseRecovered.stdout)
+const baseOverScenario=structuredClone(baseScenario);baseOverScenario.queries[8748141].execute.costCredits=21
+const baseOver=await runPipeline(baseOverScenario,baseOptions)
+check('new overrun publishes data but fails hold gate',Boolean(JSON.parse(baseOver.data).meta.queries.baseAgentic.refreshHold) && baseOver.ghOutput.includes('query_hold=true'),baseOver.stdout)
+const strictBase=await runPipeline(baseScenario,{...baseOptions,extraEnv:{...baseOptions.extraEnv,DUNE_QUERY_CREDIT_CAP:'10'}})
+check('explicit stricter cap cannot be overridden by reviewed policy',countLog(strictBase.log,'/query/8748141/execute')===0 && strictBase.ghOutput.includes('query_hold=true'),strictBase.stdout)
 
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)
