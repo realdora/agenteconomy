@@ -71,3 +71,14 @@ test('a persistent query hold alerts before freshness SLA expires and clears on 
   delete f.canonical.meta.queries.baseAgentic.refreshHold
   assert.ok(!inspectFeeds(f,{},now).issues.some(i=>i.id==='hold.baseAgentic'))
 })
+
+test('midnight callback allows scheduled daily update window; missing coverage alerts at 06 UTC',()=>{
+  const f=feeds(), midnight=Date.parse('2026-10-10T00:47:00Z')
+  f.canonical.x402.chainsAsOf='2026-10-08T23:59:59.999Z'
+  f.canonical.x402.daily=Array.from({length:8},(_,i)=>({day:new Date(Date.parse('2026-10-08')-i*864e5).toISOString().slice(0,10),txs:100}))
+  const coverage = time => inspectFeeds(f,{},time).issues.filter(i=>i.id.startsWith('coverage.') || i.id==='gap.x402Daily')
+  assert.deepEqual(coverage(midnight),[])
+  assert.deepEqual(coverage(Date.parse('2026-10-10T05:59:59Z')),[])
+  assert.ok(coverage(Date.parse('2026-10-10T06:00:00Z')).some(i=>i.id==='coverage.x402Chains'))
+  assert.ok(coverage(Date.parse('2026-10-10T07:17:00Z')).some(i=>i.id==='gap.x402Daily'))
+})

@@ -31,7 +31,9 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
       if(hold) add(`hold.${key}`, `${key} 自动更新被保护规则暂停：${hold}。旧数据仍可展示，但需要处理后才能恢复。`)
     }
     // Coverage is independent of a recent successful query or overall updatedAt.
-    const yesterday = new Date(now - 86400000).toISOString().slice(0, 10)
+    // Midnight callbacks precede the scheduled Dune job (usually 02–04 UTC).
+    // Require yesterday only after 06 UTC; daily watchdog runs at 07:17.
+    const yesterday = new Date(now - 6 * HOUR - 86400000).toISOString().slice(0, 10)
     for (const [key, stamp] of [
       ['x402Chains', data.x402?.chainsAsOf],
       ['x402Daily', [...(data.x402?.daily || [])].map(r => r.day).filter(Boolean).sort().at(-1)],
@@ -53,7 +55,7 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
       seen.add(row.day)
     }
     for (let n = 1; n <= 7; n++) {
-      const day = new Date(now - n * 86400000).toISOString().slice(0, 10)
+      const day = new Date(Date.parse(yesterday) - (n - 1) * 86400000).toISOString().slice(0, 10)
       if (!seen.has(day)) add('gap.x402Daily', `最近 7 个完整日中缺少 ${day}；不自动当成零交易。`)
     }
     if (!Array.isArray(data.x402?.chains) || !data.x402.chains.length || data.x402.chains.some(c => !Number.isSafeInteger(c.txs) || c.txs < 0)) add('shape.x402Chains', '分链数据缺失或计数无效。')
