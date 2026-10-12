@@ -2695,16 +2695,16 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 46231,
+    "totalEvents": 46235,
     "uniquePayers": 1860,
     "uniquePayees": 92,
     "byType": {
-      "ChannelOpened": 23004,
+      "ChannelOpened": 23005,
       "CloseRequested": 3154,
       "ChannelExpired": 2966,
-      "ChannelClosed": 16120,
+      "ChannelClosed": 16121,
       "Settled": 385,
-      "TopUp": 602
+      "TopUp": 604
     },
     "daily": [
       {
@@ -3243,7 +3243,7 @@
       },
       {
         "day": "2026-10-12",
-        "events": 16,
+        "events": 20,
         "payers": 2,
         "payees": 2
       }
