@@ -55,8 +55,8 @@ export function inspectMini(record, now = Date.now()) {
   }
   // Server-owned deadlines still alert if Mini is offline or its jobs expire.
   for (const [id, label, end, lead] of [
-    ['credential', 'R2上传凭证', '2026-10-15T00:00:00Z', 7],
-    ['restoreCredential', 'R2只读恢复凭证', '2026-10-19T00:00:00Z', 7],
+    ['credential', 'R2上传凭证', '2026-11-11T00:00:00Z', 7],
+    ['restoreCredential', 'R2只读恢复凭证', '2026-11-11T00:00:00Z', 7],
   ]) {
     const remaining = Date.parse(end) - now
     if (remaining <= lead * DAY) add('expiry.' + id, `${label}${remaining <= 0 ? '已到期' : '即将到期'}：${end.slice(0,10)}。需人工确认后续配置；监控不会自动续费、延长试用或替换凭证。`)
