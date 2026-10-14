@@ -42,7 +42,15 @@ const CSS = `
 :root{--paper:#faf8f4;--card:#fff;--ink:#1c1917;--muted:#78716c;--faint:#a8a29e;--line:#e7e5e1;--brand:#0f766e;--live:#059669;--down:#b91c1c}
 body{background:var(--paper);color:var(--ink);font-family:Geist,-apple-system,sans-serif}
 a{color:inherit;text-decoration:none}
-.side{width:228px;background:var(--card);border-right:1px solid var(--line);padding:20px 12px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:30}
+.side{width:228px;background:var(--card);border-right:1px solid var(--line);padding:20px 12px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:30;display:flex;flex-direction:column}
+.side .logo,.side .nav{flex-shrink:0}
+.press{margin-top:auto;padding-top:28px;flex-shrink:0}
+.press-inner{border-top:1px solid var(--line);padding:20px 10px 4px}
+.press-label{font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.press-link{display:inline-flex;align-items:center;min-height:44px;border-radius:2px;opacity:.65;transition:opacity .15s}
+.press-link:hover,.press-link:focus-visible{opacity:1}
+.press-link:focus-visible{outline:2px solid var(--brand);outline-offset:5px}
+.press-link img{display:block;width:172px;height:auto}
 .logo{font-family:GeistMono,ui-monospace,Menlo,monospace;font-size:13px;padding:6px 10px 18px}.logo .to{color:var(--brand)}
 .nav a{display:block;padding:8px 10px;border-radius:8px;font-size:13.5px;color:#57534e;margin-bottom:1px;transition:background .15s,color .15s}
 .nav a:hover{background:#f5f5f4}.nav a.on{background:#f0fdf9;color:var(--brand);font-weight:600}
@@ -223,7 +231,11 @@ const shell = (slug, title, content) => `<!doctype html><html><head><meta charse
 <div class="scrim"></div>
 <div class="side"><div class="logo">[<b>agenteconomy</b><span class="to">.to</span>]</div><div class="nav">
 ${NAV.map(g => (g.group ? `<div class="h">${g.group}</div>` : '') + g.items.map(([s, l]) => `<a href="${s === 'index' ? '/' : '/' + s}"${s === slug ? ' class="on"' : ''}>${l}</a>`).join('')).join('')}
-</div></div>
+</div>
+<section class="press" aria-label="Media coverage"><div class="press-inner">
+<div class="press-label">Featured in</div>
+<a class="press-link" href="https://thedefiant.io/news/defi/cloudflare-wallets-ai-agents-stablecoin-x402" target="_blank" rel="noopener noreferrer" aria-label="Read the coverage in The Defiant (opens in a new tab)"><img src="/assets/the-defiant.png" width="576" height="163" alt="The Defiant"></a>
+</div></section></div>
 <div class="topbar"><div class="burger">☰</div><div class="tl">[<b>agenteconomy</b>.to] · ${title}</div></div>
 <div class="main">
 <div class="pagebar"><h1>${title}</h1><div class="stamp"><span class="dot"></span>LIVE · UPDATED ${updatedLabel}</div></div>
@@ -498,6 +510,8 @@ ${sec('Feeds', 'Everything the dashboard shows, as JSON.', `<div class="card" st
 <pre>curl -s https://agenteconomy.to/data.json | jq '.x402.totalTxs'</pre>`)}
 ${fnotes(['Suggested citation: "…according to agenteconomy.to (agenteconomy.to/data.json)."', 'Monthly State of the Agent Economy reports live on the apex site: agenteconomy.to/reports.', 'Pipeline and site are built in the open: github.com/realdora/agenteconomy.'])}`)
 for (const f of readdirSync(join(ROOT, 'fonts'))) copyFileSync(join(ROOT, 'fonts', f), join(DIST, 'fonts', f))
+mkdirSync(join(DIST, 'assets'), { recursive: true })
+copyFileSync(join(ROOT, 'assets', 'the-defiant.png'), join(DIST, 'assets', 'the-defiant.png'))
 // The apex site proxies /data.json + /web-sources.json from this domain — the
 // contract MUST survive the cutover, so the feeds ship inside every deploy.
 for (const f of ['data.json', 'web-sources.json', 'tempo-data.json']) {
