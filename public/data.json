@@ -1,34 +1,34 @@
 {
-  "updatedAt": "2026-10-17T02:05:27.701202Z",
+  "updatedAt": "2026-10-18T02:11:01.741857Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
         "queryId": 8748138,
-        "executionId": "01M53SGCG7Z83JBQ78CNQVH7BA",
-        "executedAt": "2026-10-17T02:03:04.814798Z",
-        "lastCostCredits": 5.028382353,
-        "lastWindowStart": "2026-10-12"
+        "executionId": "01M56BXTTQGA08Y4MZDPNGMHH1",
+        "executedAt": "2026-10-18T02:06:58.473057Z",
+        "lastCostCredits": 5.62132353,
+        "lastWindowStart": "2026-10-13"
       },
       "x402Daily": {
         "queryId": 8748139,
-        "executionId": "01M53SJH5GC1ZY4A1K2XAN99DF",
-        "executedAt": "2026-10-17T02:03:43.075331Z",
-        "lastCostCredits": 3.298970589,
-        "lastWindowStart": "2026-10-12"
+        "executionId": "01M56C6CYKMRSR8WSEZAMD5MTS",
+        "executedAt": "2026-10-18T02:07:49.124462Z",
+        "lastCostCredits": 2.847205883,
+        "lastWindowStart": "2026-10-13"
       },
       "baseAgentic": {
         "queryId": 8748141,
-        "executionId": "01M53SMCM2N9N0ZSXCYK4164F5",
-        "executedAt": "2026-10-17T02:04:59.524407Z",
-        "lastCostCredits": 4.280147059
+        "executionId": "01M56C8KDBME5K1XNSG378Y1BE",
+        "executedAt": "2026-10-18T02:11:01.741857Z",
+        "lastCostCredits": 6.030735295
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01M53SD1TB2PDEEJ0GGB236GFH",
-        "executedAt": "2026-10-17T02:00:16.912509Z",
-        "lastCostCredits": 0.187676471,
-        "lastWindowStart": "2026-10-12"
+        "executionId": "01M56BRTXFFMHN72KSPSXRPAR4",
+        "executedAt": "2026-10-18T01:59:47.543627Z",
+        "lastCostCredits": 0.158852942,
+        "lastWindowStart": "2026-10-13"
       },
       "erc8004Registry": {
         "queryId": 7881124,
@@ -46,16 +46,16 @@
       },
       "x402TokenSplit": {
         "queryId": 8748140,
-        "executionId": "01M53SKPTC6DQ1DTX0XQFMJ4HV",
-        "executedAt": "2026-10-17T02:04:04.793482Z",
-        "lastCostCredits": 0.590970589
+        "executionId": "01M56C7X9S71AR2HENHTFA98W4",
+        "executedAt": "2026-10-18T02:08:12.853143Z",
+        "lastCostCredits": 0.906029412
       },
       "x402Chains": {
         "queryId": 8734676,
-        "executionId": "01M53SDDBPV8QTT13Y3RNB4ZGN",
-        "executedAt": "2026-10-17T02:01:53.15734Z",
-        "lastCostCredits": 7.520147059,
-        "lastWindowStart": "2026-10-12"
+        "executionId": "01M56BS6G6ZBEQZ3D8BQJ8EFVR",
+        "executedAt": "2026-10-18T02:02:19.101087Z",
+        "lastCostCredits": 4.647205883,
+        "lastWindowStart": "2026-10-13"
       }
     }
   },
@@ -110,9 +110,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-10-17T02:03:04.814798Z",
-    "totalTxs": 192071381,
-    "totalVolume": 41932144,
+    "asOf": "2026-10-18T02:06:58.473057Z",
+    "totalTxs": 192088626,
+    "totalVolume": 41934158,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -177,15 +177,11 @@
       },
       {
         "month": "Oct 26",
-        "txs": 2340476,
-        "vol": 81727
+        "txs": 2357721,
+        "vol": 83741
       }
     ],
     "daily": [
-      {
-        "day": "2026-08-19",
-        "txs": 743058
-      },
       {
         "day": "2026-08-20",
         "txs": 952531
@@ -420,7 +416,11 @@
       },
       {
         "day": "2026-10-17",
-        "txs": 30
+        "txs": 11631
+      },
+      {
+        "day": "2026-10-18",
+        "txs": 39
       }
     ],
     "protocols": [
@@ -431,7 +431,7 @@
       },
       {
         "name": "PayAI",
-        "share": 26.2,
+        "share": 26.3,
         "color": "#10B981"
       },
       {
@@ -459,12 +459,12 @@
     "chains": [
       {
         "name": "Base",
-        "txs": 85062331,
+        "txs": 85064127,
         "color": "#0052FF"
       },
       {
         "name": "Solana",
-        "txs": 67118940,
+        "txs": 67129298,
         "color": "#9945FF"
       },
       {
@@ -479,7 +479,7 @@
       },
       {
         "name": "Celo",
-        "txs": 828361,
+        "txs": 833404,
         "color": "#14B8A6"
       },
       {
@@ -494,12 +494,12 @@
       },
       {
         "name": "Avalanche",
-        "txs": 6242,
+        "txs": 6246,
         "color": "#E84142"
       },
       {
         "name": "Arbitrum",
-        "txs": 3186,
+        "txs": 3191,
         "color": "#12AAFF"
       },
       {
@@ -509,7 +509,7 @@
       },
       {
         "name": "Sei",
-        "txs": 317,
+        "txs": 323,
         "color": "#9D4EDD"
       },
       {
@@ -518,19 +518,19 @@
         "color": "#F59E0B"
       }
     ],
-    "chainsAsOf": "2026-10-16T23:59:59.999Z",
+    "chainsAsOf": "2026-10-17T23:59:59.999Z",
     "chainsSource": "dune:agenteconomy (owned SQL; legacy address-activity scope)",
     "tokenSplit": {
-      "asOf": "2026-10-17T02:04:04.793482Z",
+      "asOf": "2026-10-18T02:08:12.853143Z",
       "windowDays": 30,
-      "usdcSharePct": 89.04,
-      "totalPayments": 50080,
+      "usdcSharePct": 88.63,
+      "totalPayments": 48310,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
   "baseAgentic": {
-    "asOf": "2026-10-17T02:04:59.524407Z",
-    "totalTxs": 2872775,
+    "asOf": "2026-10-18T02:11:01.741857Z",
+    "totalTxs": 2875691,
     "daily": [
       {
         "day": "2026-01-01",
@@ -2265,18 +2265,19 @@
         "consumer": 1289,
         "infrastructure": 2631,
         "total": 3920
+      },
+      {
+        "day": "2026-10-17",
+        "consumer": 784,
+        "infrastructure": 2132,
+        "total": 2916
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-10-17T02:00:16.912509Z",
-    "totalMemos": 12361682,
+    "asOf": "2026-10-18T01:59:47.543627Z",
+    "totalMemos": 12361834,
     "daily": [
-      {
-        "day": "2026-07-20",
-        "memos": 210,
-        "senders": 8
-      },
       {
         "day": "2026-07-21",
         "memos": 224,
@@ -2719,8 +2720,13 @@
       },
       {
         "day": "2026-10-17",
-        "memos": 11,
+        "memos": 156,
         "senders": 5
+      },
+      {
+        "day": "2026-10-18",
+        "memos": 7,
+        "senders": 3
       }
     ]
   },
