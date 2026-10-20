@@ -1,64 +1,64 @@
 {
-  "updatedAt": "2026-10-19T22:05:59.298Z",
+  "updatedAt": "2026-10-20T03:57:34.709Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-10-19T22:05:59.617Z",
+    "asOf": "2026-10-20T03:57:35.021Z",
     "basket": [
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 438452503,
-        "price": 0.189682,
-        "change24h": 2.50498
+        "mcap": 446269820,
+        "price": 0.193078,
+        "change24h": 2.50066
       },
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 435568306,
-        "price": 0.66157,
-        "change24h": 2.62339
+        "mcap": 439462370,
+        "price": 0.667428,
+        "change24h": 1.04502
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 296251804,
-        "price": 0.123893,
-        "change24h": 9.23394
+        "mcap": 295506242,
+        "price": 0.12358,
+        "change24h": 7.15996
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 16452770,
-        "price": 0.054937,
-        "change24h": 4.15101
+        "mcap": 16573497,
+        "price": 0.055284,
+        "change24h": 3.64758
       }
     ],
-    "basketMcap": 1186725383,
-    "basketVol24h": 128273270,
+    "basketMcap": 1197811929,
+    "basketVol24h": 123811909,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 3559595331,
-        "vol24h": 384881114,
-        "updatedAt": "2026-10-19T22:02:39.000Z"
+        "mcap": 3599777367,
+        "vol24h": 388192811,
+        "updatedAt": "2026-10-20T03:53:13.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1243168219,
-        "vol24h": 154454245,
-        "updatedAt": "2026-10-19T22:02:39.000Z"
+        "mcap": 1255691217,
+        "vol24h": 140721090,
+        "updatedAt": "2026-10-20T03:53:13.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-10-19T22:07:30.105Z",
-    "uniqueProviders": 2546,
-    "totalListings": 26082,
+    "asOf": "2026-10-20T03:59:03.069Z",
+    "uniqueProviders": 2545,
+    "totalListings": 25969,
     "top2ListingSharePct": 9,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-10-19T22:09:19.964Z",
-    "launchedAgents": 59731,
+    "asOf": "2026-10-20T03:57:38.021Z",
+    "launchedAgents": 59735,
     "acpRegisteredAgents": 44063,
     "aggregates": {
       "asOf": "2026-10-19T22:09:19.964Z",
@@ -135,7 +135,7 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-10-19T22:06:04.736Z",
+    "asOf": "2026-10-20T03:57:37.447Z",
     "totalTxs": 39950,
     "lastBlock": 14088685,
     "weekly": [
@@ -1073,10 +1073,10 @@
     "note": "Daily token usage of top-50 public models on OpenRouter + aggregated other row (trailing default window). Provider-specific tokenizers — totals not comparable across models. Demand-side CONTEXT metric, not on-chain data."
   },
   "x402TokenSplit": {
-    "asOf": "2026-10-19T02:18:34.26719Z",
+    "asOf": "2026-10-20T02:32:25.785862Z",
     "windowDays": 30,
-    "usdcSharePct": 88.19,
-    "totalPayments": 46259,
+    "usdcSharePct": 88.24,
+    "totalPayments": 46206,
     "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
   }
 }
