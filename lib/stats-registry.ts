@@ -905,7 +905,8 @@ const usdcShare: StatDoc = {
   // finite USDC-share percent.
   available: ({ data, web }) => Number.isFinite((data?.x402?.tokenSplit ?? web?.x402TokenSplit)?.usdcSharePct),
   sources: [
-    { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
+    { label: "agent economy data.json (current token split)", url: "https://agenteconomy.to/data.json" },
+    { label: "agent economy web-sources.json (legacy fallback)", url: "https://agenteconomy.to/web-sources.json" },
     {
       label: "CoinDesk — Keyrock: crypto rails becoming default AI-agent payment layer (May 2026)",
       url: "https://www.coindesk.com/business/2026/05/21/crypto-rails-are-becoming-the-default-payment-layer-for-ai-agents-report-says",
@@ -933,10 +934,10 @@ const usdcShare: StatDoc = {
     const stamp = asOfLabel(x.asOf ?? web?.updatedAt) ?? "the latest crawl";
 
     const rows: { label: string; value: string; note?: string }[] = [
-      { label: "USDC share of agent payments", value: `${pct}%`, note: "measured on-chain" },
+      { label: "USDC share of tracked settlement volume", value: `${pct}%`, note: "volume-weighted · Base" },
     ];
     if (num(x.totalPayments)) {
-      rows.push({ label: "Payments measured", value: fmt(x.totalPayments), note: x.windowDays ? `${fmt(x.windowDays)}-day window` : undefined });
+      rows.push({ label: "Transactions measured", value: fmt(x.totalPayments), note: x.windowDays ? `${fmt(x.windowDays)}-day window · Base` : "Base" });
     }
     rows.push({
       label: "Keyrock benchmark (May 2026)",
@@ -946,7 +947,7 @@ const usdcShare: StatDoc = {
 
     const chart: ChartSpec = {
       kind: "bars",
-      title: "USDC share of agent payments — measured vs Keyrock benchmark",
+      title: "USDC share — tracked volume vs external benchmark",
       unit: "% share",
       points: [
         { label: "Measured (on-chain)", value: pct },
@@ -955,7 +956,7 @@ const usdcShare: StatDoc = {
     };
 
     return {
-      answer: `As of ${stamp}, ${pct}% of the on-chain agent payments agent economy measures are settled in USDC, computed directly from x402 settlement data. For comparison, Keyrock's May 2026 report — co-published with Coinbase, Tempo and Virtuals, and therefore not an independent source — put USDC at ${KEYROCK_BENCHMARK_2026_05.sharePct}% of ${KEYROCK_BENCHMARK_2026_05.payments} payments.`,
+      answer: `As of ${stamp}, USDC accounts for ${pct}% of tracked x402 settlement volume on Base${x.windowDays ? ` over the trailing ${fmt(x.windowDays)} days` : ""}. This is a volume-weighted share within the tracked facilitator addresses, not a share of all agent-payment transactions. Keyrock's May 2026 report — co-published with Coinbase, Tempo and Virtuals — reported ${KEYROCK_BENCHMARK_2026_05.sharePct}% across ${KEYROCK_BENCHMARK_2026_05.payments} payments; its scope and weighting differ, so it is context rather than a like-for-like validation.`,
       asOf: x.asOf ?? web?.updatedAt ?? null,
       rows,
       chart,
