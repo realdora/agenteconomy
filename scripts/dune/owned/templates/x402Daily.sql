@@ -28,6 +28,7 @@ raw_stats AS (
    AND xf.blockchain = et.blockchain
   WHERE et.success
     AND et.block_time >= CAST('{{window_start}}' AS TIMESTAMP)
+    AND et.block_time < CAST(current_date AS TIMESTAMP)
   GROUP BY 1, 2
 
   UNION ALL
@@ -40,6 +41,7 @@ raw_stats AS (
   INNER JOIN x402f_solana xf
     ON st.tx_signer = CAST(xf.address AS varchar)
   WHERE st.block_time >= CAST('{{window_start}}' AS TIMESTAMP)
+    AND st.block_time < CAST(current_date AS TIMESTAMP)
   GROUP BY 1, 2
 )
 
@@ -50,4 +52,3 @@ SELECT
 FROM raw_stats
 GROUP BY 1, 2
 ORDER BY 1 DESC, 3 DESC
-

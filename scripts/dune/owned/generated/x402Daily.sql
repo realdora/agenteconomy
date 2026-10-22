@@ -1,7 +1,7 @@
--- Agent Economy owned production SQL; registry version 2026-09-16-legacy-scope-v1.
--- Preserves source 7881006 v2 by realdoraa.
+-- Agent Economy owned production SQL; registry version 2026-10-22-coinbase-base-v2.
+-- Based on source 7881006 v2 by realdoraa; reviewed additions in manifest.
 WITH x402f_evm AS (
-  SELECT address, project, blockchain FROM (SELECT 
+  SELECT address, project, blockchain FROM (SELECT address, project, blockchain FROM (SELECT 
     address, 
     project,
     blockchain
@@ -123,7 +123,30 @@ VALUES
     (0x48ab4b0af4ddc2f666a3fcc43666c793889787a3, 'Heurist', 'base'),
     (0xd97c12726dcf994797c981d31cfb243d231189fb, 'Heurist', 'base'),
     (0x90d5e567017f6c696f1916f4365dd79985fce50f, 'Heurist', 'base')
-) AS t(address, project, blockchain))
+) AS t(address, project, blockchain)) legacy
+UNION ALL
+SELECT address, project, blockchain FROM (VALUES
+(0x8f5cb67b49555e614892b7233cfddebfb746e531, 'Coinbase', 'base'),
+(0x67b9ce703d9ce658d7c4ac3c289cea112fe662af, 'Coinbase', 'base'),
+(0x68a96f41ff1e9f2e7b591a931a4ad224e7c07863, 'Coinbase', 'base'),
+(0x97acce27d5069544480bde0f04d9f47d7422a016, 'Coinbase', 'base'),
+(0xa32ccda98ba7529705a059bd2d213da8de10d101, 'Coinbase', 'base'),
+(0x2a89407a98a0732b7fd578c4e156b7166540eb5a, 'Coinbase', 'base'),
+(0xe72f0af4cf41356d433723547f1412ca27fbb1b8, 'Coinbase', 'base'),
+(0xca5e87f82b3fa093800e6ad67d621a427d79c70d, 'Coinbase', 'base'),
+(0x4c934c63c786157fefd990945b25ea60a0fb0205, 'Coinbase', 'base'),
+(0x64cc42b1ce598e3abcfbb64df4688521ddbf1f0a, 'Coinbase', 'base'),
+(0xe74817f4cdc15844314812b2271276e64e890fae, 'Coinbase', 'base'),
+(0x625d8a65134079f8faaac39a7947c73d93c6ac39, 'Coinbase', 'base'),
+(0x14fda13953fc30428938e6bf950d036e77214e52, 'Coinbase', 'base'),
+(0x68efafe862d89ce66dd3d7b07d5a3747a0871164, 'Coinbase', 'base'),
+(0x59b7ebc67a3d627fabaf06768c818638452ae704, 'Coinbase', 'base'),
+(0x42dd53906b49c202e8e934b059dc019e04634b00, 'Coinbase', 'base'),
+(0xb87e1a2cc2b4643f2892768e80e41167f17c5860, 'Coinbase', 'base'),
+(0x8cda367232d78c067116e3260da881d2da8ffa39, 'Coinbase', 'base'),
+(0x93f6601151ccb08f333ab4b1cccfb1e188c0be44, 'Coinbase', 'base'),
+(0x772003a2e9c2ccc8af956870a37a66f64f8cec38, 'Coinbase', 'base')
+) added(address, project, blockchain))
 ),
 x402f_solana AS (
   SELECT address, project, blockchain FROM (SELECT 
@@ -168,6 +191,7 @@ raw_stats AS (
    AND xf.blockchain = et.blockchain
   WHERE et.success
     AND et.block_time >= CAST('{{window_start}}' AS TIMESTAMP)
+    AND et.block_time < CAST(current_date AS TIMESTAMP)
   GROUP BY 1, 2
 
   UNION ALL
@@ -180,6 +204,7 @@ raw_stats AS (
   INNER JOIN x402f_solana xf
     ON st.tx_signer = CAST(xf.address AS varchar)
   WHERE st.block_time >= CAST('{{window_start}}' AS TIMESTAMP)
+    AND st.block_time < CAST(current_date AS TIMESTAMP)
   GROUP BY 1, 2
 )
 

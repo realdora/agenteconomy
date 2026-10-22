@@ -19,13 +19,7 @@ WITH evm_transfers AS (
   SELECT
       block_time, tx_hash, amount_usd,
       CASE
-        WHEN tx_from IN (
-          0xdbdf3d8ed80f84c35d01c6c9f9271761bad90ba6, 0x9aae2b0d1b9dc55ac9bab9556f9a26cb64995fb9,
-          0x3a70788150c7645a21b95b7062ab1784d3cc2104, 0x708e57b6650a9a741ab39cae1969ea1d2d10eca1,
-          0xce82eeec8e98e443ec34fda3c3e999cbe4cb6ac2, 0x7f6d822467df2a85f792d4508c5722ade96be056,
-          0x001ddabba5782ee48842318bd9ff4008647c8d9c, 0x9c09faa49c4235a09677159ff14f17498ac48738,
-          0xcbb10c30a9a72fae9232f41cbbd566a097b4e03a, 0x9fb2714af0a84816f5c6322884f2907e33946b88
-        ) THEN 'Coinbase'
+        WHEN tx_from IN (SELECT address FROM query_6057445 WHERE lower(facilitator) = 'coinbase' AND chain = 'base') THEN 'Coinbase'
         WHEN tx_from IN (
           0xd8dfc729cbd05381647eb5540d756f4f8ad63eec, 0x76eee8f0acabd6b49f1cc4e9656a0c8892f3332e,
           0x97d38aa5de015245dcca76305b53abe6da25f6a5, 0x0168f80e035ea68b191faf9bfc12778c87d92008,
@@ -68,6 +62,7 @@ WITH evm_transfers AS (
       END AS facilitator
   FROM tokens.transfers
   WHERE tx_from IN (SELECT address FROM query_6057445)
+    AND (blockchain = 'base' OR tx_from NOT IN (SELECT address FROM query_6057445 WHERE lower(facilitator) = 'coinbase'))
     AND block_time >= CAST('{{window_start}}' AS TIMESTAMP)
 ),
 
@@ -105,4 +100,3 @@ SELECT
 FROM all_transfers
 GROUP BY 1, 2
 ORDER BY day DESC, total_txn DESC
-

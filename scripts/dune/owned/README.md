@@ -1,5 +1,15 @@
 # Owned production queries and registries
 
+## October 22 coverage repair
+
+Version `2026-10-22-coinbase-base-v2` adds 20 reviewed Coinbase Base senders through `extensions/coinbase-base-20261022.json`. Frozen upstream registry files and their original hashes remain unchanged. Daily, cumulative, token split and chain SQL all consume the extension; Coinbase EVM additions are scoped to Base. The daily query now excludes the incomplete UTC collection day.
+
+Independent repair execution `01M5H6NT4PQH9ADY2PFF9AJ6V2` measured all 20 senders in successful Base transactions and token transfers from September 16 through October 21. Its 720 per-day/address rows distinguish successful transactions, distinct transfer transactions, USDC transfers and USD volume. Only the disjoint delta before each baseline cutoff is added by `coverage-backfill.mjs`; new window queries account for rows at/after that cutoff. The version guard refuses duplicate application.
+
+Earlier frozen aggregates retain their original scope: their original transaction membership cannot be proven from aggregate snapshots, so adding the entire new-address history could double count. Public `x402.coverage` states the September 16 backfill boundary and does not claim exhaustive market coverage. This repair does not reverse the independently verified collapse of the existing Polygon address cohort.
+
+The daily monitor compares the current public Coinbase Base reference registry with the published reviewed membership. Changes require review, never automatic inclusion. It also checks two-day severe activity drops and disappearance of a major facilitator. Reference failure is visible; it does not stop collection or spend Dune credits. The existing daily cadence and email policy remain unchanged.
+
 The September 16 takeover removes live third-party `query_ID` dependencies from x402 cumulative, daily and token split, and replaces AX1's Base query with our own copy. Dune continues to supply indexed tables and SQL execution. Existing authors remain attributed; Agent Economy maintains these query definitions and frozen registries.
 
 | Metric | Production query | Previous query | Runtime window |

@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-22",
+  "registryVersion": "2026-10-22-coinbase-base-v2",
+  "backfillFrom": "2026-09-16",
+  "deltaExecution": {
+    "intent": true,
+    "startedAt": "2026-10-22T07:02:15.718Z",
+    "usageBefore": 457.917,
+    "creditCancelThreshold": 10,
+    "executionId": "01M5H6NT4PQH9ADY2PFF9AJ6V2",
+    "cost": 1.78132353,
+    "complete": true
+  },
+  "productionExecutions": {
+    "x402Daily": {
+      "intent": true,
+      "startedAt": "2026-10-22T07:11:03.783Z",
+      "parameters": {
+        "window_start": "2026-10-18"
+      },
+      "creditCancelThreshold": 15,
+      "executionId": "01M5H75XTN94PPAWD9M16H2NXB",
+      "cost": 2.282500001,
+      "complete": true
+    },
+    "x402Cumulative": {
+      "intent": true,
+      "startedAt": "2026-10-22T07:12:18.822Z",
+      "parameters": {
+        "window_start": "2026-10-18"
+      },
+      "creditCancelThreshold": 15,
+      "executionId": "01M5H7873H2M29G5XK31TNKC5M",
+      "cost": 3.651911765,
+      "complete": true
+    },
+    "x402TokenSplit": {
+      "intent": true,
+      "startedAt": "2026-10-22T08:38:41.149Z",
+      "parameters": {},
+      "creditCancelThreshold": 15,
+      "executionId": "01M5HC6BZ7GDPX1HS3S8TJVPQ9",
+      "cost": 1.371911765,
+      "complete": true
+    },
+    "x402Chains": {
+      "intent": true,
+      "startedAt": "2026-10-22T07:13:58.505Z",
+      "parameters": {
+        "window_start": "2026-10-18"
+      },
+      "creditCancelThreshold": 15,
+      "executionId": "01M5H7B8EYBXQX1KYMM8A5JMD6",
+      "cost": 3.009558824,
+      "complete": true
+    }
+  },
+  "baselineCorrection": {
+    "cumulativeTxs": 2211753,
+    "cumulativeVolume": 240487.09828124824,
+    "dailyTxs": 2212911,
+    "chainTxs": 2211753
+  },
+  "totalRepairCredits": 12.097205885,
+  "validation": {
+    "dailyEqualsOldPlusDelta": true,
+    "otherChainCountsUnchanged": true,
+    "unrelatedProtocolsUnchanged": true,
+    "partialDayExcluded": true
+  },
+  "historicalLimit": "Pre-2026-09-16 frozen aggregates retain legacy scope; their full transaction membership is not recoverable from aggregate snapshots."
+}

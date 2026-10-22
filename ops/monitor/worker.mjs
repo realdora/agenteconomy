@@ -9,13 +9,14 @@ const urls = {
   dashboard: 'https://dashboard.agenteconomy.to/data.json',
   tempo: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/tempo-data.json',
   web: 'https://agenteconomy.to/web-sources.json',
+  coinbaseRegistry: 'https://raw.githubusercontent.com/Merit-Systems/x402scan/main/packages/external/facilitators/src/facilitators/coinbase.ts',
 }
 async function collect(fetcher = fetch) {
   return Object.fromEntries(await Promise.all(Object.entries(urls).map(async ([name, url]) => {
     try {
       const response = await fetcher(url, { headers: { 'User-Agent': 'AgentEconomyDataMonitor/1.0', 'Cache-Control': 'no-cache' }, signal: AbortSignal.timeout(12000) })
       if (!response.ok) throw Error(`HTTP ${response.status}`)
-      return [name, await response.json()]
+      return [name, name === 'coinbaseRegistry' ? { source: await response.text() } : await response.json()]
     } catch (error) { return [name, { error: error.name === 'TimeoutError' ? '请求超时' : error.message }] }
   })))
 }

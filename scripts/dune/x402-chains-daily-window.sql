@@ -1,11 +1,9 @@
--- AE owned chain activity, registry snapshot 2026-09-15 (Chris EVM v34 / Solana v9).
--- Preserves legacy tx-sender membership across chains. This is observed
--- facilitator-address activity, not proof every transfer is an x402 payment.
--- One transaction hash per chain/day. Complete UTC days only.
-WITH evm_registry AS (WITH evm AS (
+-- Agent Economy owned production SQL; registry version 2026-10-22-coinbase-base-v2.
+-- Based on source 8734676 v1 by realdoraa; reviewed additions in manifest.
+WITH evm_registry AS (SELECT * FROM (SELECT address, facilitator, chain FROM (WITH evm AS (
   SELECT facilitator, address, chain
   FROM (VALUES
-
+    
     ('coinbase', 0xdbdf3d8ed80f84c35d01c6c9f9271761bad90ba6, 'base'),
     ('coinbase', 0x9aae2b0d1b9dc55ac9bab9556f9a26cb64995fb9, 'base'),
     ('coinbase', 0x3a70788150c7645a21b95b7062ab1784d3cc2104, 'base'),
@@ -17,7 +15,7 @@ WITH evm_registry AS (WITH evm AS (
     ('coinbase', 0xcbb10c30a9a72fae9232f41cbbd566a097b4e03a, 'base'),
     ('coinbase', 0x9fb2714af0a84816f5c6322884f2907e33946b88, 'base'),
 
-
+    
     ('x402rs', 0xd8dfc729cbd05381647eb5540d756f4f8ad63eec, 'base'),
     ('x402rs', 0x76eee8f0acabd6b49f1cc4e9656a0c8892f3332e, 'base'),
     ('x402rs', 0x97d38aa5de015245dcca76305b53abe6da25f6a5, 'base'),
@@ -28,14 +26,14 @@ WITH evm_registry AS (WITH evm AS (
     ('x402rs', 0xd8dfc729cbd05381647eb5540d756f4f8ad63eec, 'avalanche_c'),
     ('x402rs', 0xd8dfc729cbd05381647eb5540d756f4f8ad63eec, 'sei'),
 
-
+    
     ('codenut', 0x8d8fa42584a727488eeb0e29405ad794a105bb9b, 'base'),
     ('codenut', 0x87af99356d774312b73018b3b6562e1ae0e018c9, 'base'),
     ('codenut', 0x65058cf664d0d07f68b663b0d4b4f12a5e331a38, 'base'),
     ('codenut', 0x88e13d4c764a6c840ce722a0a3765f55a85b327e, 'base'),
     ('codenut', 0x8d8fa42584a727488eeb0e29405ad794a105bb9b, 'bnb'),
 
-
+    
     ('payai', 0xc6699d2aada6c36dfea5c248dd70f9cb0235cb63, 'base'),
     ('payai', 0xb2bd29925cbbcea7628279c91945ca5b98bf371b, 'base'),
     ('payai', 0x25659315106580ce2a787ceec5efb2d347b539c9, 'base'),
@@ -46,7 +44,7 @@ WITH evm_registry AS (WITH evm AS (
     ('payai', 0xc6699d2aada6c36dfea5c248dd70f9cb0235cb63, 'avalanche_c'),
     ('payai', 0xc6699d2aada6c36dfea5c248dd70f9cb0235cb63, 'peaq'),
 
-
+    
     ('questflow', 0x724efafb051f17ae824afcdf3c0368ae312da264, 'base'),
     ('questflow', 0xa9a54ef09fc8b86bc747cec6ef8d6e81c38c6180, 'base'),
     ('questflow', 0x4638bc811c93bf5e60deed32325e93505f681576, 'base'),
@@ -59,7 +57,7 @@ WITH evm_registry AS (WITH evm AS (
     ('questflow', 0xce7819f0b0b871733c933d1f486533bab95ec47b, 'base'),
     ('questflow', 0x4a288fa07fc40f701e4fd2620f0a14338e12a4d7, 'polygon'),
 
-
+    
     ('ultravioleta', 0x103040545ac5031a11e8c03dd11324c7333a13c7, 'base'),
     ('ultravioleta', 0x103040545ac5031a11e8c03dd11324c7333a13c7, 'avalanche_c'),
     ('ultravioleta', 0x103040545ac5031a11e8c03dd11324c7333a13c7, 'celo'),
@@ -67,43 +65,43 @@ WITH evm_registry AS (WITH evm AS (
     ('ultravioleta', 0x103040545ac5031a11e8c03dd11324c7333a13c7, 'polygon'),
     ('ultravioleta', 0x103040545ac5031a11e8c03dd11324c7333a13c7, 'optimism'),
 
-
+    
     ('thirdweb', 0x80c08de1a05df2bd633cf520754e40fde3c794d3, 'base'),
     ('thirdweb', 0x80c08de1a05df2bd633cf520754e40fde3c794d3, 'polygon'),
     ('thirdweb', 0x80c08de1a05df2bd633cf520754e40fde3c794d3, 'arbitrum'),
     ('thirdweb', 0x315f6446ae22ebcf795d0f5a1b71f3d378dff1a8, 'abstract'),
 
-
+    
     ('aurracloud', 0x222c4367a2950f3b53af260e111fc3060b0983ff, 'base'),
     ('aurracloud', 0xb70c4fe126de09bd292fe3d1e40c6d264ca6a52a, 'base'),
     ('aurracloud', 0xd348e724e0ef36291a28dfeccf692399b0e179f8, 'base'),
 
-
+    
     ('openx402', 0x97316fa4730bc7d3b295234f8e4d04a0a4c093e8, 'base'),
     ('openx402', 0x97db9b5291a218fc77198c285cefdc943ef74917, 'base'),
 
-
+    
     ('daydreams', 0x279e08f711182c79ba6d09669127a426228a4653, 'base'),
 
-
+    
     ('mogami', 0xfe0920a0a7f0f8a1ec689146c30c3bbef439bf8a, 'base'),
 
-
+    
     ('402104', 0x73b2b8df52fbe7c40fe78db52e3dffdd5db5ad07, 'base'),
 
-
+    
     ('xecho', 0x3be45f576696a2fd5a93c1330cd19f1607ab311d, 'base'),
 
-
+    
     ('b402', 0x26e824c08a4547ab90fbd761fb80065f7e68768e, 'bnb'),
 
-
+    
     ('pieverse', 0x12343e649e6b2b2b77649dfab88f103c02f3c78b, 'bnb'),
 
     ('402104', 0x73b2b8df52fbe7c40fe78db52e3dffdd5db5ad07, 'base'),
     ('Corbits', 0x06F0BfD2C8f36674DF5cdE852c1eeD8025C268C9, 'polygon'),
 
-
+    
     ('Polygon', 0x29df60c005506AA325d7179F6e09eB4b4875dAde, 'polygon'),
     ('Polygon', 0xF09A94831C18566781f70937f0996B96EfE691C8, 'polygon'),
     ('Polygon', 0x42618f623Ec19beFf78dE9DbBFB653BfEaC05D09, 'polygon'),
@@ -129,13 +127,13 @@ WITH evm_registry AS (WITH evm AS (
     ('Polygon', 0x0a8B10FE8Bd3072351600Adef4796F3F7aF72Ab0, 'polygon'),
     ('Polygon', 0x971b4079A618F72Fa0F1792b07ed5923dfBF3500, 'polygon'),
 
-
+    
     ('Virtuals Protocol', 0x80735b3f7808e2e229ace880dbe85e80115631ca, 'base'),
 
-
+    
     ('Treasure', 0xe07e9cbf9a55d02e3ac356ed4706353d98c5a618, 'base'),
 
-
+    
     ('Heurist', 0xb578b7db22581507d62bdbeb85e06acd1be09e11, 'base'),
     ('Heurist', 0x021cc47adeca6673def958e324ca38023b80a5be, 'base'),
     ('Heurist', 0x3f61093f61817b29d9556d3b092e67746af8cdfd, 'base'),
@@ -146,13 +144,36 @@ WITH evm_registry AS (WITH evm AS (
     ('Heurist', 0xd97c12726dcf994797c981d31cfb243d231189fb, 'base'),
     ('Heurist', 0x90d5e567017f6c696f1916f4365dd79985fce50f, 'base'),
 
-
+    
     ('Celo', 0x0d74D5Cefd2e7F24E623330ebE3d8D4cB45fFB48 , 'celo')
-
+    
   ) AS t(facilitator, address, chain)
 )
 SELECT *
-FROM evm),
+FROM evm) legacy
+UNION ALL
+SELECT address, facilitator, chain FROM (VALUES
+(0x8f5cb67b49555e614892b7233cfddebfb746e531, 'Coinbase', 'base'),
+(0x67b9ce703d9ce658d7c4ac3c289cea112fe662af, 'Coinbase', 'base'),
+(0x68a96f41ff1e9f2e7b591a931a4ad224e7c07863, 'Coinbase', 'base'),
+(0x97acce27d5069544480bde0f04d9f47d7422a016, 'Coinbase', 'base'),
+(0xa32ccda98ba7529705a059bd2d213da8de10d101, 'Coinbase', 'base'),
+(0x2a89407a98a0732b7fd578c4e156b7166540eb5a, 'Coinbase', 'base'),
+(0xe72f0af4cf41356d433723547f1412ca27fbb1b8, 'Coinbase', 'base'),
+(0xca5e87f82b3fa093800e6ad67d621a427d79c70d, 'Coinbase', 'base'),
+(0x4c934c63c786157fefd990945b25ea60a0fb0205, 'Coinbase', 'base'),
+(0x64cc42b1ce598e3abcfbb64df4688521ddbf1f0a, 'Coinbase', 'base'),
+(0xe74817f4cdc15844314812b2271276e64e890fae, 'Coinbase', 'base'),
+(0x625d8a65134079f8faaac39a7947c73d93c6ac39, 'Coinbase', 'base'),
+(0x14fda13953fc30428938e6bf950d036e77214e52, 'Coinbase', 'base'),
+(0x68efafe862d89ce66dd3d7b07d5a3747a0871164, 'Coinbase', 'base'),
+(0x59b7ebc67a3d627fabaf06768c818638452ae704, 'Coinbase', 'base'),
+(0x42dd53906b49c202e8e934b059dc019e04634b00, 'Coinbase', 'base'),
+(0xb87e1a2cc2b4643f2892768e80e41167f17c5860, 'Coinbase', 'base'),
+(0x8cda367232d78c067116e3260da881d2da8ffa39, 'Coinbase', 'base'),
+(0x93f6601151ccb08f333ab4b1cccfb1e188c0be44, 'Coinbase', 'base'),
+(0x772003a2e9c2ccc8af956870a37a66f64f8cec38, 'Coinbase', 'base')
+) added(address, facilitator, chain))),
 sol_registry AS (WITH sol AS (
   SELECT facilitator, address, chain
   FROM (VALUES
@@ -176,6 +197,7 @@ counts AS (
  WHERE block_time >= CAST('{{window_start}}' AS TIMESTAMP)
    AND block_time < CAST(current_date AS TIMESTAMP)
    AND tx_from IN (SELECT address FROM evm_registry)
+   AND (blockchain = 'base' OR tx_from NOT IN (SELECT address FROM evm_registry WHERE lower(facilitator) = 'coinbase'))
  GROUP BY 1,2
  UNION ALL
  SELECT CAST(date_trunc('day', block_time) AS DATE) AS day,

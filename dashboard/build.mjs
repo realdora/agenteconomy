@@ -265,7 +265,9 @@ const prevNext = slug => { const i = PROTO_ORDER.indexOf(slug); const L = PROTO_
 
 // ── overview ─────────────────────────────────────────────────────────────────
 const totalEvents = d.x402.totalTxs + d.olas.totalTxs + d.virtualsAcp.totalMemos + d.erc8004Registry.totalAgents + d.baseAgentic.totalTxs + d.tempoMpp.totalEvents + w.masumi.totalTxs
-const xDaily = closed(d.x402.daily)
+const xDay = String(d.meta?.queries?.x402Daily?.executedAt || d.x402.asOf || '').slice(0,10)
+const xDaily = d.x402.daily.filter(r => xDay && r.day < xDay && r.day < todayUTC)
+const xTokenSplit = d.x402.tokenSplit || w.x402TokenSplit
 const lastDay = xDaily.at(-1)
 const perSec = lastDay.txs / 86400
 const regC = closed(d.erc8004Registry.daily); const acpC = closed(d.virtualsAcp.daily)
@@ -329,7 +331,7 @@ protoPage('x402', {
   kpiItems: [
     { l: 'Cumulative transactions', v: `<span class="cnt" data-v="${(d.x402.totalTxs / 1e6).toFixed(1)}" data-dec="1">0</span>M`, f: fmt(d.x402.totalTxs) },
     { l: 'USD settled', v: '$' + compact(d.x402.totalVolume), f: '$' + fmt(d.x402.totalVolume) },
-    { l: 'USDC share · 30d Base', v: esc(w.x402TokenSplit?.usdcSharePct ?? '—') + '%', f: 'volume-weighted' },
+    { l: 'USDC share · 30d Base', v: esc(xTokenSplit?.usdcSharePct ?? '—') + '%', f: 'volume-weighted' },
     { l: 'Facilitators', v: esc(d.x402.facilitatorsTracked), f: 'community registry' },
     { l: 'Chains', v: esc(d.x402.chainsTracked), f: 'EVM + Solana' },
   ],
@@ -340,8 +342,9 @@ protoPage('x402', {
   split: { kick: 'Distribution', h2: 'Where it settles, who settles it.', html: `<div class="chart-sub" style="margin-bottom:6px">Facilitator share of settlements</div>${hbars(d.x402.protocols.map(p => ({ label: p.name, value: p.share })), v => v + '%')}<div class="chart-sub" style="margin:18px 0 6px">${d.x402.chainsAsOf && !String(d.x402.chainsSource || '').includes('snapshot') ? `Chain split · ${String(d.x402.chainsSource || '').includes('agenteconomy') ? 'Agent Economy / Dune' : 'public Dune query (@thechriscen)'} · as of ${new Date(d.x402.chainsAsOf).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}` : 'Chain split — snapshot · June 2026 · not yet live'}</div>${hbars(d.x402.chains.map(c => ({ label: c.name, value: c.txs })), compact)}<p class="chart-sub">Top 12 chains by observed activity of tracked facilitator addresses. Chain membership alone does not verify an x402 payment; this split has a different counting scope from the headline total.</p>` },
   noteList: [
     'Settlement counts include tests, infrastructure traffic and repeated service calls — real protocol activity, not verified end-user commerce.',
-    `USDC share is a trailing-30-day, Base-only, volume-weighted figure (${fmt(w.x402TokenSplit?.totalPayments ?? 0)} payments in window).`,
-    'Source: public Dune queries over facilitator-initiated transfers (EVM + Solana), refreshed daily.',
+    `USDC share is a trailing-30-day, Base-only, volume-weighted figure (${fmt(xTokenSplit?.totalPayments ?? 0)} transfer transactions in window).`,
+    'Source: Agent Economy-maintained Dune queries over tracked facilitator addresses (EVM + Solana), refreshed daily. Daily charts show complete UTC days.',
+    ...(d.x402.coverage?.note ? [d.x402.coverage.note] : []),
   ],
 })
 const olasW = d.olas.weekly

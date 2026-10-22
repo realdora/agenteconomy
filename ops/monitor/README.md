@@ -1,5 +1,7 @@
 # Daily data monitor (pilot)
 
+October 22 update: daily inspection additionally reads the public x402scan Coinbase Base registry and reports active addresses absent from our reviewed membership. This is a reference comparison, not an exhaustive on-chain discovery service. It never auto-adds addresses or runs SQL. Complete UTC-day counts below 20% of the preceding seven-day mean for two consecutive days, and a previously large facilitator falling below 10% of its prior observed count, trigger investigation notices. Notices distinguish possible real activity changes from coverage failures. Partial collection days are excluded using the metric's execution timestamp. Same-day callback retries retain the same facilitator comparison rather than producing a false recovery.
+
 Status on 2026-09-15: **daily checks and Resend email are enabled**. One labelled test email was accepted at 21:42 UTC and Resend reported Delivered (recipient mail server accepted it; inbox placement is not independently confirmed). GitHub relay activation is tracked below. No paid plan or DNS migration was used.
 
 ## User decision

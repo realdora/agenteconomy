@@ -1,3 +1,4 @@
+import { inspectX402Coverage } from './coverage.mjs'
 export const WORKFLOWS = ['Update Dune Data', 'Update Tempo Data', 'Update Web Sources', 'Update Dashboard']
 const HOUR = 3600000
 const age = (date, now) => (now - Date.parse(date)) / HOUR
@@ -25,6 +26,9 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
   }
   const data = feeds.canonical
   if (data && !data.error) {
+    const coverageCheck = inspectX402Coverage(data, feeds.coinbaseRegistry, previous, now)
+    issues.push(...coverageCheck.issues)
+    Object.assign(observations, coverageCheck.observations)
     for (const [key, hours] of Object.entries(queryHours)) {
       freshness(`source.${key}`, data.meta?.queries?.[key]?.executedAt, hours)
       const hold=data.meta?.queries?.[key]?.refreshHold

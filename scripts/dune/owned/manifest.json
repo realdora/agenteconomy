@@ -1,5 +1,5 @@
 {
-  "version": "2026-09-16-legacy-scope-v1",
+  "version": "2026-10-22-coinbase-base-v2",
   "owner": "realdoraa",
   "policy": "Preserve validated legacy scope; candidate addresses need separate review before inclusion.",
   "registries": {
@@ -55,7 +55,7 @@
         }
       ],
       "queryId": 8748138,
-      "sqlSha256": "aca8288dfe1a121f88bf1d9b55b2592410a55d04130ed6c2be6b6c69b79b1603"
+      "sqlSha256": "f273d31098beb08230592d599c00d57cd86a33928cbfe895df3ddb9eb6a359ec"
     },
     "x402Daily": {
       "sourceQueryId": 7881006,
@@ -75,7 +75,7 @@
         }
       ],
       "queryId": 8748139,
-      "sqlSha256": "7a241a9ce2e1838e162136aeeb29922fecacf657f5d44a47699b5088ae953d37"
+      "sqlSha256": "e8370c64fa870323bf9467b815f751058a91236a6c92235a9bd3fcac854f0920"
     },
     "x402TokenSplit": {
       "sourceQueryId": 7931767,
@@ -88,7 +88,7 @@
       ],
       "parameters": [],
       "queryId": 8748140,
-      "sqlSha256": "e9ad41dc29407e834605d67e8b31bdb88c6aefb7f0fe46292eb7061685f7502a"
+      "sqlSha256": "6299a249c9c492edb82e1e92715a5b775cdf2c51effffcf3b3b93efede93acef"
     },
     "baseAgentic": {
       "sourceQueryId": 6731879,
@@ -99,7 +99,30 @@
       "registries": [],
       "parameters": [],
       "queryId": 8748141,
-      "sqlSha256": "d18a6c7389b7f0bce3462900249f039feb29a4904fc247b46890549b34b76fc6"
+      "sqlSha256": "d18a6c7389b7f0bce3462900249f039feb29a4904fc247b46890549b34b76fc6",
+      "registryVersion": "2026-09-16-legacy-scope-v1"
+    },
+    "x402Chains": {
+      "sourceQueryId": 8734676,
+      "sourceOwner": "realdoraa",
+      "sourceVersion": 1,
+      "template": "templates/x402Chains.sql",
+      "generated": "../x402-chains-daily-window.sql",
+      "registries": [
+        "6057445"
+      ],
+      "parameters": [
+        {
+          "key": "window_start",
+          "value": "2026-10-18",
+          "type": "text"
+        }
+      ],
+      "queryId": 8734676,
+      "sqlSha256": "d6fe7c20ddf4bdfc425a15eff49e9970ae70359a582d973e536a0ef015863809"
     }
-  }
+  },
+  "extensions": [
+    "extensions/coinbase-base-20261022.json"
+  ]
 }

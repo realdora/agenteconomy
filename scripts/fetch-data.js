@@ -471,7 +471,7 @@ const PARSERS = {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-60)
       .map(([day, v]) => ({ day, txs: Math.round(v.txs) }))
-    return { daily }
+    return { daily, recentFacilitators: rows.filter(r => r.project && (!cutoffDay || String(r.period).slice(0,10) >= cutoffDay)).map(r => ({ day: String(r.period).slice(0,10), project: r.project, txs: safeNum(r.txs) })) }
   },
 
   baseAgentic(rows) {
@@ -708,7 +708,7 @@ const REUSERS = {
     monthly: d.x402.monthly,
     protocols: d.x402.protocols,
   },
-  x402Daily: d => (d?.x402?.daily ? { daily: d.x402.daily } : null),
+  x402Daily: d => (d?.x402?.daily ? { daily: d.x402.daily, recentFacilitators: d.x402.recentFacilitators || [] } : null),
   baseAgentic: d => d?.baseAgentic || null,
   virtualsAcp: d => d?.virtualsAcp || null,
   erc8004Registry: d => d?.erc8004Registry || null,
@@ -1341,6 +1341,8 @@ async function main() {
       facilitatorsTracked: f.x402Cumulative.facilitatorsTracked || 15,
       monthly: f.x402Cumulative.monthly,
       daily: f.x402Daily.daily,
+      recentFacilitators: f.x402Daily.recentFacilitators || [],
+      coverage: baselines?.x402?.coverage || existing?.x402?.coverage || null,
       protocols: f.x402Cumulative.protocols,
       // Own bounded chain query + frozen history; preserve the previous split
       // and its true coverage date if a refresh fails.
