@@ -60,6 +60,7 @@ const nextConfig = {
   // preserved and v4's own DATA_URL fetches keep resolving — no DATA_URL change.
   async rewrites() {
     return [
+      { source: "/monthly-reports.json", destination: "https://dashboard.agenteconomy.to/monthly-reports.json" },
       { source: "/data.json", destination: "https://dashboard.agenteconomy.to/data.json" },
       { source: "/web-sources.json", destination: "https://dashboard.agenteconomy.to/web-sources.json" },
     ];

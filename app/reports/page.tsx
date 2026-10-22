@@ -4,17 +4,18 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
-import { buildMonthlyReport, isClosedMonth, monthName } from "@/lib/report-data";
-import { getStatsContext } from "@/lib/stats-data";
+import { buildMonthlyReport, monthName } from "@/lib/report-data";
+import { getReportCatalog, reportMonths } from "@/lib/report-catalog";
 
 const SITE = "https://agenteconomy.to";
-const FIRST_REPORT_YM = "2026-06";
+
 
 export const metadata: Metadata = {
   title: "State of the Agent Economy — monthly reports | agent economy",
   description:
     "The monthly on-chain report on the agent economy: x402 payments, registrations, and agent-to-agent commerce — free to cite with attribution.",
   alternates: { canonical: `${SITE}/reports` },
+  openGraph: { type: "website", url: `${SITE}/reports`, title: "State of the Agent Economy — monthly reports", description: "Fixed monthly editions with source observations, coverage notes and comparable growth rates." },
   twitter: {
     card: "summary_large_image",
     title: "State of the Agent Economy — monthly reports",
@@ -23,20 +24,9 @@ export const metadata: Metadata = {
   },
 };
 
-function monthsSince(firstYm: string, now: Date): string[] {
-  const out: string[] = [];
-  const [fy, fm] = firstYm.split("-").map(Number);
-  const cursor = new Date(Date.UTC(fy, fm - 1, 1));
-  while (isClosedMonth(`${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth() + 1).padStart(2, "0")}`, now)) {
-    out.push(`${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth() + 1).padStart(2, "0")}`);
-    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
-  }
-  return out.reverse(); // newest first
-}
-
 export default async function ReportsIndex() {
-  const ctx = await getStatsContext();
-  const candidates = monthsSince(FIRST_REPORT_YM, new Date());
+  const ctx = await getReportCatalog();
+  const candidates = reportMonths(ctx);
   const reports = candidates
     .map((ym) => ({ ym, report: buildMonthlyReport(ym, ctx) }))
     .filter((r) => r.report !== null);
@@ -81,10 +71,9 @@ export default async function ReportsIndex() {
 
         <section className="mt-16 pb-4">
           <p className="text-white/45 text-[14px] leading-relaxed max-w-2xl">
-            A new report appears automatically once a month closes and the pipeline has measured it end-to-end. Every figure
-            is computed from the open dataset — recompute anything from{" "}
-            <a href="/data.json" className="underline decoration-white/25 underline-offset-4 hover:text-white transition">
-              data.json
+            A new fixed edition is prepared after the month and its final reporting weeks close. Missing coverage is disclosed; published editions do not shrink with rolling data. Inspect the preserved observations in{" "}
+            <a href="/monthly-reports.json" className="underline decoration-white/25 underline-offset-4 hover:text-white transition">
+              monthly-reports.json
             </a>
             .
           </p>

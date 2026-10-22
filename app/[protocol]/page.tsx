@@ -98,34 +98,14 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
             <h1>{doc.name}</h1>
             <p>{doc.tagline}</p>
           </div>
-          <Link href="/" className="ae-route-home-link">
-            Back to home
+          <Link href={`https://dashboard.agenteconomy.to/${doc.slug}`} className="ae-route-home-link">
+            Open dashboard
             <ArrowRightIcon />
           </Link>
         </section>
 
-        {/* What it is */}
-        <section className="mt-24 border-t border-white/10 pt-12">
-          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-6">What it is</div>
-          <p className="text-white/75 text-[18px] leading-relaxed max-w-3xl">{doc.overview}</p>
-        </section>
-
-        {/* How it works */}
-        <section className="mt-24 border-t border-white/10 pt-12">
-          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-10">How it works</div>
-          <div className="grid gap-x-10 gap-y-12 md:grid-cols-3">
-            {doc.points.map((p, i) => (
-              <div key={p.label}>
-                <div className="font-mono text-[13px] text-[#00FF88] mb-4">{String(i + 1).padStart(2, "0")}</div>
-                <h3 className="text-white font-medium text-[18px] tracking-tight mb-2.5">{p.label}</h3>
-                <p className="text-white/55 text-[15px] leading-relaxed">{p.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Live numbers — server-rendered so the current figures are in the HTML */}
-        <section className="mt-24 border-t border-white/10 pt-12">
+        <section className="mt-12 border-t border-white/10 pt-8">
           <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-3">
             {doc.name} by the numbers
           </div>
@@ -183,6 +163,26 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
             >
               How it&apos;s measured →
             </Link>
+          </div>
+        </section>
+
+        {/* What it is */}
+        <section className="mt-24 border-t border-white/10 pt-12">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-6">What it is</div>
+          <p className="text-white/75 text-[18px] leading-relaxed max-w-3xl">{doc.overview}</p>
+        </section>
+
+        {/* How it works */}
+        <section className="mt-24 border-t border-white/10 pt-12">
+          <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45 mb-10">How it works</div>
+          <div className="grid gap-x-10 gap-y-12 md:grid-cols-3">
+            {doc.points.map((p, i) => (
+              <div key={p.label}>
+                <div className="font-mono text-[13px] text-[#00FF88] mb-4">{String(i + 1).padStart(2, "0")}</div>
+                <h3 className="text-white font-medium text-[18px] tracking-tight mb-2.5">{p.label}</h3>
+                <p className="text-white/55 text-[15px] leading-relaxed">{p.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 

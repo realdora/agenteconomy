@@ -1,4 +1,8 @@
-export function FooterSection() {
+import { getReportCatalog, reportMonths } from '@/lib/report-catalog';
+import { monthName } from '@/lib/report-data';
+
+export async function FooterSection() {
+  const latest = reportMonths(await getReportCatalog())[0];
   return (
     <footer className="border-t border-white/10 py-16 md:py-20 lg:py-24">
       <div className="w-[1240px] max-w-full mx-auto px-5">
@@ -9,6 +13,10 @@ export function FooterSection() {
             <br />
             Indexed from public chain state.
           </p>
+          <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/55">
+            {latest && <a href={`/reports/${latest}`} className="hover:text-white">Latest report · {monthName(latest)} →</a>}
+            <a href="https://thedefiant.io/news/defi/cloudflare-wallets-ai-agents-stablecoin-x402" target="_blank" rel="noopener noreferrer" className="hover:text-white">Coverage in The Defiant ↗</a>
+          </div>
 
           {/* Bottom — links + copyright */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pt-10 border-t border-white/10">

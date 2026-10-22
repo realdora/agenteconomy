@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CitationButton } from "@/components/CitationButton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -251,6 +252,7 @@ export default async function StatPage({ params }: StatPageProps) {
             </a>
             .
           </p>
+        <CitationButton text={`agent economy, “${doc.question}”, https://agenteconomy.to/stats/${doc.slug}${stamp ? `, figures as of ${stamp} (UTC)` : ''}.`} />
         </section>
 
         {/* Sources */}

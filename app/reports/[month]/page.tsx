@@ -7,7 +7,8 @@ import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { asOfLabel, buildMonthlyReport, isClosedMonth, isValidYm, monthName } from "@/lib/report-data";
 import { safeJsonLd } from "@/lib/seo";
-import { getStatsContext } from "@/lib/stats-data";
+import { bundledReports, getReportCatalog, reportMonths } from "@/lib/report-catalog";
+import { CitationButton } from "@/components/CitationButton";
 
 const SITE = "https://agenteconomy.to";
 
@@ -19,7 +20,7 @@ type ReportPageProps = { params: Promise<{ month: string }> };
 export const dynamicParams = true;
 
 export function generateStaticParams() {
-  return [{ month: "2026-06" }];
+  return reportMonths(bundledReports).map(month => ({ month }));
 }
 
 export async function generateMetadata({ params }: ReportPageProps): Promise<Metadata> {
@@ -49,10 +50,13 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
   const { month } = await params;
   if (!isValidYm(month) || !isClosedMonth(month, new Date())) notFound();
 
-  const ctx = await getStatsContext();
+  const ctx = await getReportCatalog();
   const report = buildMonthlyReport(month, ctx);
   if (!report) notFound();
 
+  const months = reportMonths(ctx);
+  const index = months.indexOf(month);
+  const newer = months[index - 1], older = months[index + 1];
   const stamp = asOfLabel(report.asOf);
   const canonical = `${SITE}/reports/${report.ym}`;
 
@@ -64,16 +68,13 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
         "@id": `${canonical}#report`,
         headline: `State of the Agent Economy — ${report.monthName}`,
         url: canonical,
-        // Both dates are the month-close instant, not the render time. A closed
-        // month's figures are month-bounded and do not move, so claiming a fresh
-        // modification on every ISR pass would be the same lie the old
-        // render-timestamped datePublished told.
+        // This date identifies the fixed edition, not the live feed refresh.
         datePublished: report.publishedAt,
         dateModified: report.publishedAt,
         author: { "@type": "Person", name: "realdora", url: "https://x.com/realdora_eth" },
         publisher: { "@id": `${SITE}/#organization` },
         about: "on-chain AI agent economy activity",
-        isBasedOn: `${SITE}/data.json`,
+        isBasedOn: `${SITE}/monthly-reports.json`,
         inLanguage: "en",
       },
       {
@@ -126,9 +127,9 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
           </ul>
           {stamp ? (
             <p className="mt-8 font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
-              Data as of <time dateTime={report.asOf ?? undefined}>{stamp}</time> (UTC) · source:{" "}
-              <a href="/data.json" className="underline decoration-white/30 underline-offset-4 hover:text-white transition">
-                agenteconomy.to/data.json
+              Edition frozen on <time dateTime={report.asOf ?? undefined}>{stamp}</time> (UTC) · source:{" "}
+              <a href="/monthly-reports.json" className="underline decoration-white/30 underline-offset-4 hover:text-white transition">
+                agenteconomy.to/monthly-reports.json
               </a>
             </p>
           ) : null}
@@ -179,17 +180,15 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
             </h2>
             <div className="space-y-5">
               <p className="text-white/70 text-[16.5px] leading-relaxed">
-                Every figure is computed from agent economy&apos;s open dataset at render time — nothing is hand-entered,
-                estimated, or sourced from press releases. Monthly totals are sums of the measured daily (or weekly) series
-                for each protocol family; month-over-month changes compare against the same measurement of the prior month.
+                Every figure comes from a preserved, versioned snapshot of dated observations. Daily totals require coverage of every day in the month; weekly totals require complete weeks. Month-over-month changes use a fixed prior edition and are shown only when the measurement scopes are comparable.
                 Units are deliberately not blended: a payment settlement, a registry registration, a commerce memo, and a
                 channel event are different acts, reported side by side.
               </p>
               <p className="text-white/70 text-[16.5px] leading-relaxed">
                 Anything the pipeline could not fully measure for the month is omitted and flagged rather than estimated. The
-                raw feed behind every number is public, free, and CORS-open — recompute anything on this page from{" "}
-                <a href="/data.json" className="underline decoration-white/25 underline-offset-4 hover:text-white transition">
-                  data.json
+                preserved observations behind every included number are public and free — recompute this edition from{" "}
+                <a href="/monthly-reports.json" className="underline decoration-white/25 underline-offset-4 hover:text-white transition">
+                  monthly-reports.json
                 </a>
                 , or read the{" "}
                 <Link href="/methodology" className="underline decoration-white/25 underline-offset-4 hover:text-white transition">
@@ -202,6 +201,13 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
 
           <article>
             <h2 className="font-display italic text-white text-[26px] md:text-[30px] leading-[1.15] tracking-tight mb-6">
+              Edition and corrections
+            </h2>
+            <p className="text-white/60 text-[14.5px] leading-relaxed">Edition {report.revision}, frozen {stamp}. {report.revisionNote} Previous editions and source hashes are retained in the snapshot file.</p>
+            <a href={`https://github.com/realdora/agenteconomy/tree/${report.source.commit}`} className="inline-block mt-4 text-white/60 underline">View source revision</a>
+          </article>
+          <article>
+            <h2 className="font-display italic text-white text-[26px] md:text-[30px] leading-[1.15] tracking-tight mb-6">
               Citing this report
             </h2>
             <p className="text-white/70 text-[16.5px] leading-relaxed mb-5">
@@ -209,10 +215,15 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
             </p>
             <p className="border-l border-[#00FF88] pl-5 font-display italic text-white text-[19px] leading-relaxed">
               &ldquo;…according to agenteconomy.to&apos;s State of the Agent Economy report for {report.monthName}{" "}
-              ({canonical}).&rdquo;
+              ({canonical}), edition {report.revision}.&rdquo;
             </p>
+            <CitationButton text={`agent economy, State of the Agent Economy — ${report.monthName}, edition ${report.revision}. ${canonical}`} />
           </article>
         </section>
+        <nav aria-label="Report editions by month" className="mt-12 flex flex-wrap gap-8 text-white/60">
+          {older && <Link href={`/reports/${older}`}>← {monthName(older)}</Link>}
+          {newer && <Link href={`/reports/${newer}`}>{monthName(newer)} →</Link>}
+        </nav>
 
         {/* Cross-links */}
         <section className="mt-20 border-t border-white/10 pt-12 pb-4">
