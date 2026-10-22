@@ -9,6 +9,7 @@
 // hardcoded in prose. New pages = one new entry here.
 
 import { asOfLabel, fmt, usd, type StatsContext } from "./stats-data";
+import { completeDays, x402DailyExecution } from "./complete-days";
 
 export type ChartSpec = {
   kind: "line" | "bars";
@@ -429,18 +430,21 @@ const x402Daily: StatDoc = {
   ],
   build: ({ data }) => {
     const x = data?.x402;
-    const daily = arr(x?.daily);
+    const daily = completeDays(arr(x?.daily), x402DailyExecution(data));
     if (!daily.length) return null;
     const latest = daily.at(-1) ?? {};
     const points = daily.slice(-60).map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.txs) }));
-    const last7 = daily.slice(-7).reduce((s, d) => s + num(d.txs), 0);
-    const stamp = asOfLabel(x?.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
+    const endDay = String(latest.day);
+    const startDay = new Date(Date.parse(`${endDay}T00:00:00Z`) - 6 * 86400000).toISOString().slice(0, 10);
+    const week = daily.filter(d => String(d.day) >= startDay && String(d.day) <= endDay);
+    const last7 = week.length === 7 ? week.reduce((s, d) => s + num(d.txs), 0) : null;
+    const stamp = asOfLabel(x402DailyExecution(data) as string) ?? "the latest pipeline run";
     return {
-      answer: `As of ${stamp}, x402 processed ${fmt(latest.txs)} transactions on ${String(latest.day ?? "the latest measured day")}, and ${fmt(last7)} over the trailing seven days. The daily series below is measured from public on-chain settlement activity, unsmoothed.`,
-      asOf: x?.asOf ?? data?.updatedAt ?? null,
+      answer: `As of ${stamp}, tracked x402 facilitator addresses recorded ${fmt(latest.txs)} transactions on ${endDay}, the latest complete UTC day${last7 === null ? ". The preceding seven-day window has missing dates" : `, and ${fmt(last7)} over the seven complete days ending ${endDay}`}. The series excludes the partial collection day. Address coverage is maintained separately; these figures are not a complete census of all x402 payments.`,
+      asOf: x402DailyExecution(data) as string,
       rows: [
-        { label: "Latest daily transactions", value: fmt(latest.txs), note: String(latest.day ?? "") },
-        { label: "Trailing 7-day transactions", value: fmt(last7) },
+        { label: "Latest complete UTC day", value: fmt(latest.txs), note: endDay },
+        { label: "Trailing 7 complete days", value: last7 === null ? "Unavailable" : fmt(last7), note: `${startDay} to ${endDay} UTC` },
         { label: "Cumulative transactions", value: fmt(x?.totalTxs) },
       ],
       chart: { kind: "line", title: "Daily x402 transactions (last 60 days)", unit: "txs/day", points },
@@ -899,7 +903,7 @@ const usdcShare: StatDoc = {
   related: ["x402-transactions", "average-x402-transaction-size", "how-big-is-the-agent-economy"],
   // Gated: this page only exists once the x402 token-split feed has landed with a
   // finite USDC-share percent.
-  available: ({ web }) => Number.isFinite(web?.x402TokenSplit?.usdcSharePct),
+  available: ({ data, web }) => Number.isFinite((data?.x402?.tokenSplit ?? web?.x402TokenSplit)?.usdcSharePct),
   sources: [
     { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
     {
@@ -921,8 +925,8 @@ const usdcShare: StatDoc = {
       ],
     },
   ],
-  build: ({ web }) => {
-    const x = web?.x402TokenSplit;
+  build: ({ data, web }) => {
+    const x = data?.x402?.tokenSplit ?? web?.x402TokenSplit;
     if (!x || !Number.isFinite(x.usdcSharePct)) return null;
     // usdcSharePct arrives as a percent (0–100); use it directly, one decimal.
     const pct = Math.round(x.usdcSharePct * 10) / 10;

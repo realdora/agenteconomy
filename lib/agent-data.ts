@@ -4,6 +4,7 @@
 // source is unreachable at build/request time, so the page never renders empty.
 
 import { fetchFeed } from "./feed-fetch";
+import { completeDays, x402DailyExecution } from "./complete-days";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
 const WEB_URL = "https://agenteconomy.to/web-sources.json";
@@ -92,7 +93,7 @@ function buildGrowth(d: any): number[] {
   const each = (arr: any, fn: (r: any) => void) => {
     if (Array.isArray(arr)) arr.forEach(fn);
   };
-  each(d.x402?.daily, (r) => add(r.day, r.txs));
+  each(completeDays(d.x402?.daily ?? [], x402DailyExecution(d)), (r) => add(r.day, r.txs));
   each(d.baseAgentic?.daily, (r) => add(r.day, r.total));
   each(d.virtualsAcp?.daily, (r) => add(r.day, r.memos));
   each(d.erc8004Registry?.daily, (r) => add(r.day, r.agents));
@@ -197,7 +198,7 @@ export async function getAgentData(): Promise<AgentData> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const lastRow = (a: any): any => (Array.isArray(a) && a.length ? a[a.length - 1] : {});
-    const xLast = lastRow(d.x402?.daily);
+    const xLast = lastRow(completeDays(d.x402?.daily ?? [], x402DailyExecution(d)));
     const oLast = lastRow(d.olas?.weekly);
     const rLast = lastRow(d.erc8004Registry?.daily);
     const vLast = lastRow(d.virtualsAcp?.daily);
