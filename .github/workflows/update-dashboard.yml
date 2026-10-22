@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p dashboard/data
           cp public/data.json public/web-sources.json dashboard/data/
+          cp public/monthly-reports.json dashboard/data/
           cp public/tempo-data.json dashboard/data/ 2>/dev/null || true
       - name: Build
         run: node dashboard/build.mjs

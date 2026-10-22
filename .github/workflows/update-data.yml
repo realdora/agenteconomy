@@ -81,6 +81,17 @@ jobs:
           paths: public/data.json scripts/dune/baselines.json
           message: "chore: update Dune data"
 
+      - name: Preserve closed-month report editions
+        run: |
+          node --test scripts/reports/snapshots.test.mjs
+          node scripts/reports/publish.mjs
+
+      - name: Commit new report editions
+        uses: ./.github/actions/commit-push
+        with:
+          paths: public/monthly-reports.json
+          message: "chore: preserve closed-month reports"
+
       # Production picks up this commit without a deploy hook: the dashboard is
       # rebuilt by update-dashboard.yml (workflow_run on this workflow's
       # completion) and the apex site proxies data.json at request time. The old

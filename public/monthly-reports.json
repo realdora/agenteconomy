@@ -1,0 +1,2700 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-10-22T11:48:26.659Z",
+  "reports": {
+    "2026-05": {
+      "revisions": [
+        {
+          "month": "2026-05",
+          "revision": 1,
+          "publishedAt": "2026-10-22T11:48:26.659Z",
+          "note": "Fixed historical edition. Replaces rolling-feed totals; partial months are omitted. September x402 includes a coverage expansion, so incomparable growth rates are withheld.",
+          "source": {
+            "commit": "0b1feb51e7f941cee3e20834736f477ceea59864",
+            "sha256": {
+              "public/data.json": "418eeb1afd5b5063393a7958276d72ae6332a2d9e8e73cc7b593ecebf79f500e",
+              "scripts/dune/baselines.json": "f320d3029bceefbfab3c757f19276ebf39e1c70ad76c662a3bb5641662299be7",
+              "public/tempo-data.json": "ebdb0637c998b054a810fbbf71321a76ee89d9d4b2ceb329b8622e43fc59ec56"
+            }
+          },
+          "metrics": [
+            {
+              "id": "x402Txs",
+              "family": "x402",
+              "label": "x402 transactions",
+              "value": 5339396,
+              "unit": "count",
+              "grain": "month",
+              "start": "2026-05-01",
+              "end": "2026-06-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-05-01",
+                  "value": 5339396
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": null,
+              "comparison": null
+            },
+            {
+              "id": "x402Volume",
+              "family": "x402",
+              "label": "x402 settled volume",
+              "value": 179793,
+              "unit": "USD",
+              "grain": "month",
+              "start": "2026-05-01",
+              "end": "2026-06-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-05-01",
+                  "value": 179793
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": null,
+              "comparison": null
+            },
+            {
+              "id": "ercRegistrations",
+              "family": "erc8004Registry",
+              "label": "New ERC-8004 registrations",
+              "value": 65097,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-05-01",
+              "end": "2026-06-01",
+              "sourceAsOf": "2026-10-21T02:25:33.643289Z",
+              "comparisonKey": "erc8004Registry:v1",
+              "rows": [
+                {
+                  "date": "2026-05-01",
+                  "value": 854
+                },
+                {
+                  "date": "2026-05-02",
+                  "value": 1069
+                },
+                {
+                  "date": "2026-05-03",
+                  "value": 1043
+                },
+                {
+                  "date": "2026-05-04",
+                  "value": 915
+                },
+                {
+                  "date": "2026-05-05",
+                  "value": 303
+                },
+                {
+                  "date": "2026-05-06",
+                  "value": 1085
+                },
+                {
+                  "date": "2026-05-07",
+                  "value": 1000
+                },
+                {
+                  "date": "2026-05-08",
+                  "value": 962
+                },
+                {
+                  "date": "2026-05-09",
+                  "value": 1137
+                },
+                {
+                  "date": "2026-05-10",
+                  "value": 1019
+                },
+                {
+                  "date": "2026-05-11",
+                  "value": 3228
+                },
+                {
+                  "date": "2026-05-12",
+                  "value": 2314
+                },
+                {
+                  "date": "2026-05-13",
+                  "value": 960
+                },
+                {
+                  "date": "2026-05-14",
+                  "value": 1244
+                },
+                {
+                  "date": "2026-05-15",
+                  "value": 1391
+                },
+                {
+                  "date": "2026-05-16",
+                  "value": 1357
+                },
+                {
+                  "date": "2026-05-17",
+                  "value": 1002
+                },
+                {
+                  "date": "2026-05-18",
+                  "value": 1202
+                },
+                {
+                  "date": "2026-05-19",
+                  "value": 1231
+                },
+                {
+                  "date": "2026-05-20",
+                  "value": 10989
+                },
+                {
+                  "date": "2026-05-21",
+                  "value": 2440
+                },
+                {
+                  "date": "2026-05-22",
+                  "value": 2416
+                },
+                {
+                  "date": "2026-05-23",
+                  "value": 7417
+                },
+                {
+                  "date": "2026-05-24",
+                  "value": 3294
+                },
+                {
+                  "date": "2026-05-25",
+                  "value": 3251
+                },
+                {
+                  "date": "2026-05-26",
+                  "value": 1950
+                },
+                {
+                  "date": "2026-05-27",
+                  "value": 1943
+                },
+                {
+                  "date": "2026-05-28",
+                  "value": 2409
+                },
+                {
+                  "date": "2026-05-29",
+                  "value": 1991
+                },
+                {
+                  "date": "2026-05-30",
+                  "value": 2201
+                },
+                {
+                  "date": "2026-05-31",
+                  "value": 1480
+                }
+              ],
+              "momPct": null,
+              "comparison": null
+            },
+            {
+              "id": "acpMemos",
+              "family": "virtualsAcp",
+              "label": "Virtuals ACP memos",
+              "value": 48261,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-05-01",
+              "end": "2026-06-01",
+              "sourceAsOf": "2026-10-22T02:20:20.017878Z",
+              "comparisonKey": "virtualsAcp:v1",
+              "rows": [
+                {
+                  "date": "2026-05-01",
+                  "value": 2857
+                },
+                {
+                  "date": "2026-05-02",
+                  "value": 2361
+                },
+                {
+                  "date": "2026-05-03",
+                  "value": 2070
+                },
+                {
+                  "date": "2026-05-04",
+                  "value": 3301
+                },
+                {
+                  "date": "2026-05-05",
+                  "value": 3398
+                },
+                {
+                  "date": "2026-05-06",
+                  "value": 2984
+                },
+                {
+                  "date": "2026-05-07",
+                  "value": 4757
+                },
+                {
+                  "date": "2026-05-08",
+                  "value": 4169
+                },
+                {
+                  "date": "2026-05-09",
+                  "value": 1359
+                },
+                {
+                  "date": "2026-05-10",
+                  "value": 1184
+                },
+                {
+                  "date": "2026-05-11",
+                  "value": 1099
+                },
+                {
+                  "date": "2026-05-12",
+                  "value": 1223
+                },
+                {
+                  "date": "2026-05-13",
+                  "value": 1929
+                },
+                {
+                  "date": "2026-05-14",
+                  "value": 1417
+                },
+                {
+                  "date": "2026-05-15",
+                  "value": 1157
+                },
+                {
+                  "date": "2026-05-16",
+                  "value": 1337
+                },
+                {
+                  "date": "2026-05-17",
+                  "value": 1057
+                },
+                {
+                  "date": "2026-05-18",
+                  "value": 2025
+                },
+                {
+                  "date": "2026-05-19",
+                  "value": 1349
+                },
+                {
+                  "date": "2026-05-20",
+                  "value": 755
+                },
+                {
+                  "date": "2026-05-21",
+                  "value": 1106
+                },
+                {
+                  "date": "2026-05-22",
+                  "value": 759
+                },
+                {
+                  "date": "2026-05-23",
+                  "value": 289
+                },
+                {
+                  "date": "2026-05-24",
+                  "value": 389
+                },
+                {
+                  "date": "2026-05-25",
+                  "value": 415
+                },
+                {
+                  "date": "2026-05-26",
+                  "value": 377
+                },
+                {
+                  "date": "2026-05-27",
+                  "value": 1437
+                },
+                {
+                  "date": "2026-05-28",
+                  "value": 706
+                },
+                {
+                  "date": "2026-05-29",
+                  "value": 386
+                },
+                {
+                  "date": "2026-05-30",
+                  "value": 43
+                },
+                {
+                  "date": "2026-05-31",
+                  "value": 566
+                }
+              ],
+              "momPct": null,
+              "comparison": null
+            },
+            {
+              "id": "baseTransactions",
+              "family": "baseAgentic",
+              "label": "Base agentic-ecosystem transactions",
+              "value": 241182,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-05-01",
+              "end": "2026-06-01",
+              "sourceAsOf": "2026-10-22T02:22:07.37925Z",
+              "comparisonKey": "baseAgentic:v1",
+              "rows": [
+                {
+                  "date": "2026-05-01",
+                  "value": 5068
+                },
+                {
+                  "date": "2026-05-02",
+                  "value": 5911
+                },
+                {
+                  "date": "2026-05-03",
+                  "value": 6420
+                },
+                {
+                  "date": "2026-05-04",
+                  "value": 6891
+                },
+                {
+                  "date": "2026-05-05",
+                  "value": 8086
+                },
+                {
+                  "date": "2026-05-06",
+                  "value": 12991
+                },
+                {
+                  "date": "2026-05-07",
+                  "value": 11704
+                },
+                {
+                  "date": "2026-05-08",
+                  "value": 7493
+                },
+                {
+                  "date": "2026-05-09",
+                  "value": 8726
+                },
+                {
+                  "date": "2026-05-10",
+                  "value": 6876
+                },
+                {
+                  "date": "2026-05-11",
+                  "value": 7764
+                },
+                {
+                  "date": "2026-05-12",
+                  "value": 10624
+                },
+                {
+                  "date": "2026-05-13",
+                  "value": 9911
+                },
+                {
+                  "date": "2026-05-14",
+                  "value": 7789
+                },
+                {
+                  "date": "2026-05-15",
+                  "value": 8413
+                },
+                {
+                  "date": "2026-05-16",
+                  "value": 7713
+                },
+                {
+                  "date": "2026-05-17",
+                  "value": 7231
+                },
+                {
+                  "date": "2026-05-18",
+                  "value": 6620
+                },
+                {
+                  "date": "2026-05-19",
+                  "value": 7130
+                },
+                {
+                  "date": "2026-05-20",
+                  "value": 7182
+                },
+                {
+                  "date": "2026-05-21",
+                  "value": 7316
+                },
+                {
+                  "date": "2026-05-22",
+                  "value": 8510
+                },
+                {
+                  "date": "2026-05-23",
+                  "value": 7567
+                },
+                {
+                  "date": "2026-05-24",
+                  "value": 7415
+                },
+                {
+                  "date": "2026-05-25",
+                  "value": 6997
+                },
+                {
+                  "date": "2026-05-26",
+                  "value": 9191
+                },
+                {
+                  "date": "2026-05-27",
+                  "value": 7774
+                },
+                {
+                  "date": "2026-05-28",
+                  "value": 7599
+                },
+                {
+                  "date": "2026-05-29",
+                  "value": 5830
+                },
+                {
+                  "date": "2026-05-30",
+                  "value": 6094
+                },
+                {
+                  "date": "2026-05-31",
+                  "value": 6346
+                }
+              ],
+              "momPct": null,
+              "comparison": null
+            },
+            {
+              "id": "olasTransactions",
+              "family": "olas",
+              "label": "Olas transactions (weeks starting in month)",
+              "value": 604620,
+              "unit": "count",
+              "grain": "week",
+              "start": "2026-05-01",
+              "end": "2026-06-01",
+              "sourceAsOf": "2026-10-19T02:19:34.595611Z",
+              "comparisonKey": "olas:weeks-starting:v1",
+              "rows": [
+                {
+                  "date": "2026-05-04",
+                  "value": 173818
+                },
+                {
+                  "date": "2026-05-11",
+                  "value": 145781
+                },
+                {
+                  "date": "2026-05-18",
+                  "value": 148359
+                },
+                {
+                  "date": "2026-05-25",
+                  "value": 136662
+                }
+              ],
+              "note": "Complete weeks starting in the month; not a calendar-month total.",
+              "momPct": null,
+              "comparison": null
+            }
+          ],
+          "omissions": [
+            "Tempo MPP events: a full set of dated daily observations and a post-close source timestamp are not available; omitted, not zero."
+          ]
+        }
+      ]
+    },
+    "2026-06": {
+      "revisions": [
+        {
+          "month": "2026-06",
+          "revision": 1,
+          "publishedAt": "2026-10-22T11:48:26.659Z",
+          "note": "Fixed historical edition. Replaces rolling-feed totals; partial months are omitted. September x402 includes a coverage expansion, so incomparable growth rates are withheld.",
+          "source": {
+            "commit": "0b1feb51e7f941cee3e20834736f477ceea59864",
+            "sha256": {
+              "public/data.json": "418eeb1afd5b5063393a7958276d72ae6332a2d9e8e73cc7b593ecebf79f500e",
+              "scripts/dune/baselines.json": "f320d3029bceefbfab3c757f19276ebf39e1c70ad76c662a3bb5641662299be7",
+              "public/tempo-data.json": "ebdb0637c998b054a810fbbf71321a76ee89d9d4b2ceb329b8622e43fc59ec56"
+            }
+          },
+          "metrics": [
+            {
+              "id": "x402Txs",
+              "family": "x402",
+              "label": "x402 transactions",
+              "value": 4778845,
+              "unit": "count",
+              "grain": "month",
+              "start": "2026-06-01",
+              "end": "2026-07-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-06-01",
+                  "value": 4778845
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": -10.5,
+              "comparison": {
+                "month": "2026-05",
+                "revision": 1,
+                "value": 5339396,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "x402Volume",
+              "family": "x402",
+              "label": "x402 settled volume",
+              "value": 272293,
+              "unit": "USD",
+              "grain": "month",
+              "start": "2026-06-01",
+              "end": "2026-07-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-06-01",
+                  "value": 272293
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": 51.4,
+              "comparison": {
+                "month": "2026-05",
+                "revision": 1,
+                "value": 179793,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "ercRegistrations",
+              "family": "erc8004Registry",
+              "label": "New ERC-8004 registrations",
+              "value": 39380,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-06-01",
+              "end": "2026-07-01",
+              "sourceAsOf": "2026-10-21T02:25:33.643289Z",
+              "comparisonKey": "erc8004Registry:v1",
+              "rows": [
+                {
+                  "date": "2026-06-01",
+                  "value": 1173
+                },
+                {
+                  "date": "2026-06-02",
+                  "value": 1066
+                },
+                {
+                  "date": "2026-06-03",
+                  "value": 1070
+                },
+                {
+                  "date": "2026-06-04",
+                  "value": 910
+                },
+                {
+                  "date": "2026-06-05",
+                  "value": 1203
+                },
+                {
+                  "date": "2026-06-06",
+                  "value": 920
+                },
+                {
+                  "date": "2026-06-07",
+                  "value": 725
+                },
+                {
+                  "date": "2026-06-08",
+                  "value": 838
+                },
+                {
+                  "date": "2026-06-09",
+                  "value": 1065
+                },
+                {
+                  "date": "2026-06-10",
+                  "value": 941
+                },
+                {
+                  "date": "2026-06-11",
+                  "value": 1238
+                },
+                {
+                  "date": "2026-06-12",
+                  "value": 1077
+                },
+                {
+                  "date": "2026-06-13",
+                  "value": 980
+                },
+                {
+                  "date": "2026-06-14",
+                  "value": 1055
+                },
+                {
+                  "date": "2026-06-15",
+                  "value": 952
+                },
+                {
+                  "date": "2026-06-16",
+                  "value": 763
+                },
+                {
+                  "date": "2026-06-17",
+                  "value": 1032
+                },
+                {
+                  "date": "2026-06-18",
+                  "value": 1085
+                },
+                {
+                  "date": "2026-06-19",
+                  "value": 1069
+                },
+                {
+                  "date": "2026-06-20",
+                  "value": 1007
+                },
+                {
+                  "date": "2026-06-21",
+                  "value": 753
+                },
+                {
+                  "date": "2026-06-22",
+                  "value": 1270
+                },
+                {
+                  "date": "2026-06-23",
+                  "value": 1680
+                },
+                {
+                  "date": "2026-06-24",
+                  "value": 1339
+                },
+                {
+                  "date": "2026-06-25",
+                  "value": 2130
+                },
+                {
+                  "date": "2026-06-26",
+                  "value": 2405
+                },
+                {
+                  "date": "2026-06-27",
+                  "value": 2692
+                },
+                {
+                  "date": "2026-06-28",
+                  "value": 2696
+                },
+                {
+                  "date": "2026-06-29",
+                  "value": 2595
+                },
+                {
+                  "date": "2026-06-30",
+                  "value": 1651
+                }
+              ],
+              "momPct": -39.5,
+              "comparison": {
+                "month": "2026-05",
+                "revision": 1,
+                "value": 65097,
+                "comparisonKey": "erc8004Registry:v1"
+              }
+            },
+            {
+              "id": "acpMemos",
+              "family": "virtualsAcp",
+              "label": "Virtuals ACP memos",
+              "value": 9711,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-06-01",
+              "end": "2026-07-01",
+              "sourceAsOf": "2026-10-22T02:20:20.017878Z",
+              "comparisonKey": "virtualsAcp:v1",
+              "rows": [
+                {
+                  "date": "2026-06-01",
+                  "value": 456
+                },
+                {
+                  "date": "2026-06-02",
+                  "value": 431
+                },
+                {
+                  "date": "2026-06-03",
+                  "value": 502
+                },
+                {
+                  "date": "2026-06-04",
+                  "value": 385
+                },
+                {
+                  "date": "2026-06-05",
+                  "value": 246
+                },
+                {
+                  "date": "2026-06-06",
+                  "value": 273
+                },
+                {
+                  "date": "2026-06-07",
+                  "value": 319
+                },
+                {
+                  "date": "2026-06-08",
+                  "value": 352
+                },
+                {
+                  "date": "2026-06-09",
+                  "value": 289
+                },
+                {
+                  "date": "2026-06-10",
+                  "value": 309
+                },
+                {
+                  "date": "2026-06-11",
+                  "value": 452
+                },
+                {
+                  "date": "2026-06-12",
+                  "value": 352
+                },
+                {
+                  "date": "2026-06-13",
+                  "value": 361
+                },
+                {
+                  "date": "2026-06-14",
+                  "value": 289
+                },
+                {
+                  "date": "2026-06-15",
+                  "value": 320
+                },
+                {
+                  "date": "2026-06-16",
+                  "value": 221
+                },
+                {
+                  "date": "2026-06-17",
+                  "value": 237
+                },
+                {
+                  "date": "2026-06-18",
+                  "value": 450
+                },
+                {
+                  "date": "2026-06-19",
+                  "value": 285
+                },
+                {
+                  "date": "2026-06-20",
+                  "value": 382
+                },
+                {
+                  "date": "2026-06-21",
+                  "value": 322
+                },
+                {
+                  "date": "2026-06-22",
+                  "value": 333
+                },
+                {
+                  "date": "2026-06-23",
+                  "value": 224
+                },
+                {
+                  "date": "2026-06-24",
+                  "value": 278
+                },
+                {
+                  "date": "2026-06-25",
+                  "value": 282
+                },
+                {
+                  "date": "2026-06-26",
+                  "value": 335
+                },
+                {
+                  "date": "2026-06-27",
+                  "value": 284
+                },
+                {
+                  "date": "2026-06-28",
+                  "value": 234
+                },
+                {
+                  "date": "2026-06-29",
+                  "value": 261
+                },
+                {
+                  "date": "2026-06-30",
+                  "value": 247
+                }
+              ],
+              "momPct": -79.9,
+              "comparison": {
+                "month": "2026-05",
+                "revision": 1,
+                "value": 48261,
+                "comparisonKey": "virtualsAcp:v1"
+              }
+            },
+            {
+              "id": "baseTransactions",
+              "family": "baseAgentic",
+              "label": "Base agentic-ecosystem transactions",
+              "value": 194696,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-06-01",
+              "end": "2026-07-01",
+              "sourceAsOf": "2026-10-22T02:22:07.37925Z",
+              "comparisonKey": "baseAgentic:v1",
+              "rows": [
+                {
+                  "date": "2026-06-01",
+                  "value": 6738
+                },
+                {
+                  "date": "2026-06-02",
+                  "value": 7155
+                },
+                {
+                  "date": "2026-06-03",
+                  "value": 7564
+                },
+                {
+                  "date": "2026-06-04",
+                  "value": 7987
+                },
+                {
+                  "date": "2026-06-05",
+                  "value": 8222
+                },
+                {
+                  "date": "2026-06-06",
+                  "value": 5270
+                },
+                {
+                  "date": "2026-06-07",
+                  "value": 5387
+                },
+                {
+                  "date": "2026-06-08",
+                  "value": 5284
+                },
+                {
+                  "date": "2026-06-09",
+                  "value": 7698
+                },
+                {
+                  "date": "2026-06-10",
+                  "value": 5739
+                },
+                {
+                  "date": "2026-06-11",
+                  "value": 5745
+                },
+                {
+                  "date": "2026-06-12",
+                  "value": 4661
+                },
+                {
+                  "date": "2026-06-13",
+                  "value": 5775
+                },
+                {
+                  "date": "2026-06-14",
+                  "value": 4337
+                },
+                {
+                  "date": "2026-06-15",
+                  "value": 6312
+                },
+                {
+                  "date": "2026-06-16",
+                  "value": 7098
+                },
+                {
+                  "date": "2026-06-17",
+                  "value": 6371
+                },
+                {
+                  "date": "2026-06-18",
+                  "value": 5448
+                },
+                {
+                  "date": "2026-06-19",
+                  "value": 5507
+                },
+                {
+                  "date": "2026-06-20",
+                  "value": 5606
+                },
+                {
+                  "date": "2026-06-21",
+                  "value": 6812
+                },
+                {
+                  "date": "2026-06-22",
+                  "value": 6429
+                },
+                {
+                  "date": "2026-06-23",
+                  "value": 7858
+                },
+                {
+                  "date": "2026-06-24",
+                  "value": 8567
+                },
+                {
+                  "date": "2026-06-25",
+                  "value": 7486
+                },
+                {
+                  "date": "2026-06-26",
+                  "value": 7081
+                },
+                {
+                  "date": "2026-06-27",
+                  "value": 7308
+                },
+                {
+                  "date": "2026-06-28",
+                  "value": 6615
+                },
+                {
+                  "date": "2026-06-29",
+                  "value": 6307
+                },
+                {
+                  "date": "2026-06-30",
+                  "value": 6329
+                }
+              ],
+              "momPct": -19.3,
+              "comparison": {
+                "month": "2026-05",
+                "revision": 1,
+                "value": 241182,
+                "comparisonKey": "baseAgentic:v1"
+              }
+            },
+            {
+              "id": "olasTransactions",
+              "family": "olas",
+              "label": "Olas transactions (weeks starting in month)",
+              "value": 772235,
+              "unit": "count",
+              "grain": "week",
+              "start": "2026-06-01",
+              "end": "2026-07-06",
+              "sourceAsOf": "2026-10-19T02:19:34.595611Z",
+              "comparisonKey": "olas:weeks-starting:v1",
+              "rows": [
+                {
+                  "date": "2026-06-01",
+                  "value": 128453
+                },
+                {
+                  "date": "2026-06-08",
+                  "value": 113844
+                },
+                {
+                  "date": "2026-06-15",
+                  "value": 156264
+                },
+                {
+                  "date": "2026-06-22",
+                  "value": 211746
+                },
+                {
+                  "date": "2026-06-29",
+                  "value": 161928
+                }
+              ],
+              "note": "Complete weeks starting in the month; not a calendar-month total.",
+              "momPct": null,
+              "comparison": {
+                "month": "2026-05",
+                "revision": 1,
+                "value": 604620,
+                "comparisonKey": "olas:weeks-starting:v1"
+              }
+            }
+          ],
+          "omissions": [
+            "Tempo MPP events: a full set of dated daily observations and a post-close source timestamp are not available; omitted, not zero."
+          ]
+        }
+      ]
+    },
+    "2026-07": {
+      "revisions": [
+        {
+          "month": "2026-07",
+          "revision": 1,
+          "publishedAt": "2026-10-22T11:48:26.659Z",
+          "note": "Fixed historical edition. Replaces rolling-feed totals; partial months are omitted. September x402 includes a coverage expansion, so incomparable growth rates are withheld.",
+          "source": {
+            "commit": "0b1feb51e7f941cee3e20834736f477ceea59864",
+            "sha256": {
+              "public/data.json": "418eeb1afd5b5063393a7958276d72ae6332a2d9e8e73cc7b593ecebf79f500e",
+              "scripts/dune/baselines.json": "f320d3029bceefbfab3c757f19276ebf39e1c70ad76c662a3bb5641662299be7",
+              "public/tempo-data.json": "ebdb0637c998b054a810fbbf71321a76ee89d9d4b2ceb329b8622e43fc59ec56"
+            }
+          },
+          "metrics": [
+            {
+              "id": "x402Txs",
+              "family": "x402",
+              "label": "x402 transactions",
+              "value": 6010540,
+              "unit": "count",
+              "grain": "month",
+              "start": "2026-07-01",
+              "end": "2026-08-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-07-01",
+                  "value": 6010540
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": 25.8,
+              "comparison": {
+                "month": "2026-06",
+                "revision": 1,
+                "value": 4778845,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "x402Volume",
+              "family": "x402",
+              "label": "x402 settled volume",
+              "value": 238084,
+              "unit": "USD",
+              "grain": "month",
+              "start": "2026-07-01",
+              "end": "2026-08-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-07-01",
+                  "value": 238084
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": -12.6,
+              "comparison": {
+                "month": "2026-06",
+                "revision": 1,
+                "value": 272293,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "ercRegistrations",
+              "family": "erc8004Registry",
+              "label": "New ERC-8004 registrations",
+              "value": 101956,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-07-01",
+              "end": "2026-08-01",
+              "sourceAsOf": "2026-10-21T02:25:33.643289Z",
+              "comparisonKey": "erc8004Registry:v1",
+              "rows": [
+                {
+                  "date": "2026-07-01",
+                  "value": 3436
+                },
+                {
+                  "date": "2026-07-02",
+                  "value": 5820
+                },
+                {
+                  "date": "2026-07-03",
+                  "value": 3701
+                },
+                {
+                  "date": "2026-07-04",
+                  "value": 1203
+                },
+                {
+                  "date": "2026-07-05",
+                  "value": 7174
+                },
+                {
+                  "date": "2026-07-06",
+                  "value": 4756
+                },
+                {
+                  "date": "2026-07-07",
+                  "value": 4974
+                },
+                {
+                  "date": "2026-07-08",
+                  "value": 5827
+                },
+                {
+                  "date": "2026-07-09",
+                  "value": 3064
+                },
+                {
+                  "date": "2026-07-10",
+                  "value": 2141
+                },
+                {
+                  "date": "2026-07-11",
+                  "value": 2010
+                },
+                {
+                  "date": "2026-07-12",
+                  "value": 2009
+                },
+                {
+                  "date": "2026-07-13",
+                  "value": 2556
+                },
+                {
+                  "date": "2026-07-14",
+                  "value": 2222
+                },
+                {
+                  "date": "2026-07-15",
+                  "value": 2126
+                },
+                {
+                  "date": "2026-07-16",
+                  "value": 1593
+                },
+                {
+                  "date": "2026-07-17",
+                  "value": 1375
+                },
+                {
+                  "date": "2026-07-18",
+                  "value": 1275
+                },
+                {
+                  "date": "2026-07-19",
+                  "value": 1172
+                },
+                {
+                  "date": "2026-07-20",
+                  "value": 1313
+                },
+                {
+                  "date": "2026-07-21",
+                  "value": 1417
+                },
+                {
+                  "date": "2026-07-22",
+                  "value": 10134
+                },
+                {
+                  "date": "2026-07-23",
+                  "value": 4093
+                },
+                {
+                  "date": "2026-07-24",
+                  "value": 2943
+                },
+                {
+                  "date": "2026-07-25",
+                  "value": 2177
+                },
+                {
+                  "date": "2026-07-26",
+                  "value": 1592
+                },
+                {
+                  "date": "2026-07-27",
+                  "value": 1260
+                },
+                {
+                  "date": "2026-07-28",
+                  "value": 3807
+                },
+                {
+                  "date": "2026-07-29",
+                  "value": 7138
+                },
+                {
+                  "date": "2026-07-30",
+                  "value": 5743
+                },
+                {
+                  "date": "2026-07-31",
+                  "value": 1905
+                }
+              ],
+              "momPct": 158.9,
+              "comparison": {
+                "month": "2026-06",
+                "revision": 1,
+                "value": 39380,
+                "comparisonKey": "erc8004Registry:v1"
+              }
+            },
+            {
+              "id": "acpMemos",
+              "family": "virtualsAcp",
+              "label": "Virtuals ACP memos",
+              "value": 7269,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-07-01",
+              "end": "2026-08-01",
+              "sourceAsOf": "2026-10-22T02:20:20.017878Z",
+              "comparisonKey": "virtualsAcp:v1",
+              "rows": [
+                {
+                  "date": "2026-07-01",
+                  "value": 270
+                },
+                {
+                  "date": "2026-07-02",
+                  "value": 427
+                },
+                {
+                  "date": "2026-07-03",
+                  "value": 223
+                },
+                {
+                  "date": "2026-07-04",
+                  "value": 66
+                },
+                {
+                  "date": "2026-07-05",
+                  "value": 227
+                },
+                {
+                  "date": "2026-07-06",
+                  "value": 234
+                },
+                {
+                  "date": "2026-07-07",
+                  "value": 291
+                },
+                {
+                  "date": "2026-07-08",
+                  "value": 243
+                },
+                {
+                  "date": "2026-07-09",
+                  "value": 318
+                },
+                {
+                  "date": "2026-07-10",
+                  "value": 208
+                },
+                {
+                  "date": "2026-07-11",
+                  "value": 204
+                },
+                {
+                  "date": "2026-07-12",
+                  "value": 219
+                },
+                {
+                  "date": "2026-07-13",
+                  "value": 228
+                },
+                {
+                  "date": "2026-07-14",
+                  "value": 231
+                },
+                {
+                  "date": "2026-07-15",
+                  "value": 223
+                },
+                {
+                  "date": "2026-07-16",
+                  "value": 310
+                },
+                {
+                  "date": "2026-07-17",
+                  "value": 220
+                },
+                {
+                  "date": "2026-07-18",
+                  "value": 368
+                },
+                {
+                  "date": "2026-07-19",
+                  "value": 223
+                },
+                {
+                  "date": "2026-07-20",
+                  "value": 210
+                },
+                {
+                  "date": "2026-07-21",
+                  "value": 224
+                },
+                {
+                  "date": "2026-07-22",
+                  "value": 215
+                },
+                {
+                  "date": "2026-07-23",
+                  "value": 264
+                },
+                {
+                  "date": "2026-07-24",
+                  "value": 186
+                },
+                {
+                  "date": "2026-07-25",
+                  "value": 211
+                },
+                {
+                  "date": "2026-07-26",
+                  "value": 201
+                },
+                {
+                  "date": "2026-07-27",
+                  "value": 203
+                },
+                {
+                  "date": "2026-07-28",
+                  "value": 201
+                },
+                {
+                  "date": "2026-07-29",
+                  "value": 196
+                },
+                {
+                  "date": "2026-07-30",
+                  "value": 231
+                },
+                {
+                  "date": "2026-07-31",
+                  "value": 194
+                }
+              ],
+              "momPct": -25.1,
+              "comparison": {
+                "month": "2026-06",
+                "revision": 1,
+                "value": 9711,
+                "comparisonKey": "virtualsAcp:v1"
+              }
+            },
+            {
+              "id": "baseTransactions",
+              "family": "baseAgentic",
+              "label": "Base agentic-ecosystem transactions",
+              "value": 160668,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-07-01",
+              "end": "2026-08-01",
+              "sourceAsOf": "2026-10-22T02:22:07.37925Z",
+              "comparisonKey": "baseAgentic:v1",
+              "rows": [
+                {
+                  "date": "2026-07-01",
+                  "value": 8001
+                },
+                {
+                  "date": "2026-07-02",
+                  "value": 8606
+                },
+                {
+                  "date": "2026-07-03",
+                  "value": 8586
+                },
+                {
+                  "date": "2026-07-04",
+                  "value": 9191
+                },
+                {
+                  "date": "2026-07-05",
+                  "value": 7405
+                },
+                {
+                  "date": "2026-07-06",
+                  "value": 6581
+                },
+                {
+                  "date": "2026-07-07",
+                  "value": 7845
+                },
+                {
+                  "date": "2026-07-08",
+                  "value": 6458
+                },
+                {
+                  "date": "2026-07-09",
+                  "value": 5498
+                },
+                {
+                  "date": "2026-07-10",
+                  "value": 7066
+                },
+                {
+                  "date": "2026-07-11",
+                  "value": 6425
+                },
+                {
+                  "date": "2026-07-12",
+                  "value": 5889
+                },
+                {
+                  "date": "2026-07-13",
+                  "value": 4680
+                },
+                {
+                  "date": "2026-07-14",
+                  "value": 4793
+                },
+                {
+                  "date": "2026-07-15",
+                  "value": 3768
+                },
+                {
+                  "date": "2026-07-16",
+                  "value": 3979
+                },
+                {
+                  "date": "2026-07-17",
+                  "value": 6305
+                },
+                {
+                  "date": "2026-07-18",
+                  "value": 3121
+                },
+                {
+                  "date": "2026-07-19",
+                  "value": 3380
+                },
+                {
+                  "date": "2026-07-20",
+                  "value": 2812
+                },
+                {
+                  "date": "2026-07-21",
+                  "value": 3770
+                },
+                {
+                  "date": "2026-07-22",
+                  "value": 3148
+                },
+                {
+                  "date": "2026-07-23",
+                  "value": 3990
+                },
+                {
+                  "date": "2026-07-24",
+                  "value": 3443
+                },
+                {
+                  "date": "2026-07-25",
+                  "value": 3316
+                },
+                {
+                  "date": "2026-07-26",
+                  "value": 3305
+                },
+                {
+                  "date": "2026-07-27",
+                  "value": 7490
+                },
+                {
+                  "date": "2026-07-28",
+                  "value": 2981
+                },
+                {
+                  "date": "2026-07-29",
+                  "value": 2934
+                },
+                {
+                  "date": "2026-07-30",
+                  "value": 3124
+                },
+                {
+                  "date": "2026-07-31",
+                  "value": 2778
+                }
+              ],
+              "momPct": -17.5,
+              "comparison": {
+                "month": "2026-06",
+                "revision": 1,
+                "value": 194696,
+                "comparisonKey": "baseAgentic:v1"
+              }
+            },
+            {
+              "id": "olasTransactions",
+              "family": "olas",
+              "label": "Olas transactions (weeks starting in month)",
+              "value": 765881,
+              "unit": "count",
+              "grain": "week",
+              "start": "2026-07-01",
+              "end": "2026-08-03",
+              "sourceAsOf": "2026-10-19T02:19:34.595611Z",
+              "comparisonKey": "olas:weeks-starting:v1",
+              "rows": [
+                {
+                  "date": "2026-07-06",
+                  "value": 172634
+                },
+                {
+                  "date": "2026-07-13",
+                  "value": 202057
+                },
+                {
+                  "date": "2026-07-20",
+                  "value": 194640
+                },
+                {
+                  "date": "2026-07-27",
+                  "value": 196550
+                }
+              ],
+              "note": "Complete weeks starting in the month; not a calendar-month total.",
+              "momPct": null,
+              "comparison": {
+                "month": "2026-06",
+                "revision": 1,
+                "value": 772235,
+                "comparisonKey": "olas:weeks-starting:v1"
+              }
+            }
+          ],
+          "omissions": [
+            "Tempo MPP events: a full set of dated daily observations and a post-close source timestamp are not available; omitted, not zero."
+          ]
+        }
+      ]
+    },
+    "2026-08": {
+      "revisions": [
+        {
+          "month": "2026-08",
+          "revision": 1,
+          "publishedAt": "2026-10-22T11:48:26.659Z",
+          "note": "Fixed historical edition. Replaces rolling-feed totals; partial months are omitted. September x402 includes a coverage expansion, so incomparable growth rates are withheld.",
+          "source": {
+            "commit": "0b1feb51e7f941cee3e20834736f477ceea59864",
+            "sha256": {
+              "public/data.json": "418eeb1afd5b5063393a7958276d72ae6332a2d9e8e73cc7b593ecebf79f500e",
+              "scripts/dune/baselines.json": "f320d3029bceefbfab3c757f19276ebf39e1c70ad76c662a3bb5641662299be7",
+              "public/tempo-data.json": "ebdb0637c998b054a810fbbf71321a76ee89d9d4b2ceb329b8622e43fc59ec56"
+            }
+          },
+          "metrics": [
+            {
+              "id": "x402Txs",
+              "family": "x402",
+              "label": "x402 transactions",
+              "value": 17855635,
+              "unit": "count",
+              "grain": "month",
+              "start": "2026-08-01",
+              "end": "2026-09-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-08-01",
+                  "value": 17855635
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": 197.1,
+              "comparison": {
+                "month": "2026-07",
+                "revision": 1,
+                "value": 6010540,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "x402Volume",
+              "family": "x402",
+              "label": "x402 settled volume",
+              "value": 437476,
+              "unit": "USD",
+              "grain": "month",
+              "start": "2026-08-01",
+              "end": "2026-09-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:legacy-before-2026-09-16",
+              "rows": [
+                {
+                  "date": "2026-08-01",
+                  "value": 437476
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": 83.7,
+              "comparison": {
+                "month": "2026-07",
+                "revision": 1,
+                "value": 238084,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "ercRegistrations",
+              "family": "erc8004Registry",
+              "label": "New ERC-8004 registrations",
+              "value": 123180,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-08-01",
+              "end": "2026-09-01",
+              "sourceAsOf": "2026-10-21T02:25:33.643289Z",
+              "comparisonKey": "erc8004Registry:v1",
+              "rows": [
+                {
+                  "date": "2026-08-01",
+                  "value": 2083
+                },
+                {
+                  "date": "2026-08-02",
+                  "value": 1503
+                },
+                {
+                  "date": "2026-08-03",
+                  "value": 1543
+                },
+                {
+                  "date": "2026-08-04",
+                  "value": 3618
+                },
+                {
+                  "date": "2026-08-05",
+                  "value": 1376
+                },
+                {
+                  "date": "2026-08-06",
+                  "value": 2741
+                },
+                {
+                  "date": "2026-08-07",
+                  "value": 3822
+                },
+                {
+                  "date": "2026-08-08",
+                  "value": 2840
+                },
+                {
+                  "date": "2026-08-09",
+                  "value": 2533
+                },
+                {
+                  "date": "2026-08-10",
+                  "value": 2020
+                },
+                {
+                  "date": "2026-08-11",
+                  "value": 1861
+                },
+                {
+                  "date": "2026-08-12",
+                  "value": 1232
+                },
+                {
+                  "date": "2026-08-13",
+                  "value": 4326
+                },
+                {
+                  "date": "2026-08-14",
+                  "value": 4473
+                },
+                {
+                  "date": "2026-08-15",
+                  "value": 2843
+                },
+                {
+                  "date": "2026-08-16",
+                  "value": 1576
+                },
+                {
+                  "date": "2026-08-17",
+                  "value": 1339
+                },
+                {
+                  "date": "2026-08-18",
+                  "value": 2198
+                },
+                {
+                  "date": "2026-08-19",
+                  "value": 2462
+                },
+                {
+                  "date": "2026-08-20",
+                  "value": 13693
+                },
+                {
+                  "date": "2026-08-21",
+                  "value": 9083
+                },
+                {
+                  "date": "2026-08-22",
+                  "value": 5820
+                },
+                {
+                  "date": "2026-08-23",
+                  "value": 3876
+                },
+                {
+                  "date": "2026-08-24",
+                  "value": 4331
+                },
+                {
+                  "date": "2026-08-25",
+                  "value": 7091
+                },
+                {
+                  "date": "2026-08-26",
+                  "value": 6030
+                },
+                {
+                  "date": "2026-08-27",
+                  "value": 4957
+                },
+                {
+                  "date": "2026-08-28",
+                  "value": 5955
+                },
+                {
+                  "date": "2026-08-29",
+                  "value": 2508
+                },
+                {
+                  "date": "2026-08-30",
+                  "value": 2334
+                },
+                {
+                  "date": "2026-08-31",
+                  "value": 11113
+                }
+              ],
+              "momPct": 20.8,
+              "comparison": {
+                "month": "2026-07",
+                "revision": 1,
+                "value": 101956,
+                "comparisonKey": "erc8004Registry:v1"
+              }
+            },
+            {
+              "id": "acpMemos",
+              "family": "virtualsAcp",
+              "label": "Virtuals ACP memos",
+              "value": 11498,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-08-01",
+              "end": "2026-09-01",
+              "sourceAsOf": "2026-10-22T02:20:20.017878Z",
+              "comparisonKey": "virtualsAcp:v1",
+              "rows": [
+                {
+                  "date": "2026-08-01",
+                  "value": 201
+                },
+                {
+                  "date": "2026-08-02",
+                  "value": 196
+                },
+                {
+                  "date": "2026-08-03",
+                  "value": 227
+                },
+                {
+                  "date": "2026-08-04",
+                  "value": 178
+                },
+                {
+                  "date": "2026-08-05",
+                  "value": 173
+                },
+                {
+                  "date": "2026-08-06",
+                  "value": 218
+                },
+                {
+                  "date": "2026-08-07",
+                  "value": 180
+                },
+                {
+                  "date": "2026-08-08",
+                  "value": 174
+                },
+                {
+                  "date": "2026-08-09",
+                  "value": 173
+                },
+                {
+                  "date": "2026-08-10",
+                  "value": 178
+                },
+                {
+                  "date": "2026-08-11",
+                  "value": 173
+                },
+                {
+                  "date": "2026-08-12",
+                  "value": 180
+                },
+                {
+                  "date": "2026-08-13",
+                  "value": 216
+                },
+                {
+                  "date": "2026-08-14",
+                  "value": 173
+                },
+                {
+                  "date": "2026-08-15",
+                  "value": 175
+                },
+                {
+                  "date": "2026-08-16",
+                  "value": 1627
+                },
+                {
+                  "date": "2026-08-17",
+                  "value": 772
+                },
+                {
+                  "date": "2026-08-18",
+                  "value": 181
+                },
+                {
+                  "date": "2026-08-19",
+                  "value": 3734
+                },
+                {
+                  "date": "2026-08-20",
+                  "value": 315
+                },
+                {
+                  "date": "2026-08-21",
+                  "value": 175
+                },
+                {
+                  "date": "2026-08-22",
+                  "value": 183
+                },
+                {
+                  "date": "2026-08-23",
+                  "value": 174
+                },
+                {
+                  "date": "2026-08-24",
+                  "value": 179
+                },
+                {
+                  "date": "2026-08-25",
+                  "value": 196
+                },
+                {
+                  "date": "2026-08-26",
+                  "value": 165
+                },
+                {
+                  "date": "2026-08-27",
+                  "value": 215
+                },
+                {
+                  "date": "2026-08-28",
+                  "value": 171
+                },
+                {
+                  "date": "2026-08-29",
+                  "value": 181
+                },
+                {
+                  "date": "2026-08-30",
+                  "value": 189
+                },
+                {
+                  "date": "2026-08-31",
+                  "value": 226
+                }
+              ],
+              "momPct": 58.2,
+              "comparison": {
+                "month": "2026-07",
+                "revision": 1,
+                "value": 7269,
+                "comparisonKey": "virtualsAcp:v1"
+              }
+            },
+            {
+              "id": "baseTransactions",
+              "family": "baseAgentic",
+              "label": "Base agentic-ecosystem transactions",
+              "value": 1005485,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-08-01",
+              "end": "2026-09-01",
+              "sourceAsOf": "2026-10-22T02:22:07.37925Z",
+              "comparisonKey": "baseAgentic:v1",
+              "rows": [
+                {
+                  "date": "2026-08-01",
+                  "value": 2247
+                },
+                {
+                  "date": "2026-08-02",
+                  "value": 2231
+                },
+                {
+                  "date": "2026-08-03",
+                  "value": 2264
+                },
+                {
+                  "date": "2026-08-04",
+                  "value": 2588
+                },
+                {
+                  "date": "2026-08-05",
+                  "value": 2578
+                },
+                {
+                  "date": "2026-08-06",
+                  "value": 2568
+                },
+                {
+                  "date": "2026-08-07",
+                  "value": 3411
+                },
+                {
+                  "date": "2026-08-08",
+                  "value": 3580
+                },
+                {
+                  "date": "2026-08-09",
+                  "value": 3862
+                },
+                {
+                  "date": "2026-08-10",
+                  "value": 3913
+                },
+                {
+                  "date": "2026-08-11",
+                  "value": 5275
+                },
+                {
+                  "date": "2026-08-12",
+                  "value": 5879
+                },
+                {
+                  "date": "2026-08-13",
+                  "value": 6524
+                },
+                {
+                  "date": "2026-08-14",
+                  "value": 5624
+                },
+                {
+                  "date": "2026-08-15",
+                  "value": 3998
+                },
+                {
+                  "date": "2026-08-16",
+                  "value": 3638
+                },
+                {
+                  "date": "2026-08-17",
+                  "value": 6194
+                },
+                {
+                  "date": "2026-08-18",
+                  "value": 38360
+                },
+                {
+                  "date": "2026-08-19",
+                  "value": 81877
+                },
+                {
+                  "date": "2026-08-20",
+                  "value": 87777
+                },
+                {
+                  "date": "2026-08-21",
+                  "value": 103680
+                },
+                {
+                  "date": "2026-08-22",
+                  "value": 60656
+                },
+                {
+                  "date": "2026-08-23",
+                  "value": 142892
+                },
+                {
+                  "date": "2026-08-24",
+                  "value": 123671
+                },
+                {
+                  "date": "2026-08-25",
+                  "value": 172708
+                },
+                {
+                  "date": "2026-08-26",
+                  "value": 74128
+                },
+                {
+                  "date": "2026-08-27",
+                  "value": 22892
+                },
+                {
+                  "date": "2026-08-28",
+                  "value": 12516
+                },
+                {
+                  "date": "2026-08-29",
+                  "value": 8500
+                },
+                {
+                  "date": "2026-08-30",
+                  "value": 5509
+                },
+                {
+                  "date": "2026-08-31",
+                  "value": 3945
+                }
+              ],
+              "momPct": 525.8,
+              "comparison": {
+                "month": "2026-07",
+                "revision": 1,
+                "value": 160668,
+                "comparisonKey": "baseAgentic:v1"
+              }
+            },
+            {
+              "id": "olasTransactions",
+              "family": "olas",
+              "label": "Olas transactions (weeks starting in month)",
+              "value": 655985,
+              "unit": "count",
+              "grain": "week",
+              "start": "2026-08-01",
+              "end": "2026-09-07",
+              "sourceAsOf": "2026-10-19T02:19:34.595611Z",
+              "comparisonKey": "olas:weeks-starting:v1",
+              "rows": [
+                {
+                  "date": "2026-08-03",
+                  "value": 222163
+                },
+                {
+                  "date": "2026-08-10",
+                  "value": 151651
+                },
+                {
+                  "date": "2026-08-17",
+                  "value": 90562
+                },
+                {
+                  "date": "2026-08-24",
+                  "value": 95945
+                },
+                {
+                  "date": "2026-08-31",
+                  "value": 95664
+                }
+              ],
+              "note": "Complete weeks starting in the month; not a calendar-month total.",
+              "momPct": null,
+              "comparison": {
+                "month": "2026-07",
+                "revision": 1,
+                "value": 765881,
+                "comparisonKey": "olas:weeks-starting:v1"
+              }
+            }
+          ],
+          "omissions": [
+            "Tempo MPP events: a full set of dated daily observations and a post-close source timestamp are not available; omitted, not zero."
+          ]
+        }
+      ]
+    },
+    "2026-09": {
+      "revisions": [
+        {
+          "month": "2026-09",
+          "revision": 1,
+          "publishedAt": "2026-10-22T11:48:26.659Z",
+          "note": "Fixed historical edition. Replaces rolling-feed totals; partial months are omitted. September x402 includes a coverage expansion, so incomparable growth rates are withheld.",
+          "source": {
+            "commit": "0b1feb51e7f941cee3e20834736f477ceea59864",
+            "sha256": {
+              "public/data.json": "418eeb1afd5b5063393a7958276d72ae6332a2d9e8e73cc7b593ecebf79f500e",
+              "scripts/dune/baselines.json": "f320d3029bceefbfab3c757f19276ebf39e1c70ad76c662a3bb5641662299be7",
+              "public/tempo-data.json": "ebdb0637c998b054a810fbbf71321a76ee89d9d4b2ceb329b8622e43fc59ec56"
+            }
+          },
+          "metrics": [
+            {
+              "id": "x402Txs",
+              "family": "x402",
+              "label": "x402 transactions",
+              "value": 13003306,
+              "unit": "count",
+              "grain": "month",
+              "start": "2026-09-01",
+              "end": "2026-10-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:mixed:2026-09",
+              "rows": [
+                {
+                  "date": "2026-09-01",
+                  "value": 13003306
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": null,
+              "comparison": {
+                "month": "2026-08",
+                "revision": 1,
+                "value": 17855635,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "x402Volume",
+              "family": "x402",
+              "label": "x402 settled volume",
+              "value": 417033,
+              "unit": "USD",
+              "grain": "month",
+              "start": "2026-09-01",
+              "end": "2026-10-01",
+              "sourceAsOf": "2026-10-22T07:12:44.735828Z",
+              "comparisonKey": "x402:mixed:2026-09",
+              "rows": [
+                {
+                  "date": "2026-09-01",
+                  "value": 417033
+                }
+              ],
+              "note": "Coinbase Base coverage expanded and backfilled from 2026-09-16. Earlier frozen aggregates retain their historical scope; this is tracked-address activity, not an exhaustive payment census.",
+              "momPct": null,
+              "comparison": {
+                "month": "2026-08",
+                "revision": 1,
+                "value": 437476,
+                "comparisonKey": "x402:legacy-before-2026-09-16"
+              }
+            },
+            {
+              "id": "ercRegistrations",
+              "family": "erc8004Registry",
+              "label": "New ERC-8004 registrations",
+              "value": 66925,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-09-01",
+              "end": "2026-10-01",
+              "sourceAsOf": "2026-10-21T02:25:33.643289Z",
+              "comparisonKey": "erc8004Registry:v1",
+              "rows": [
+                {
+                  "date": "2026-09-01",
+                  "value": 6124
+                },
+                {
+                  "date": "2026-09-02",
+                  "value": 4299
+                },
+                {
+                  "date": "2026-09-03",
+                  "value": 1653
+                },
+                {
+                  "date": "2026-09-04",
+                  "value": 2583
+                },
+                {
+                  "date": "2026-09-05",
+                  "value": 1592
+                },
+                {
+                  "date": "2026-09-06",
+                  "value": 1536
+                },
+                {
+                  "date": "2026-09-07",
+                  "value": 1438
+                },
+                {
+                  "date": "2026-09-08",
+                  "value": 3373
+                },
+                {
+                  "date": "2026-09-09",
+                  "value": 926
+                },
+                {
+                  "date": "2026-09-10",
+                  "value": 1165
+                },
+                {
+                  "date": "2026-09-11",
+                  "value": 2056
+                },
+                {
+                  "date": "2026-09-12",
+                  "value": 954
+                },
+                {
+                  "date": "2026-09-13",
+                  "value": 1136
+                },
+                {
+                  "date": "2026-09-14",
+                  "value": 3896
+                },
+                {
+                  "date": "2026-09-15",
+                  "value": 1210
+                },
+                {
+                  "date": "2026-09-16",
+                  "value": 2983
+                },
+                {
+                  "date": "2026-09-17",
+                  "value": 2134
+                },
+                {
+                  "date": "2026-09-18",
+                  "value": 6024
+                },
+                {
+                  "date": "2026-09-19",
+                  "value": 927
+                },
+                {
+                  "date": "2026-09-20",
+                  "value": 1240
+                },
+                {
+                  "date": "2026-09-21",
+                  "value": 868
+                },
+                {
+                  "date": "2026-09-22",
+                  "value": 1413
+                },
+                {
+                  "date": "2026-09-23",
+                  "value": 6398
+                },
+                {
+                  "date": "2026-09-24",
+                  "value": 1055
+                },
+                {
+                  "date": "2026-09-25",
+                  "value": 1730
+                },
+                {
+                  "date": "2026-09-26",
+                  "value": 1378
+                },
+                {
+                  "date": "2026-09-27",
+                  "value": 1761
+                },
+                {
+                  "date": "2026-09-28",
+                  "value": 1443
+                },
+                {
+                  "date": "2026-09-29",
+                  "value": 1251
+                },
+                {
+                  "date": "2026-09-30",
+                  "value": 2379
+                }
+              ],
+              "momPct": -45.7,
+              "comparison": {
+                "month": "2026-08",
+                "revision": 1,
+                "value": 123180,
+                "comparisonKey": "erc8004Registry:v1"
+              }
+            },
+            {
+              "id": "acpMemos",
+              "family": "virtualsAcp",
+              "label": "Virtuals ACP memos",
+              "value": 16038,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-09-01",
+              "end": "2026-10-01",
+              "sourceAsOf": "2026-10-22T02:20:20.017878Z",
+              "comparisonKey": "virtualsAcp:v1",
+              "rows": [
+                {
+                  "date": "2026-09-01",
+                  "value": 239
+                },
+                {
+                  "date": "2026-09-02",
+                  "value": 222
+                },
+                {
+                  "date": "2026-09-03",
+                  "value": 214
+                },
+                {
+                  "date": "2026-09-04",
+                  "value": 176
+                },
+                {
+                  "date": "2026-09-05",
+                  "value": 173
+                },
+                {
+                  "date": "2026-09-06",
+                  "value": 168
+                },
+                {
+                  "date": "2026-09-07",
+                  "value": 172
+                },
+                {
+                  "date": "2026-09-08",
+                  "value": 146
+                },
+                {
+                  "date": "2026-09-09",
+                  "value": 136
+                },
+                {
+                  "date": "2026-09-10",
+                  "value": 164
+                },
+                {
+                  "date": "2026-09-11",
+                  "value": 151
+                },
+                {
+                  "date": "2026-09-12",
+                  "value": 138
+                },
+                {
+                  "date": "2026-09-13",
+                  "value": 135
+                },
+                {
+                  "date": "2026-09-14",
+                  "value": 141
+                },
+                {
+                  "date": "2026-09-15",
+                  "value": 241
+                },
+                {
+                  "date": "2026-09-16",
+                  "value": 142
+                },
+                {
+                  "date": "2026-09-17",
+                  "value": 188
+                },
+                {
+                  "date": "2026-09-18",
+                  "value": 137
+                },
+                {
+                  "date": "2026-09-19",
+                  "value": 149
+                },
+                {
+                  "date": "2026-09-20",
+                  "value": 145
+                },
+                {
+                  "date": "2026-09-21",
+                  "value": 134
+                },
+                {
+                  "date": "2026-09-22",
+                  "value": 139
+                },
+                {
+                  "date": "2026-09-23",
+                  "value": 140
+                },
+                {
+                  "date": "2026-09-24",
+                  "value": 1399
+                },
+                {
+                  "date": "2026-09-25",
+                  "value": 5292
+                },
+                {
+                  "date": "2026-09-26",
+                  "value": 127
+                },
+                {
+                  "date": "2026-09-27",
+                  "value": 4580
+                },
+                {
+                  "date": "2026-09-28",
+                  "value": 583
+                },
+                {
+                  "date": "2026-09-29",
+                  "value": 136
+                },
+                {
+                  "date": "2026-09-30",
+                  "value": 131
+                }
+              ],
+              "momPct": 39.5,
+              "comparison": {
+                "month": "2026-08",
+                "revision": 1,
+                "value": 11498,
+                "comparisonKey": "virtualsAcp:v1"
+              }
+            },
+            {
+              "id": "baseTransactions",
+              "family": "baseAgentic",
+              "label": "Base agentic-ecosystem transactions",
+              "value": 335382,
+              "unit": "count",
+              "grain": "day",
+              "start": "2026-09-01",
+              "end": "2026-10-01",
+              "sourceAsOf": "2026-10-22T02:22:07.37925Z",
+              "comparisonKey": "baseAgentic:v1",
+              "rows": [
+                {
+                  "date": "2026-09-01",
+                  "value": 2977
+                },
+                {
+                  "date": "2026-09-02",
+                  "value": 3092
+                },
+                {
+                  "date": "2026-09-03",
+                  "value": 19541
+                },
+                {
+                  "date": "2026-09-04",
+                  "value": 47736
+                },
+                {
+                  "date": "2026-09-05",
+                  "value": 116094
+                },
+                {
+                  "date": "2026-09-06",
+                  "value": 14409
+                },
+                {
+                  "date": "2026-09-07",
+                  "value": 3911
+                },
+                {
+                  "date": "2026-09-08",
+                  "value": 7015
+                },
+                {
+                  "date": "2026-09-09",
+                  "value": 7425
+                },
+                {
+                  "date": "2026-09-10",
+                  "value": 5735
+                },
+                {
+                  "date": "2026-09-11",
+                  "value": 5974
+                },
+                {
+                  "date": "2026-09-12",
+                  "value": 3392
+                },
+                {
+                  "date": "2026-09-13",
+                  "value": 3077
+                },
+                {
+                  "date": "2026-09-14",
+                  "value": 3887
+                },
+                {
+                  "date": "2026-09-15",
+                  "value": 4831
+                },
+                {
+                  "date": "2026-09-16",
+                  "value": 3753
+                },
+                {
+                  "date": "2026-09-17",
+                  "value": 6005
+                },
+                {
+                  "date": "2026-09-18",
+                  "value": 5508
+                },
+                {
+                  "date": "2026-09-19",
+                  "value": 4670
+                },
+                {
+                  "date": "2026-09-20",
+                  "value": 4654
+                },
+                {
+                  "date": "2026-09-21",
+                  "value": 7134
+                },
+                {
+                  "date": "2026-09-22",
+                  "value": 6321
+                },
+                {
+                  "date": "2026-09-23",
+                  "value": 6750
+                },
+                {
+                  "date": "2026-09-24",
+                  "value": 5077
+                },
+                {
+                  "date": "2026-09-25",
+                  "value": 5784
+                },
+                {
+                  "date": "2026-09-26",
+                  "value": 4682
+                },
+                {
+                  "date": "2026-09-27",
+                  "value": 4631
+                },
+                {
+                  "date": "2026-09-28",
+                  "value": 6654
+                },
+                {
+                  "date": "2026-09-29",
+                  "value": 7099
+                },
+                {
+                  "date": "2026-09-30",
+                  "value": 7564
+                }
+              ],
+              "momPct": -66.6,
+              "comparison": {
+                "month": "2026-08",
+                "revision": 1,
+                "value": 1005485,
+                "comparisonKey": "baseAgentic:v1"
+              }
+            },
+            {
+              "id": "olasTransactions",
+              "family": "olas",
+              "label": "Olas transactions (weeks starting in month)",
+              "value": 198365,
+              "unit": "count",
+              "grain": "week",
+              "start": "2026-09-01",
+              "end": "2026-10-05",
+              "sourceAsOf": "2026-10-19T02:19:34.595611Z",
+              "comparisonKey": "olas:weeks-starting:v1",
+              "rows": [
+                {
+                  "date": "2026-09-07",
+                  "value": 68315
+                },
+                {
+                  "date": "2026-09-14",
+                  "value": 45685
+                },
+                {
+                  "date": "2026-09-21",
+                  "value": 37837
+                },
+                {
+                  "date": "2026-09-28",
+                  "value": 46528
+                }
+              ],
+              "note": "Complete weeks starting in the month; not a calendar-month total.",
+              "momPct": null,
+              "comparison": {
+                "month": "2026-08",
+                "revision": 1,
+                "value": 655985,
+                "comparisonKey": "olas:weeks-starting:v1"
+              }
+            }
+          ],
+          "omissions": [
+            "Tempo MPP events: a full set of dated daily observations and a post-close source timestamp are not available; omitted, not zero."
+          ]
+        }
+      ]
+    }
+  }
+}

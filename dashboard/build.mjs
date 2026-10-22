@@ -196,6 +196,8 @@ document.querySelectorAll('.chartv').forEach(drawChart)
 document.querySelectorAll('.pills[data-for]').forEach(p=>{
   p.addEventListener('click',e=>{
     const pill=e.target.closest('.pill');if(!pill)return
+    const changed=!pill.classList.contains('on')
+    if(changed&&e.isTrusted&&window.aeTrack)window.aeTrack('chart_interaction',{page_type:'dashboard',interaction:pill.dataset.range?'range':'metric',selection:pill.dataset.range||pill.dataset.field})
     pill.parentElement.querySelectorAll('.pill').forEach(x=>{if((x.dataset.range&&pill.dataset.range)||(x.dataset.field&&pill.dataset.field))x.classList.remove('on')})
     pill.classList.add('on')
     const box=document.getElementById(p.dataset.for)
@@ -225,9 +227,10 @@ if(location.hash==='#test-tooltip'){setTimeout(()=>{
 // project-scoped (the apex's 404s here) and nothing in a static build can derive
 // this project's. The tradeoff is that ad blockers recognise this path — the
 // same blockers already drop the GA tag above, so the counts move together.
-const VERCEL_ANALYTICS = `<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>`
+const VERCEL_ANALYTICS = `<script>(function(){try{if(localStorage.getItem('ae.analytics.disabled')==='1')return}catch(e){}window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};var s=document.createElement('script');s.defer=true;s.src='/_vercel/insights/script.js';document.head.appendChild(s)})()</script>`
+const GOOGLE_ANALYTICS = `<script>(function(){try{if(localStorage.getItem('ae.analytics.disabled')==='1')return}catch(e){}window.dataLayer=window.dataLayer||[];window.gtag=function(){window.dataLayer.push(arguments)};window.aeTrack=function(name,params){try{if(localStorage.getItem('ae.analytics.disabled')==='1')return}catch(e){}window.gtag('event',name,params)};gtag('js',new Date());gtag('config','G-S6D2WTWRGZ',{cookie_domain:'.agenteconomy.to'});var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-S6D2WTWRGZ';document.head.appendChild(s);document.addEventListener('click',function(e){if(!e.isTrusted||!(e.target instanceof Element))return;var a=e.target.closest('a[href]');if(!a)return;var u=new URL(a.href,location.href);if(['agenteconomy.to','dashboard.agenteconomy.to'].includes(u.hostname)&&['/data.json','/web-sources.json','/monthly-reports.json'].includes(u.pathname))window.aeTrack('data_access_click',{page_type:'dashboard',format:'json',destination_type:u.pathname==='/monthly-reports.json'?'report_snapshot':'live_feed'})},true)})()</script>`
 
-const shell = (slug, title, content) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2272%22 font-size=%2264%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22>a</text></svg>"><title>${title} · agent economy dashboard</title><style>${CSS}</style><script async src="https://www.googletagmanager.com/gtag/js?id=G-S6D2WTWRGZ"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config","G-S6D2WTWRGZ")</script>${VERCEL_ANALYTICS}</head><body>
+const shell = (slug, title, content) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f766e%22/><text x=%2250%22 y=%2272%22 font-size=%2264%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22>a</text></svg>"><title>${title} · agent economy dashboard</title><style>${CSS}</style>${GOOGLE_ANALYTICS}${VERCEL_ANALYTICS}</head><body>
 <div class="scrim"></div>
 <div class="side"><div class="logo">[<b>agenteconomy</b><span class="to">.to</span>]</div><div class="nav">
 ${NAV.map(g => (g.group ? `<div class="h">${g.group}</div>` : '') + g.items.map(([s, l]) => `<a href="${s === 'index' ? '/' : '/' + s}"${s === slug ? ' class="on"' : ''}>${l}</a>`).join('')).join('')}
@@ -517,7 +520,7 @@ mkdirSync(join(DIST, 'assets'), { recursive: true })
 copyFileSync(join(ROOT, 'assets', 'the-defiant.png'), join(DIST, 'assets', 'the-defiant.png'))
 // The apex site proxies /data.json + /web-sources.json from this domain — the
 // contract MUST survive the cutover, so the feeds ship inside every deploy.
-for (const f of ['data.json', 'web-sources.json', 'tempo-data.json']) {
+for (const f of ['data.json', 'web-sources.json', 'tempo-data.json', 'monthly-reports.json']) {
   if (existsSync(join(DATA, f))) copyFileSync(join(DATA, f), join(DIST, f))
 }
 writeFileSync(join(DIST, 'robots.txt'), ['User-Agent: *', 'Allow: /', '', ...['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'anthropic-ai', 'CCBot', 'ChatGPT-User', 'Bingbot'].flatMap(b => [`User-Agent: ${b}`, 'Allow: /', '']), ''].join('\n'))
