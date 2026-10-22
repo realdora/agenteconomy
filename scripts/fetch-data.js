@@ -30,6 +30,7 @@ import { chainWindowTotals, foldChainWindow, selectUsagePeriod } from './dune/x4
 import { queryCreditCap } from './dune/credit-policy.mjs'
 import { calendarRefreshDue } from './dune/refresh-policy.mjs'
 import { makeReceiptClient, digest } from './dune/execution-receipts.mjs'
+import { assertX402Contract } from './dune/x402-contract.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OWNED_DEFINITIONS = JSON.parse(readFileSync(join(__dirname, 'dune/owned/manifest.json'), 'utf8'))
@@ -931,6 +932,7 @@ async function main() {
   }
   const bootstrapData = legacyBootstrapData(existing)
   if (bootstrapData) {
+    if (process.env.DUNE_ENFORCE_X402_CONTRACT === '1') assertX402Contract(bootstrapData, { expectedVersion: OWNED_DEFINITIONS.version })
     const serialized = JSON.stringify(bootstrapData, null, 2)
     const previousSerialized = JSON.stringify(existing, null, 2)
     const changed = serialized !== previousSerialized
@@ -1272,8 +1274,7 @@ async function main() {
     }
     if (foldedCount > 0) {
       baselines.generatedAt = new Date().toISOString()
-      writeFileSync(BASELINES_PATH, JSON.stringify(baselines, null, 2) + '\n')
-      console.log(`✓ baselines.json updated (${foldedCount} source${foldedCount > 1 ? 's' : ''} folded) — commit it so the next run scans the shorter window`)
+      // Keep the fold in memory until the final output passes every gate.
     }
   }
 
@@ -1405,6 +1406,9 @@ async function main() {
   if (sanityIssues.length > 0) {
     throw new Error(`Output sanity failed (refusing to write data.json):\n  - ${sanityIssues.join('\n  - ')}`)
   }
+  if (process.env.DUNE_ENFORCE_X402_CONTRACT === '1') {
+    assertX402Contract(data, { expectedVersion: OWNED_DEFINITIONS.version })
+  }
 
   // Phase 8 — freshness SLA. Breaches don't block publishing (stale-but-visible
   // beats hidden), but they flag the workflow SLA gate so the run goes red.
@@ -1415,6 +1419,10 @@ async function main() {
   const serialized = JSON.stringify(data, null, 2)
   const previousSerialized = existing ? JSON.stringify(existing, null, 2) : null
   const changed = serialized !== previousSerialized
+  if (foldedCount > 0) {
+    writeFileSync(BASELINES_PATH, JSON.stringify(baselines, null, 2) + '\n')
+    console.log(`✓ baselines.json updated (${foldedCount} sources folded, output quality gates passed)`)
+  }
   if (changed) {
     writeFileSync(join(OUT_DIR, 'data.json'), serialized)
     console.log('\n✓ data.json written')

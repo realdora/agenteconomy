@@ -10,13 +10,14 @@ const urls = {
   tempo: 'https://raw.githubusercontent.com/realdora/agenteconomy/main/public/tempo-data.json',
   web: 'https://agenteconomy.to/web-sources.json',
   coinbaseRegistry: 'https://raw.githubusercontent.com/Merit-Systems/x402scan/main/packages/external/facilitators/src/facilitators/coinbase.ts',
+  x402Page: 'https://agenteconomy.to/stats/x402-daily-transactions',
 }
 async function collect(fetcher = fetch) {
   return Object.fromEntries(await Promise.all(Object.entries(urls).map(async ([name, url]) => {
     try {
       const response = await fetcher(url, { headers: { 'User-Agent': 'AgentEconomyDataMonitor/1.0', 'Cache-Control': 'no-cache' }, signal: AbortSignal.timeout(12000) })
       if (!response.ok) throw Error(`HTTP ${response.status}`)
-      return [name, name === 'coinbaseRegistry' ? { source: await response.text() } : await response.json()]
+      return [name, ['coinbaseRegistry','x402Page'].includes(name) ? { source: await response.text() } : await response.json()]
     } catch (error) { return [name, { error: error.name === 'TimeoutError' ? '请求超时' : error.message }] }
   })))
 }
@@ -69,6 +70,7 @@ export class MonitorState extends DurableObject {
         }
         issues = [...new Map(issues.map(i => [i.id, i])).values()]
         state.lastCheckedAt = iso
+        state.monitorVersion = '2026-10-22-quality-v2'
         if (path === '/daily') state.lastDailyAt = iso
         state.issues = issues; state.observations = observations
       }

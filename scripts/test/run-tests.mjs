@@ -766,5 +766,13 @@ check('new overrun publishes data but fails hold gate',Boolean(JSON.parse(baseOv
 const strictBase=await runPipeline(baseScenario,{...baseOptions,extraEnv:{...baseOptions.extraEnv,DUNE_QUERY_CREDIT_CAP:'10'}})
 check('explicit stricter cap cannot be overridden by reviewed policy',countLog(strictBase.log,'/query/8748141/execute')===0 && strictBase.ghOutput.includes('query_hold=true'),strictBase.stdout)
 
+console.log('\nS17 output contract failure keeps prior data and baseline byte-identical')
+const qualityHeld = await runPipeline(s12scenario, { seedDataJson: SEED, baselines: S12_BASE, extraEnv: { DUNE_REFRESH_KEYS:'x402Daily', DUNE_ENFORCE_X402_CONTRACT:'1' } })
+check('contract failure exits nonzero with explicit diagnosis', qualityHeld.status !== 0 && qualityHeld.stdout.includes('x402 quality gate'),qualityHeld.stdout)
+check('invalid output never replaces previous data', qualityHeld.data === SEED)
+check('fold is not persisted before output validation',readFileSync(join(qualityHeld.outDir,'baselines.json'),'utf8') === JSON.stringify(S12_BASE))
+const bootstrapHeld = await runPipeline(defaultScenario(), { seedDataJson:JSON.stringify(oldSchema), extraEnv:{DUNE_ENFORCE_X402_CONTRACT:'1'} })
+check('legacy bootstrap cannot bypass production quality gate',bootstrapHeld.status!==0 && bootstrapHeld.data===JSON.stringify(oldSchema) && bootstrapHeld.log.length===0,bootstrapHeld.stdout)
+
 console.log(failures === 0 ? '\nALL TESTS PASSED' : `\n${failures} CHECK(S) FAILED`)
 process.exit(failures === 0 ? 0 : 1)

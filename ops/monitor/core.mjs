@@ -1,4 +1,4 @@
-import { inspectX402Coverage } from './coverage.mjs'
+import { inspectX402Coverage, inspectX402Page } from './coverage.mjs'
 export const WORKFLOWS = ['Update Dune Data', 'Update Tempo Data', 'Update Web Sources', 'Update Dashboard']
 const HOUR = 3600000
 const age = (date, now) => (now - Date.parse(date)) / HOUR
@@ -28,6 +28,7 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
   if (data && !data.error) {
     const coverageCheck = inspectX402Coverage(data, feeds.coinbaseRegistry, previous, now)
     issues.push(...coverageCheck.issues)
+    issues.push(...inspectX402Page(data, feeds.x402Page, now))
     Object.assign(observations, coverageCheck.observations)
     for (const [key, hours] of Object.entries(queryHours)) {
       freshness(`source.${key}`, data.meta?.queries?.[key]?.executedAt, hours)
@@ -40,7 +41,7 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
     const yesterday = new Date(now - 6 * HOUR - 86400000).toISOString().slice(0, 10)
     for (const [key, stamp] of [
       ['x402Chains', data.x402?.chainsAsOf],
-      ['x402Daily', [...(data.x402?.daily || [])].map(r => r.day).filter(Boolean).sort().at(-1)],
+      ['x402Daily', (Array.isArray(data.x402?.daily) ? data.x402.daily : []).map(r => r?.day).filter(Boolean).sort().at(-1)],
     ]) {
       if (!stamp || String(stamp).slice(0, 10) < yesterday) add(`coverage.${key}`, `${key === 'x402Chains' ? 'x402 分链' : 'x402 日频'}应覆盖至 ${yesterday}；当前仅覆盖至 ${stamp || '未知'}。请检查是否漏跑或上游未推进。`)
     }
@@ -53,16 +54,16 @@ export function inspectFeeds(feeds, previous = {}, now = Date.now()) {
         else observations[field] = value
       }
     }
-    const daily = data.x402?.daily || [], seen = new Set()
+    const daily = Array.isArray(data.x402?.daily) ? data.x402.daily : [], seen = new Set()
     for (const row of daily) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.day) || seen.has(row.day) || !Number.isSafeInteger(row.txs) || row.txs < 0) add('shape.x402Daily', '日频出现无效日期、重复日期或无效计数。')
-      seen.add(row.day)
+      if (!row || !/^\d{4}-\d{2}-\d{2}$/.test(row.day) || seen.has(row.day) || !Number.isSafeInteger(row.txs) || row.txs < 0) add('shape.x402Daily', '日频出现无效日期、重复日期或无效计数。')
+      if(row) seen.add(row.day)
     }
     for (let n = 1; n <= 7; n++) {
       const day = new Date(Date.parse(yesterday) - (n - 1) * 86400000).toISOString().slice(0, 10)
       if (!seen.has(day)) add('gap.x402Daily', `最近 7 个完整日中缺少 ${day}；不自动当成零交易。`)
     }
-    if (!Array.isArray(data.x402?.chains) || !data.x402.chains.length || data.x402.chains.some(c => !Number.isSafeInteger(c.txs) || c.txs < 0)) add('shape.x402Chains', '分链数据缺失或计数无效。')
+    if (!Array.isArray(data.x402?.chains) || !data.x402.chains.length || data.x402.chains.some(c => !c || !Number.isSafeInteger(c.txs) || c.txs < 0)) add('shape.x402Chains', '分链数据缺失或计数无效。')
     // Compare only settled versions; allow one hour for a new deployment/cache.
     for (const name of ['apex', 'dashboard']) {
       if (!feeds[name] || feeds[name].error) continue

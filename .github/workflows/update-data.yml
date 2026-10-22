@@ -28,11 +28,15 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Offline data quality and alert regressions
+        run: node --test ops/monitor/coverage.test.mjs ops/monitor/core.test.mjs ops/monitor/worker.test.mjs
+
       - name: Fetch Dune data
         id: fetch-data
         env:
           DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
           DUNE_RECEIPTS_REQUIRED: '1'
+          DUNE_ENFORCE_X402_CONTRACT: '1'
           DATA_MONITOR_URL: ${{ vars.DATA_MONITOR_URL }}
           MONITOR_TOKEN: ${{ secrets.DATA_MONITOR_TOKEN }}
           # Owned SQL + versioned registries: scripts/dune/owned/manifest.json.
