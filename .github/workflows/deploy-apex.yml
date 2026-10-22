@@ -6,6 +6,10 @@ on:
         description: 'Deploy the reviewed apex commit (false only inspects current production)'
         type: boolean
         default: false
+      purge:
+        description: 'Purge apex data and CDN caches after a verified feed repair'
+        type: boolean
+        default: false
       commit:
         description: 'Reviewed full commit SHA from the apex branch'
         required: true
@@ -50,3 +54,16 @@ jobs:
           npm run typecheck
           node --test scripts/complete-days.test.mjs
           npx -y vercel@50.4.0 deploy --prod --yes --token="$VERCEL_TOKEN"
+      - name: Purge apex caches
+        if: inputs.purge
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_fFSVN6tRoGVgunTP7gDNa5g3
+          VERCEL_PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          fs.mkdirSync('.vercel',{recursive:true});
+          fs.writeFileSync('.vercel/project.json',JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.VERCEL_PROJECT_ID}));
+          JS
+          npx -y vercel@50.4.0 cache purge --yes --token="$VERCEL_TOKEN"
