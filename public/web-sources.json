@@ -1,65 +1,65 @@
 {
-  "updatedAt": "2026-10-22T21:18:08.161Z",
+  "updatedAt": "2026-10-23T03:51:01.983Z",
   "schema": 2,
   "agentTokens": {
-    "asOf": "2026-10-22T21:18:08.452Z",
+    "asOf": "2026-10-23T03:51:02.294Z",
     "basket": [
       {
         "label": "Virtuals",
         "symbol": "VIRTUAL",
         "note": "ACP / agent commerce",
-        "mcap": 430674036,
-        "price": 0.654517,
-        "change24h": -6.28811
+        "mcap": 436185910,
+        "price": 0.662575,
+        "change24h": -1.6244
       },
       {
         "label": "Fetch (ASI)",
         "symbol": "FET",
         "note": "agent infrastructure",
-        "mcap": 427200270,
-        "price": 0.184762,
-        "change24h": -6.90561
+        "mcap": 435488337,
+        "price": 0.188397,
+        "change24h": -0.99402
       },
       {
         "label": "Kite",
         "symbol": "KITE",
         "note": "x402 facilitator",
-        "mcap": 285919255,
-        "price": 0.119587,
-        "change24h": -2.60905
+        "mcap": 287253871,
+        "price": 0.120097,
+        "change24h": 0.59831
       },
       {
         "label": "Olas",
         "symbol": "OLAS",
         "note": "autonomous agents",
-        "mcap": 16445098,
-        "price": 0.054855,
-        "change24h": -4.50993
+        "mcap": 16623690,
+        "price": 0.055466,
+        "change24h": -1.60402
       }
     ],
-    "basketMcap": 1160238659,
-    "basketVol24h": 133364263,
+    "basketMcap": 1175551808,
+    "basketVol24h": 125007955,
     "categories": [
       {
         "name": "AI Agents",
-        "mcap": 3599284370,
-        "vol24h": 363126820,
-        "updatedAt": "2026-10-22T21:14:09.000Z"
+        "mcap": 3604821428,
+        "vol24h": 350205062,
+        "updatedAt": "2026-10-23T03:43:19.000Z"
       },
       {
         "name": "AI Agent Launchpad",
-        "mcap": 1229193504,
-        "vol24h": 154636758,
-        "updatedAt": "2026-10-22T21:14:09.000Z"
+        "mcap": 1248078536,
+        "vol24h": 146067303,
+        "updatedAt": "2026-10-23T03:43:19.000Z"
       }
     ],
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-10-22T21:20:16.771Z",
-    "uniqueProviders": 2616,
-    "totalListings": 32901,
-    "top2ListingSharePct": 21,
+    "asOf": "2026-10-23T03:53:12.631Z",
+    "uniqueProviders": 2613,
+    "totalListings": 34683,
+    "top2ListingSharePct": 25,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
   "agentSupply": {
@@ -69,8 +69,8 @@
     "note": "Official MCP Registry counted by full cursor walk (version=latest, includes all listing statuses). Smithery shown as corroboration — registries differ in inclusion criteria."
   },
   "virtuals": {
-    "asOf": "2026-10-22T21:21:20.674Z",
-    "launchedAgents": 59763,
+    "asOf": "2026-10-23T03:51:04.384Z",
+    "launchedAgents": 59775,
     "acpRegisteredAgents": 44063,
     "aggregates": {
       "asOf": "2026-10-22T21:21:20.674Z",
@@ -135,9 +135,9 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-10-22T21:18:12.212Z",
-    "totalTxs": 40396,
-    "lastBlock": 14102705,
+    "asOf": "2026-10-23T03:51:12.265Z",
+    "totalTxs": 40397,
+    "lastBlock": 14103867,
     "weekly": [
       {
         "week": "2025-06-23",
@@ -417,7 +417,7 @@
       },
       {
         "week": "2026-10-19",
-        "txs": 496
+        "txs": 497
       }
     ],
     "note": "Transactions on the Masumi mainnet payment (escrow) contract, counted via Koios. Weekly series reconstructed from the contract’s on-chain transaction history (block timestamps, Monday-start UTC weeks). Cross-verified against the Masumi explorer on 2026-06-10."
@@ -1073,10 +1073,10 @@
     "note": "Daily token usage of top-50 public models on OpenRouter + aggregated other row (trailing default window). Provider-specific tokenizers — totals not comparable across models. Demand-side CONTEXT metric, not on-chain data."
   },
   "x402TokenSplit": {
-    "asOf": "2026-10-22T08:38:49.494113Z",
+    "asOf": "2026-10-23T02:28:49.877442Z",
     "windowDays": 30,
-    "usdcSharePct": 99.11,
-    "totalPayments": 2177785,
+    "usdcSharePct": 98.96,
+    "totalPayments": 2138573,
     "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
   }
 }
