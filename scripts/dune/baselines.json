@@ -1,12 +1,12 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-26T02:17:52.786Z",
+  "generatedAt": "2026-10-27T02:57:20.899Z",
   "x402": {
-    "cutoff": "2026-10-22",
-    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07) + folded days [2026-07-07, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27) + folded days [2026-07-27, 2026-07-28) + folded days [2026-07-28, 2026-07-29) + folded days [2026-07-29, 2026-07-30) + folded days [2026-07-30, 2026-07-31) + folded days [2026-07-31, 2026-08-01) + folded days [2026-08-01, 2026-08-02) + folded days [2026-08-02, 2026-08-03) + folded days [2026-08-03, 2026-08-04) + folded days [2026-08-04, 2026-08-05) + folded days [2026-08-05, 2026-08-07) + folded days [2026-08-07, 2026-08-08) + folded days [2026-08-08, 2026-08-09) + folded days [2026-08-09, 2026-08-10) + folded days [2026-08-10, 2026-08-11) + folded days [2026-08-11, 2026-08-12) + folded days [2026-08-12, 2026-08-13) + folded days [2026-08-13, 2026-08-14) + folded days [2026-08-14, 2026-08-16) + folded days [2026-08-16, 2026-08-17) + folded days [2026-08-17, 2026-08-18) + folded days [2026-08-18, 2026-08-19) + folded days [2026-08-19, 2026-08-20) + folded days [2026-08-20, 2026-08-21) + folded days [2026-08-21, 2026-08-22) + folded days [2026-08-22, 2026-08-23) + folded days [2026-08-23, 2026-08-24) + folded days [2026-08-24, 2026-08-25) + folded days [2026-08-25, 2026-08-26) + folded days [2026-08-26, 2026-08-27) + folded days [2026-08-27, 2026-08-28) + folded days [2026-08-28, 2026-08-29) + folded days [2026-08-29, 2026-08-30) + folded days [2026-08-30, 2026-08-31) + folded days [2026-08-31, 2026-09-01) + folded days [2026-09-01, 2026-09-02) + folded days [2026-09-02, 2026-09-03) + folded days [2026-09-03, 2026-09-04) + folded days [2026-09-04, 2026-09-05) + folded days [2026-09-05, 2026-09-06) + folded days [2026-09-06, 2026-09-07) + folded days [2026-09-07, 2026-09-08) + folded days [2026-09-08, 2026-09-09) + folded days [2026-09-09, 2026-09-10) + folded days [2026-09-10, 2026-09-11) + folded days [2026-09-11, 2026-09-12) + folded days [2026-09-12, 2026-09-13) + folded days [2026-09-13, 2026-09-14) + folded days [2026-09-14, 2026-09-15) + folded days [2026-09-15, 2026-09-16) + folded days [2026-09-16, 2026-09-17) + folded days [2026-09-17, 2026-09-18) + folded days [2026-09-18, 2026-09-19) + folded days [2026-09-19, 2026-09-30) + folded days [2026-09-30, 2026-10-01) + folded days [2026-10-01, 2026-10-03) + folded days [2026-10-03, 2026-10-04) + folded days [2026-10-04, 2026-10-05) + folded days [2026-10-05, 2026-10-06) + folded days [2026-10-06, 2026-10-07) + folded days [2026-10-07, 2026-10-08) + folded days [2026-10-08, 2026-10-09) + folded days [2026-10-09, 2026-10-10) + folded days [2026-10-10, 2026-10-11) + folded days [2026-10-11, 2026-10-12) + folded days [2026-10-12, 2026-10-13) + folded days [2026-10-13, 2026-10-14) + folded days [2026-10-14, 2026-10-15) + folded days [2026-10-15, 2026-10-16) + folded days [2026-10-16, 2026-10-17) + folded days [2026-10-17, 2026-10-18); 2026-10-22-coinbase-base-v2 verified disjoint Coinbase Base delta from 2026-09-16 + folded days [2026-10-18, 2026-10-19) + folded days [2026-10-19, 2026-10-20) + folded days [2026-10-20, 2026-10-21) + folded days [2026-10-21, 2026-10-22)",
+    "cutoff": "2026-10-23",
+    "source": "public/data.json through May 2026 plus Dune raw SQL execution 01KWKCEJZQGB0BC7VHY70WT88E for June 2026; protocol split remains approximate from displayed shares plus recent-window facilitator rows. + folded days [2026-07-01, 2026-07-02) + folded days [2026-07-02, 2026-07-03) + folded days [2026-07-03, 2026-07-07) + folded days [2026-07-07, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27) + folded days [2026-07-27, 2026-07-28) + folded days [2026-07-28, 2026-07-29) + folded days [2026-07-29, 2026-07-30) + folded days [2026-07-30, 2026-07-31) + folded days [2026-07-31, 2026-08-01) + folded days [2026-08-01, 2026-08-02) + folded days [2026-08-02, 2026-08-03) + folded days [2026-08-03, 2026-08-04) + folded days [2026-08-04, 2026-08-05) + folded days [2026-08-05, 2026-08-07) + folded days [2026-08-07, 2026-08-08) + folded days [2026-08-08, 2026-08-09) + folded days [2026-08-09, 2026-08-10) + folded days [2026-08-10, 2026-08-11) + folded days [2026-08-11, 2026-08-12) + folded days [2026-08-12, 2026-08-13) + folded days [2026-08-13, 2026-08-14) + folded days [2026-08-14, 2026-08-16) + folded days [2026-08-16, 2026-08-17) + folded days [2026-08-17, 2026-08-18) + folded days [2026-08-18, 2026-08-19) + folded days [2026-08-19, 2026-08-20) + folded days [2026-08-20, 2026-08-21) + folded days [2026-08-21, 2026-08-22) + folded days [2026-08-22, 2026-08-23) + folded days [2026-08-23, 2026-08-24) + folded days [2026-08-24, 2026-08-25) + folded days [2026-08-25, 2026-08-26) + folded days [2026-08-26, 2026-08-27) + folded days [2026-08-27, 2026-08-28) + folded days [2026-08-28, 2026-08-29) + folded days [2026-08-29, 2026-08-30) + folded days [2026-08-30, 2026-08-31) + folded days [2026-08-31, 2026-09-01) + folded days [2026-09-01, 2026-09-02) + folded days [2026-09-02, 2026-09-03) + folded days [2026-09-03, 2026-09-04) + folded days [2026-09-04, 2026-09-05) + folded days [2026-09-05, 2026-09-06) + folded days [2026-09-06, 2026-09-07) + folded days [2026-09-07, 2026-09-08) + folded days [2026-09-08, 2026-09-09) + folded days [2026-09-09, 2026-09-10) + folded days [2026-09-10, 2026-09-11) + folded days [2026-09-11, 2026-09-12) + folded days [2026-09-12, 2026-09-13) + folded days [2026-09-13, 2026-09-14) + folded days [2026-09-14, 2026-09-15) + folded days [2026-09-15, 2026-09-16) + folded days [2026-09-16, 2026-09-17) + folded days [2026-09-17, 2026-09-18) + folded days [2026-09-18, 2026-09-19) + folded days [2026-09-19, 2026-09-30) + folded days [2026-09-30, 2026-10-01) + folded days [2026-10-01, 2026-10-03) + folded days [2026-10-03, 2026-10-04) + folded days [2026-10-04, 2026-10-05) + folded days [2026-10-05, 2026-10-06) + folded days [2026-10-06, 2026-10-07) + folded days [2026-10-07, 2026-10-08) + folded days [2026-10-08, 2026-10-09) + folded days [2026-10-09, 2026-10-10) + folded days [2026-10-10, 2026-10-11) + folded days [2026-10-11, 2026-10-12) + folded days [2026-10-12, 2026-10-13) + folded days [2026-10-13, 2026-10-14) + folded days [2026-10-14, 2026-10-15) + folded days [2026-10-15, 2026-10-16) + folded days [2026-10-16, 2026-10-17) + folded days [2026-10-17, 2026-10-18); 2026-10-22-coinbase-base-v2 verified disjoint Coinbase Base delta from 2026-09-16 + folded days [2026-10-18, 2026-10-19) + folded days [2026-10-19, 2026-10-20) + folded days [2026-10-20, 2026-10-21) + folded days [2026-10-21, 2026-10-22) + folded days [2026-10-22, 2026-10-23)",
     "protocolsApprox": true,
-    "totalTxs": 194691251,
-    "totalVolume": 42200132,
+    "totalTxs": 194793516,
+    "totalVolume": 42206273,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -71,25 +71,25 @@
       },
       {
         "month": "2026-10",
-        "txs": 3816683,
-        "vol": 196545
+        "txs": 3918948,
+        "vol": 202686
       }
     ],
     "protocols": [
       {
         "name": "Other",
-        "txs": 52193248,
-        "vol": 690208
+        "txs": 52198567,
+        "vol": 692121
       },
       {
         "name": "PayAI",
-        "txs": 50542272,
-        "vol": 531777
+        "txs": 50566097,
+        "vol": 532330
       },
       {
         "name": "Coinbase",
-        "txs": 46041103,
-        "vol": 256131
+        "txs": 46113559,
+        "vol": 259650
       },
       {
         "name": "Dexter",
@@ -108,8 +108,8 @@
       },
       {
         "name": "Ultravioleta",
-        "txs": 41659,
-        "vol": 29154
+        "txs": 42315,
+        "vol": 29290
       },
       {
         "name": "Corbits",
@@ -118,7 +118,7 @@
       },
       {
         "name": "Mogami",
-        "txs": 4980,
+        "txs": 4982,
         "vol": 79
       },
       {
@@ -133,12 +133,12 @@
       },
       {
         "name": "OpenX402",
-        "txs": 2520,
-        "vol": 3258
+        "txs": 2524,
+        "vol": 3278
       },
       {
         "name": "ThirdWeb",
-        "txs": 1883,
+        "txs": 1886,
         "vol": 3789
       },
       {
@@ -183,26 +183,26 @@
     }
   },
   "erc8004Registry": {
-    "cutoff": "2026-10-21",
-    "source": "Frozen from public/data.json erc8004Registry through 2026-07-04 after execution 01KWP1RHHK6BDBSTMVQH0M0F50; contains exact totalAgents/chainsTracked, displayed top-chain distribution, and displayed 90-day daily series; recent-window query fills rows >= cutoff. + folded [2026-07-05, 2026-07-08) + folded [2026-07-08, 2026-07-10) + folded [2026-07-10, 2026-07-12) + folded [2026-07-12, 2026-07-14) + folded [2026-07-14, 2026-07-17) + folded [2026-07-17, 2026-07-19) + folded [2026-07-19, 2026-07-21) + folded [2026-07-21, 2026-07-23) + folded [2026-07-23, 2026-07-25) + folded [2026-07-25, 2026-07-27) + folded [2026-07-27, 2026-07-29) + folded [2026-07-29, 2026-07-31) + folded [2026-07-31, 2026-08-02) + folded [2026-08-02, 2026-08-04) + folded [2026-08-04, 2026-08-08) + folded [2026-08-08, 2026-08-10) + folded [2026-08-10, 2026-08-12) + folded [2026-08-12, 2026-08-14) + folded [2026-08-14, 2026-08-16) + folded [2026-08-16, 2026-08-18) + folded [2026-08-18, 2026-08-20) + folded [2026-08-20, 2026-08-22) + folded [2026-08-22, 2026-08-25) + folded [2026-08-25, 2026-08-27) + folded [2026-08-27, 2026-08-29) + folded [2026-08-29, 2026-08-31) + folded [2026-08-31, 2026-09-02) + folded [2026-09-02, 2026-09-05) + folded [2026-09-05, 2026-09-07) + folded [2026-09-07, 2026-09-09) + folded [2026-09-09, 2026-09-11) + folded [2026-09-11, 2026-09-13) + folded [2026-09-13, 2026-09-15) + folded [2026-09-15, 2026-09-17) + folded [2026-09-17, 2026-09-19) + folded [2026-09-19, 2026-09-30) + folded [2026-09-30, 2026-10-03) + folded [2026-10-03, 2026-10-05) + folded [2026-10-05, 2026-10-07) + folded [2026-10-07, 2026-10-09) + folded [2026-10-09, 2026-10-11) + folded [2026-10-11, 2026-10-13) + folded [2026-10-13, 2026-10-15) + folded [2026-10-15, 2026-10-17) + folded [2026-10-17, 2026-10-19) + folded [2026-10-19, 2026-10-21)",
-    "totalAgents": 921283,
+    "cutoff": "2026-10-23",
+    "source": "Frozen from public/data.json erc8004Registry through 2026-07-04 after execution 01KWP1RHHK6BDBSTMVQH0M0F50; contains exact totalAgents/chainsTracked, displayed top-chain distribution, and displayed 90-day daily series; recent-window query fills rows >= cutoff. + folded [2026-07-05, 2026-07-08) + folded [2026-07-08, 2026-07-10) + folded [2026-07-10, 2026-07-12) + folded [2026-07-12, 2026-07-14) + folded [2026-07-14, 2026-07-17) + folded [2026-07-17, 2026-07-19) + folded [2026-07-19, 2026-07-21) + folded [2026-07-21, 2026-07-23) + folded [2026-07-23, 2026-07-25) + folded [2026-07-25, 2026-07-27) + folded [2026-07-27, 2026-07-29) + folded [2026-07-29, 2026-07-31) + folded [2026-07-31, 2026-08-02) + folded [2026-08-02, 2026-08-04) + folded [2026-08-04, 2026-08-08) + folded [2026-08-08, 2026-08-10) + folded [2026-08-10, 2026-08-12) + folded [2026-08-12, 2026-08-14) + folded [2026-08-14, 2026-08-16) + folded [2026-08-16, 2026-08-18) + folded [2026-08-18, 2026-08-20) + folded [2026-08-20, 2026-08-22) + folded [2026-08-22, 2026-08-25) + folded [2026-08-25, 2026-08-27) + folded [2026-08-27, 2026-08-29) + folded [2026-08-29, 2026-08-31) + folded [2026-08-31, 2026-09-02) + folded [2026-09-02, 2026-09-05) + folded [2026-09-05, 2026-09-07) + folded [2026-09-07, 2026-09-09) + folded [2026-09-09, 2026-09-11) + folded [2026-09-11, 2026-09-13) + folded [2026-09-13, 2026-09-15) + folded [2026-09-15, 2026-09-17) + folded [2026-09-17, 2026-09-19) + folded [2026-09-19, 2026-09-30) + folded [2026-09-30, 2026-10-03) + folded [2026-10-03, 2026-10-05) + folded [2026-10-05, 2026-10-07) + folded [2026-10-07, 2026-10-09) + folded [2026-10-09, 2026-10-11) + folded [2026-10-11, 2026-10-13) + folded [2026-10-13, 2026-10-15) + folded [2026-10-15, 2026-10-17) + folded [2026-10-17, 2026-10-19) + folded [2026-10-19, 2026-10-21) + folded [2026-10-21, 2026-10-23)",
+    "totalAgents": 1300714,
     "chainsTracked": 24,
     "chains": [
       {
         "name": "Base",
-        "agents": 386376
+        "agents": 762595
       },
       {
         "name": "BNB",
-        "agents": 372590
+        "agents": 374755
       },
       {
         "name": "Ethereum",
-        "agents": 72085
+        "agents": 73015
       },
       {
         "name": "Robinhood",
-        "agents": 15972
+        "agents": 16015
       },
       {
         "name": "Abstract",
@@ -218,7 +218,7 @@
       },
       {
         "name": "Celo",
-        "agents": 10308
+        "agents": 10310
       },
       {
         "name": "Ink",
@@ -226,7 +226,7 @@
       },
       {
         "name": "Gnosis",
-        "agents": 4168
+        "agents": 4169
       },
       {
         "name": "Peaq",
@@ -234,7 +234,7 @@
       },
       {
         "name": "Arc",
-        "agents": 2591
+        "agents": 2655
       },
       {
         "name": "Shape",
@@ -242,15 +242,15 @@
       },
       {
         "name": "Avalanche",
-        "agents": 1854
+        "agents": 1856
       },
       {
         "name": "Arbitrum",
-        "agents": 1660
+        "agents": 1661
       },
       {
         "name": "Tempo",
-        "agents": 165
+        "agents": 169
       },
       {
         "name": "Polygon",
@@ -1073,6 +1073,14 @@
       {
         "day": "2026-10-20",
         "agents": 104284
+      },
+      {
+        "day": "2026-10-21",
+        "agents": 116267
+      },
+      {
+        "day": "2026-10-22",
+        "agents": 263164
       }
     ]
   },
@@ -1788,9 +1796,9 @@
     }
   },
   "virtualsAcp": {
-    "cutoff": "2026-10-22",
-    "source": "Frozen from public/data.json Virtuals ACP through 2026-07-04 after execution 01KWP0QFW4DXVD8KJBEQ8V7V8K; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27) + folded days [2026-07-27, 2026-07-28) + folded days [2026-07-28, 2026-07-29) + folded days [2026-07-29, 2026-07-30) + folded days [2026-07-30, 2026-07-31) + folded days [2026-07-31, 2026-08-01) + folded days [2026-08-01, 2026-08-02) + folded days [2026-08-02, 2026-08-03) + folded days [2026-08-03, 2026-08-04) + folded days [2026-08-04, 2026-08-05) + folded days [2026-08-05, 2026-08-07) + folded days [2026-08-07, 2026-08-08) + folded days [2026-08-08, 2026-08-09) + folded days [2026-08-09, 2026-08-10) + folded days [2026-08-10, 2026-08-11) + folded days [2026-08-11, 2026-08-12) + folded days [2026-08-12, 2026-08-13) + folded days [2026-08-13, 2026-08-14) + folded days [2026-08-14, 2026-08-15) + folded days [2026-08-15, 2026-08-16) + folded days [2026-08-16, 2026-08-17) + folded days [2026-08-17, 2026-08-18) + folded days [2026-08-18, 2026-08-19) + folded days [2026-08-19, 2026-08-20) + folded days [2026-08-20, 2026-08-21) + folded days [2026-08-21, 2026-08-22) + folded days [2026-08-22, 2026-08-23) + folded days [2026-08-23, 2026-08-24) + folded days [2026-08-24, 2026-08-25) + folded days [2026-08-25, 2026-08-26) + folded days [2026-08-26, 2026-08-27) + folded days [2026-08-27, 2026-08-28) + folded days [2026-08-28, 2026-08-29) + folded days [2026-08-29, 2026-08-30) + folded days [2026-08-30, 2026-08-31) + folded days [2026-08-31, 2026-09-01) + folded days [2026-09-01, 2026-09-02) + folded days [2026-09-02, 2026-09-03) + folded days [2026-09-03, 2026-09-04) + folded days [2026-09-04, 2026-09-05) + folded days [2026-09-05, 2026-09-06) + folded days [2026-09-06, 2026-09-07) + folded days [2026-09-07, 2026-09-08) + folded days [2026-09-08, 2026-09-09) + folded days [2026-09-09, 2026-09-10) + folded days [2026-09-10, 2026-09-11) + folded days [2026-09-11, 2026-09-12) + folded days [2026-09-12, 2026-09-13) + folded days [2026-09-13, 2026-09-14) + folded days [2026-09-14, 2026-09-15) + folded days [2026-09-15, 2026-09-16) + folded days [2026-09-16, 2026-09-17) + folded days [2026-09-17, 2026-09-18) + folded days [2026-09-18, 2026-09-19) + folded days [2026-09-19, 2026-09-30) + folded days [2026-09-30, 2026-10-01) + folded days [2026-10-01, 2026-10-03) + folded days [2026-10-03, 2026-10-04) + folded days [2026-10-04, 2026-10-05) + folded days [2026-10-05, 2026-10-06) + folded days [2026-10-06, 2026-10-07) + folded days [2026-10-07, 2026-10-08) + folded days [2026-10-08, 2026-10-09) + folded days [2026-10-09, 2026-10-10) + folded days [2026-10-10, 2026-10-11) + folded days [2026-10-11, 2026-10-12) + folded days [2026-10-12, 2026-10-13) + folded days [2026-10-13, 2026-10-14) + folded days [2026-10-14, 2026-10-15) + folded days [2026-10-15, 2026-10-16) + folded days [2026-10-16, 2026-10-17) + folded days [2026-10-17, 2026-10-18) + folded days [2026-10-18, 2026-10-19) + folded days [2026-10-19, 2026-10-20) + folded days [2026-10-20, 2026-10-21) + folded days [2026-10-21, 2026-10-22)",
-    "totalMemos": 12362416,
+    "cutoff": "2026-10-23",
+    "source": "Frozen from public/data.json Virtuals ACP through 2026-07-04 after execution 01KWP0QFW4DXVD8KJBEQ8V7V8K; recent-window query fills rows >= cutoff. + folded days [2026-07-05, 2026-07-08) + folded days [2026-07-08, 2026-07-09) + folded days [2026-07-09, 2026-07-10) + folded days [2026-07-10, 2026-07-11) + folded days [2026-07-11, 2026-07-12) + folded days [2026-07-12, 2026-07-13) + folded days [2026-07-13, 2026-07-14) + folded days [2026-07-14, 2026-07-15) + folded days [2026-07-15, 2026-07-17) + folded days [2026-07-17, 2026-07-18) + folded days [2026-07-18, 2026-07-19) + folded days [2026-07-19, 2026-07-20) + folded days [2026-07-20, 2026-07-21) + folded days [2026-07-21, 2026-07-22) + folded days [2026-07-22, 2026-07-23) + folded days [2026-07-23, 2026-07-24) + folded days [2026-07-24, 2026-07-25) + folded days [2026-07-25, 2026-07-26) + folded days [2026-07-26, 2026-07-27) + folded days [2026-07-27, 2026-07-28) + folded days [2026-07-28, 2026-07-29) + folded days [2026-07-29, 2026-07-30) + folded days [2026-07-30, 2026-07-31) + folded days [2026-07-31, 2026-08-01) + folded days [2026-08-01, 2026-08-02) + folded days [2026-08-02, 2026-08-03) + folded days [2026-08-03, 2026-08-04) + folded days [2026-08-04, 2026-08-05) + folded days [2026-08-05, 2026-08-07) + folded days [2026-08-07, 2026-08-08) + folded days [2026-08-08, 2026-08-09) + folded days [2026-08-09, 2026-08-10) + folded days [2026-08-10, 2026-08-11) + folded days [2026-08-11, 2026-08-12) + folded days [2026-08-12, 2026-08-13) + folded days [2026-08-13, 2026-08-14) + folded days [2026-08-14, 2026-08-15) + folded days [2026-08-15, 2026-08-16) + folded days [2026-08-16, 2026-08-17) + folded days [2026-08-17, 2026-08-18) + folded days [2026-08-18, 2026-08-19) + folded days [2026-08-19, 2026-08-20) + folded days [2026-08-20, 2026-08-21) + folded days [2026-08-21, 2026-08-22) + folded days [2026-08-22, 2026-08-23) + folded days [2026-08-23, 2026-08-24) + folded days [2026-08-24, 2026-08-25) + folded days [2026-08-25, 2026-08-26) + folded days [2026-08-26, 2026-08-27) + folded days [2026-08-27, 2026-08-28) + folded days [2026-08-28, 2026-08-29) + folded days [2026-08-29, 2026-08-30) + folded days [2026-08-30, 2026-08-31) + folded days [2026-08-31, 2026-09-01) + folded days [2026-09-01, 2026-09-02) + folded days [2026-09-02, 2026-09-03) + folded days [2026-09-03, 2026-09-04) + folded days [2026-09-04, 2026-09-05) + folded days [2026-09-05, 2026-09-06) + folded days [2026-09-06, 2026-09-07) + folded days [2026-09-07, 2026-09-08) + folded days [2026-09-08, 2026-09-09) + folded days [2026-09-09, 2026-09-10) + folded days [2026-09-10, 2026-09-11) + folded days [2026-09-11, 2026-09-12) + folded days [2026-09-12, 2026-09-13) + folded days [2026-09-13, 2026-09-14) + folded days [2026-09-14, 2026-09-15) + folded days [2026-09-15, 2026-09-16) + folded days [2026-09-16, 2026-09-17) + folded days [2026-09-17, 2026-09-18) + folded days [2026-09-18, 2026-09-19) + folded days [2026-09-19, 2026-09-30) + folded days [2026-09-30, 2026-10-01) + folded days [2026-10-01, 2026-10-03) + folded days [2026-10-03, 2026-10-04) + folded days [2026-10-04, 2026-10-05) + folded days [2026-10-05, 2026-10-06) + folded days [2026-10-06, 2026-10-07) + folded days [2026-10-07, 2026-10-08) + folded days [2026-10-08, 2026-10-09) + folded days [2026-10-09, 2026-10-10) + folded days [2026-10-10, 2026-10-11) + folded days [2026-10-11, 2026-10-12) + folded days [2026-10-12, 2026-10-13) + folded days [2026-10-13, 2026-10-14) + folded days [2026-10-14, 2026-10-15) + folded days [2026-10-15, 2026-10-16) + folded days [2026-10-16, 2026-10-17) + folded days [2026-10-17, 2026-10-18) + folded days [2026-10-18, 2026-10-19) + folded days [2026-10-19, 2026-10-20) + folded days [2026-10-20, 2026-10-21) + folded days [2026-10-21, 2026-10-22) + folded days [2026-10-22, 2026-10-23)",
+    "totalMemos": 12362522,
     "daily": [
       {
         "day": "2026-04-06",
@@ -2786,6 +2794,11 @@
         "day": "2026-10-21",
         "memos": 132,
         "senders": 5
+      },
+      {
+        "day": "2026-10-22",
+        "memos": 106,
+        "senders": 7
       }
     ]
   },
