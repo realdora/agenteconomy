@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-29T12:54:05.469475Z",
+  "updatedAt": "2026-10-29T16:28:46.76227Z",
   "meta": {
     "schema": 3,
     "queries": {
@@ -12,11 +12,10 @@
       },
       "x402Daily": {
         "queryId": 8748139,
-        "executionId": "01M5TZPRCN40N3ES5MDTB5JP23",
-        "executedAt": "2026-10-26T02:13:29.32078Z",
-        "lastCostCredits": 2.691911765,
-        "lastWindowStart": "2026-10-21",
-        "refreshHold": "Dune 8748139: execution 01M5XM7GXGTDKFW1QXCA7M32BY cancelled by execution cap 15 after 15.34 credits"
+        "executionId": "01M647VDQZ9XMC22N5JP2CKZEV",
+        "executedAt": "2026-10-29T16:28:46.76227Z",
+        "lastCostCredits": 2.134264706,
+        "lastWindowStart": "2026-10-25"
       },
       "baseAgentic": {
         "queryId": 8748141,
@@ -113,7 +112,7 @@
     }
   ],
   "x402": {
-    "asOf": "2026-10-26T02:13:29.32078Z",
+    "asOf": "2026-10-29T12:53:15.735716Z",
     "totalTxs": 195608263,
     "totalVolume": 42263046,
     "facilitatorsTracked": 18,
@@ -185,18 +184,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-08-27",
-        "txs": 1528992
-      },
-      {
-        "day": "2026-08-28",
-        "txs": 1256764
-      },
-      {
-        "day": "2026-08-29",
-        "txs": 1285303
-      },
       {
         "day": "2026-08-30",
         "txs": 1244492
@@ -424,9 +411,131 @@
       {
         "day": "2026-10-25",
         "txs": 163668
+      },
+      {
+        "day": "2026-10-26",
+        "txs": 84723
+      },
+      {
+        "day": "2026-10-27",
+        "txs": 121852
+      },
+      {
+        "day": "2026-10-28",
+        "txs": 133987
       }
     ],
     "recentFacilitators": [
+      {
+        "day": "2026-10-28",
+        "project": "Coinbase",
+        "txs": 114348
+      },
+      {
+        "day": "2026-10-28",
+        "project": "PayAI",
+        "txs": 19188
+      },
+      {
+        "day": "2026-10-28",
+        "project": "Ultravioleta DAO",
+        "txs": 437
+      },
+      {
+        "day": "2026-10-28",
+        "project": "Mogami",
+        "txs": 4
+      },
+      {
+        "day": "2026-10-28",
+        "project": "Polygon",
+        "txs": 3
+      },
+      {
+        "day": "2026-10-28",
+        "project": "Open X402",
+        "txs": 3
+      },
+      {
+        "day": "2026-10-28",
+        "project": "thirdweb",
+        "txs": 3
+      },
+      {
+        "day": "2026-10-28",
+        "project": "pieverse",
+        "txs": 1
+      },
+      {
+        "day": "2026-10-27",
+        "project": "Coinbase",
+        "txs": 110672
+      },
+      {
+        "day": "2026-10-27",
+        "project": "PayAI",
+        "txs": 10427
+      },
+      {
+        "day": "2026-10-27",
+        "project": "Ultravioleta DAO",
+        "txs": 720
+      },
+      {
+        "day": "2026-10-27",
+        "project": "Open X402",
+        "txs": 22
+      },
+      {
+        "day": "2026-10-27",
+        "project": "thirdweb",
+        "txs": 6
+      },
+      {
+        "day": "2026-10-27",
+        "project": "Virtuals Protocol",
+        "txs": 3
+      },
+      {
+        "day": "2026-10-27",
+        "project": "Mogami",
+        "txs": 2
+      },
+      {
+        "day": "2026-10-26",
+        "project": "Coinbase",
+        "txs": 77521
+      },
+      {
+        "day": "2026-10-26",
+        "project": "PayAI",
+        "txs": 6174
+      },
+      {
+        "day": "2026-10-26",
+        "project": "Ultravioleta DAO",
+        "txs": 1013
+      },
+      {
+        "day": "2026-10-26",
+        "project": "Treasure",
+        "txs": 5
+      },
+      {
+        "day": "2026-10-26",
+        "project": "thirdweb",
+        "txs": 5
+      },
+      {
+        "day": "2026-10-26",
+        "project": "Open X402",
+        "txs": 3
+      },
+      {
+        "day": "2026-10-26",
+        "project": "Mogami",
+        "txs": 2
+      },
       {
         "day": "2026-10-25",
         "project": "Coinbase",
@@ -444,173 +553,18 @@
       },
       {
         "day": "2026-10-25",
-        "project": "Open X402",
-        "txs": 4
-      },
-      {
-        "day": "2026-10-25",
         "project": "thirdweb",
         "txs": 4
       },
       {
         "day": "2026-10-25",
-        "project": "Mogami",
-        "txs": 3
-      },
-      {
-        "day": "2026-10-24",
-        "project": "Coinbase",
-        "txs": 77767
-      },
-      {
-        "day": "2026-10-24",
-        "project": "PayAI",
-        "txs": 18801
-      },
-      {
-        "day": "2026-10-24",
-        "project": "Ultravioleta DAO",
-        "txs": 665
-      },
-      {
-        "day": "2026-10-24",
-        "project": "Mogami",
-        "txs": 7
-      },
-      {
-        "day": "2026-10-24",
-        "project": "Open X402",
-        "txs": 7
-      },
-      {
-        "day": "2026-10-24",
-        "project": "402104",
-        "txs": 5
-      },
-      {
-        "day": "2026-10-24",
-        "project": "Treasure",
-        "txs": 5
-      },
-      {
-        "day": "2026-10-24",
-        "project": "thirdweb",
-        "txs": 3
-      },
-      {
-        "day": "2026-10-23",
-        "project": "Coinbase",
-        "txs": 92301
-      },
-      {
-        "day": "2026-10-23",
-        "project": "PayAI",
-        "txs": 22261
-      },
-      {
-        "day": "2026-10-23",
-        "project": "Ultravioleta DAO",
-        "txs": 692
-      },
-      {
-        "day": "2026-10-23",
-        "project": "thirdweb",
-        "txs": 6
-      },
-      {
-        "day": "2026-10-23",
-        "project": "Virtuals Protocol",
-        "txs": 5
-      },
-      {
-        "day": "2026-10-23",
-        "project": "Mogami",
-        "txs": 2
-      },
-      {
-        "day": "2026-10-22",
-        "project": "Coinbase",
-        "txs": 72457
-      },
-      {
-        "day": "2026-10-22",
-        "project": "PayAI",
-        "txs": 23531
-      },
-      {
-        "day": "2026-10-22",
-        "project": "Ultravioleta DAO",
-        "txs": 656
-      },
-      {
-        "day": "2026-10-22",
-        "project": "Polygon",
-        "txs": 10
-      },
-      {
-        "day": "2026-10-22",
         "project": "Open X402",
         "txs": 4
       },
       {
-        "day": "2026-10-22",
-        "project": "thirdweb",
-        "txs": 3
-      },
-      {
-        "day": "2026-10-22",
-        "project": "Virtuals Protocol",
-        "txs": 2
-      },
-      {
-        "day": "2026-10-22",
+        "day": "2026-10-25",
         "project": "Mogami",
-        "txs": 2
-      },
-      {
-        "day": "2026-10-21",
-        "project": "Coinbase",
-        "txs": 76300
-      },
-      {
-        "day": "2026-10-21",
-        "project": "PayAI",
-        "txs": 23928
-      },
-      {
-        "day": "2026-10-21",
-        "project": "Ultravioleta DAO",
-        "txs": 728
-      },
-      {
-        "day": "2026-10-21",
-        "project": "Polygon",
-        "txs": 11
-      },
-      {
-        "day": "2026-10-21",
-        "project": "Open X402",
-        "txs": 8
-      },
-      {
-        "day": "2026-10-21",
-        "project": "pieverse",
         "txs": 3
-      },
-      {
-        "day": "2026-10-21",
-        "project": "thirdweb",
-        "txs": 1
-      },
-      {
-        "day": "2026-10-21",
-        "project": "Mogami",
-        "txs": 1
-      },
-      {
-        "day": "2026-10-21",
-        "project": "DayDreams",
-        "txs": 1
       }
     ],
     "coverage": {
