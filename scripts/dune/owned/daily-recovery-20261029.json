@@ -1,0 +1,24 @@
+{
+  "reviewedAt": "2026-10-29T13:10:04.939Z",
+  "sourceExecutionId": "01M5TZPRCN40N3ES5MDTB5JP23",
+  "sourceExecutedAt": "2026-10-26T02:13:29.32078Z",
+  "rows": 37,
+  "resultSha256": "99dace0834298bf6efdd84fdf4bbe4acb513bf17ce2fa8dff88864d59bf552df",
+  "priorCutoff": "2026-10-22",
+  "cutoff": "2026-10-25",
+  "frozenDays": [
+    {
+      "day": "2026-10-24",
+      "txs": 97260
+    },
+    {
+      "day": "2026-10-23",
+      "txs": 115267
+    },
+    {
+      "day": "2026-10-22",
+      "txs": 96665
+    }
+  ],
+  "validation": "Exact cached completed execution, complete row count, all raw day totals match published feed, prior frozen history unchanged, all overlapping published rows match; no new execution, no SQL change, no budget increase."
+}
