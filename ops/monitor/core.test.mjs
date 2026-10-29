@@ -1,12 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { healthyFeeds } from './fixtures/healthy-feeds.mjs'
 import { inspectFeeds, inspectRuns, inspectEvents, notificationPlan, monitorHealthy, WORKFLOWS } from './core.mjs'
 const now = Date.parse('2026-09-15T21:00:00Z')
-const base = JSON.parse(readFileSync(new URL('../../public/data.json', import.meta.url)))
-const web = JSON.parse(readFileSync(new URL('../../public/web-sources.json', import.meta.url)))
-const tempo = JSON.parse(readFileSync(new URL('../../public/tempo-data.json', import.meta.url)))
-const feeds = () => ({ canonical: structuredClone(base), apex: structuredClone(base), dashboard: structuredClone(base), web, tempo })
+const feeds = () => healthyFeeds('2026-09-15T17:00:00Z')
 test('stale chain coverage cannot hide behind a fresh execution or overall timestamp', () => {
   const f = feeds(); f.canonical.updatedAt = new Date(now).toISOString()
   f.canonical.meta.queries.x402Chains.executedAt = new Date(now).toISOString()

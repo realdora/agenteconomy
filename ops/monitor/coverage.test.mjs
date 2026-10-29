@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import { healthyFeeds } from './fixtures/healthy-feeds.mjs'
 import { currentCoinbaseBaseAddresses, inspectX402Coverage, inspectX402Page } from './coverage.mjs'
 import { assertX402Contract } from '../../scripts/dune/x402-contract.mjs'
 const a='0x'+'a'.repeat(40), b='0x'+'b'.repeat(40)
@@ -65,8 +66,8 @@ test('actual October incident alerts by Oct 15 and stays open through Oct 22',()
  }
  assert.equal(firstAlert,'2026-10-15')
 })
-test('actual repaired feed passes the publication contract; duplicate, missing groups, partial day and wrong version fail',()=>{
- const good=JSON.parse(fs.readFileSync(new URL('../../public/data.json',import.meta.url)))
+test('healthy fixture passes the publication contract; duplicate, missing groups, partial day and wrong version fail',()=>{
+ const good=healthyFeeds().canonical
  assert.doesNotThrow(()=>assertX402Contract(good))
  for(const mutate of [d=>d.x402.daily.push(d.x402.daily[0]),d=>delete d.x402.recentFacilitators,d=>d.x402.daily.pop(),d=>d.x402.daily.push({day:d.meta.queries.x402Daily.executedAt.slice(0,10),txs:1})]){
    const d=structuredClone(good);mutate(d);assert.throws(()=>assertX402Contract(d))
