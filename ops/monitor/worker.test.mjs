@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import { healthyFeeds } from './fixtures/healthy-feeds.mjs'
 let code=fs.readFileSync(new URL('./worker.mjs',import.meta.url),'utf8')
 code=code.replace("import { DurableObject } from 'cloudflare:workers'",'class DurableObject { constructor(ctx,env){this.ctx=ctx;this.env=env} }')
 for(const name of ['core','mini','dune-receipts'])code=code.replace(`'./${name}.mjs'`,JSON.stringify(new URL(`./${name}.mjs`,import.meta.url).href))
@@ -24,7 +25,7 @@ test('Mini key can only submit reports; ingest is quiet, replay cannot freshen h
 
 test('successful jobs with bad data still generate email; repeats dedupe; corrected data generates recovery',async t=>{
  const originalFetch=globalThis.fetch, originalNow=Date.now
- const data=JSON.parse(fs.readFileSync(new URL('../../public/data.json',import.meta.url)))
+ const fixture=healthyFeeds(),data=fixture.canonical
  const instant=Date.parse(data.meta.queries.x402Daily.executedAt)+4*3600000
  Date.now=()=>instant
  t.after(()=>{globalThis.fetch=originalFetch;Date.now=originalNow})
@@ -32,7 +33,7 @@ test('successful jobs with bad data still generate email; repeats dedupe; correc
  for(const q of Object.values(data.meta.queries))q.executedAt=iso
  // Complete day remains yesterday; only the execution age changes for this test.
  const latest=[...data.x402.daily].sort((a,b)=>a.day.localeCompare(b.day)).at(-1)
- const web=JSON.parse(fs.readFileSync(new URL('../../public/web-sources.json',import.meta.url)))
+ const web=fixture.web
  for(const key of ['agentTokens','x402Services','agentSupply','virtuals','devAdoption','masumi','solanaAgents','standardsAdoption','inferenceDemand','x402TokenSplit'])web[key]={...(web[key]||{}),asOf:iso}
  const registry=`[Network.BASE]: [${data.x402.coverage.coinbaseBaseAddresses.map(a=>`{ address: '${a}' , tokens: [] }`).join(',')}], [Network.SOLANA]: []`
  let broken=true;const sent=[]
@@ -56,7 +57,17 @@ test('successful jobs with bad data still generate email; repeats dedupe; correc
  assert.match(sent[0].subject,/数据监控发现异常/);assert.match(sent[0].text,/覆盖|未覆盖/)
  await daily();assert.equal(sent.length,1)
  broken=false
+ // Restoring coverage must not hide the real holds that caused the Oct 27
+ // incident. Only healthy inputs may generate a recovery notification.
+ data.meta.queries.x402Daily.refreshHold='cancelled by execution cap 15 after 15.34 credits'
+ data.meta.queries.x402Chains.refreshHold='shared daily credit reservation exhausted'
+ const held=await(await daily()).json()
+ assert.deepEqual(held.issues.map(i=>i.id).sort(),['hold.x402Chains','hold.x402Daily'])
+ assert.equal(sent.length,2);assert.match(sent[1].subject,/数据监控发现异常/)
+ await daily();assert.equal(sent.length,2)
+ delete data.meta.queries.x402Daily.refreshHold
+ delete data.meta.queries.x402Chains.refreshHold
  const restored=await(await daily()).json()
- assert.deepEqual(restored.issues,[]);assert.equal(sent.length,2);assert.match(sent[1].subject,/恢复/)
+ assert.deepEqual(restored.issues,[]);assert.equal(sent.length,3);assert.match(sent[2].subject,/恢复/)
  assert.equal(memory.get('state').monitorVersion,'2026-10-22-quality-v2')
 })
