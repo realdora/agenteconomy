@@ -3035,24 +3035,18 @@
     ]
   },
   "tempoMpp": {
-    "totalEvents": 48272,
+    "totalEvents": 48276,
     "uniquePayers": 1869,
     "uniquePayees": 92,
     "byType": {
-      "ChannelOpened": 23950,
+      "ChannelOpened": 23951,
       "CloseRequested": 3169,
       "ChannelExpired": 2980,
-      "ChannelClosed": 17064,
+      "ChannelClosed": 17065,
       "Settled": 385,
-      "TopUp": 724
+      "TopUp": 726
     },
     "daily": [
-      {
-        "day": "2026-07-20",
-        "events": 12,
-        "payers": 2,
-        "payees": 2
-      },
       {
         "day": "2026-07-21",
         "events": 76,
@@ -3585,6 +3579,12 @@
         "day": "2026-11-02",
         "events": 15,
         "payers": 2,
+        "payees": 1
+      },
+      {
+        "day": "2026-11-03",
+        "events": 4,
+        "payers": 1,
         "payees": 1
       }
     ]
