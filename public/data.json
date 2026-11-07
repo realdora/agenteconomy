@@ -1,41 +1,41 @@
 {
-  "updatedAt": "2026-11-06T04:06:05.729457Z",
+  "updatedAt": "2026-11-07T03:42:41.818226Z",
   "meta": {
     "schema": 3,
     "queries": {
       "x402Cumulative": {
         "queryId": 8748138,
-        "executionId": "01M6QGFJP6W29Z8Q83FZGW0S9V",
-        "executedAt": "2026-11-06T04:05:11.373915Z",
-        "lastCostCredits": 2.98132353,
-        "lastWindowStart": "2026-11-01"
+        "executionId": "01M6T1HAZQ6N4G54W474Q58R0P",
+        "executedAt": "2026-11-07T03:41:35.757795Z",
+        "lastCostCredits": 3.574264706,
+        "lastWindowStart": "2026-11-02"
       },
       "x402Daily": {
         "queryId": 8748139,
-        "executionId": "01M6QGH3N7CGPKZF1GQ5FP0Y14",
-        "executedAt": "2026-11-06T04:06:05.729457Z",
-        "lastCostCredits": 2.056617648,
-        "lastWindowStart": "2026-11-01"
+        "executionId": "01M6T1JHEYRNXJ5FE7DCX0CN65",
+        "executedAt": "2026-11-07T03:42:41.818226Z",
+        "lastCostCredits": 2.02132353,
+        "lastWindowStart": "2026-11-02"
       },
       "baseAgentic": {
         "queryId": 8748141,
-        "executionId": "01M6QGDK0X58GEP9NKR5WBT5EG",
-        "executedAt": "2026-11-06T04:04:44.969577Z",
-        "lastCostCredits": 5.148382353
+        "executionId": "01M6T1F10CM0TQH0JR9HCH8VZN",
+        "executedAt": "2026-11-07T03:41:16.827301Z",
+        "lastCostCredits": 4.068382353
       },
       "virtualsAcp": {
         "queryId": 7881007,
-        "executionId": "01M6QGDCPS3KAXARRB3D4S3C4H",
-        "executedAt": "2026-11-06T04:03:38.510633Z",
-        "lastCostCredits": 0.110147059,
-        "lastWindowStart": "2026-11-01"
+        "executionId": "01M6T1ENKS9D38Y144BBWZWPM1",
+        "executedAt": "2026-11-07T03:39:56.642236Z",
+        "lastCostCredits": 0.13932353,
+        "lastWindowStart": "2026-11-02"
       },
       "erc8004Registry": {
         "queryId": 7881124,
-        "executionId": "01M6MYDFFPPJTYS8GFHX0F3BEE",
-        "executedAt": "2026-11-05T04:10:53.741271Z",
-        "lastCostCredits": 0.835441177,
-        "lastWindowStart": "2026-10-30"
+        "executionId": "01M6T1CFSACDC6P3RGXJ90AJGQ",
+        "executedAt": "2026-11-07T03:39:14.088454Z",
+        "lastCostCredits": 0.800147059,
+        "lastWindowStart": "2026-11-01"
       },
       "olas": {
         "queryId": 7881008,
@@ -46,16 +46,16 @@
       },
       "x402TokenSplit": {
         "queryId": 8748140,
-        "executionId": "01M6QGGDTZWE0FM00GEDQKJHAM",
-        "executedAt": "2026-11-06T04:05:32.692315Z",
-        "lastCostCredits": 1.393088236
+        "executionId": "01M6T1J0RG2DVPCW8Q3S0MEX8E",
+        "executedAt": "2026-11-07T03:41:52.726899Z",
+        "lastCostCredits": 1.266029412
       },
       "x402Chains": {
         "queryId": 8734676,
-        "executionId": "01M6QGCW0SG2NZTM2NNGM83ENK",
-        "executedAt": "2026-11-06T04:03:30.385559Z",
-        "lastCostCredits": 2.931911765,
-        "lastWindowStart": "2026-11-01"
+        "executionId": "01M6T1DN8YZ4WQBBMJM3TS72GZ",
+        "executedAt": "2026-11-07T03:39:47.168355Z",
+        "lastCostCredits": 3.687205883,
+        "lastWindowStart": "2026-11-02"
       }
     }
   },
@@ -112,9 +112,9 @@
     }
   ],
   "x402": {
-    "asOf": "2026-11-06T04:05:11.373915Z",
-    "totalTxs": 197157748,
-    "totalVolume": 42499788,
+    "asOf": "2026-11-07T03:41:35.757795Z",
+    "totalTxs": 197582876,
+    "totalVolume": 42548636,
     "facilitatorsTracked": 18,
     "monthly": [
       {
@@ -184,15 +184,11 @@
       },
       {
         "month": "Nov 26",
-        "txs": 1195368,
-        "vol": 221981
+        "txs": 1620496,
+        "vol": 270829
       }
     ],
     "daily": [
-      {
-        "day": "2026-09-07",
-        "txs": 1138650
-      },
       {
         "day": "2026-09-08",
         "txs": 301146
@@ -428,9 +424,58 @@
       {
         "day": "2026-11-05",
         "txs": 134165
+      },
+      {
+        "day": "2026-11-06",
+        "txs": 401521
       }
     ],
     "recentFacilitators": [
+      {
+        "day": "2026-11-06",
+        "project": "Polygon",
+        "txs": 198395
+      },
+      {
+        "day": "2026-11-06",
+        "project": "Coinbase",
+        "txs": 176596
+      },
+      {
+        "day": "2026-11-06",
+        "project": "PayAI",
+        "txs": 26117
+      },
+      {
+        "day": "2026-11-06",
+        "project": "Ultravioleta DAO",
+        "txs": 402
+      },
+      {
+        "day": "2026-11-06",
+        "project": "Virtuals Protocol",
+        "txs": 4
+      },
+      {
+        "day": "2026-11-06",
+        "project": "Mogami",
+        "txs": 3
+      },
+      {
+        "day": "2026-11-06",
+        "project": "thirdweb",
+        "txs": 2
+      },
+      {
+        "day": "2026-11-06",
+        "project": "Open X402",
+        "txs": 1
+      },
+      {
+        "day": "2026-11-06",
+        "project": "pieverse",
+        "txs": 1
+      },
       {
         "day": "2026-11-05",
         "project": "Coinbase",
@@ -493,12 +538,12 @@
       },
       {
         "day": "2026-11-04",
-        "project": "pieverse",
+        "project": "Polygon",
         "txs": 1
       },
       {
         "day": "2026-11-04",
-        "project": "Polygon",
+        "project": "pieverse",
         "txs": 1
       },
       {
@@ -553,53 +598,18 @@
       },
       {
         "day": "2026-11-02",
-        "project": "Mogami",
+        "project": "Open X402",
         "txs": 3
       },
       {
         "day": "2026-11-02",
-        "project": "Open X402",
+        "project": "Mogami",
         "txs": 3
       },
       {
         "day": "2026-11-02",
         "project": "Virtuals Protocol",
         "txs": 1
-      },
-      {
-        "day": "2026-11-01",
-        "project": "Coinbase",
-        "txs": 253901
-      },
-      {
-        "day": "2026-11-01",
-        "project": "PayAI",
-        "txs": 19266
-      },
-      {
-        "day": "2026-11-01",
-        "project": "Ultravioleta DAO",
-        "txs": 452
-      },
-      {
-        "day": "2026-11-01",
-        "project": "Open X402",
-        "txs": 4
-      },
-      {
-        "day": "2026-11-01",
-        "project": "thirdweb",
-        "txs": 3
-      },
-      {
-        "day": "2026-11-01",
-        "project": "Mogami",
-        "txs": 3
-      },
-      {
-        "day": "2026-11-01",
-        "project": "pieverse",
-        "txs": 2
       }
     ],
     "coverage": {
@@ -639,7 +649,7 @@
       },
       {
         "name": "PayAI",
-        "share": 25.8,
+        "share": 25.7,
         "color": "#10B981"
       },
       {
@@ -649,7 +659,7 @@
       },
       {
         "name": "Dexter",
-        "share": 16.7,
+        "share": 16.6,
         "color": "#6366F1"
       },
       {
@@ -667,27 +677,27 @@
     "chains": [
       {
         "name": "Base",
-        "txs": 89613819,
+        "txs": 89791580,
         "color": "#0052FF"
       },
       {
         "name": "Solana",
-        "txs": 67512497,
+        "txs": 67538227,
         "color": "#9945FF"
       },
       {
         "name": "Polygon",
-        "txs": 38744371,
+        "txs": 38942767,
         "color": "#8247E5"
       },
       {
         "name": "Celo",
-        "txs": 946566,
+        "txs": 953270,
         "color": "#14B8A6"
       },
       {
         "name": "BNB",
-        "txs": 910539,
+        "txs": 910541,
         "color": "#F0B90B"
       },
       {
@@ -702,12 +712,12 @@
       },
       {
         "name": "Avalanche",
-        "txs": 6345,
+        "txs": 6352,
         "color": "#E84142"
       },
       {
         "name": "Arbitrum",
-        "txs": 3254,
+        "txs": 3257,
         "color": "#12AAFF"
       },
       {
@@ -717,7 +727,7 @@
       },
       {
         "name": "Sei",
-        "txs": 425,
+        "txs": 428,
         "color": "#9D4EDD"
       },
       {
@@ -726,19 +736,19 @@
         "color": "#F59E0B"
       }
     ],
-    "chainsAsOf": "2026-11-05T23:59:59.999Z",
+    "chainsAsOf": "2026-11-06T23:59:59.999Z",
     "chainsSource": "dune:agenteconomy (owned SQL; legacy address-activity scope)",
     "tokenSplit": {
-      "asOf": "2026-11-06T04:05:32.692315Z",
+      "asOf": "2026-11-07T03:41:52.726899Z",
       "windowDays": 30,
-      "usdcSharePct": 99.88,
-      "totalPayments": 3077596,
+      "usdcSharePct": 99.89,
+      "totalPayments": 3174306,
       "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
     }
   },
   "baseAgentic": {
-    "asOf": "2026-11-06T04:04:44.969577Z",
-    "totalTxs": 2949002,
+    "asOf": "2026-11-07T03:41:16.827301Z",
+    "totalTxs": 2953388,
     "daily": [
       {
         "day": "2026-01-01",
@@ -2593,11 +2603,17 @@
         "consumer": 708,
         "infrastructure": 4058,
         "total": 4766
+      },
+      {
+        "day": "2026-11-06",
+        "consumer": 1440,
+        "infrastructure": 2946,
+        "total": 4386
       }
     ]
   },
   "virtualsAcp": {
-    "asOf": "2026-11-06T04:03:38.510633Z",
+    "asOf": "2026-11-07T03:39:56.642236Z",
     "totalMemos": 12363497,
     "daily": [
       {
@@ -3608,29 +3624,29 @@
     ]
   },
   "erc8004Registry": {
-    "asOf": "2026-11-05T04:10:53.741271Z",
-    "totalAgents": 2053285,
+    "asOf": "2026-11-07T03:39:14.088454Z",
+    "totalAgents": 2154521,
     "chainsTracked": 24,
     "chains": [
       {
         "name": "Base",
-        "agents": 1158616
+        "agents": 1169733
       },
       {
         "name": "BNB",
-        "agents": 402107
+        "agents": 405015
       },
       {
         "name": "Arc",
-        "agents": 318295
+        "agents": 404974
       },
       {
         "name": "Ethereum",
-        "agents": 73998
+        "agents": 74030
       },
       {
         "name": "Robinhood",
-        "agents": 28178
+        "agents": 28647
       },
       {
         "name": "Abstract",
@@ -3646,7 +3662,7 @@
       },
       {
         "name": "Celo",
-        "agents": 10363
+        "agents": 10373
       },
       {
         "name": "Ink",
@@ -3654,7 +3670,7 @@
       },
       {
         "name": "Gnosis",
-        "agents": 4179
+        "agents": 4180
       },
       {
         "name": "Peaq",
@@ -3662,14 +3678,6 @@
       }
     ],
     "daily": [
-      {
-        "day": "2026-08-08",
-        "agents": 2840
-      },
-      {
-        "day": "2026-08-09",
-        "agents": 2533
-      },
       {
         "day": "2026-08-10",
         "agents": 2020
@@ -4020,7 +4028,15 @@
       },
       {
         "day": "2026-11-05",
-        "agents": 9117
+        "agents": 59344
+      },
+      {
+        "day": "2026-11-06",
+        "agents": 50111
+      },
+      {
+        "day": "2026-11-07",
+        "agents": 898
       }
     ]
   },
