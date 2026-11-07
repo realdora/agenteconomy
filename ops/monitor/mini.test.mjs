@@ -21,10 +21,11 @@ test('failure, disk floor and expired pilot remain visible even if Mini stops se
  assert(!inspectMini(null,Date.parse('2026-10-05T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
  assert(!inspectMini(null,Date.parse('2026-10-11T07:17:00Z')).some(i=>i.id==='mini.expiry.archive'))
  assert(!inspectMini(null,Date.parse('2026-10-12T07:17:00Z')).some(i=>i.id.startsWith('mini.expiry.')))
- assert(!inspectMini(null,Date.parse('2026-11-03T23:59:59Z')).some(i=>i.id.startsWith('mini.expiry.')))
+ assert(!inspectMini(null,Date.parse('2026-11-11T00:00:00Z')).some(i=>i.id.startsWith('mini.expiry.')))
+ assert(!inspectMini(null,Date.parse('2026-11-29T23:59:59Z')).some(i=>i.id.startsWith('mini.expiry.')))
  for(const id of ['mini.expiry.credential','mini.expiry.restoreCredential']) {
-  assert(inspectMini(null,Date.parse('2026-11-04T00:00:00Z')).some(i=>i.id===id && i.detail.includes('即将到期')))
-  assert(inspectMini(null,Date.parse('2026-11-11T00:00:00Z')).some(i=>i.id===id && i.detail.includes('已到期')))
+  assert(inspectMini(null,Date.parse('2026-11-30T00:00:00Z')).some(i=>i.id===id && i.detail.includes('即将到期')))
+  assert(inspectMini(null,Date.parse('2026-12-07T00:00:00Z')).some(i=>i.id===id && i.detail.includes('已到期')))
  }
 })
 test('monthly restore verification is monitored independently of upload health',()=>{

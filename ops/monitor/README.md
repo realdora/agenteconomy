@@ -1,5 +1,9 @@
 # Daily data monitor (pilot)
 
+## November 7: verified R2 credential rotation
+
+The bucket-scoped producer and independent read-only restore credentials were replaced with new account tokens expiring December 7, 2026, as confirmed in Cloudflare. The Mini verified a write/read with the new producer before installation. The MacBook downloaded the November 6 snapshot with the new read-only credential, verified all 2,061 files, and restored the eight-query November 6 production archive. The read-only credential remains off the Mini. Server-owned expiry dates now match the replacement credentials, with the existing seven-day warning beginning November 30. No schedule, recipient, spending control, or incident state was changed by this rotation.
+
 ## October 22: quality gates and incident persistence
 
 The production collector now enables `DUNE_ENFORCE_X402_CONTRACT=1`. Before writing data **or persisting a newly folded baseline**, it rejects missing/invalid coverage metadata, an unexpected reviewed registry version, duplicate/invalid/gapped daily rows, partial days, missing latest complete day relative to the query execution, missing facilitator detail, and detail/day-total mismatches. A rejected candidate leaves both previous files unchanged and fails the workflow, using the existing failure relay. Legacy bootstrap cannot bypass this gate. The daily workflow first runs offline quality/alert regression tests; those tests do not call Dune.
