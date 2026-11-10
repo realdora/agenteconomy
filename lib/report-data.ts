@@ -1,4 +1,5 @@
 import { asOfLabel, fmt, usd } from './stats-data';
+import { REPORT_ANNOTATIONS } from './coverage-notes';
 import { latestEdition, type ReportCatalog } from './report-catalog';
 export { asOfLabel };
 export function isValidYm(ym:string){return /^20\d\d-(0[1-9]|1[0-2])$/.test(ym);}
@@ -23,5 +24,6 @@ export function buildMonthlyReport(ym:string,catalog:ReportCatalog){
   });
   const notes=[...edition.omissions];
   if(edition.metrics.some(m=>m.comparison&&m.comparison.comparisonKey!==m.comparisonKey))notes.push('x402 coverage changed between these periods; month-over-month growth is withheld because the scopes are not comparable.');
+  notes.push(...(REPORT_ANNOTATIONS[ym]??[]));
   return {ym,monthName:name,asOf:edition.publishedAt,publishedAt:edition.publishedAt,revision:edition.revision,revisionNote:edition.note,metrics,coverageNotes:notes,source:edition.source};
 }

@@ -11,6 +11,7 @@ import type { ProtocolIndexData, ProtocolRow } from "@/lib/protocol-index";
 import { formatMetric } from "@/lib/protocol-index";
 
 import { formatUpdated, useInViewReplay } from "./PlatformTerminal";
+import { TRACKED_PROTOCOLS_WORD } from "@/lib/coverage";
 
 const SPARK_W = 200;
 const SPARK_H = 40;
@@ -84,9 +85,9 @@ function ProtocolMark({ row }: { row: ProtocolRow }) {
 }
 
 function LedgerRow({ row, idx, drawn }: { row: ProtocolRow; idx: number; drawn: boolean }) {
-  // x402 is the leading standard (the page's thesis). Give its row a quiet, persistent
-  // lift — always-on accent rule + accent-colored total — to foreshadow the dedicated
-  // "x402 has emerged as the standard" section below. The rest stay neutral.
+  // x402 is the busiest rail in the index. Give its row a quiet, persistent lift —
+  // always-on accent rule + accent-colored total — to foreshadow the dedicated
+  // x402 section below. The rest stay neutral.
   const isLead = row.slug === "x402";
   return (
     <a
@@ -172,7 +173,7 @@ export function ProductsSection({ data }: { data: ProtocolIndexData }) {
           ) : null}
         </div>
         <h2 className="font-display italic text-white text-[26px] md:text-4xl leading-snug tracking-tight text-balance max-w-3xl mb-10 md:mb-14">
-          Five standards, measured on-chain.
+          {TRACKED_PROTOCOLS_WORD} standards, measured on-chain.
         </h2>
 
         <div key={playKey} ref={ref} className="flex flex-col">

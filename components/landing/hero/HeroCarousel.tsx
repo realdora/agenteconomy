@@ -12,6 +12,7 @@ import { HeroGridGuides } from "./HeroGridGuides";
 import { HeroImageTile } from "./HeroImageTile";
 import { HeroPanel } from "./HeroPanels";
 import { HeroProgressButton } from "./HeroProgressButton";
+import { TRACKED_CHAINS_LABEL, TRACKED_PROTOCOLS } from "@/lib/coverage";
 
 const SLIDE_DURATION_MS = 3000;
 
@@ -103,7 +104,7 @@ export function HeroCarousel({ data }: { data: AgentData }) {
 
       <div className="ae-hero-copy-row">
         <p>
-          agent economy is the data authority for on-chain agentic payments. We cover 5 protocols, 11+ chains, and{" "}
+          agent economy is the data authority for on-chain agentic payments. We cover {TRACKED_PROTOCOLS} protocols, {TRACKED_CHAINS_LABEL} chains, and{" "}
           {formatEvents(data.totalEvents)}+ events tracked, every number built from public on-chain activity.
         </p>
         <Link href={activeSlide.href} className="ae-hero-cta">

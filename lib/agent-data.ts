@@ -16,6 +16,8 @@ export type SharePart = { label: string; pct: number; color: string };
 // value shown is measured, with its own date.
 export type StreamRow = { k: string; c: string; metric: string; value: number; day: string };
 
+export type MonthPoint = { month: string; txs: number; vol: number };
+
 export type AgentData = {
   updatedAt: string | null;
   price: {
@@ -27,12 +29,15 @@ export type AgentData = {
   totalEvents: number; // summed across all tracked protocols
   stream: StreamRow[]; // latest real per-protocol activity rows
   growth: number[]; // recent on-chain activity, cumulative over the last 90 days (all protocols, in millions)
+  // x402 month by month. The homepage used to plot the CUMULATIVE count, which
+  // rises by construction and hid that monthly activity sits far below its
+  // late-2025 peak. Bars are complete months only — the trailing month is still
+  // accruing and would read as a false drop.
   highlight: {
-    series: number[]; // cumulative x402 transactions, in millions
-    months: string[]; // month label per point, e.g. "Oct 25" — feeds the sr-only data table
-    totalM: number; // final cumulative value
-    startLabel: string; // first month, e.g. "Oct 25"
-    endLabel: string; // last month, e.g. "Jun 26"
+    totalM: number; // cumulative x402 transactions, in millions
+    bars: { month: string; txsM: number }[]; // complete months, e.g. "Oct 25"
+    last: MonthPoint; // latest complete month
+    peak: MonthPoint; // busiest complete month by transactions
   };
   isLive: boolean; // false when the fallback snapshot was used
 };
@@ -63,11 +68,19 @@ export const FALLBACK: AgentData = {
   ],
   growth: [0.2, 0.8, 1.4, 1.9, 2.3, 2.5, 2.8, 3.1, 3.7, 4.6, 5.5, 6.3, 7, 7.8, 8.6, 9.3, 10, 10.7, 11.4, 12.1, 12.6, 13.4, 14.2, 14.8],
   highlight: {
-    series: [4.1, 56.7, 110.9, 130.1, 134.2, 139.3, 143.9, 149.2, 149.4],
-    months: ["Oct 25", "Nov 25", "Dec 25", "Jan 26", "Feb 26", "Mar 26", "Apr 26", "May 26", "Jun 26"],
     totalM: 149.4,
-    startLabel: "Oct 25",
-    endLabel: "Jun 26",
+    bars: [
+      { month: "Oct 25", txsM: 4.1 },
+      { month: "Nov 25", txsM: 52.6 },
+      { month: "Dec 25", txsM: 54.2 },
+      { month: "Jan 26", txsM: 19.2 },
+      { month: "Feb 26", txsM: 4.1 },
+      { month: "Mar 26", txsM: 5.1 },
+      { month: "Apr 26", txsM: 4.6 },
+      { month: "May 26", txsM: 5.3 },
+    ],
+    last: { month: "May 26", txs: 5_339_396, vol: 179_793 },
+    peak: { month: "Dec 25", txs: 54_248_231, vol: 9_412_930 },
   },
   isLive: false,
 };
@@ -176,23 +189,25 @@ export async function getAgentData(): Promise<AgentData> {
       (d.tempoMpp?.totalEvents ?? 0) +
       (await masumiEvents());
 
-    // Cumulative x402 monthly transactions — a real, monotonically-rising curve
-    // (the raw per-period series are too volatile to plot as "growth").
-    const monthly: Array<{ month?: string; txs?: number }> = Array.isArray(x.monthly) ? x.monthly : [];
-    let cum = 0;
-    const series = monthly.map((m) => {
-      cum += m.txs ?? 0;
-      return round1(cum / 1e6);
+    // x402 by month. The trailing entry is the month still in progress, so it is
+    // left out of the bars and of the "latest month" figures (same rule as
+    // /stats/is-x402-growing); it still counts toward the cumulative total.
+    const monthly: Array<{ month?: string; txs?: number; vol?: number }> = Array.isArray(x.monthly) ? x.monthly : [];
+    const point = (m: { month?: string; txs?: number; vol?: number }): MonthPoint => ({
+      month: m.month ?? "",
+      txs: m.txs ?? 0,
+      vol: m.vol ?? 0,
     });
-    const highlight = series.length
-      ? {
-          series,
-          months: monthly.map((m) => m.month ?? ""),
-          totalM: series[series.length - 1],
-          startLabel: monthly[0]?.month ?? "",
-          endLabel: monthly[monthly.length - 1]?.month ?? "",
-        }
-      : FALLBACK.highlight;
+    const complete = monthly.slice(0, -1).map(point);
+    const highlight =
+      complete.length >= 3
+        ? {
+            totalM: round1(monthly.reduce((s, m) => s + (m.txs ?? 0), 0) / 1e6),
+            bars: complete.map((m) => ({ month: m.month, txsM: round1(m.txs / 1e6) })),
+            last: complete[complete.length - 1],
+            peak: complete.reduce((a, b) => (b.txs > a.txs ? b : a), complete[0]),
+          }
+        : FALLBACK.highlight;
 
     const growth = buildGrowth(d);
 
@@ -207,7 +222,7 @@ export async function getAgentData(): Promise<AgentData> {
       { k: "x402", c: "#00FF88", metric: "daily txs", value: xLast.txs ?? 0, day: String(xLast.day ?? "") },
       { k: "Olas", c: "#c0c4cc", metric: "weekly txs", value: oLast.txs ?? 0, day: String(oLast.week ?? "") },
       { k: "ERC-8004", c: "#7ad7ff", metric: "daily registrations", value: rLast.agents ?? 0, day: String(rLast.day ?? "") },
-      { k: "ACP", c: "#9E7BFF", metric: "daily memos", value: vLast.memos ?? 0, day: String(vLast.day ?? "") },
+      { k: "ACP", c: "#9E7BFF", metric: "daily memos · legacy", value: vLast.memos ?? 0, day: String(vLast.day ?? "") },
       { k: "Tempo", c: "#ff7ab6", metric: "daily events", value: tLast.events ?? 0, day: String(tLast.day ?? "") },
     ].filter((r) => r.value > 0 && r.day);
 

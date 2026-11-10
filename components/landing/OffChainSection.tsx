@@ -48,7 +48,7 @@ export function OffChainSection({ data }: { data: WebSourcesData }) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10 border-t border-white/10 pt-10">
           <Lens label="Market" value={formatUsd(at.basketMcap)} sub="agent token mcap" accent="#00FF88" />
           <Lens label="Supply" value={formatCount(svc.uniqueProviders)} sub="x402 providers" accent="#7ad7ff" />
-          <Lens label="Economy" value={formatUsd(vir.grossAgenticUsd)} sub="Virtuals gross agentic" accent="#9E7BFF" />
+          <Lens label="Economy" value={formatUsd(vir.grossAgenticUsd)} sub="Virtuals gross agentic · cumulative" accent="#9E7BFF" />
           <Lens label="Developers" value={formatCount(dev.totalWeeklyAvg4w)} sub="weekly SDK downloads" accent="#ffffff" />
         </div>
 

@@ -4,6 +4,7 @@
 // and AI crawlers. This replaces the old pattern of hardcoding figures in the
 // long-form prose, which froze June numbers into pages that looked current.
 
+import { ACP_SCOPE_NOTE, ERC8004_CONCENTRATION_NOTE } from "./coverage-notes";
 import { fetchFeed } from "./feed-fetch";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
@@ -23,6 +24,8 @@ export type ProtocolStats = {
   headline: { value: string; noun: string };
   rows: StatRow[];
   faq: { q: string; a: string }[];
+  // Dated scope/concentration caveat shown under the table (lib/coverage-notes.ts).
+  coverageNote?: string;
   isLive: boolean;
 };
 
@@ -93,9 +96,10 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
         faq: [
           {
             q: "How many ERC-8004 agents are registered?",
-            a: `As of ${asOfLabel}, ${fmt(r.totalAgents)} agents are registered in ERC-8004 identity registries across ${fmt(r.chainsTracked)} chains, counted from on-chain Registered events (testnets excluded).`,
+            a: `As of ${asOfLabel}, ${fmt(r.totalAgents)} agents are registered in ERC-8004 identity registries across ${fmt(r.chainsTracked)} chains, counted from on-chain Registered events (testnets excluded). This is a count of registrations, not of distinct operators or active agents.`,
           },
         ],
+        coverageNote: ERC8004_CONCENTRATION_NOTE,
         isLive: true,
       };
     }
@@ -107,16 +111,17 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
         asOf: v.asOf ?? d.updatedAt ?? null,
         headline: { value: fmt(v.totalMemos), noun: "commerce memos" },
         rows: [
-          { label: "Total commerce memos", value: fmt(v.totalMemos) },
+          { label: "Total commerce memos", value: fmt(v.totalMemos), note: "legacy Base contracts" },
           { label: "Latest daily memos", value: fmt(daily.memos), note: String(daily.day ?? "") },
           { label: "Latest daily unique senders", value: fmt(daily.senders), note: String(daily.day ?? "") },
         ],
         faq: [
           {
             q: "How much Virtuals ACP activity is there on-chain?",
-            a: `As of ${asOfLabel}, agent economy has indexed ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos on Base, decoded from the protocol's on-chain NewMemo events.`,
+            a: `As of ${asOfLabel}, agent economy has indexed ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos on ACP's legacy Base contracts, decoded from on-chain NewMemo events. Virtuals' newer ACP contracts are not covered yet.`,
           },
         ],
+        coverageNote: ACP_SCOPE_NOTE,
         isLive: true,
       };
     }

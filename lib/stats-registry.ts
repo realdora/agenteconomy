@@ -10,6 +10,7 @@
 
 import { asOfLabel, fmt, usd, type StatsContext } from "./stats-data";
 import { completeDays, x402DailyExecution } from "./complete-days";
+import { ACP_SCOPE_NOTE, ERC8004_CONCENTRATION_NOTE } from "./coverage-notes";
 
 export type ChartSpec = {
   kind: "line" | "bars";
@@ -309,6 +310,10 @@ const erc8004Agents: StatDoc = {
         "Chain distribution matters more than the headline here. Registration is cheap, so a single campaign or platform integration on one chain can move the total quickly — the per-chain breakdown below shows where the registrations actually live, and the daily series shows whether growth is steady or event-driven.",
       ],
     },
+    {
+      heading: "Who is registering",
+      body: [ERC8004_CONCENTRATION_NOTE],
+    },
   ],
   build: ({ data }) => {
     const r = data?.erc8004Registry;
@@ -519,6 +524,10 @@ const virtualsActivity: StatDoc = {
         "A memo is a lifecycle step, not a completed sale: one job produces multiple memos as it moves through phases. Memo counts therefore overstate completed commerce and are best read as workflow activity. For jobs and gross-value figures, Virtuals' own aGDP reporting is the (self-reported) source; the honest comparison is trend against trend.",
       ],
     },
+    {
+      heading: "What this tracker covers",
+      body: [ACP_SCOPE_NOTE],
+    },
   ],
   build: ({ data }) => {
     const v = data?.virtualsAcp;
@@ -528,10 +537,10 @@ const virtualsActivity: StatDoc = {
     const points = daily.slice(-60).map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.memos) }));
     const stamp = asOfLabel(v.asOf ?? data?.updatedAt) ?? "the latest pipeline run";
     return {
-      answer: `As of ${stamp}, ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos have been recorded on Base — each one an on-chain step in an agent-to-agent job lifecycle, decoded independently from public logs rather than taken from platform reporting.`,
+      answer: `As of ${stamp}, ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos have been recorded on ACP's legacy Base contracts — each one an on-chain step in an agent-to-agent job lifecycle, decoded independently from public logs rather than taken from platform reporting.`,
       asOf: v.asOf ?? data?.updatedAt ?? null,
       rows: [
-        { label: "Cumulative commerce memos", value: fmt(v.totalMemos) },
+        { label: "Cumulative commerce memos", value: fmt(v.totalMemos), note: "legacy Base contracts" },
         { label: "Latest daily memos", value: fmt(latest.memos), note: String(latest.day ?? "") },
         { label: "Latest daily unique senders", value: fmt(latest.senders), note: String(latest.day ?? "") },
       ],
@@ -1093,7 +1102,7 @@ const x402VsAcp: StatDoc = {
         { label: "Virtuals ACP — what it counts", value: "Job lifecycle memos", note: "a commerce protocol" },
         { label: "x402 cumulative settlements", value: fmt(x) },
         { label: "x402 settled volume", value: usd(data.x402?.totalVolume), note: "ACP has no equivalent USD figure" },
-        { label: "Virtuals ACP cumulative memos", value: fmt(memos) },
+        { label: "Virtuals ACP cumulative memos", value: fmt(memos), note: "legacy Base contracts only" },
         { label: "Ratio (x402 settlements per ACP memo)", value: `${ratio}×`, note: "different units — directional only" },
       ],
       chart: {

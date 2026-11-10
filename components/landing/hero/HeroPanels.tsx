@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import type { AgentData } from "@/lib/agent-data";
 import type { HeroSlide } from "@/lib/site-data";
+import { TRACKED_CHAINS_LABEL, TRACKED_PROTOCOLS } from "@/lib/coverage";
 
 // 3 data cards — track / price / cite. Real agenteconomy.to/data.json values.
 // They FILL the original template panel slot (ae-hero-panel-wrap, height:100%) — layout untouched.
@@ -92,7 +93,7 @@ function TrackPanel({ total, stream, updatedAt }: { total: number; stream: Agent
 
       <div className="flex items-center justify-between border-t border-white/10 pt-2.5 mt-1 font-mono text-[10.5px] text-white/40 tabular-nums">
         <span><span className="text-white/70">{count.toLocaleString("en-US")}</span> events tracked</span>
-        <span className="text-white/30">5 protocols · 11 chains</span>
+        <span className="text-white/30">{TRACKED_PROTOCOLS} protocols · {TRACKED_CHAINS_LABEL} chains</span>
       </div>
     </div>
   );

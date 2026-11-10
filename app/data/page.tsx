@@ -5,6 +5,7 @@ import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { formatEvents, getAgentData } from "@/lib/agent-data";
+import { TRACKED_CHAINS_LABEL, TRACKED_PROTOCOLS } from "@/lib/coverage";
 
 export const metadata: Metadata = {
   title: "Data | agent economy",
@@ -42,8 +43,8 @@ export default async function DataPage() {
 
   const STATS = [
     { value: `${events}+`, label: "events tracked" },
-    { value: "5", label: "standards" },
-    { value: "11+", label: "chains" },
+    { value: String(TRACKED_PROTOCOLS), label: "standards" },
+    { value: TRACKED_CHAINS_LABEL, label: "chains" },
     { value: `$${data.price.volumeM}M`, label: "x402 settled" },
   ];
 

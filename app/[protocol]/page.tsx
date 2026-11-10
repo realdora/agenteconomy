@@ -142,6 +142,11 @@ export default async function ProtocolPage({ params }: ProtocolPageProps) {
                   ))}
                 </tbody>
               </table>
+              {stats.coverageNote ? (
+                <p className="mt-6 max-w-3xl border-l border-white/20 pl-4 text-white/55 text-[13.5px] leading-relaxed">
+                  {stats.coverageNote}
+                </p>
+              ) : null}
             </>
           ) : (
             <p className="text-white/55 text-[15px] leading-relaxed max-w-3xl">

@@ -83,7 +83,9 @@ export function StatChart({ chart }: { chart: ChartSpec }) {
         </svg>
       </div>
 
-      <table className="sr-only">
+      {/* sr-only on a wrapper, not the table: a table ignores the 1px width and widened the page on phones */}
+      <div className="sr-only">
+      <table>
         <caption>{chart.title}, in {chart.unit}</caption>
         <thead>
           <tr>
@@ -100,6 +102,7 @@ export function StatChart({ chart }: { chart: ChartSpec }) {
           ))}
         </tbody>
       </table>
+      </div>
     </figure>
   );
 }
