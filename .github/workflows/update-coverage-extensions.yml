@@ -1,0 +1,69 @@
+name: Update Coverage Extensions
+
+# ACP v2 jobs and ERC-8004 registrations by source. Deliberately separate from
+# "Update Dune Data": it writes its own file (public/coverage-extensions.json),
+# never touches data.json or baselines.json, and a failure here cannot hold
+# back the main pipeline. It shares the Dune account, so it honours the same
+# monthly credit cap and adds its own small per-query cap.
+# Measured 2026-11-11: about 1.3 credits per daily run (three-day window).
+
+on:
+  schedule:
+    # After the main pipeline (00:00 UTC) has published the day's data.json,
+    # which the ERC-8004 series is reconciled against.
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+    inputs:
+      window_start:
+        description: 'One-time backfill start (YYYY-MM-DD). Leave empty for the normal three-day window.'
+        type: string
+        default: ''
+      query_credit_cap:
+        description: 'Per-query credit cap for this run (default 5; raise only for a reviewed backfill).'
+        type: string
+        default: '5'
+
+jobs:
+  update-coverage-extensions:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: update-coverage-extensions
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Offline tests
+        run: node --test scripts/coverage/lib.test.mjs
+
+      - name: Fetch coverage extensions
+        id: fetch
+        env:
+          DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+          DUNE_MONTHLY_CREDIT_CAP: '2000'
+          COVERAGE_QUERY_CREDIT_CAP: ${{ inputs.query_credit_cap || '5' }}
+          COVERAGE_WINDOW_START: ${{ inputs.window_start }}
+        run: node scripts/fetch-coverage-extensions.mjs
+
+      - name: Commit coverage-extensions.json
+        if: always() && hashFiles('public/coverage-extensions.json') != ''
+        uses: ./.github/actions/commit-push
+        with:
+          paths: public/coverage-extensions.json
+          message: "chore: update coverage extensions"
+
+      # Runs after the commit so partial-but-honest data still ships; the red
+      # run is the signal that someone needs to look.
+      - name: Collection gate
+        if: steps.fetch.outputs.failed == 'true'
+        run: |
+          echo "::error::A coverage-extension series failed, was capped, or did not reconcile. Previous values were kept; review the fetch log."
+          exit 1
