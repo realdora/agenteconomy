@@ -203,7 +203,6 @@ const agentCensus: StatDoc = {
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
     { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
-    { label: "agent economy coverage-extensions.json (scope checks)", url: "https://agenteconomy.to/coverage-extensions.json" },
     { label: "ERC-8004 · Trustless Agents standard", url: "https://eips.ethereum.org/EIPS/eip-8004" },
     { label: "Virtuals Protocol API (launched agents)", url: "https://api.virtuals.io/" },
     { label: "Solana getProgramAccounts (agent registries · public RPC)", url: "https://solana.com/docs/rpc/http/getprogramaccounts" },
@@ -303,6 +302,7 @@ const erc8004Agents: StatDoc = {
   related: ["how-many-ai-agents-are-onchain", "x402-transactions"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "agent economy coverage-extensions.json (scope checks)", url: "https://agenteconomy.to/coverage-extensions.json" },
     { label: "ERC-8004 · Trustless Agents standard", url: "https://eips.ethereum.org/EIPS/eip-8004" },
   ],
   sections: [
