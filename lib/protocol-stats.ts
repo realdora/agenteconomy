@@ -98,6 +98,9 @@ function buildStats(slug: string, d: any, c: CoverageSummary | null): ProtocolSt
                 { label: "Registrations, last 7 days", value: fmt(c.erc.last7.total), note: `${c.erc.last7.from} to ${c.erc.last7.to}` },
                 { label: "— from the largest single source", value: `${Math.round(c.erc.last7.largestShare * 1000) / 10}%`, note: c.erc.last7.largestSource },
                 { label: "— excluding that source", value: fmt(c.erc.last7.exLargest) },
+                { label: `Registrations since ${c.erc.allTime.from}`, value: fmt(c.erc.allTime.total), note: `through ${c.erc.allTime.to}` },
+                { label: "— from the largest single source", value: `${Math.round(c.erc.allTime.largestShare * 1000) / 10}%`, note: c.erc.allTime.largestSource },
+                { label: "— excluding that source", value: fmt(c.erc.allTime.exLargest) },
               ]
             : []),
         ],

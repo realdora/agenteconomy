@@ -29,7 +29,7 @@ const windowSentence = (w: SourceWindow, period: string): string =>
 export function erc8004Note(c: CoverageSummary | null): string {
   const e = c?.erc;
   if (!e) return STATIC_ERC8004_NOTE;
-  return `Concentration: registering is cheap, and one integration can dominate the count. ${windowSentence(e.last7, `In the seven days to ${longDay(e.last7.to)}`)} Each of those registrations sits under a different owner address, so the count says little about how many operators are behind it. Measured daily from the agent-card URL in every Registered event.`;
+  return `Concentration: registering is cheap, and one integration can dominate the count. ${windowSentence(e.last7, `In the seven days to ${longDay(e.last7.to)}`)} Over the whole series, from ${longDay(e.allTime.from)}, the largest source (${e.allTime.largestSource}) accounts for ${pct(e.allTime.largestShare)} of ${fmt(e.allTime.total)} registrations, leaving ${fmt(e.allTime.exLargest)} without it. Each of those registrations sits under a different owner address, so the count says little about how many operators are behind it. Measured daily from the agent-card URL in every Registered event.`;
 }
 
 export function acpNote(c: CoverageSummary | null): string {

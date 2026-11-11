@@ -19,6 +19,9 @@ export type CoverageSummary = {
   erc: {
     asOf: string;
     last7: SourceWindow;
+    // Every day the series holds. It starts when the registry went live, so this
+    // is the lifetime split; `from` states the first day either way.
+    allTime: SourceWindow;
     month: (ym: string) => SourceWindow | null;
     exLargestDaily: { day: string; value: number }[];
   } | null;
@@ -62,10 +65,12 @@ export function summarizeCoverage(raw: any): CoverageSummary {
       topSources: d.topSources.map((s: any) => ({ source: String(s?.source ?? ""), registered: n(s?.registered) })),
     }));
   const last7 = windowOf(sourceDays.slice(-7));
-  if (last7 && sourceDays.length >= 7) {
+  const allTime = windowOf(sourceDays);
+  if (last7 && allTime && sourceDays.length >= 7) {
     erc = {
       asOf: last7.to,
       last7,
+      allTime,
       // Only a month the series covers from its first to its last day.
       month: (ym) => {
         const days = sourceDays.filter((d) => d.day.startsWith(ym));

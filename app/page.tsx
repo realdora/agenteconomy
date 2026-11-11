@@ -97,6 +97,7 @@ export default async function Home() {
       <HighlightSection data={data} />
       <ConcentrationSection
         erc={erc8004Concentration(stats.coverage)}
+        ercAllTime={stats.coverage.erc?.allTime ?? null}
         x402={x402Concentration(stats.data)}
         acp={stats.coverage.acp}
       />

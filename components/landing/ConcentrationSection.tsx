@@ -25,10 +25,12 @@ function Card({ label, figure, caption, detail }: { label: string; figure: strin
 
 export function ConcentrationSection({
   erc,
+  ercAllTime,
   x402,
   acp,
 }: {
   erc: Concentration | null;
+  ercAllTime?: { total: number; exLargest: number; largestShare: number; from: string } | null;
   x402: Concentration | null;
   acp: CoverageSummary["acp"];
 }) {
@@ -55,7 +57,7 @@ export function ConcentrationSection({
               label="ERC-8004 registrations"
               figure={pct(erc.share)}
               caption="from one source"
-              detail={`${fmt(erc.total)} registered in the 7 days to ${shortDay(erc.to)}; ${fmt(erc.exLargest)} without ${erc.largest}.`}
+              detail={`${fmt(erc.total)} registered in the 7 days to ${shortDay(erc.to)}; ${fmt(erc.exLargest)} without ${erc.largest}.${ercAllTime ? ` Since ${shortDay(ercAllTime.from)}: ${pct(ercAllTime.largestShare)} of ${fmt(ercAllTime.total)}, leaving ${fmt(ercAllTime.exLargest)}.` : ""}`}
             />
           ) : null}
           {x402 ? (

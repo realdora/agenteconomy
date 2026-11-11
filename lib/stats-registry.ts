@@ -336,6 +336,9 @@ const erc8004Agents: StatDoc = {
               { label: "Registrations, last 7 days", value: fmt(e.last7.total), note: `${e.last7.from} to ${e.last7.to}` },
               { label: "— from the largest single source", value: `${Math.round(e.last7.largestShare * 1000) / 10}%`, note: e.last7.largestSource },
               { label: "— excluding that source", value: fmt(e.last7.exLargest) },
+              { label: `Registrations since ${e.allTime.from}`, value: fmt(e.allTime.total), note: `through ${e.allTime.to}` },
+              { label: "— from the largest single source", value: `${Math.round(e.allTime.largestShare * 1000) / 10}%`, note: e.allTime.largestSource },
+              { label: "— excluding that source", value: fmt(e.allTime.exLargest) },
             ]
           : []),
       ],
@@ -397,6 +400,9 @@ const concentration: StatDoc = {
         { label: "ERC-8004 registrations, last 7 days", value: fmt(e.total), note: `${e.from} to ${e.to}` },
         { label: "— from the largest single source", value: pct(e.share), note: e.largest },
         { label: "— excluding that source", value: fmt(e.exLargest) },
+        { label: `ERC-8004 registrations since ${coverage.erc.allTime.from}`, value: fmt(coverage.erc.allTime.total), note: `through ${coverage.erc.allTime.to}` },
+        { label: "— from the largest single source", value: pct(coverage.erc.allTime.largestShare), note: coverage.erc.allTime.largestSource },
+        { label: "— excluding that source", value: fmt(coverage.erc.allTime.exLargest) },
         ...(x
           ? [
               { label: `x402 transactions, last ${x.days} days`, value: fmt(x.total), note: `${x.from} to ${x.to}` },
