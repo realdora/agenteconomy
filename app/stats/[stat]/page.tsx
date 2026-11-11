@@ -205,7 +205,7 @@ export default async function StatPage({ params }: StatPageProps) {
 
         {/* Context + methodology prose */}
         <section className="mt-20 space-y-14 max-w-3xl">
-          {doc.sections.map((section) => (
+          {[...doc.sections, ...(computed?.sections ?? [])].map((section) => (
             <article key={section.heading} className="border-t border-white/10 pt-9">
               <h2 className="font-display italic text-white text-[26px] md:text-[30px] leading-[1.15] tracking-tight mb-6">
                 {section.heading}

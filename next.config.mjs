@@ -63,6 +63,7 @@ const nextConfig = {
       { source: "/monthly-reports.json", destination: "https://dashboard.agenteconomy.to/monthly-reports.json" },
       { source: "/data.json", destination: "https://dashboard.agenteconomy.to/data.json" },
       { source: "/web-sources.json", destination: "https://dashboard.agenteconomy.to/web-sources.json" },
+      { source: "/coverage-extensions.json", destination: "https://dashboard.agenteconomy.to/coverage-extensions.json" },
     ];
   },
 };

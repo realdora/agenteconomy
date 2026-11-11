@@ -1,11 +1,12 @@
 import { asOfLabel, fmt, usd } from './stats-data';
-import { REPORT_ANNOTATIONS } from './coverage-notes';
+import { reportAnnotations } from './coverage-notes';
+import type { CoverageSummary } from './coverage-feed';
 import { latestEdition, type ReportCatalog } from './report-catalog';
 export { asOfLabel };
 export function isValidYm(ym:string){return /^20\d\d-(0[1-9]|1[0-2])$/.test(ym);}
 export function monthName(ym:string){return new Date(`${ym}-01T00:00:00Z`).toLocaleDateString('en-US',{month:'long',year:'numeric',timeZone:'UTC'});}
 export function isClosedMonth(ym:string,now:Date){return ym<now.toISOString().slice(0,7);}
-export function buildMonthlyReport(ym:string,catalog:ReportCatalog){
+export function buildMonthlyReport(ym:string,catalog:ReportCatalog,coverage:CoverageSummary|null=null){
   const edition=latestEdition(catalog,ym);
   if(!edition||ym<'2026-06')return null;
   const name=monthName(ym);
@@ -24,6 +25,6 @@ export function buildMonthlyReport(ym:string,catalog:ReportCatalog){
   });
   const notes=[...edition.omissions];
   if(edition.metrics.some(m=>m.comparison&&m.comparison.comparisonKey!==m.comparisonKey))notes.push('x402 coverage changed between these periods; month-over-month growth is withheld because the scopes are not comparable.');
-  notes.push(...(REPORT_ANNOTATIONS[ym]??[]));
+  notes.push(...reportAnnotations(ym,coverage));
   return {ym,monthName:name,asOf:edition.publishedAt,publishedAt:edition.publishedAt,revision:edition.revision,revisionNote:edition.note,metrics,coverageNotes:notes,source:edition.source};
 }

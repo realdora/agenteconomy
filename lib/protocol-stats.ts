@@ -4,7 +4,8 @@
 // and AI crawlers. This replaces the old pattern of hardcoding figures in the
 // long-form prose, which froze June numbers into pages that looked current.
 
-import { ACP_SCOPE_NOTE, ERC8004_CONCENTRATION_NOTE } from "./coverage-notes";
+import { acpNote, erc8004Note } from "./coverage-notes";
+import { getCoverage, type CoverageSummary } from "./coverage-feed";
 import { fetchFeed } from "./feed-fetch";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
@@ -46,7 +47,7 @@ const last = (v: unknown): Row => arr(v).at(-1) ?? {};
 const first = (v: unknown): Row => arr(v)[0] ?? {};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildStats(slug: string, d: any): ProtocolStats | null {
+function buildStats(slug: string, d: any, c: CoverageSummary | null): ProtocolStats | null {
   switch (slug) {
     case "x402": {
       const x = d.x402 ?? {};
@@ -92,6 +93,13 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
           { label: "Chains tracked", value: fmt(r.chainsTracked) },
           { label: "Largest chain", value: String(topChain.name ?? "—"), note: `${fmt(topChain.agents)} agents` },
           { label: "Latest daily registrations", value: fmt(daily.agents), note: String(daily.day ?? "") },
+          ...(c?.erc
+            ? [
+                { label: "Registrations, last 7 days", value: fmt(c.erc.last7.total), note: `${c.erc.last7.from} to ${c.erc.last7.to}` },
+                { label: "— from the largest single source", value: `${Math.round(c.erc.last7.largestShare * 1000) / 10}%`, note: c.erc.last7.largestSource },
+                { label: "— excluding that source", value: fmt(c.erc.last7.exLargest) },
+              ]
+            : []),
         ],
         faq: [
           {
@@ -99,7 +107,7 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
             a: `As of ${asOfLabel}, ${fmt(r.totalAgents)} agents are registered in ERC-8004 identity registries across ${fmt(r.chainsTracked)} chains, counted from on-chain Registered events (testnets excluded). This is a count of registrations, not of distinct operators or active agents.`,
           },
         ],
-        coverageNote: ERC8004_CONCENTRATION_NOTE,
+        coverageNote: erc8004Note(c),
         isLive: true,
       };
     }
@@ -114,14 +122,20 @@ function buildStats(slug: string, d: any): ProtocolStats | null {
           { label: "Total commerce memos", value: fmt(v.totalMemos), note: "legacy Base contracts" },
           { label: "Latest daily memos", value: fmt(daily.memos), note: String(daily.day ?? "") },
           { label: "Latest daily unique senders", value: fmt(daily.senders), note: String(daily.day ?? "") },
+          ...(c?.acp
+            ? [
+                { label: "Current contract: jobs created, last 7 days", value: fmt(c.acp.last7.created), note: "EVM chains; Solana not covered" },
+                { label: "Current contract: jobs completed, last 7 days", value: fmt(c.acp.last7.completed), note: `${c.acp.last7.from} to ${c.acp.last7.to}` },
+              ]
+            : []),
         ],
         faq: [
           {
             q: "How much Virtuals ACP activity is there on-chain?",
-            a: `As of ${asOfLabel}, agent economy has indexed ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos on ACP's legacy Base contracts, decoded from on-chain NewMemo events. Virtuals' newer ACP contracts are not covered yet.`,
+            a: `As of ${asOfLabel}, agent economy has indexed ${fmt(v.totalMemos)} cumulative Virtuals ACP commerce memos on ACP's legacy Base contracts, decoded from on-chain NewMemo events. Virtuals' current ACP contract is tracked separately, in jobs; ACP on Solana is not covered.`,
           },
         ],
-        coverageNote: ACP_SCOPE_NOTE,
+        coverageNote: acpNote(c),
         isLive: true,
       };
     }
@@ -225,7 +239,8 @@ export async function getProtocolStats(slug: string): Promise<ProtocolStats | nu
     const res = await fetchFeed(slug === "masumi" ? WEB_URL : DATA_URL);
     if (!res.ok) throw new Error(`feed responded ${res.status}`);
     const d = await res.json();
-    return buildStats(slug, d);
+    const c = slug === "erc-8004" || slug === "virtuals-acp" ? await getCoverage() : null;
+    return buildStats(slug, d, c);
   } catch {
     // No fallback figures here on purpose: stale numbers presented as live is the
     // exact failure mode this module exists to remove. The page renders the prose

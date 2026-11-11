@@ -36,6 +36,7 @@ export async function GET() {
     "",
     "- [data.json](https://agenteconomy.to/data.json): on-chain feed (measured). Keys: x402, olas, virtualsAcp, erc8004Registry, baseAgentic, tempoMpp, sources, updatedAt.",
     "- [web-sources.json](https://agenteconomy.to/web-sources.json): off-chain feed (sourced). Keys: agentTokens, x402Services, agentSupply, virtuals, devAdoption, masumi, solanaAgents, standardsAdoption, inferenceDemand.",
+    "- [coverage-extensions.json](https://agenteconomy.to/coverage-extensions.json): scope checks (measured daily). Keys: erc8004Sources (registrations by agent-card source, largest-source share), acpV2 (jobs on Virtuals' current ACP contract, EVM only).",
     "- [openapi.json](https://agenteconomy.to/openapi.json): OpenAPI 3.1 contract — every field, unit, and example. Validate and codegen against this.",
     "- No API key or signup. CORS-open (Access-Control-Allow-Origin: *). Both feeds carry updatedAt; off-chain sections carry asOf + a methodology note.",
     "",

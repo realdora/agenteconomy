@@ -8,6 +8,7 @@ import { HeaderSection } from "@/components/landing/HeaderSection";
 import { asOfLabel, buildMonthlyReport, isClosedMonth, isValidYm, monthName } from "@/lib/report-data";
 import { safeJsonLd } from "@/lib/seo";
 import { bundledReports, getReportCatalog, reportMonths } from "@/lib/report-catalog";
+import { getCoverage } from "@/lib/coverage-feed";
 import { CitationButton } from "@/components/CitationButton";
 
 const SITE = "https://agenteconomy.to";
@@ -51,7 +52,7 @@ export default async function MonthlyReportPage({ params }: ReportPageProps) {
   if (!isValidYm(month) || !isClosedMonth(month, new Date())) notFound();
 
   const ctx = await getReportCatalog();
-  const report = buildMonthlyReport(month, ctx);
+  const report = buildMonthlyReport(month, ctx, await getCoverage());
   if (!report) notFound();
 
   const months = reportMonths(ctx);

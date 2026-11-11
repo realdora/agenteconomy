@@ -10,7 +10,7 @@
 
 import { asOfLabel, fmt, usd, type StatsContext } from "./stats-data";
 import { completeDays, x402DailyExecution } from "./complete-days";
-import { ACP_SCOPE_NOTE, ERC8004_CONCENTRATION_NOTE } from "./coverage-notes";
+import { acpNote, erc8004Note } from "./coverage-notes";
 
 export type ChartSpec = {
   kind: "line" | "bars";
@@ -25,6 +25,8 @@ export type StatComputed = {
   rows: { label: string; value: string; note?: string }[];
   chart?: ChartSpec;
   extraFaq?: { q: string; a: string }[];
+  // Sections whose text carries live figures; rendered after doc.sections.
+  sections?: { heading: string; body: string[] }[];
 };
 
 export type StatDoc = {
@@ -201,6 +203,7 @@ const agentCensus: StatDoc = {
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
     { label: "agent economy web-sources.json (live feed)", url: "https://agenteconomy.to/web-sources.json" },
+    { label: "agent economy coverage-extensions.json (scope checks)", url: "https://agenteconomy.to/coverage-extensions.json" },
     { label: "ERC-8004 · Trustless Agents standard", url: "https://eips.ethereum.org/EIPS/eip-8004" },
     { label: "Virtuals Protocol API (launched agents)", url: "https://api.virtuals.io/" },
     { label: "Solana getProgramAccounts (agent registries · public RPC)", url: "https://solana.com/docs/rpc/http/getprogramaccounts" },
@@ -310,14 +313,11 @@ const erc8004Agents: StatDoc = {
         "Chain distribution matters more than the headline here. Registration is cheap, so a single campaign or platform integration on one chain can move the total quickly — the per-chain breakdown below shows where the registrations actually live, and the daily series shows whether growth is steady or event-driven.",
       ],
     },
-    {
-      heading: "Who is registering",
-      body: [ERC8004_CONCENTRATION_NOTE],
-    },
   ],
-  build: ({ data }) => {
+  build: ({ data, coverage }) => {
     const r = data?.erc8004Registry;
     if (!r) return null;
+    const e = coverage?.erc;
     const daily = arr(r.daily).slice(-60);
     const points = daily.map((d) => ({ label: String(d.day ?? "").slice(5), value: num(d.agents) }));
     const chains = arr(r.chains).slice(0, 8);
@@ -330,8 +330,16 @@ const erc8004Agents: StatDoc = {
         { label: "Registered agents (total)", value: fmt(r.totalAgents) },
         { label: "Chains tracked", value: fmt(r.chainsTracked) },
         ...chains.slice(0, 5).map((c) => ({ label: `— ${String(c.name)}`, value: fmt(c.agents) })),
+        ...(e
+          ? [
+              { label: "Registrations, last 7 days", value: fmt(e.last7.total), note: `${e.last7.from} to ${e.last7.to}` },
+              { label: "— from the largest single source", value: `${Math.round(e.last7.largestShare * 1000) / 10}%`, note: e.last7.largestSource },
+              { label: "— excluding that source", value: fmt(e.last7.exLargest) },
+            ]
+          : []),
       ],
       chart: { kind: "line", title: "Daily ERC-8004 registrations (last 60 days)", unit: "agents/day", points },
+      sections: [{ heading: "Who is registering", body: [erc8004Note(coverage)] }],
     };
   },
 };
@@ -514,6 +522,7 @@ const virtualsActivity: StatDoc = {
   related: ["how-many-ai-agents-are-onchain", "how-big-is-the-agent-economy"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
+    { label: "agent economy coverage-extensions.json (scope checks)", url: "https://agenteconomy.to/coverage-extensions.json" },
     { label: "Virtuals Protocol — ACP whitepaper", url: "https://whitepaper.virtuals.io/about-virtuals/agent-commerce-protocol-acp" },
   ],
   sections: [
@@ -524,12 +533,9 @@ const virtualsActivity: StatDoc = {
         "A memo is a lifecycle step, not a completed sale: one job produces multiple memos as it moves through phases. Memo counts therefore overstate completed commerce and are best read as workflow activity. For jobs and gross-value figures, Virtuals' own aGDP reporting is the (self-reported) source; the honest comparison is trend against trend.",
       ],
     },
-    {
-      heading: "What this tracker covers",
-      body: [ACP_SCOPE_NOTE],
-    },
   ],
-  build: ({ data }) => {
+  build: ({ data, coverage }) => {
+    const a = coverage?.acp;
     const v = data?.virtualsAcp;
     const daily = arr(v?.daily);
     if (!v || !daily.length) return null;
@@ -543,8 +549,16 @@ const virtualsActivity: StatDoc = {
         { label: "Cumulative commerce memos", value: fmt(v.totalMemos), note: "legacy Base contracts" },
         { label: "Latest daily memos", value: fmt(latest.memos), note: String(latest.day ?? "") },
         { label: "Latest daily unique senders", value: fmt(latest.senders), note: String(latest.day ?? "") },
+        ...(a
+          ? [
+              { label: "Current contract: jobs created, last 7 days", value: fmt(a.last7.created), note: "EVM chains; Solana not covered" },
+              { label: "Current contract: jobs completed, last 7 days", value: fmt(a.last7.completed), note: `${a.last7.from} to ${a.last7.to}` },
+              { label: "Current contract: jobs in this series", value: fmt(a.total), note: `${a.since} to ${a.asOf}` },
+            ]
+          : []),
       ],
       chart: { kind: "line", title: "Daily ACP memos (last 60 days)", unit: "memos/day", points },
+      sections: [{ heading: "What this tracker covers", body: [acpNote(coverage)] }],
     };
   },
 };

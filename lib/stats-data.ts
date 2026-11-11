@@ -3,6 +3,7 @@
 
 import { FALLBACK as WEB_FALLBACK, type WebSourcesData } from "./web-sources";
 import { fetchFeed } from "./feed-fetch";
+import { getCoverage, type CoverageSummary } from "./coverage-feed";
 
 const DATA_URL = "https://agenteconomy.to/data.json";
 const WEB_URL = "https://agenteconomy.to/web-sources.json";
@@ -13,18 +14,20 @@ export type RawAgentData = any;
 export type StatsContext = {
   data: RawAgentData | null;
   web: WebSourcesData;
+  coverage: CoverageSummary;
 };
 
 export async function getStatsContext(): Promise<StatsContext> {
-  const [data, web] = await Promise.all([
+  const [data, web, coverage] = await Promise.all([
     fetchFeed(DATA_URL)
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null),
     fetchFeed(WEB_URL)
       .then((r) => (r.ok ? r.json() : WEB_FALLBACK))
       .catch(() => WEB_FALLBACK),
+    getCoverage(),
   ]);
-  return { data, web };
+  return { data, web, coverage };
 }
 
 export const fmt = (v: unknown): string => {
