@@ -11,6 +11,7 @@
 import { asOfLabel, fmt, usd, type StatsContext } from "./stats-data";
 import { completeDays, x402DailyExecution } from "./complete-days";
 import { acpNote, erc8004Note } from "./coverage-notes";
+import { erc8004Concentration, pct, x402Concentration } from "./concentration";
 
 export type ChartSpec = {
   kind: "line" | "bars";
@@ -299,7 +300,7 @@ const erc8004Agents: StatDoc = {
   seoDescription:
     "The live count of agents registered in ERC-8004 identity registries, broken down by chain, measured from on-chain Registered events with testnets excluded.",
   protocolSlug: "erc-8004",
-  related: ["how-many-ai-agents-are-onchain", "x402-transactions"],
+  related: ["how-many-ai-agents-are-onchain", "how-concentrated-is-the-agent-economy"],
   sources: [
     { label: "agent economy data.json (live feed)", url: "https://agenteconomy.to/data.json" },
     { label: "agent economy coverage-extensions.json (scope checks)", url: "https://agenteconomy.to/coverage-extensions.json" },
@@ -340,6 +341,89 @@ const erc8004Agents: StatDoc = {
       ],
       chart: { kind: "line", title: "Daily ERC-8004 registrations (last 60 days)", unit: "agents/day", points },
       sections: [{ heading: "Who is registering", body: [erc8004Note(coverage)] }],
+    };
+  },
+};
+
+// ─── concentration across the tracked series ─────────────────────────────────
+const concentration: StatDoc = {
+  slug: "how-concentrated-is-the-agent-economy",
+  question: "How concentrated is the agent economy?",
+  shortTitle: "Agent economy concentration",
+  seoDescription:
+    "How much of each agent-economy headline number comes from its largest single source — ERC-8004 registrations, x402 payments, Virtuals ACP jobs — and what is left without it. Measured daily.",
+  related: ["erc-8004-agents", "x402-facilitators", "how-big-is-the-agent-economy"],
+  sources: [
+    { label: "agent economy coverage-extensions.json (registrations by source, ACP jobs)", url: "https://agenteconomy.to/coverage-extensions.json" },
+    { label: "agent economy data.json (x402 by facilitator)", url: "https://agenteconomy.to/data.json" },
+  ],
+  sections: [
+    {
+      heading: "The rule",
+      body: [
+        "Headline counts in this field are cheap to move. Registering an agent is one transaction; a payment rail can be driven by one integration. So next to each total that can be split by source, this page reports two more figures: the share that comes from the largest single source, and the total with that source removed.",
+        "The rule is mechanical and the same everywhere: rank the sources by count, take the top one, subtract it. It does not decide whether that source is legitimate, automated, or valuable — a large platform onboarding real users and a script minting identities look the same to it. What it tells you is how much of the number depends on one party, which is the question to ask before reading a total as broad adoption.",
+      ],
+    },
+    {
+      heading: "What a source is in each series",
+      body: [
+        "ERC-8004: the host of the agent-card URL written into each Registered event, across every chain the pipeline scans, testnets excluded. Registrations sharing a host come from one application, whatever the number of owner addresses behind them.",
+        "x402: the facilitator that submitted the settlement, attributed through this site's reviewed address registry. The window is the set of complete days carried in the live feed, which is shorter than a week.",
+        "Virtuals ACP: jobs on Virtuals' current contract on EVM chains. There is no single-source split here yet, so the page reports how many jobs complete and how many distinct buyers and sellers appear instead. ACP on Solana is not covered.",
+      ],
+    },
+    {
+      heading: "What is not split yet",
+      body: [
+        "Olas, Tempo MPP, Masumi and Base's agentic ecosystem are reported as totals only. Their figures are not adjusted on this page, and no concentration claim is made about them in either direction.",
+      ],
+    },
+  ],
+  available: (ctx) => Boolean(ctx.coverage?.erc),
+  build: ({ data, coverage }) => {
+    const e = erc8004Concentration(coverage);
+    if (!e || !coverage.erc) return null;
+    const x = x402Concentration(data);
+    const a = coverage.acp;
+    const stamp = asOfLabel(`${e.to}T00:00:00Z`) ?? e.to;
+    const xSentence = x
+      ? ` On x402, the largest facilitator (${x.largest}'s) settled ${pct(x.share)} of ${fmt(x.total)} transactions over the ${x.days} complete days to ${asOfLabel(`${x.to}T00:00:00Z`) ?? x.to}.`
+      : "";
+    return {
+      answer: `In the seven days to ${stamp}, ${pct(e.share)} of the ${fmt(e.total)} new ERC-8004 agent registrations came from a single source (${e.largest}); without it, ${fmt(e.exLargest)} remain.${xSentence} These are measured shares, recomputed daily, and they say how much of each headline number depends on one party.`,
+      asOf: `${e.to}T00:00:00Z`,
+      rows: [
+        { label: "ERC-8004 registrations, last 7 days", value: fmt(e.total), note: `${e.from} to ${e.to}` },
+        { label: "— from the largest single source", value: pct(e.share), note: e.largest },
+        { label: "— excluding that source", value: fmt(e.exLargest) },
+        ...(x
+          ? [
+              { label: `x402 transactions, last ${x.days} days`, value: fmt(x.total), note: `${x.from} to ${x.to}` },
+              { label: "— through the largest facilitator", value: pct(x.share), note: x.largest },
+              { label: "— excluding that facilitator", value: fmt(x.exLargest), note: `${fmt(x.sources)} facilitators active` },
+            ]
+          : []),
+        ...(a
+          ? [
+              { label: "Virtuals ACP jobs created, last 7 days", value: fmt(a.last7.created), note: "current contract, EVM chains" },
+              { label: "— completed", value: a.last7.created ? pct(a.last7.completed / a.last7.created) : "—", note: `${fmt(a.last7.completed)} jobs` },
+              { label: "— distinct buyers / sellers, latest day", value: `${fmt(a.latest.clients)} / ${fmt(a.latest.providers)}`, note: a.latest.day },
+            ]
+          : []),
+      ],
+      chart: {
+        kind: "line",
+        title: "Daily ERC-8004 registrations excluding each day's largest source",
+        unit: "agents/day",
+        points: coverage.erc.exLargestDaily.map((d) => ({ label: d.day.slice(5), value: d.value })),
+      },
+      extraFaq: [
+        {
+          q: "Does a high concentration mean the activity is fake?",
+          a: "No. It means the number depends on one party. A single application onboarding many real users and a single script creating many identities both produce a high share. The figure tells you how much weight a headline total can bear, not what the activity is worth.",
+        },
+      ],
     };
   },
 };
@@ -1677,6 +1761,7 @@ export const STAT_DOCS: StatDoc[] = [
   x402Facilitators,
   agentCensus,
   erc8004Agents,
+  concentration,
   agentEconomySize,
   virtualsActivity,
   olasTransactions,

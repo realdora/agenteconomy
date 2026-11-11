@@ -4,12 +4,15 @@ import { AgentNativeSection } from "@/components/landing/AgentNativeSection";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { HeaderSection } from "@/components/landing/HeaderSection";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { ConcentrationSection } from "@/components/landing/ConcentrationSection";
 import { HighlightSection } from "@/components/landing/HighlightSection";
 import { OffChainSection } from "@/components/landing/OffChainSection";
 import { PlatformSection } from "@/components/landing/PlatformSection";
 import { ProductsSection } from "@/components/landing/ProductsSection";
 import { TrustSection } from "@/components/landing/TrustSection";
 import { getAgentData } from "@/lib/agent-data";
+import { erc8004Concentration, x402Concentration } from "@/lib/concentration";
+import { getStatsContext } from "@/lib/stats-data";
 import { getPlatformData } from "@/lib/platform-data";
 import { getProtocolIndex } from "@/lib/protocol-index";
 import { safeJsonLd } from "@/lib/seo";
@@ -22,11 +25,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [data, platform, protocols, webSources] = await Promise.all([
+  const [data, platform, protocols, webSources, stats] = await Promise.all([
     getAgentData(),
     getPlatformData(),
     getProtocolIndex(),
     getWebSources(),
+    getStatsContext(),
   ]);
 
   // Real values for the agent-native section's example MCP responses (auto-updates with data.json).
@@ -91,6 +95,11 @@ export default async function Home() {
       <ProductsSection data={protocols} />
       <OffChainSection data={webSources} />
       <HighlightSection data={data} />
+      <ConcentrationSection
+        erc={erc8004Concentration(stats.coverage)}
+        x402={x402Concentration(stats.data)}
+        acp={stats.coverage.acp}
+      />
       <PlatformSection data={platform} />
       <AgentNativeSection examples={agentExamples} />
       <FooterSection />
