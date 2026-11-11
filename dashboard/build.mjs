@@ -520,7 +520,7 @@ mkdirSync(join(DIST, 'assets'), { recursive: true })
 copyFileSync(join(ROOT, 'assets', 'the-defiant.png'), join(DIST, 'assets', 'the-defiant.png'))
 // The apex site proxies /data.json + /web-sources.json from this domain — the
 // contract MUST survive the cutover, so the feeds ship inside every deploy.
-for (const f of ['data.json', 'web-sources.json', 'tempo-data.json', 'monthly-reports.json']) {
+for (const f of ['data.json', 'web-sources.json', 'tempo-data.json', 'monthly-reports.json', 'coverage-extensions.json']) {
   if (existsSync(join(DATA, f))) copyFileSync(join(DATA, f), join(DIST, f))
 }
 writeFileSync(join(DIST, 'robots.txt'), ['User-Agent: *', 'Allow: /', '', ...['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'anthropic-ai', 'CCBot', 'ChatGPT-User', 'Bingbot'].flatMap(b => [`User-Agent: ${b}`, 'Allow: /', '']), ''].join('\n'))
