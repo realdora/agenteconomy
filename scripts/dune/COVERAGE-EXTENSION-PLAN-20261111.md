@@ -31,3 +31,29 @@ headline numbers are untouched until each step below is approved.
 - `unique_owners` is an upper bound inside the '(long tail)' bucket.
 - A registry-address filter on the headline count is deliberately not applied yet: the trial output shows which
   contracts emit the event per chain, and that evidence should decide the allowlist.
+
+## Trial result — 2026-11-11 (approved by owner; 2.43 credits spent)
+
+Creating private queries failed: `POST /query` → HTTP 402 "Max number of private queries reached". Both drafts
+were run once through the ad-hoc endpoint `POST /sql/execute` (medium engine, `window_start` = 2026-11-04,
+10-credit cancel limit). No query was created or changed on Dune.
+
+| Draft | Execution | Credits (7-day window) | Rows |
+| --- | --- | ---: | ---: |
+| `acp-v2-jobs-window.sql` | 01M747ZV8FN91XX2SSWY468DGQ | 0.454 | 8 |
+| `erc8004-sources-window.sql` | 01M7481DCEYSRCE6Y9N7SMH6CZ | 1.972 | 217 |
+
+Checks:
+- ACP v2: Base 25–45 jobs created a day (11/04–11/10), 3–5 clients, 4–6 providers; Robinhood 3 jobs on 11/09;
+  Arc none. Chain names in `evms.logs` are `base`, `robinhood`, `arc`.
+- ERC sources: per-day totals equal published `erc8004Registry.daily` exactly for 11/04–11/08
+  (102,922 / 59,344 / 50,111 / 6,730 / 6,248). 11/09 was a partial day when published (1,282 vs 7,039 complete).
+- 99.9% of events come from the official registry address 0x8004a169…a432 on every chain, so an address
+  allowlist would change almost nothing. Concentration is by application: centralcity.ai = 213,770 of 237,379
+  (90.1%) in the window, 199,224 of them on Arc, one distinct owner per registration. Excluding it: 23,609.
+- Base in this window: centralcity.ai 14,546 of 25,224 (57.7%); a second bulk source (termix S3 bucket) 10,215.
+
+Cost note: the sources scan costs about 0.28 credits per window-day, so a window that grows from the monthly
+cutoff would reach ~8 credits by month end. Use a fixed short window (3 days, rows merged by day in the
+pipeline) to hold it near 0.9 per run. Production path must be either `/sql/execute` or public queries, since
+the private-query quota is full.
