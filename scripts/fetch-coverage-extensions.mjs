@@ -31,6 +31,8 @@ const QUERY_CAP = Number(process.env.COVERAGE_QUERY_CREDIT_CAP || 5)
 const MONTHLY_CAP = Number(process.env.DUNE_MONTHLY_CREDIT_CAP || 2000)
 const OVERRIDE = process.env.COVERAGE_WINDOW_START || null
 const FORCE = process.env.COVERAGE_FORCE === '1'
+// Optional comma-separated subset (acpV2, erc8004Sources) — used to backfill one series only.
+const ONLY = (process.env.COVERAGE_SERIES || '').split(',').map(s => s.trim()).filter(Boolean)
 const RECENT_ROW_DAYS = 35
 const REGISTRY = '0x8004a169fb4a3325136eb29fa0ceb6d2e539a432'
 const ACP_V2 = '0x238E541BfefD82238730D00a2208E5497F1832E0'
@@ -110,7 +112,7 @@ async function main() {
 
   const used = await creditsUsed()
   console.log(`Dune usage before: ${used.toFixed(2)} (monthly cap ${MONTHLY_CAP}, per-query cap ${QUERY_CAP})`)
-  if (used + QUERY_CAP * SERIES.length > MONTHLY_CAP) {
+  if (used + QUERY_CAP * (ONLY.length || SERIES.length) > MONTHLY_CAP) {
     console.warn('Monthly cap within reach — nothing executed, previous values kept.')
     setOutput('failed', 'true')
     return
@@ -118,7 +120,9 @@ async function main() {
 
   let failed = false
   let executed = 0
+  if (ONLY.some(k => !SERIES.some(s => s.key === k))) throw new Error(`unknown COVERAGE_SERIES: ${ONLY.join(',')}`)
   for (const series of SERIES) {
+    if (ONLY.length && !ONLY.includes(series.key)) continue
     const last = out.runs[series.key]
     if (!FORCE && !OVERRIDE && last?.collectedDay === today && last?.ok) {
       console.log(`${series.key}: already collected today, skipped`)
