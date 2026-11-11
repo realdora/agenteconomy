@@ -18,6 +18,10 @@ on:
         description: 'One-time backfill start (YYYY-MM-DD). Leave empty for the normal three-day window.'
         type: string
         default: ''
+      series:
+        description: 'Limit this run to one series: acpV2 or erc8004Sources. Leave empty for both.'
+        type: string
+        default: ''
       query_credit_cap:
         description: 'Per-query credit cap for this run (default 5; raise only for a reviewed backfill).'
         type: string
@@ -51,6 +55,7 @@ jobs:
           DUNE_MONTHLY_CREDIT_CAP: '2000'
           COVERAGE_QUERY_CREDIT_CAP: ${{ inputs.query_credit_cap || '5' }}
           COVERAGE_WINDOW_START: ${{ inputs.window_start }}
+          COVERAGE_SERIES: ${{ inputs.series }}
         run: node scripts/fetch-coverage-extensions.mjs
 
       - name: Commit coverage-extensions.json
