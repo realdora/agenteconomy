@@ -1,0 +1,15 @@
+{
+  "version": "2026-11-17-celo-daily-v1",
+  "reviewedAt": "2026-11-17",
+  "registries": ["6054244"],
+  "reference": "https://api.x402.celo.org/supported",
+  "evidence": "Settlement signer of the Celo x402 facilitator, listed under signers.eip155:42220 at the reference endpoint. Already in the frozen Chris EVM registry (registries/6057445.sql), so cumulative, token split and chain split count it; the Hashed EVM registry used by x402 daily does not. Dune evms.transactions, blockchain = 'celo', success, from = this address: 6,676-7,695 transactions per complete UTC day, 2026-11-03 through 2026-11-16. Scoped to 6054244 only; adding it to 6057445 would duplicate the existing row.",
+  "addresses": [
+    {
+      "address": "0x0d74d5cefd2e7f24e623330ebe3d8d4cb45ffb48",
+      "facilitator": "Celo",
+      "chain": "celo",
+      "referenceFirstTransaction": "2026-07-01"
+    }
+  ]
+}

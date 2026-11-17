@@ -1,4 +1,4 @@
--- Agent Economy owned production SQL; registry version 2026-10-22-coinbase-base-v2.
+-- Agent Economy owned production SQL; registry version 2026-11-17-celo-daily-v1.
 -- Based on source 7881006 v2 by realdoraa; reviewed additions in manifest.
 WITH x402f_evm AS (
   SELECT address, project, blockchain FROM (SELECT address, project, blockchain FROM (SELECT 
@@ -145,7 +145,8 @@ SELECT address, project, blockchain FROM (VALUES
 (0xb87e1a2cc2b4643f2892768e80e41167f17c5860, 'Coinbase', 'base'),
 (0x8cda367232d78c067116e3260da881d2da8ffa39, 'Coinbase', 'base'),
 (0x93f6601151ccb08f333ab4b1cccfb1e188c0be44, 'Coinbase', 'base'),
-(0x772003a2e9c2ccc8af956870a37a66f64f8cec38, 'Coinbase', 'base')
+(0x772003a2e9c2ccc8af956870a37a66f64f8cec38, 'Coinbase', 'base'),
+(0x0d74d5cefd2e7f24e623330ebe3d8d4cb45ffb48, 'Celo', 'celo')
 ) added(address, project, blockchain))
 ),
 x402f_solana AS (
