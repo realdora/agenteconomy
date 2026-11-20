@@ -75,7 +75,8 @@
         }
       ],
       "queryId": 8748139,
-      "sqlSha256": "e8370c64fa870323bf9467b815f751058a91236a6c92235a9bd3fcac854f0920"
+      "sqlSha256": "91cd2b3bb795fb50fdd9f47186e797df41baa8a7b0361155a06f7f5d619c3b3b",
+      "registryVersion": "2026-11-17-celo-daily-v1"
     },
     "x402TokenSplit": {
       "sourceQueryId": 7931767,
@@ -123,6 +124,7 @@
     }
   },
   "extensions": [
-    "extensions/coinbase-base-20261022.json"
+    "extensions/coinbase-base-20261022.json",
+    "extensions/celo-daily-20261117.json"
   ]
 }

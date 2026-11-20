@@ -7,7 +7,10 @@ const file = path.join(root, 'manifest.json')
 const manifest = JSON.parse(fs.readFileSync(file))
 const normalize = sql => sql.replace(/--[^\n]*/g, '').trim().replace(/;+\s*$/, '')
 const sha = value => crypto.createHash('sha256').update(value).digest('hex')
-const additions = (manifest.extensions || []).flatMap(file => JSON.parse(fs.readFileSync(path.join(root, file))).addresses)
+const additions = (manifest.extensions || []).flatMap(file => {
+  const extension = JSON.parse(fs.readFileSync(path.join(root, file)))
+  return extension.addresses.map(a => extension.registries ? { ...a, registries: extension.registries } : a)
+})
 for (const [key, query] of Object.entries(manifest.queries)) {
   const template = normalize(fs.readFileSync(path.join(root, query.template), 'utf8'))
   let sql = template
