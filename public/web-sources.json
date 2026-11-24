@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-23T23:32:32.850Z",
+  "updatedAt": "2026-11-24T08:56:27.269Z",
   "schema": 2,
   "agentTokens": {
     "asOf": "2026-11-23T23:32:33.323Z",
@@ -56,9 +56,9 @@
     "note": "Basket is hand-curated (agenteconomy-tracked + core agent tokens). Category totals are CoinGecko-defined and include some memecoins."
   },
   "x402Services": {
-    "asOf": "2026-11-23T23:35:50.571Z",
-    "uniqueProviders": 3289,
-    "totalListings": 40241,
+    "asOf": "2026-11-24T08:59:11.154Z",
+    "uniqueProviders": 3311,
+    "totalListings": 40588,
     "top2ListingSharePct": 7,
     "note": "Coinbase x402 Bazaar discovery, full enumeration. Headline = unique provider domains; raw listing count is concentration-skewed (a few hosts bulk-list thousands of endpoints) and churns daily."
   },
@@ -135,7 +135,7 @@
     "note": "Weekly downloads, 4-week trailing average, fixed basket of agent-payment SDKs (npm + PyPI). Download counts include CI/mirror traffic — an activity proxy, not a human-developer count. MCP/A2A SDKs excluded (general agent infra, 100x volume would swamp the payment signal)."
   },
   "masumi": {
-    "asOf": "2026-11-23T23:32:34.805Z",
+    "asOf": "2026-11-24T08:56:31.805Z",
     "totalTxs": 40610,
     "lastBlock": 14232531,
     "weekly": [
@@ -458,7 +458,7 @@
     "note": "getProgramAccounts counts on Solana agent-registry programs (public RPC). Upper bound of registrations. By-registry breakdown for the census page; do not cite the Foundation \"9,000+\" marketing figure."
   },
   "standardsAdoption": {
-    "asOf": "2026-11-18T00:41:57.789Z",
+    "asOf": "2026-11-24T08:56:29.294Z",
     "rows": [
       {
         "check": "robotsTxt",
@@ -885,95 +885,95 @@
       ]
     },
     "prevMonth": {
-      "date": "2026-10-21",
+      "date": "2026-10-27",
       "rows": [
         {
           "check": "robotsTxt",
-          "value": 97916
+          "value": 96689
         },
         {
           "check": "sitemap",
-          "value": 81287
+          "value": 80448
         },
         {
           "check": "linkHeaders",
-          "value": 10931
+          "value": 10634
         },
         {
           "check": "dnsAid",
-          "value": 496
+          "value": 490
         },
         {
           "check": "markdownNegotiation",
-          "value": 4624
+          "value": 4617
         },
         {
           "check": "robotsTxtAiRules",
-          "value": 94726
+          "value": 93643
         },
         {
           "check": "contentSignals",
-          "value": 4404
+          "value": 6073
         },
         {
           "check": "webBotAuth",
-          "value": 96
+          "value": 109
         },
         {
           "check": "apiCatalog",
-          "value": 736
+          "value": 780
         },
         {
           "check": "oauthDiscovery",
-          "value": 8527
+          "value": 9201
         },
         {
           "check": "oauthProtectedResource",
-          "value": 4226
+          "value": 4844
         },
         {
           "check": "authMd",
-          "value": 91
+          "value": 109
         },
         {
           "check": "mcpServerCard",
-          "value": 594
+          "value": 622
         },
         {
           "check": "a2aAgentCard",
-          "value": 75
+          "value": 80
         },
         {
           "check": "agentSkills",
-          "value": 619
+          "value": 641
         },
         {
           "check": "webMcp",
-          "value": 3995
+          "value": 1501
         },
         {
           "check": "ard",
-          "value": 233
+          "value": 281
         },
         {
           "check": "personalAgentProtocol",
-          "value": 5
+          "value": 17
         },
         {
           "check": "x402",
-          "value": 6
+          "value": 7
         },
         {
           "check": "mpp",
-          "value": 12
+          "value": 13
         },
         {
           "check": "ucp",
-          "value": 4823
+          "value": 5398
         },
         {
           "check": "acp",
-          "value": 27
+          "value": 24
         },
         {
           "check": "ap2",
@@ -1113,10 +1113,10 @@
     "note": "Daily token usage of top-50 public models on OpenRouter + aggregated other row (trailing default window). Provider-specific tokenizers — totals not comparable across models. Demand-side CONTEXT metric, not on-chain data."
   },
   "x402TokenSplit": {
-    "asOf": "2026-11-23T04:41:24.056744Z",
+    "asOf": "2026-11-24T07:33:21.478126Z",
     "windowDays": 30,
-    "usdcSharePct": 99.97,
-    "totalPayments": 5692270,
+    "usdcSharePct": 99.98,
+    "totalPayments": 6030486,
     "note": "trailing 30d, Base, live facilitator registry scope; volume-weighted share"
   }
 }
