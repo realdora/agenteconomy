@@ -1,7 +1,7 @@
 {
- "updatedAt": "2026-11-26T11:12:32.171Z",
+ "updatedAt": "2026-11-27T11:04:20.383Z",
  "acpV2": {
-  "asOf": "2026-11-25",
+  "asOf": "2026-11-26",
   "unit": "jobs",
   "contract": "0x238E541BfefD82238730D00a2208E5497F1832E0",
   "covers": "EVM deployments of the ACP v2 contract indexed by Dune (Base, Robinhood Chain, Arc)",
@@ -700,26 +700,37 @@
     "rejected": 0,
     "clients": 3,
     "providers": 3
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "created": 11,
+    "funded": 9,
+    "submitted": 9,
+    "completed": 7,
+    "rejected": 2,
+    "clients": 3,
+    "providers": 5
    }
   ]
  },
  "erc8004Sources": {
-  "asOf": "2026-11-25",
+  "asOf": "2026-11-26",
   "registry": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
   "method": "Registered events on every Dune-indexed EVM chain, grouped by the host of the agent-card URI; testnets excluded",
   "since": "2026-01-25",
   "last7": {
-   "from": "2026-11-19",
-   "to": "2026-11-25",
+   "from": "2026-11-20",
+   "to": "2026-11-26",
    "days": 7,
-   "total": 102858,
+   "total": 99838,
    "largestSource": "centralcity.ai",
-   "largestRegistered": 98975,
-   "largestShare": 0.962,
-   "exLargest": 3883
+   "largestRegistered": 95728,
+   "largestShare": 0.959,
+   "exLargest": 4110
   },
   "reconcile": {
-   "comparedDays": 2,
+   "comparedDays": 3,
    "mismatches": []
   },
   "daily": [
@@ -8887,209 +8898,37 @@
       "registered": 29
      }
     ]
+   },
+   {
+    "day": "2026-11-26",
+    "total": 1404,
+    "canonicalRegistry": 1395,
+    "exLargestSource": 520,
+    "topSources": [
+     {
+      "source": "centralcity.ai",
+      "registered": 884
+     },
+     {
+      "source": "taskmarket.dev",
+      "registered": 112
+     },
+     {
+      "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
+      "registered": 45
+     },
+     {
+      "source": "tokyofuturo-syndicates.gate-server.workers.dev",
+      "registered": 27
+     },
+     {
+      "source": "clankid.app",
+      "registered": 26
+     }
+    ]
    }
   ],
   "recentRows": [
-   {
-    "day": "2026-10-22",
-    "chain": "base",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "centralcity.ai",
-    "registered": 262101,
-    "owners": 262101
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "bnb",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
-    "registered": 345,
-    "owners": 255
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "base",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
-    "registered": 217,
-    "owners": 113
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "bnb",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "data:",
-    "registered": 198,
-    "owners": 180
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "base",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(empty)",
-    "registered": 141,
-    "owners": 10
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "bnb",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "metadata.evoevo.ai",
-    "registered": 45,
-    "owners": 32
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "ethereum",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "2.31.59.27",
-    "registered": 15,
-    "owners": 15
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "ethereum",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "178.105.26.202",
-    "registered": 15,
-    "owners": 15
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "ethereum",
-    "contract": "0x8004a818bfb912233c491871b3d84c89a494bd9e",
-    "source": "ochlos.online",
-    "registered": 10,
-    "owners": 1
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "bnb",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(empty)",
-    "registered": 9,
-    "owners": 9
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "arc",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "ipfs",
-    "registered": 8,
-    "owners": 3
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "base",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 8,
-    "owners": 8
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "arc",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "8004.build",
-    "registered": 8,
-    "owners": 1
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "robinhood",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 6,
-    "owners": 5
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "ethereum",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "data:",
-    "registered": 6,
-    "owners": 2
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "ethereum",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "api.normies.art",
-    "registered": 6,
-    "owners": 1
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "robinhood",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "privateeye.vercel.app",
-    "registered": 5,
-    "owners": 1
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "tempo",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(empty)",
-    "registered": 4,
-    "owners": 1
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "robinhood",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
-    "registered": 4,
-    "owners": 3
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "arc",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 4,
-    "owners": 3
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "bnb",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "q402.quackai.ai",
-    "registered": 3,
-    "owners": 3
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "ethereum",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 2,
-    "owners": 2
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "bnb",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 2,
-    "owners": 2
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "celo",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 1,
-    "owners": 1
-   },
-   {
-    "day": "2026-10-22",
-    "chain": "avalanche_c",
-    "contract": "0x72a1ae8dd45f87c597d2c2450f7f200c81fc463c",
-    "source": "(long tail)",
-    "registered": 1,
-    "owners": 1
-   },
    {
     "day": "2026-10-23",
     "chain": "base",
@@ -16972,6 +16811,14 @@
    },
    {
     "day": "2026-11-24",
+    "chain": "arc",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "ipfs",
+    "registered": 9,
+    "owners": 3
+   },
+   {
+    "day": "2026-11-24",
     "chain": "robinhood",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
@@ -16988,19 +16835,19 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "arc",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "ipfs",
-    "registered": 9,
-    "owners": 3
-   },
-   {
-    "day": "2026-11-24",
     "chain": "robinhood",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "execution.market",
     "registered": 8,
     "owners": 1
+   },
+   {
+    "day": "2026-11-24",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
+    "registered": 6,
+    "owners": 4
    },
    {
     "day": "2026-11-24",
@@ -17013,14 +16860,6 @@
    {
     "day": "2026-11-24",
     "chain": "base",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
-    "registered": 6,
-    "owners": 4
-   },
-   {
-    "day": "2026-11-24",
-    "chain": "celo",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 5,
@@ -17036,15 +16875,7 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "robinhood",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "flyai-mine.fly.dev",
-    "registered": 5,
-    "owners": 5
-   },
-   {
-    "day": "2026-11-24",
-    "chain": "base",
+    "chain": "celo",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 5,
@@ -17052,11 +16883,11 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "ethereum",
+    "chain": "robinhood",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "data:",
-    "registered": 4,
-    "owners": 2
+    "source": "flyai-mine.fly.dev",
+    "registered": 5,
+    "owners": 5
    },
    {
     "day": "2026-11-24",
@@ -17076,6 +16907,14 @@
    },
    {
     "day": "2026-11-24",
+    "chain": "ethereum",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "data:",
+    "registered": 4,
+    "owners": 2
+   },
+   {
+    "day": "2026-11-24",
     "chain": "gnosis",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "169.254.169.254",
@@ -17092,14 +16931,6 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "gnosis",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "httpbingo.org",
-    "registered": 3,
-    "owners": 1
-   },
-   {
-    "day": "2026-11-24",
     "chain": "robinhood",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(empty)",
@@ -17110,15 +16941,23 @@
     "day": "2026-11-24",
     "chain": "base",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(empty)",
+    "source": "data:",
     "registered": 3,
     "owners": 3
    },
    {
     "day": "2026-11-24",
+    "chain": "gnosis",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "httpbingo.org",
+    "registered": 3,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-24",
     "chain": "base",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "data:",
+    "source": "(empty)",
     "registered": 3,
     "owners": 3
    },
@@ -17148,7 +16987,7 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "monad",
+    "chain": "polygon",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 1,
@@ -17156,7 +16995,7 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "gnosis",
+    "chain": "monad",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 1,
@@ -17172,7 +17011,7 @@
    },
    {
     "day": "2026-11-24",
-    "chain": "polygon",
+    "chain": "gnosis",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 1,
@@ -17334,17 +17173,17 @@
     "day": "2026-11-25",
     "chain": "robinhood",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "data:",
+    "source": "(long tail)",
     "registered": 6,
-    "owners": 6
+    "owners": 5
    },
    {
     "day": "2026-11-25",
     "chain": "robinhood",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
+    "source": "data:",
     "registered": 6,
-    "owners": 5
+    "owners": 6
    },
    {
     "day": "2026-11-25",
@@ -17380,19 +17219,19 @@
    },
    {
     "day": "2026-11-25",
-    "chain": "ethereum",
-    "contract": "0x8004a818bfb912233c491871b3d84c89a494bd9e",
-    "source": "ochlos.online",
-    "registered": 3,
-    "owners": 1
-   },
-   {
-    "day": "2026-11-25",
     "chain": "celo",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "raw.githubusercontent.com",
     "registered": 3,
     "owners": 3
+   },
+   {
+    "day": "2026-11-25",
+    "chain": "ethereum",
+    "contract": "0x8004a818bfb912233c491871b3d84c89a494bd9e",
+    "source": "ochlos.online",
+    "registered": 3,
+    "owners": 1
    },
    {
     "day": "2026-11-25",
@@ -17404,14 +17243,6 @@
    },
    {
     "day": "2026-11-25",
-    "chain": "ethereum",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 2,
-    "owners": 1
-   },
-   {
-    "day": "2026-11-25",
     "chain": "polygon",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
@@ -17420,15 +17251,15 @@
    },
    {
     "day": "2026-11-25",
-    "chain": "celo",
-    "contract": "0xac3df9abf80d0f5c020c06b04cced27763355944",
+    "chain": "ethereum",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
-    "registered": 1,
+    "registered": 2,
     "owners": 1
    },
    {
     "day": "2026-11-25",
-    "chain": "bnb",
+    "chain": "optimism",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 1,
@@ -17437,14 +17268,6 @@
    {
     "day": "2026-11-25",
     "chain": "celo",
-    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
-    "source": "(long tail)",
-    "registered": 1,
-    "owners": 1
-   },
-   {
-    "day": "2026-11-25",
-    "chain": "gnosis",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 1,
@@ -17460,7 +17283,303 @@
    },
    {
     "day": "2026-11-25",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-25",
+    "chain": "gnosis",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-25",
+    "chain": "celo",
+    "contract": "0xac3df9abf80d0f5c020c06b04cced27763355944",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "arc",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "centralcity.ai",
+    "registered": 645,
+    "owners": 645
+   },
+   {
+    "day": "2026-11-26",
     "chain": "optimism",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "centralcity.ai",
+    "registered": 215,
+    "owners": 215
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "ipfs",
+    "registered": 161,
+    "owners": 38
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "taskmarket.dev",
+    "registered": 59,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "tempo",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "taskmarket.dev",
+    "registered": 53,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "termix-platform-prod.s3.ap-southeast-1.amazonaws.com",
+    "registered": 45,
+    "owners": 32
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "robinhood",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "tokyofuturo-syndicates.gate-server.workers.dev",
+    "registered": 27,
+    "owners": 27
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "clankid.app",
+    "registered": 26,
+    "owners": 23
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "app.neotrade.pro",
+    "registered": 24,
+    "owners": 24
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "centralcity.ai",
+    "registered": 24,
+    "owners": 24
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(other)",
+    "registered": 21,
+    "owners": 9
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "robinhood",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "launch.fomo4nft.com",
+    "registered": 17,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "metadata.evoevo.ai",
+    "registered": 12,
+    "owners": 12
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 9,
+    "owners": 9
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "arc",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "ipfs",
+    "registered": 9,
+    "owners": 3
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "celo",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(empty)",
+    "registered": 6,
+    "owners": 5
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "celo",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 6,
+    "owners": 6
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "robinhood",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 5,
+    "owners": 4
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "celo",
+    "contract": "0xac3df9abf80d0f5c020c06b04cced27763355944",
+    "source": "(empty)",
+    "registered": 5,
+    "owners": 4
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "celo",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "data:",
+    "registered": 5,
+    "owners": 5
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "robinhood",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "execution.market",
+    "registered": 4,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "ethereum",
+    "contract": "0x8004a818bfb912233c491871b3d84c89a494bd9e",
+    "source": "ochlos.online",
+    "registered": 3,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "base",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "data:",
+    "registered": 3,
+    "owners": 2
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "ethereum",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "data:",
+    "registered": 3,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 3,
+    "owners": 3
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "robinhood",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "data:",
+    "registered": 3,
+    "owners": 3
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "bnb",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "data:",
+    "registered": 3,
+    "owners": 2
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "avalanche_c",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "arc",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "polygon",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "ethereum",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "optimism",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "avalanche_c",
+    "contract": "0x06d49e79da8a241dd2c412bf5d22e19c619a39d1",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "arbitrum",
+    "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
+    "source": "(long tail)",
+    "registered": 1,
+    "owners": 1
+   },
+   {
+    "day": "2026-11-26",
+    "chain": "gnosis",
     "contract": "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432",
     "source": "(long tail)",
     "registered": 1,
@@ -17471,23 +17590,23 @@
  "runs": {
   "acpV2": {
    "ok": true,
-   "collectedDay": "2026-11-26",
+   "collectedDay": "2026-11-27",
    "window": {
-    "start": "2026-11-23",
-    "end": "2026-11-25"
+    "start": "2026-11-24",
+    "end": "2026-11-26"
    },
-   "executionId": "01M8BRW1JH7W4M4FJ0SJ2Z2R25",
-   "credits": 0.285
+   "executionId": "01M8EASRVFJETR2HFEWSFP9CVV",
+   "credits": 0.316
   },
   "erc8004Sources": {
    "ok": true,
-   "collectedDay": "2026-11-26",
+   "collectedDay": "2026-11-27",
    "window": {
-    "start": "2026-11-23",
-    "end": "2026-11-25"
+    "start": "2026-11-24",
+    "end": "2026-11-26"
    },
-   "executionId": "01M8BRWPRFK73B81R3ZRC8CCTV",
-   "credits": 0.475
+   "executionId": "01M8EATE5ECVEGS5GKANMQ6M57",
+   "credits": 0.576
   }
  }
 }
